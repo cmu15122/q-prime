@@ -19,7 +19,7 @@ jobs:
 
       - name: Set Up Server Tests
         run: cd server && npm install
-      - name: Set Up Server Tests
+      - name: Run Server Tests
         run: cd server && npm test
 
       - name: Set Up Client Tests
