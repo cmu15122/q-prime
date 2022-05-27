@@ -17,12 +17,12 @@ jobs:
         with:
           node-version: '18.x'
 
-      - run: cd server
-      - name: Run Server Tests
-        run: npm install
-      - run: npm test
+      - name: Set Up Server Tests
+        run: cd server && npm install
+      - name: Set Up Server Tests
+        run: cd server && npm test
 
-      - run: cd ../client
+      - name: Set Up Client Tests
+        run: cd client && npm install
       - name: Run Client Tests
-        run: npm install
-      - run: npm test
+        run: cd client && npm test
