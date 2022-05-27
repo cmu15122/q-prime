@@ -6,15 +6,21 @@ const http = require('http');
 
 const app = express();
 
+// Routes
+const home = require("./routes/home.js");
+const admin = require("./routes/admin.js");
+const settings = require("./routes/settings.js");
+
 app.use(logger('dev'));
+app.set('view engine', 'ejs');
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-// Setup a default catch-all route that sends back a welcome message in JSON format.
-app.get('*', (req, res) => res.status(200).send({
-  message: 'Let the clownery begin',
-}));
+// Setting Routes
+app.use('/', home);
+app.use('/admin', admin);
+app.use('/settings', settings);
 
 const port = parseInt(process.env.PORT, 10) || 8000;
 app.set('port', port);
