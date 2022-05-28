@@ -22,6 +22,5 @@
   },
   "protocol": "http",
   "domain": "localhost:8000",
-  "google_client_id": "895561292133-pl6jge8mf3187l9um5q5lnfj5t649qa5.apps.googleusercontent.com",
-  "google_client_secret": "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"
+  "google_client_id": "895561292133-pl6jge8mf3187l9um5q5lnfj5t649qa5.apps.googleusercontent.com"
 }
