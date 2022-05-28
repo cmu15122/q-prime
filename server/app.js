@@ -11,6 +11,7 @@ const app = express();
 const home = require("./routes/home.js");
 const admin = require("./routes/admin.js");
 const settings = require("./routes/settings.js");
+const login = require("./routes/login.js");
 
 app.use(logger('dev'));
 app.use(cors());
@@ -22,6 +23,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/', home);
 app.use('/admin', admin);
 app.use('/settings', settings);
+app.use('/login', login);
 
 const port = parseInt(process.env.PORT, 10) || 8000;
 app.set('port', port);
