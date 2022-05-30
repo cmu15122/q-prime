@@ -15,9 +15,9 @@ On the come up B)
 1. Start the server
     ```
     % cd server
-    % npm start
+    % nodemon app.js
     ```
-2. Server should now correctly run. You can check the various endpoints to see what gets returned at [localhost:8000](http://localhost:8000)
+2. Server should now correctly run and update when you make changes to the files! You can check the various endpoints to see what gets returned at [localhost:8000](http://localhost:8000)
 
 ## Running Client
 1. Start the client
