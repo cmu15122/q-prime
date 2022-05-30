@@ -80,3 +80,19 @@ Inside of the `src` folder:
 | Home Page     | `/`         | `localhost:8000/`         |
 | Settings Page | `/settings` | `localhost:8000/settings` |
 | Admin Page    | `/admin`    | `localhost:8000/admin`    |
+
+## Configuration
+### Server-Side
+The following fields must be added to the `server/config/config.json` file:
+| Name          | Description        | Link   | Point of Contact for Help |
+| ------------- | ------------------ | ------ | ------------------------- |
+| slack-webhook | URL to your incoming Slack webhook | https://my.slack.com/services/new/incoming-webhook/ | Angela |
+
+Add them to the end of the file like so:
+```
+{    
+    ...,
+    "name": "value",
+    "name": "value"
+}
+```
