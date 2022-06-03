@@ -6,10 +6,16 @@ import {
 import YourEntry from './YourEntry';
 import RemoveQOverlay from './RemoveQConfirm';
 import FrozenOverlay from './FrozenOverlay';
+import TAHelpingOverlay from './TAHelpingOverlay';
+import UpdateQuestionOverlay from './UpdateQuestionOverlay';
+import MessageRespond from './MessageRespond'
 
 function Main () {
     const [removeConfirm, setRemoveConfirm] = useState(false);
     const [frozen, setFrozen] = useState(false);
+    const [taHelping, setTAHelping] = useState(false);
+    const [updateQ, setUpdateQ] = useState(false);
+
     return (
       <div>
           <YourEntry />
@@ -22,6 +28,19 @@ function Main () {
           <FrozenOverlay 
             open={frozen}
             handleClose={() => setFrozen(false)}
+          />
+          <Button variant='outlined' onClick={() => setTAHelping(true)}>Open TA Helping Overlay</Button>
+          <TAHelpingOverlay
+            open={taHelping}
+            handleClose={() => setTAHelping(false)}
+          />
+          <Button variant='outlined' onClick={() => setUpdateQ(true)}>Open Update Question Overlay</Button>
+          <UpdateQuestionOverlay
+            open={updateQ}
+            handleClose={() => setUpdateQ(false)}
+          />
+          <MessageRespond 
+
           />
       </div>
     );
