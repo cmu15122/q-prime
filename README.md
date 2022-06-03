@@ -15,9 +15,9 @@ On the come up B)
 1. Start the server
     ```
     % cd server
-    % npm start
+    % nodemon app.js
     ```
-2. Server should now correctly run. You can check the various endpoints to see what gets returned at [localhost:8000](http://localhost:8000)
+2. Server should now correctly run and update when you make changes to the files! You can check the various endpoints to see what gets returned at [localhost:8000](http://localhost:8000)
 
 ## Running Client
 1. Start the client
@@ -80,3 +80,19 @@ Inside of the `src` folder:
 | Home Page     | `/`         | `localhost:8000/`         |
 | Settings Page | `/settings` | `localhost:8000/settings` |
 | Admin Page    | `/admin`    | `localhost:8000/admin`    |
+
+## Configuration
+### Server-Side
+The following fields must be added to the `server/config/config.json` file:
+| Name          | Description        | Link   | Point of Contact for Help |
+| ------------- | ------------------ | ------ | ------------------------- |
+| slack-webhook | URL to your incoming Slack webhook | https://my.slack.com/services/new/incoming-webhook/ | Angela |
+
+Add them to the end of the file like so:
+```
+{    
+    ...,
+    "name": "value",
+    "name": "value"
+}
+```

@@ -7,6 +7,11 @@ const cors = require("cors");
 
 const app = express();
 
+// Initializing other controllers
+const slack = require('./controllers/slack.js');
+
+slack.init();
+
 // Routes
 const home = require("./routes/home.js");
 const admin = require("./routes/admin.js");
