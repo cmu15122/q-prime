@@ -114,3 +114,6 @@ dist
 
 # Editor specific
 .vscode
+
+# Config Files
+config.json
