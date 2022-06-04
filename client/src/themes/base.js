@@ -29,5 +29,14 @@ export const basicTheme = createTheme({
                 }),
             },
         },
+        MuiDialogContent: {
+            styleOverrides: {
+                root: ({ ownerState }) => ({
+                    ...({
+                        padding: "32px",
+                    }),
+                }),
+            },
+        }
     }
 });

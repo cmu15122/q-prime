@@ -8,6 +8,10 @@ import {
     Edit, Delete, ExpandMore
 } from '@mui/icons-material'
 
+import AddTADialog from './dialogs/AddTADialog';
+import EditTADialog from './dialogs/EditTADialog';
+import DeleteTADialog from './dialogs/DeleteTADialog';
+
 const Expand = styled((props) => {
         const { expand, ...other } = props;
         return <IconButton {...other} />;
@@ -19,14 +23,14 @@ const Expand = styled((props) => {
     }),
 }));
 
-function createData(name, email) {
-    return { name, email };
+function createData(name, email, isAdmin) {
+    return { name, email, isAdmin };
 }
   
 const rows = [
-    createData('Angela Zhang', 'angelaz1@andrew.cmu.edu'),
-    createData('Amanda Li (Admin)', 'xal@andrew.cmu.edu'),
-    createData('Lora Zhou (Admin)', 'lbzhou@andrew.cmu.edu'),
+    createData('Angela Zhang', 'angelaz1@andrew.cmu.edu', false),
+    createData('Amanda Li', 'xal@andrew.cmu.edu', true),
+    createData('Lora Zhou', 'lbzhou@andrew.cmu.edu', true),
 ];
 
 export default function TASettings(props) {
@@ -38,9 +42,14 @@ export default function TASettings(props) {
         setOpen(!open);
     };
 
+    const [openAdd, setOpenAdd] = React.useState(false);
     const [openEdit, setOpenEdit] = React.useState(false);
     const [openDelete, setOpenDelete] = React.useState(false);
     const [selectedRow, setSelectedRow] = React.useState();
+
+    const handleAdd = () => {
+        setOpenAdd(true);
+    };
 
     const handleEdit = (row) => {
         setOpenEdit(true);
@@ -53,6 +62,7 @@ export default function TASettings(props) {
     };
 
     const handleClose = () => {
+        setOpenAdd(false);
         setOpenEdit(false);
         setOpenDelete(false);
     };
@@ -84,10 +94,10 @@ export default function TASettings(props) {
                                     style={ index % 2 ? { background : theme.palette.background.paper }:{ background : theme.palette.background.default }}
                                 >
                                     <TableCell component="th" scope="row" sx={{ fontSize: '16px', fontWeight: 'bold', pl: 3.25 }}>
-                                        {row.name}
+                                        {row.name} {row.isAdmin ? " (Admin)" : ""}
                                     </TableCell>
                                     <TableCell align="left" sx={{ fontSize: '16px', fontStyle: 'italic' }}>{row.email}</TableCell>
-                                    <TableCell align="right" sx={{ pr: 5 }}>
+                                    <TableCell align="right" sx={{ pr: 3 }}>
                                         <IconButton sx={{ mr: 1 }} color="info" onClick={() => handleEdit(row)}>
                                             <Edit />
                                         </IconButton>
@@ -103,7 +113,7 @@ export default function TASettings(props) {
                                     style={{ background : theme.palette.background.default }}
                                 >
                                     <TableCell align="center" colSpan={3}>
-                                        <Button sx={{ mr: 1, fontWeight: 'bold', fontSize: '18px' }} color="primary" variant="contained">
+                                        <Button sx={{ mr: 1, fontWeight: 'bold', fontSize: '18px' }} color="primary" variant="contained" onClick={() => handleAdd()}>
                                             + Add TA
                                         </Button>
                                     </TableCell>
@@ -112,6 +122,23 @@ export default function TASettings(props) {
                         </Table>
                 </Collapse>
             </Card>
+
+            <AddTADialog
+                isOpen={openAdd}
+                onClose={handleClose}
+            />
+
+            <EditTADialog
+                isOpen={openEdit}
+                onClose={handleClose}
+                taInfo={selectedRow}
+            />
+
+            <DeleteTADialog
+                isOpen={openDelete}
+                onClose={handleClose}
+                taInfo={selectedRow}
+            />
         </div>
     );
 }

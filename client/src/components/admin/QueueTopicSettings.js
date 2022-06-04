@@ -8,6 +8,7 @@ import {
     Edit, Delete, ExpandMore
 } from '@mui/icons-material';
 
+import AddTopicDialog from './dialogs/AddTopicDialog';
 import EditTopicDialog from './dialogs/EditTopicDialog';
 import DeleteTopicDialog from './dialogs/DeleteTopicDialog';
 
@@ -45,9 +46,14 @@ export default function QueueTopicSettings(props) {
         setOpen(!open);
     };
 
+    const [openAdd, setOpenAdd] = React.useState(false);
     const [openEdit, setOpenEdit] = React.useState(false);
     const [openDelete, setOpenDelete] = React.useState(false);
     const [selectedRow, setSelectedRow] = React.useState();
+
+    const handleAdd = () => {
+        setOpenAdd(true);
+    };
 
     const handleEdit = (row) => {
         setOpenEdit(true);
@@ -60,6 +66,7 @@ export default function QueueTopicSettings(props) {
     };
 
     const handleClose = () => {
+        setOpenAdd(false);
         setOpenEdit(false);
         setOpenDelete(false);
     };
@@ -111,7 +118,7 @@ export default function QueueTopicSettings(props) {
                                     style={{ background : theme.palette.background.default }}
                                 >
                                     <TableCell align="center" colSpan={4}>
-                                        <Button sx={{ mr: 1, fontWeight: 'bold', fontSize: '18px' }} color="primary" variant="contained">
+                                        <Button sx={{ mr: 1, fontWeight: 'bold', fontSize: '18px' }} color="primary" variant="contained" onClick={() => handleAdd()}>
                                             + Add Topic
                                         </Button>
                                     </TableCell>
@@ -120,6 +127,11 @@ export default function QueueTopicSettings(props) {
                         </Table>
                 </Collapse>
             </Card>
+            <AddTopicDialog
+                isOpen={openAdd}
+                onClose={handleClose}
+            />
+
             <EditTopicDialog
                 isOpen={openEdit}
                 onClose={handleClose}

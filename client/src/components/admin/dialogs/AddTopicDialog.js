@@ -4,12 +4,13 @@ import {
     Box, Button, Dialog, DialogContent, Typography, TextField, Grid
 } from '@mui/material'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { DateTime } from 'luxon';
 
-export default function EditTopicDialog(props) {
-    const { isOpen, onClose, topicInfo } = props
+export default function AddTopicDialog(props) {
+    const { isOpen, onClose } = props
 
-    const [dateIn, setDateIn] = React.useState(topicInfo?.dateIn);
-    const [dateOut, setDateOut] = React.useState(topicInfo?.dateOut);
+    const [dateIn, setDateIn] = React.useState(DateTime.now());
+    const [dateOut, setDateOut] = React.useState(DateTime.now());
 
     return (
         <Dialog
@@ -18,13 +19,12 @@ export default function EditTopicDialog(props) {
         >
             <DialogContent>
                 <Typography sx={{ pb: 2, fontWeight: 'bold', fontSize: '22px', textAlign: 'center' }}>
-                    Edit Topic Info
+                    Add New Topic
                 </Typography>
                 <Grid container spacing={3} >
                     <Grid className="d-flex" item xs={12}>
                         <TextField
                             label="Topic Name"
-                            defaultValue={topicInfo?.name}
                             variant="standard"
                             required
                             fullWidth
@@ -34,7 +34,6 @@ export default function EditTopicDialog(props) {
                         <DateTimePicker
                             renderInput={(props) => <TextField {...props} variant="standard" required fullWidth />}
                             label="Start Date"
-                            value={topicInfo?.dateIn}
                             onChange={(newValue) => {
                                 setDateIn(newValue);
                             }}
@@ -45,7 +44,6 @@ export default function EditTopicDialog(props) {
                         <DateTimePicker
                             renderInput={(props) => <TextField {...props} variant="standard" required fullWidth />}
                             label="End Date"
-                            value={topicInfo?.dateOut}
                             onChange={(newValue) => {
                                 setDateOut(newValue);
                             }}
@@ -54,7 +52,7 @@ export default function EditTopicDialog(props) {
                     </Grid>
                 </Grid>
                 <Box textAlign='center' sx={{pt: 6}}>
-                    <Button onClick={onClose} variant="contained" color="info" sx={{ alignSelf: 'center' }} >Save</Button>
+                    <Button onClick={onClose} variant="contained" sx={{ alignSelf: 'center' }} >Create</Button>
                 </Box>
             </DialogContent>
         </Dialog>
