@@ -14,7 +14,7 @@ export default function AddTADialog(props) {
         >
             <DialogContent>
                 <Typography sx={{ pb: 2, fontWeight: 'bold', fontSize: '22px', textAlign: 'center' }}>
-                    Edit Topic Info
+                    Add New TA
                 </Typography>
                 <Grid container spacing={3} >
                     <Grid className="d-flex" item xs={8}>

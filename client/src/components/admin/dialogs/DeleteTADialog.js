@@ -14,7 +14,7 @@ export default function DeleteTopicDialog(props) {
         >
             <DialogContent>
                 <Typography sx={{ pb: 3, fontWeight: 'bold', fontSize: '22px', textAlign: 'center' }}>
-                    Delete Topic
+                    Delete TA
                 </Typography>
                 <Typography sx={{ textAlign: 'center' }}>
                     Are you sure you want to remove <strong>{" " + taInfo?.name}</strong>? 
