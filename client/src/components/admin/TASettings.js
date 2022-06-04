@@ -32,10 +32,29 @@ const rows = [
 export default function TASettings(props) {
     const { theme } = props
 
-    const [open, setOpen] = React.useState(true);
+    const [open, setOpen] = React.useState(false);
 
     const handleClick = () => {
         setOpen(!open);
+    };
+
+    const [openEdit, setOpenEdit] = React.useState(false);
+    const [openDelete, setOpenDelete] = React.useState(false);
+    const [selectedRow, setSelectedRow] = React.useState();
+
+    const handleEdit = (row) => {
+        setOpenEdit(true);
+        setSelectedRow(row);
+    };
+
+    const handleDelete = (row) => {
+        setOpenDelete(true);
+        setSelectedRow(row);
+    };
+
+    const handleClose = () => {
+        setOpenEdit(false);
+        setOpenDelete(false);
     };
 
     return (
@@ -69,11 +88,11 @@ export default function TASettings(props) {
                                     </TableCell>
                                     <TableCell align="left" sx={{ fontSize: '16px', fontStyle: 'italic' }}>{row.email}</TableCell>
                                     <TableCell align="right" sx={{ pr: 5 }}>
-                                        <IconButton sx={{ mr: 1 }} style={{ background: "#76CDF2", color: "white" }}>
+                                        <IconButton sx={{ mr: 1 }} color="info" onClick={() => handleEdit(row)}>
                                             <Edit />
                                         </IconButton>
 
-                                        <IconButton style={{ background: "#F27685", color: "white" }}>
+                                        <IconButton color="error" onClick={() => handleDelete(row)}>
                                             <Delete />
                                         </IconButton>
                                     </TableCell>
@@ -84,8 +103,8 @@ export default function TASettings(props) {
                                     style={{ background : theme.palette.background.default }}
                                 >
                                     <TableCell align="center" colSpan={3}>
-                                        <Button sx={{ mr: 1, fontWeight: 'bold' }} style={{ background: theme.palette.primary.main, color: "white" }}>
-                                            Add
+                                        <Button sx={{ mr: 1, fontWeight: 'bold', fontSize: '18px' }} color="primary" variant="contained">
+                                            + Add TA
                                         </Button>
                                     </TableCell>
                                 </TableRow>

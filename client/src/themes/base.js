@@ -6,10 +6,28 @@ export const basicTheme = createTheme({
             main: '#EF8EC3',
         },
         secondary: {
-            main: '#f50057',
+            main: '#F50057',
+        },
+        error: {
+            main: '#F27685',
+        },
+        info: {
+            main: '#5DB7DE',
         },
         background: {
-            paper: '#f0f0f0',
+            paper: '#F0F0F0',
         },
     },
+    components: {
+        MuiButton: {
+            styleOverrides: {
+                root: ({ ownerState }) => ({
+                    ...(ownerState.variant === 'contained' && {
+                        color: '#fff',
+                        padding: "5px 20px",
+                    }),
+                }),
+            },
+        },
+    }
 });

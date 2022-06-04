@@ -3,10 +3,15 @@ import * as React from 'react';
 import {
     styled, Button, Card, CardActions, IconButton, Collapse, Divider,
     Typography, Table, TableRow, TableCell, TableBody
-} from '@mui/material'
+} from '@mui/material';
 import {
     Edit, Delete, ExpandMore
-} from '@mui/icons-material'
+} from '@mui/icons-material';
+
+import EditTopicDialog from './dialogs/EditTopicDialog';
+import DeleteTopicDialog from './dialogs/DeleteTopicDialog';
+
+import { DateTime } from 'luxon';
 
 const Expand = styled((props) => {
         const { expand, ...other } = props;
@@ -24,20 +29,39 @@ function createData(name, dateIn, dateOut) {
 }
   
 const rows = [
-    createData('Written 1', '8/29/22 9:00pm', '9/5/22 9:00pm'),
-    createData('Written 2', '8/29/22 9:00pm', '9/5/22 9:00pm'),
-    createData('Written 3', '8/29/22 9:00pm', '9/5/22 9:00pm'),
-    createData('Written 4', '8/29/22 9:00pm', '9/5/22 9:00pm'),
-    createData('Written 5', '8/29/22 9:00pm', '9/5/22 9:00pm'),
+    createData('Written 1', DateTime.fromISO('2022-08-29T21:00:00'), DateTime.fromISO('2022-09-05T21:00:00')),
+    createData('Written 2', DateTime.fromISO('2022-08-29T21:00:00'), DateTime.fromISO('2022-09-05T21:00:00')),
+    createData('Written 3', DateTime.fromISO('2022-08-29T21:00:00'), DateTime.fromISO('2022-09-05T21:00:00')),
+    createData('Written 4', DateTime.fromISO('2022-08-29T21:00:00'), DateTime.fromISO('2022-09-05T21:00:00')),
+    createData('Written 5', DateTime.fromISO('2022-08-29T21:00:00'), DateTime.fromISO('2022-09-05T21:00:00')),
 ];
 
 export default function QueueTopicSettings(props) {
     const { theme } = props
 
-    const [open, setOpen] = React.useState(true);
+    const [open, setOpen] = React.useState(false);
 
     const handleClick = () => {
         setOpen(!open);
+    };
+
+    const [openEdit, setOpenEdit] = React.useState(false);
+    const [openDelete, setOpenDelete] = React.useState(false);
+    const [selectedRow, setSelectedRow] = React.useState();
+
+    const handleEdit = (row) => {
+        setOpenEdit(true);
+        setSelectedRow(row);
+    };
+
+    const handleDelete = (row) => {
+        setOpenDelete(true);
+        setSelectedRow(row);
+    };
+
+    const handleClose = () => {
+        setOpenEdit(false);
+        setOpenDelete(false);
     };
 
     return (
@@ -69,14 +93,14 @@ export default function QueueTopicSettings(props) {
                                     <TableCell component="th" scope="row" sx={{ fontSize: '16px', fontWeight: 'bold', pl: 3.25 }}>
                                         {row.name}
                                     </TableCell>
-                                    <TableCell align="left" sx={{ fontSize: '16px' }}>{row.dateIn}</TableCell>
-                                    <TableCell align="left" sx={{ fontSize: '16px' }}>{row.dateOut}</TableCell>
-                                    <TableCell align="right" sx={{ pr: 5 }}>
-                                        <IconButton sx={{ mr: 1 }} style={{ background: "#76CDF2", color: "white" }}>
+                                    <TableCell align="left" sx={{ fontSize: '16px' }}>{row.dateIn.toLocaleString(DateTime.DATETIME_SHORT)}</TableCell>
+                                    <TableCell align="left" sx={{ fontSize: '16px' }}>{row.dateOut.toLocaleString(DateTime.DATETIME_SHORT)}</TableCell>
+                                    <TableCell align="right" sx={{ pr: 3 }}>
+                                        <IconButton sx={{ mr: 1 }} color="info" onClick={() => handleEdit(row)}>
                                             <Edit />
                                         </IconButton>
 
-                                        <IconButton style={{ background: "#F27685", color: "white" }}>
+                                        <IconButton color="error" onClick={() => handleDelete(row)}>
                                             <Delete />
                                         </IconButton>
                                     </TableCell>
@@ -87,8 +111,8 @@ export default function QueueTopicSettings(props) {
                                     style={{ background : theme.palette.background.default }}
                                 >
                                     <TableCell align="center" colSpan={4}>
-                                        <Button sx={{ mr: 1, fontWeight: 'bold' }} style={{ background: theme.palette.primary.main, color: "white" }}>
-                                            Add
+                                        <Button sx={{ mr: 1, fontWeight: 'bold', fontSize: '18px' }} color="primary" variant="contained">
+                                            + Add Topic
                                         </Button>
                                     </TableCell>
                                 </TableRow>
@@ -96,6 +120,17 @@ export default function QueueTopicSettings(props) {
                         </Table>
                 </Collapse>
             </Card>
+            <EditTopicDialog
+                isOpen={openEdit}
+                onClose={handleClose}
+                topicInfo={selectedRow}
+            />
+
+            <DeleteTopicDialog
+                isOpen={openDelete}
+                onClose={handleClose}
+                topicInfo={selectedRow}
+            />
         </div>
     );
 }

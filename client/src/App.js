@@ -6,18 +6,23 @@ import Home from './pages/home';
 import Admin from './pages/admin';
 import Settings from './pages/settings';
 import { basicTheme } from './themes/base.js';
+
 import { ThemeProvider } from '@mui/material'
+import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
   
 function App() {
     return (
         <ThemeProvider theme={basicTheme}>
-            <Router>
-            <Routes>
-                <Route path='/' element={<Home />} />
-                <Route path='/admin' element={<Admin theme={basicTheme}/>} />
-                <Route path='/settings' element={<Settings/>} />
-            </Routes>
-            </Router>
+            <LocalizationProvider dateAdapter={AdapterLuxon}>
+                <Router>
+                <Routes>
+                    <Route path='/' element={<Home />} />
+                    <Route path='/admin' element={<Admin theme={basicTheme}/>} />
+                    <Route path='/settings' element={<Settings/>} />
+                </Routes>
+                </Router>
+            </LocalizationProvider>
         </ThemeProvider>
     );
 }
