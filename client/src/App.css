@@ -36,3 +36,10 @@
     transform: rotate(360deg);
   }
 }
+
+/** Admin CSS **/
+.Admin .card {
+  width: 60%;
+  margin: auto;
+  padding: 10px;
+}

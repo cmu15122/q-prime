@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 // import YourEntry from '../components/YourEntry';
 // import RemoveQOverlay from '../components/RemoveQConfirm';
-import Main from '../components/Main';
+import Main from '../components/home/student/Main';
 
 class Home extends Component {
   state = {
