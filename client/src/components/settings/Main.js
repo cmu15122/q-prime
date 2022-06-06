@@ -1,15 +1,13 @@
 import React, { useState } from 'react';
 import VideoChatSettings from './VideoChatSettings';
+import NotificationSettings from './NotificationSettings';
 
 
-const theme = {
-    spacing: 2
-}
-
-function Main () {
+function Main (props) {
     return (
         <div>
-            <VideoChatSettings />
+            <VideoChatSettings theme={props.theme}/>
+            <NotificationSettings theme={props.theme}/>
         </div>
     );
 }
