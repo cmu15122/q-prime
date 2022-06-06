@@ -38,7 +38,7 @@ const rows = [
 ];
 
 export default function QueueTopicSettings(props) {
-    const { theme } = props
+const { theme } = props
 
     const [open, setOpen] = React.useState(false);
 

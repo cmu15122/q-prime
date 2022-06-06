@@ -17,7 +17,7 @@ function App() {
             <LocalizationProvider dateAdapter={AdapterLuxon}>
                 <Router>
                 <Routes>
-                    <Route path='/' element={<Home />} />
+                    <Route path='/' element={<Home theme={basicTheme}/>} />
                     <Route path='/admin' element={<Admin theme={basicTheme}/>} />
                     <Route path='/settings' element={<Settings/>} />
                 </Routes>

@@ -37,6 +37,13 @@
   }
 }
 
+.App .card {
+  width: 60%;
+  margin: auto;
+  padding: 10px;
+}
+
+
 /** Admin CSS **/
 .Admin .card {
   width: 60%;
