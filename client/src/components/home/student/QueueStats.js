@@ -1,10 +1,9 @@
 import * as React from 'react';
 import {
-    Box,
     Typography,
-    Divider,
-    Card, Button, CardContent, TextField, Grid,
-    Table, TableBody, TableCell, TableRow, Toolbar
+    CardContent,
+    Card,
+    Toolbar
 } from '@mui/material'
 
 
@@ -12,9 +11,6 @@ import {
 export default function YourEntry(props) {
     const position = 11
     const waitTime = 20
-    const location = 'Remote - TA Zoom will be provided when helped.'
-    const topic = 'Programming X'
-    const question = 'Student\'s Question'
     
     const { theme } = props
     return (
