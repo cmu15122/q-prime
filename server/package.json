@@ -4,8 +4,9 @@
   "description": "Office Hours Queue for Carnegie Mellon University's 15-122",
   "main": "app.js",
   "scripts": {
-    "test": "jest",
-    "start": "node app.js"
+    "start": "nodemon app.js",
+    "test": "jest --config ./jest.config.json",
+    "test:watch": "npm run test -- --watch"
   },
   "repository": {
     "type": "git",
@@ -29,5 +30,11 @@
     "package.json": "^2.0.1",
     "sequelize": "^6.19.0",
     "slack-webhook": "^1.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.18.2",
+    "@babel/plugin-transform-runtime": "^7.18.2",
+    "@babel/preset-env": "^7.18.2",
+    "@babel/preset-react": "^7.17.12"
   }
 }
