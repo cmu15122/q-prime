@@ -22,29 +22,32 @@ function Main (props) {
           <QueueStats theme={props.theme}/>
           <YourEntry theme={props.theme}></YourEntry>
           
-          <Button variant='outlined' onClick={() => setRemoveConfirm(true)}>Open Remove Queue Confirm</Button>
+          <Button variant="contained" onClick={() => setRemoveConfirm(true)} sx={{m:0.5}}>Open Remove Queue Confirm</Button>
           <RemoveQOverlay 
             open={removeConfirm}
             handleClose={() => setRemoveConfirm(false)}
           />
-          <Button variant='outlined' onClick={() => setFrozen(true)}>Open Frozen Overlay</Button>
+          <Button variant="contained" onClick={() => setFrozen(true)} sx={{m:0.5}}>Open Frozen Overlay</Button>
           <FrozenOverlay 
             open={frozen}
             handleClose={() => setFrozen(false)}
           />
-          <Button variant='outlined' onClick={() => setTAHelping(true)}>Open TA Helping Overlay</Button>
+          <Button variant="contained" onClick={() => setTAHelping(true)} sx={{m:0.5}}>Open TA Helping Overlay</Button>
+          
           <TAHelpingOverlay
             open={taHelping}
             handleClose={() => setTAHelping(false)}
           />
-          <Button variant='outlined' onClick={() => setUpdateQ(true)}>Open Update Question Overlay</Button>
+          <Button variant="contained" onClick={() => setUpdateQ(true)} sx={{m:0.5}}>Open Update Question Overlay</Button>
+        
           <UpdateQuestionOverlay
             open={updateQ}
             handleClose={() => setUpdateQ(false)}
           />
-          <MessageRespond 
-
+          <MessageRespond theme = {props.theme}
           />
+
+          
       </div>
     );
 }
