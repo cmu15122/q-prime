@@ -89,8 +89,8 @@ module.exports = (sequelize, DataTypes) => {
 		}
 	});
 
-	Assignments.belongsToMany(Semesters, {through: Assign_Sem, uniqueKey: 'id'});
-	Semesters.belongsToMany(Assignments, {through: Assign_Sem, uniqueKey: 'sem_id' });
+	Assignments.belongsToMany(Semesters, {through: Assign_Sem });
+	Semesters.belongsToMany(Assignments, {through: Assign_Sem });
 
 
 	var Users = sequelize.define('Users', {
@@ -118,9 +118,10 @@ module.exports = (sequelize, DataTypes) => {
 		}
 	});
 
-	var Sem_users = sequelize.define('Semesters_Users', {
+	// var Sem_users = sequelize.define('Semesters_Users', {});
+	Semesters.belongsToMany(Users, {through: 'Semester_Users'});
+	Users.belongsToMany(Semesters, {through: 'Senester_Users'});
 
-	});
 
 	var Students = sequelize.define('Students', {
 		num_questions:{
