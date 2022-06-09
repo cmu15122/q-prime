@@ -27,6 +27,7 @@
     "mysql2": "^2.3.3",
     "nodemon": "^2.0.16",
     "package.json": "^2.0.1",
+    "pg": "^8.7.3",
     "sequelize": "^6.19.0",
     "slack-webhook": "^1.0.0"
   }
