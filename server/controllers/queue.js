@@ -18,6 +18,11 @@ export class LinkedList {
         this.size = 0;
     }
 
+    /** Returns true if linked list is empty */
+    isEmpty() {
+        return this.size == 0;
+    }
+
     /** Adds to the front of the linked list */
     addFirst(data) {
         var newNode = new Node(data);
@@ -48,11 +53,10 @@ export class LinkedList {
         this.size++;
     }
 
-    /** Inserts data at given index if index is valid */
+    /** Inserts data at given index if index is valid; otherwise, does nothing */
     insert(data, index) {
         if (index < 0 || index > this.size) {
-            error(`Insertion failed: invalid index ${index}`);
-            return;
+            throw new Error(`Insertion failed: invalid index ${index}`);
         }
 
         if (index == 0) {
@@ -87,22 +91,26 @@ export class LinkedList {
         this.size++;
     }
 
-    /** Gets the data at the front of the linked list if valid; null otherwise */
+    /** Gets the data at the front of the linked list if valid; error otherwise */
     getFirst() {
-        if (this.size > 0) return this.start.data;
-        return null;
+        if (this.isEmpty()) {
+            throw new Error(`Get failed: linked list is empty`);
+        }
+        return this.start.data;
     }
 
-    /** Gets the data at the end of the linked list if valid; null otherwise */
+    /** Gets the data at the end of the linked list if valid; error otherwise */
     getLast() {
-        if (this.size > 0) return this.end.data;
-        return null;
+        if (this.isEmpty()) {
+            throw new Error(`Get failed: linked list is empty`);
+        }
+        return this.end.data;
     }
 
-    /** Gets the data at the given index if valid; null otherwise */
+    /** Gets the data at the given index if valid; error otherwise */
     get(index) {
         if (index < 0 || index >= this.size) {
-            return null;
+            throw new Error(`Get failed: invalid index ${index}`);
         }
 
         if (index == 0) {
@@ -137,21 +145,30 @@ export class LinkedList {
         return null;
     }
 
-    /** Removes the node with the given data from the linked list and returns the data; null if invalid */
+    /** Removes the node with the given data from the linked list and returns the data; error if invalid */
     removeData(data) {
-        if (this.size == 0) return null;
-
-        var toRemove = this.find(x => x.data == data);
-        if (toRemove != null) {
-            this.removeNode(toRemove);
+        if (this.isEmpty()) {
+            throw new Error(`Remove failed: empty linked list`);
         }
 
+        var toRemove = this.find(x => (x == data));
+        if (toRemove == null) {
+            throw new Error(`Remove failed: data not found`);
+        }
+        
+        this.removeNode(toRemove);
         return toRemove.data;
     }
 
-    /** Removes the given node from the linked list and returns its data; null if invalid */
+    /** Removes the given node from the linked list and returns its data; error if invalid */
     removeNode(node) {
-        if (node == null || this.size == 0) return null;
+        if (node == null) {
+            throw new Error(`Remove failed: input node was null`);
+        }
+
+        if (this.isEmpty()) {
+            throw new Error(`Remove failed: empty linked list`);
+        }
 
         if (node == this.start && this.size == 1) {
             this.start = null;
@@ -171,26 +188,26 @@ export class LinkedList {
         return node.data;
     }
 
-    /** Removes at the front of the linked list and returns its data if valid; null otherwise */
+    /** Removes at the front of the linked list and returns its data if valid; error otherwise */
     removeFirst() {
-        if (this.size > 0) {
-            return this.removeNode(this.start);
+        if (this.isEmpty()) {
+            throw new Error(`Remove failed: empty linked list`);
         }
-        return null;
+        return this.removeNode(this.start);
     }
 
-    /** Removes at the end of the linked list and returns its data if valid; null otherwise */
+    /** Removes at the end of the linked list and returns its data if valid; error otherwise */
     removeLast() {
-        if (this.size > 0) {
-            return this.removeNode(this.end);
+        if (this.isEmpty()) {
+            throw new Error(`Remove failed: empty linked list`);
         }
-        return null;
+        return this.removeNode(this.end);
     }
 
-    /** Removes the node at the given index and returns its data if valid; null otherwise */
+    /** Removes the node at the given index and returns its data if valid; error otherwise */
     removeAt(index) {
         if (index < 0 || index >= this.size) {
-            return null;
+            throw new Error(`Remove failed: invalid index ${index}`);
         }
 
         if (index == 0) {
@@ -209,7 +226,7 @@ export class LinkedList {
             currIndex++;
         }
 
-        return remove(currNode);
+        return this.removeNode(currNode);
     }
 
     /** Swaps a given node back by one. If node is at the end, do nothing */
@@ -221,6 +238,13 @@ export class LinkedList {
         nextNode.prev = node.prev;
         node.prev = nextNode;
         nextNode.next = node;
+
+        if (nextNode.prev != null) {
+            nextNode.prev.next = nextNode;
+        }
+        if (node.next != null) {
+            node.next.prev = node;
+        }
 
         // Handle edges
         if (this.start == node) {
@@ -241,6 +265,13 @@ export class LinkedList {
         node.next = prevNode;
         prevNode.prev = node;
 
+        if (prevNode.next != null) {
+            prevNode.next.prev = prevNode;
+        }
+        if (node.prev != null) {
+            node.prev.next = node;
+        }
+
         // Handle edges
         if (this.start == prevNode) {
             this.start = node;
@@ -249,10 +280,24 @@ export class LinkedList {
             this.end = prevNode;
         }
     }
+
+    /** Prints out the linked list to the console */
+    print() {
+        var currNode = this.start;
+        var printString = "[";
+
+        while (currNode != null) {
+            printString += JSON.stringify(currNode.data) + ", ";
+            currNode = currNode.next;
+        }
+        printString += "]";
+
+        console.log(printString);
+    }
 }
 
 /** Standin for enum in JavaScript */
-const StudentStatus = Object.freeze({
+export const StudentStatus = Object.freeze({
     BEING_HELPED: 0,
     WAITING: 1,
     FIXING_QUESTION: 2,
@@ -280,6 +325,11 @@ export class OHQueue {
         return this.queue.size;
     }
 
+    /** Returns whether the queue is currently empty */
+    isEmpty() {
+        return this.queue.isEmpty();
+    }
+
     /** Enqueues student to the queue */
     enqueue(studentID) {
         this.queue.addLast({
@@ -300,10 +350,10 @@ export class OHQueue {
 
     /** 
      * If found, returns the position of the student with the given id; else returns -1 
-     * Position is 1-indexed, i.e. returns 1 for the first person in the queue
+     * Position is 0-indexed, i.e. returns 0 for the first person in the queue
      */
     getPosition(studentID) {
-        var count = 1;
+        var count = 0;
         var currNode = this.queue.start;
 
         while (currNode != null) {
@@ -316,7 +366,10 @@ export class OHQueue {
         return -1;
     }
 
-    /** If found, removes the student with the given id from the queue */
+    /** 
+     * If found, removes the student with the given id from the queue 
+     * Also moves all students behind a frozen student up in the queue
+     */
     remove(studentID) {
         var node = this.queue.find(x => x.id == studentID);
         if (node == null) return;
@@ -328,11 +381,31 @@ export class OHQueue {
         while (currNode != null) {
             var prevNode = currNode.prev;
             if (prevNode != null) {
-                if (!currNode.isFrozen && prevNode.isFrozen) {
+                if (!currNode.data.isFrozen && prevNode.data.isFrozen) {
                     this.queue.swapUp(currNode);
                 }
-            }
+            } 
             currNode = prevNode;
+        }
+    }
+
+    /// Setting status of students ///
+
+    /** If found, helps the student with the given id */
+    help(studentID) {
+        var node = this.queue.find(x => x.id == studentID);
+        if (node != null) {
+            node.data.status = StudentStatus.BEING_HELPED;
+            node.data.isFrozen = false;
+        }
+    }
+
+    /** If found, unhelps the student with the given id */
+    unhelp(studentID) {
+        var node = this.queue.find(x => x.id == studentID);
+        if (node != null) {
+            node.data.status = StudentStatus.WAITING;
+            node.data.isFrozen = false;
         }
     }
 
@@ -359,7 +432,7 @@ export class OHQueue {
         var node = this.queue.find(x => x.id == studentID);
         if (node != null) {
             node.data.status = StudentStatus.FIXING_QUESTION;
-            node.data.isFrozen = false;
+            node.data.isFrozen = true;
         }
     }
 
@@ -377,16 +450,21 @@ export class OHQueue {
         var node = this.queue.find(x => x.id == studentID);
         if (node != null) {
             node.data.status = StudentStatus.COOLDOWN_VIOLATION;
-            node.data.isFrozen = false;
+            node.data.isFrozen = true;
         }
     }
 
     /** If found, unsets the student with the given id to cooldown violation */
-    unsetFixQuestion(studentID) {
+    unsetCooldownViolation(studentID) {
         var node = this.queue.find(x => x.id == studentID);
         if (node != null) {
             node.data.status = StudentStatus.WAITING;
             node.data.isFrozen = false;
         }
+    }
+
+    /** Prints out the queue to the console */
+    print() {
+        this.queue.print();
     }
 }
