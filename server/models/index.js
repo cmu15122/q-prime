@@ -116,13 +116,35 @@ module.exports = (sequelize, DataTypes) => {
 		access_token:{
 			type: DataTypes.STRING,
 			defaultValue: false
+		},
+		settings:{
+			type: DataTypes.JSON
 		}
 	});
 
+	var Semesters_Users = sequelize.define('Semesters_Users',{
+		is_ta:{
+			type: DataTypes.INTEGER
+		},
+		user_id:{
+			type: DataTypes.INTEGER,
+			references:{
+				model: Assignments,
+				key: 'id'
+			}
+		},
+		sem_id:{
+			type: DataTypes.INTEGER,
+			references:{
+				model: Semesters,
+				key: 'sem_id'
+			}
+		}
+	});
 	//Semester and Users relationship
 	// var Sem_users = sequelize.define('Semesters_Users', {});
-	Semesters.belongsToMany(Users, {through: 'Semester_Users'});
-	Users.belongsToMany(Semesters, {through: 'Semester_Users'});
+	Semesters.belongsToMany(Users, {through: 'Semesters_Users'});
+	Users.belongsToMany(Semesters, {through: 'Semesters_Users'});
 
 
 	var Students = sequelize.define('Students', {
@@ -131,13 +153,20 @@ module.exports = (sequelize, DataTypes) => {
 		},
 		time_on_queue:{
 			type: DataTypes.BIGINT //minutes??
+		},
+		student_id:{
+			type: DataTypes.INTEGER,
+			references:{
+				model: Users,
+				key: 'id'
+			}
 		}
 	});
 
 
 	var TA = sequelize.define('TAs', {
 		is_admin:{
-			type: DataType.BOOLEAN
+			type: DataType.INTEGER
 		},
 		zoom_url:{
 			type: DataTypes.STRING
@@ -147,6 +176,13 @@ module.exports = (sequelize, DataTypes) => {
 		},
 		time_helped:{
 			type: DataTypes.BIGINT
+		},
+		ta_id:{
+			type: DataTypes.INTEGER,
+			references:{
+				model: Users,
+				key: 'id'
+			}
 		}
 	});
 
@@ -188,16 +224,38 @@ module.exports = (sequelize, DataTypes) => {
 		},
 		num_ask_to_fix:{
 			type: DataTypes.INTEGER
+		},
+		student_id:{
+			type: DataTypes.INTEGER,
+			references:{
+				model: Students,
+				key: 'student_id'
+			}
+		},
+		ta_id:{
+			type: DataTypes.INTEGER,
+			references:{
+				model: TA,
+				key: 'ta_id'
+			}
+
+		},
+		sem_id:{
+			type: DataTypes.INTEGER,
+			references:{
+				model: Semesters,
+				key: 'sem_id'
+			}
 		}
-	})
+	});
 
 	//Questions relationship with TA, Student, Semester
 	Questions.hasMany(TA, {
-		foreignkey: ''
+		foreignkey: 'ta_id'
 	});
 
 	Questions.hasMany(Students, {
-		foreignkey: ''
+		foreignkey: 'student_id'
 	});
 
 	Questions.hasMany(Semesters, {
