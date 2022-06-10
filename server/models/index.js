@@ -122,7 +122,7 @@ module.exports = (sequelize, DataTypes) => {
 	//Semester and Users relationship
 	// var Sem_users = sequelize.define('Semesters_Users', {});
 	Semesters.belongsToMany(Users, {through: 'Semester_Users'});
-	Users.belongsToMany(Semesters, {through: 'Senester_Users'});
+	Users.belongsToMany(Semesters, {through: 'Semester_Users'});
 
 
 	var Students = sequelize.define('Students', {
@@ -164,18 +164,18 @@ module.exports = (sequelize, DataTypes) => {
 
 	var Questions = sequelize.define('Questions', {
 		question:{
-			types:DataTypes.TEXT
+			type: DataTypes.TEXT
 		},
 		tried_so_far:{
-			types:DataTypes.TEXT
+			type: DataTypes.TEXT
 		},
 		location:{
 			type: DataTypes.STRING,
-			defaultValue:false
+			defaultValue: false
 		},
 		assignment:{
 			type: DataTypes.STRING,
-			defaultValue:false
+			defaultValue: false
 		},
 		entry_time:{
 			type: DataTypes.DATE
