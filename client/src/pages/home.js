@@ -12,7 +12,6 @@ class Home extends Component {
   componentDidMount() {
     this.callBackendAPI()
         .then(res => {
-          console.log(res);
           this.setState({ 
             queueData: res
           });
