@@ -89,6 +89,7 @@ module.exports = (sequelize, DataTypes) => {
 		}
 	});
 
+	//Assignments and Semesters Relationship
 	Assignments.belongsToMany(Semesters, {through: Assign_Sem });
 	Semesters.belongsToMany(Assignments, {through: Assign_Sem });
 
@@ -118,6 +119,7 @@ module.exports = (sequelize, DataTypes) => {
 		}
 	});
 
+	//Semester and Users relationship
 	// var Sem_users = sequelize.define('Semesters_Users', {});
 	Semesters.belongsToMany(Users, {through: 'Semester_Users'});
 	Users.belongsToMany(Semesters, {through: 'Senester_Users'});
@@ -148,6 +150,18 @@ module.exports = (sequelize, DataTypes) => {
 		}
 	});
 
+
+	//TA and Student relationship with Users
+	TA.hasOne(Users, {
+		foreignKey: 'id'
+	});
+	Users.belongsTo(TA);
+
+	Students.hasOne(Users, {
+		foreignKey: 'id'
+	});
+	Users.belongsTo(Students);
+
 	var Questions = sequelize.define('Questions', {
 		question:{
 			types:DataTypes.TEXT
@@ -176,4 +190,25 @@ module.exports = (sequelize, DataTypes) => {
 			type: DataTypes.INTEGER
 		}
 	})
+
+	//Questions relationship with TA, Student, Semester
+	Questions.hasMany(TA, {
+		foreignkey: ''
+	});
+
+	Questions.hasMany(Students, {
+		foreignkey: ''
+	});
+
+	Questions.hasMany(Semesters, {
+		foreignkey: 'sem_id'
+	});
+
+	TA.belongsTo(Questions);
+	Students.belongsTo(Questions);
+	Semesters.belongsTo(Questions);
+
+
+
+
 };
