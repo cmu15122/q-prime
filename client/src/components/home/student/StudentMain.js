@@ -18,9 +18,10 @@ function StudentMain (props) {
 
     return (
       <div>
-          <YourEntry theme={props.theme}></YourEntry>
-          
-          <Button variant="contained" onClick={() => setRemoveConfirm(true)} sx={{m:0.5}}>Open Remove Queue Confirm</Button>
+          <YourEntry
+            openRemoveOverlay={() => setRemoveConfirm(true)}
+            theme={props.theme}
+          />
           <RemoveQOverlay 
             open={removeConfirm}
             handleClose={() => setRemoveConfirm(false)}
