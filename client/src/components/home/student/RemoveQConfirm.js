@@ -3,6 +3,7 @@ import {
     Typography,
     Button,
     Dialog,
+    Stack,
 } from '@mui/material'
 
 export default function RemoveQOverlay(props) {
@@ -11,8 +12,10 @@ export default function RemoveQOverlay(props) {
         <Dialog open={open} onClose={handleClose}>
             <Typography variant='h6'>Remove your question from the queue?</Typography>
             <Typography variant='body1'>You will forfeit your position on the queue.</Typography>
-            <Button onClick={handleClose}>Cancel</Button>
-            <Button onClick={handleClose}>Remove</Button>
+            <Stack direction="row" spacing={4} justifyContent="center">
+                <Button onClick={handleClose}>Cancel</Button>
+                <Button onClick={handleClose}>Remove</Button>
+            </Stack>
         </Dialog>
     );
 }
