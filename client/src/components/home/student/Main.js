@@ -11,6 +11,8 @@ import UpdateQuestionOverlay from './UpdateQuestionOverlay';
 import MessageRespond from './MessageRespond'
 import QueueStats from './QueueStats'
 
+import LoginAdminNavbar from '../../navbar/LoginAdminNavbar'
+
 function Main (props) {
     const [removeConfirm, setRemoveConfirm] = useState(false);
     const [frozen, setFrozen] = useState(false);
@@ -19,6 +21,7 @@ function Main (props) {
 
     return (
       <div>
+          <LoginAdminNavbar theme={props.theme}/>
           <QueueStats theme={props.theme}/>
           <YourEntry theme={props.theme}></YourEntry>
           
