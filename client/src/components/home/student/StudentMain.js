@@ -9,9 +9,8 @@ import FrozenOverlay from './FrozenOverlay';
 import TAHelpingOverlay from './TAHelpingOverlay';
 import UpdateQuestionOverlay from './UpdateQuestionOverlay';
 import MessageRespond from './MessageRespond'
-import QueueStats from './QueueStats'
 
-function Main (props) {
+function StudentMain (props) {
     const [removeConfirm, setRemoveConfirm] = useState(false);
     const [frozen, setFrozen] = useState(false);
     const [taHelping, setTAHelping] = useState(false);
@@ -19,7 +18,6 @@ function Main (props) {
 
     return (
       <div>
-          <QueueStats theme={props.theme}/>
           <YourEntry theme={props.theme}></YourEntry>
           
           <Button variant="contained" onClick={() => setRemoveConfirm(true)} sx={{m:0.5}}>Open Remove Queue Confirm</Button>
@@ -46,10 +44,8 @@ function Main (props) {
           />
           <MessageRespond theme = {props.theme}
           />
-
-          
       </div>
     );
 }
   
-export default Main;
+export default StudentMain;
