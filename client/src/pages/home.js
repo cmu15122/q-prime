@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import StudentMain from '../components/home/student/StudentMain';
 import SharedMain from '../components/home/shared/SharedMain';
 
+import LoginAdminNavbar from '../components/navbar/LoginAdminNavbar'
+
 class Home extends Component {
   state = {
     queueData: null
@@ -33,6 +35,7 @@ class Home extends Component {
   render() {
     return (
       <div className="App">
+          <LoginAdminNavbar theme={this.props.theme}/>
           <SharedMain
             theme={this.props.theme}
             queueData={this.state.queueData}
