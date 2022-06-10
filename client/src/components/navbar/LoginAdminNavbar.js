@@ -9,7 +9,7 @@ function createPage(page, link) {
     return { page, link };
 }
 
-const pages = [createPage('Settings', '/settings'), createPage('Admin', '/admin'), createPage('Log Out', '/')];
+const pages = [createPage('Admin', '/admin'), createPage('Settings', '/settings'), createPage('Metrics', '/metrics'), createPage('Log Out', '/')];
 
 
 export default function LoginAdminNavbar(props) {
