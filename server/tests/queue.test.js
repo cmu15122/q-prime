@@ -1,5 +1,8 @@
 // Testing code for our queue
-import { OHQueue, StudentStatus } from '../controllers/queue.js';
+const queue = require('../controllers/queue');
+
+const OHQueue = queue.OHQueue;
+const StudentStatus = queue.StudentStatus;
 
 describe('Queue tests', () => {
     test('Creation makes empty queue', () => {

@@ -3,7 +3,7 @@
  */
 var assert = require('assert');
 
-export class Node {
+class Node {
     constructor(data) {
         this.data = data;
         this.prev = null;
@@ -11,7 +11,7 @@ export class Node {
     }
 }
 
-export class LinkedList {
+class LinkedList {
     constructor() {
         this.start = null;
         this.end = null;
@@ -297,7 +297,7 @@ export class LinkedList {
 }
 
 /** Standin for enum in JavaScript */
-export const StudentStatus = Object.freeze({
+const StudentStatus = Object.freeze({
     BEING_HELPED: 0,
     WAITING: 1,
     FIXING_QUESTION: 2,
@@ -315,7 +315,7 @@ export const StudentStatus = Object.freeze({
  * }
  */
 
-export class OHQueue {
+class OHQueue {
     constructor() {
         this.queue = new LinkedList();
     }
@@ -468,3 +468,8 @@ export class OHQueue {
         this.queue.print();
     }
 }
+
+module.exports.Node = Node;
+module.exports.LinkedList = LinkedList;
+module.exports.StudentStatus = StudentStatus;
+module.exports.OHQueue = OHQueue;
