@@ -31,7 +31,7 @@ class Home extends Component {
   render() {
     return (
       <div className="App">
-          <Main />
+          <Main theme={this.props.theme}/>
       </div>
     );
   }
