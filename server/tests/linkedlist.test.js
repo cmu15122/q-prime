@@ -1,6 +1,6 @@
 // Testing code for our queue
-
 import { Node, LinkedList } from '../controllers/queue.js';
+
 describe('List Node tests', () => {
     test('Creation has correct default values', () => {
         const node = new Node(3);
