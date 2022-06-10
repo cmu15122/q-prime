@@ -10,10 +10,12 @@ import TAHelpingOverlay from './TAHelpingOverlay';
 import UpdateQuestionOverlay from './UpdateQuestionOverlay';
 import MessageRespond from './MessageRespond'
 import QueueStats from './QueueStats'
+import AskQuestion from './AskQuestion';
 
 import LoginAdminNavbar from '../../navbar/LoginAdminNavbar'
 
 function Main (props) {
+    const [questionValue, setQuestionValue] = useState('')
     const [removeConfirm, setRemoveConfirm] = useState(false);
     const [frozen, setFrozen] = useState(false);
     const [taHelping, setTAHelping] = useState(false);
@@ -31,6 +33,10 @@ function Main (props) {
             open={removeConfirm}
             handleClose={() => setRemoveConfirm(false)}
           />
+          <AskQuestion
+            questionValue={questionValue}
+            setQuestionValue={setQuestionValue}
+          />
           <Button variant="contained" onClick={() => setFrozen(true)} sx={{m:0.5}}>Open Frozen Overlay</Button>
           <FrozenOverlay 
             open={frozen}
@@ -47,6 +53,7 @@ function Main (props) {
           <UpdateQuestionOverlay
             open={updateQ}
             handleClose={() => setUpdateQ(false)}
+            setQuestionValue={setQuestionValue}
           />
           <MessageRespond theme = {props.theme}
           />
