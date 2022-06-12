@@ -3,12 +3,17 @@ import AdminMain from '../components/admin/AdminMain'
 
 class Admin extends Component {
   state = {
-    data: null
+    queueData: null
   };
 
   componentDidMount() {
     this.callBackendAPI()
-        .then(res => this.setState({ data: res.title }))
+        .then(res => {
+          this.setState({ 
+            queueData: res
+          });
+          document.title = res.title;
+        })
         .catch(err => console.log(err));
   };
 
@@ -27,7 +32,7 @@ class Admin extends Component {
   render() {
     return (
       <div className="Admin">
-          <AdminMain theme={this.props.theme} />
+          <AdminMain theme={this.props.theme} queueData={this.state.queueData} />
       </div>
     );
   }

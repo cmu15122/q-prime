@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import StudentMain from '../components/home/student/StudentMain';
 import SharedMain from '../components/home/shared/SharedMain';
+import HomeMain from '../components/home/HomeMain';
 
-import LoginAdminNavbar from '../components/navbar/LoginAdminNavbar'
+import Navbar from '../components/navbar/Navbar'
 
 class Home extends Component {
   state = {
@@ -16,6 +17,8 @@ class Home extends Component {
             queueData: res
           });
           document.title = res.title;
+          console.log("fetched!");
+          console.log(res);
         })
         .catch(err => console.log(err));
   };
@@ -46,7 +49,7 @@ class Home extends Component {
 
     return (
       <div className="App">
-          <LoginAdminNavbar theme={this.props.theme}/>
+          <Navbar theme={this.props.theme} queueData={this.state.queueData} />
           <SharedMain
             theme={this.props.theme}
             queueData={this.state.queueData}

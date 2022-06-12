@@ -3,12 +3,17 @@ import Main from '../components/settings/Main';
 
 class Settings extends Component {
   state = {
-    data: null
+    queueData: null
   };
 
   componentDidMount() {
     this.callBackendAPI()
-        .then(res => this.setState({ data: res.title }))
+        .then(res => {
+          this.setState({ 
+            queueData: res
+          });
+          document.title = res.title;
+        })
         .catch(err => console.log(err));
   };
 
@@ -27,7 +32,7 @@ class Settings extends Component {
   render() {
     return (
       <div className="Settings">
-        <Main theme={this.props.theme}/>
+        <Main theme={this.props.theme} queueData={this.state.queueData}/>
       </div>
     );
   }
