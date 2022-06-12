@@ -7,8 +7,8 @@ import {
 } from '@mui/material'
 
 export default function UpdateQuestionOverlay(props) {
-    const { open, handleClose } = props
-    const [questionValue, setQuestionValue] = useState('')
+    const { open, handleClose, questionValue, setQuestionValue } = props
+    
     const printAndClose = () => {
         console.log(questionValue);
         handleClose();
