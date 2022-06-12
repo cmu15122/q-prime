@@ -12,9 +12,11 @@ import MessageRespond from './MessageRespond'
 import QueueStats from './QueueStats'
 import AskQuestion from './AskQuestion';
 
+import Footer from '../Footer';
 import LoginAdminNavbar from '../../navbar/LoginAdminNavbar'
 
 function Main (props) {
+    const gitHubLink = 'https://www.github.com'
     const [questionValue, setQuestionValue] = useState('')
     const [removeConfirm, setRemoveConfirm] = useState(false);
     const [frozen, setFrozen] = useState(false);
@@ -58,7 +60,7 @@ function Main (props) {
           <MessageRespond theme = {props.theme}
           />
 
-          
+          <Footer gitHubLink={gitHubLink} />
       </div>
     );
 }
