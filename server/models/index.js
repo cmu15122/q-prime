@@ -55,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
 
 	var Sem = sequelize.define('Semesters', {
 		sem_id:{
-			type: DataTypes.STRING,
+			type: DataTypes.STRING(3),
 			unique: true,
 			defaultValue: false,
 			primaryKey: true
@@ -118,7 +118,8 @@ module.exports = (sequelize, DataTypes) => {
 			defaultValue: false
 		},
 		settings:{
-			type: DataTypes.JSON
+			type: DataTypes.JSON,
+			defaultValue: NULL
 		}
 	});
 
