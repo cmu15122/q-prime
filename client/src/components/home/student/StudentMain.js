@@ -9,12 +9,9 @@ import FrozenOverlay from './FrozenOverlay';
 import TAHelpingOverlay from './TAHelpingOverlay';
 import UpdateQuestionOverlay from './UpdateQuestionOverlay';
 import MessageRespond from './MessageRespond'
-import QueueStats from './QueueStats'
 import AskQuestion from './AskQuestion';
 
-import LoginAdminNavbar from '../../navbar/LoginAdminNavbar'
-
-function Main (props) {
+function StudentMain (props) {
     const [questionValue, setQuestionValue] = useState('')
     const [removeConfirm, setRemoveConfirm] = useState(false);
     const [frozen, setFrozen] = useState(false);
@@ -23,8 +20,6 @@ function Main (props) {
 
     return (
       <div>
-          <LoginAdminNavbar theme={props.theme}/>
-          <QueueStats theme={props.theme}/>
           <YourEntry
             openRemoveOverlay={() => setRemoveConfirm(true)}
             theme={props.theme}
@@ -57,10 +52,8 @@ function Main (props) {
           />
           <MessageRespond theme = {props.theme}
           />
-
-          
       </div>
     );
 }
   
-export default Main;
+export default StudentMain;

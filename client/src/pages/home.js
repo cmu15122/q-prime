@@ -1,16 +1,21 @@
 import React, { Component } from 'react';
-// import YourEntry from '../components/YourEntry';
-// import RemoveQOverlay from '../components/RemoveQConfirm';
-import Main from '../components/home/student/Main';
+import StudentMain from '../components/home/student/StudentMain';
+import SharedMain from '../components/home/shared/SharedMain';
+
+import LoginAdminNavbar from '../components/navbar/LoginAdminNavbar'
 
 class Home extends Component {
   state = {
-    data: null
+    queueData: null
   };
 
   componentDidMount() {
     this.callBackendAPI()
-        .then(res => this.setState({ data: res.title }))
+        .then(res => {
+          this.setState({ 
+            queueData: res
+          });
+        })
         .catch(err => console.log(err));
   };
 
@@ -26,12 +31,18 @@ class Home extends Component {
     return body;
   };
 
-  
-
   render() {
     return (
       <div className="App">
-          <Main theme={this.props.theme}/>
+          <LoginAdminNavbar theme={this.props.theme}/>
+          <SharedMain
+            theme={this.props.theme}
+            queueData={this.state.queueData}
+          />
+          <StudentMain 
+            theme={this.props.theme}
+            queueData={this.state.queueData}
+          />
       </div>
     );
   }

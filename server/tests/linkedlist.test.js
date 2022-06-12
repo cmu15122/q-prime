@@ -1,5 +1,8 @@
 // Testing code for our queue
-import { Node, LinkedList } from '../controllers/queue.js';
+const queue = require('../controllers/queue');
+
+const Node = queue.Node;
+const LinkedList = queue.LinkedList;
 
 describe('List Node tests', () => {
     test('Creation has correct default values', () => {
