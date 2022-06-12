@@ -9,9 +9,10 @@ import FrozenOverlay from './FrozenOverlay';
 import TAHelpingOverlay from './TAHelpingOverlay';
 import UpdateQuestionOverlay from './UpdateQuestionOverlay';
 import MessageRespond from './MessageRespond'
-import QueueStats from './QueueStats'
+import AskQuestion from './AskQuestion';
 
-function Main (props) {
+function StudentMain (props) {
+    const [questionValue, setQuestionValue] = useState('')
     const [removeConfirm, setRemoveConfirm] = useState(false);
     const [frozen, setFrozen] = useState(false);
     const [taHelping, setTAHelping] = useState(false);
@@ -19,13 +20,17 @@ function Main (props) {
 
     return (
       <div>
-          <QueueStats theme={props.theme}/>
-          <YourEntry theme={props.theme}></YourEntry>
-          
-          <Button variant="contained" onClick={() => setRemoveConfirm(true)} sx={{m:0.5}}>Open Remove Queue Confirm</Button>
+          <YourEntry
+            openRemoveOverlay={() => setRemoveConfirm(true)}
+            theme={props.theme}
+          />
           <RemoveQOverlay 
             open={removeConfirm}
             handleClose={() => setRemoveConfirm(false)}
+          />
+          <AskQuestion
+            questionValue={questionValue}
+            setQuestionValue={setQuestionValue}
           />
           <Button variant="contained" onClick={() => setFrozen(true)} sx={{m:0.5}}>Open Frozen Overlay</Button>
           <FrozenOverlay 
@@ -43,13 +48,12 @@ function Main (props) {
           <UpdateQuestionOverlay
             open={updateQ}
             handleClose={() => setUpdateQ(false)}
+            setQuestionValue={setQuestionValue}
           />
           <MessageRespond theme = {props.theme}
           />
-
-          
       </div>
     );
 }
   
-export default Main;
+export default StudentMain;
