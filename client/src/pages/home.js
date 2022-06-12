@@ -15,6 +15,7 @@ class Home extends Component {
           this.setState({ 
             queueData: res
           });
+          document.title = res.title;
         })
         .catch(err => console.log(err));
   };
@@ -32,6 +33,17 @@ class Home extends Component {
   };
 
   render() {
+    const isLoggedIn = this.state.queueData?.isAuthenticated;
+    let mainPage;
+    if (isLoggedIn) {
+      mainPage = <StudentMain 
+                    theme={this.props.theme}
+                    queueData={this.state.queueData}
+                  />;
+    } else {
+      // mainPage = <LoginButton onClick={this.handleLoginClick} />;
+    }
+
     return (
       <div className="App">
           <LoginAdminNavbar theme={this.props.theme}/>
@@ -39,10 +51,7 @@ class Home extends Component {
             theme={this.props.theme}
             queueData={this.state.queueData}
           />
-          <StudentMain 
-            theme={this.props.theme}
-            queueData={this.state.queueData}
-          />
+          {mainPage}
       </div>
     );
   }
