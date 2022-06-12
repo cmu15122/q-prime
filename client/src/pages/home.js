@@ -17,8 +17,6 @@ class Home extends Component {
             queueData: res
           });
           document.title = res.title;
-          console.log("fetched!");
-          console.log(res);
         })
         .catch(err => console.log(err));
   };
@@ -36,25 +34,13 @@ class Home extends Component {
   };
 
   render() {
-    const isLoggedIn = this.state.queueData?.isAuthenticated;
-    let mainPage;
-    if (isLoggedIn) {
-      mainPage = <StudentMain 
-                    theme={this.props.theme}
-                    queueData={this.state.queueData}
-                  />;
-    } else {
-      // mainPage = <LoginButton onClick={this.handleLoginClick} />;
-    }
-
     return (
       <div className="App">
           <Navbar theme={this.props.theme} queueData={this.state.queueData} />
-          <SharedMain
+          <HomeMain 
             theme={this.props.theme}
             queueData={this.state.queueData}
           />
-          {mainPage}
       </div>
     );
   }
