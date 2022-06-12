@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
-    AppBar, Toolbar, Typography, Box, Button
-} from '@mui/material'
+    AppBar, Toolbar, Box, Button
+} from '@mui/material';
+
 import OHQueueHeader from './OHQueueHeader';
 import LoggedInAs from './LoggedInAs';
 
@@ -33,9 +34,6 @@ export default function Navbar(props) {
         let newPages = [];
 
         if (isAuthenticated) {
-            if (isAdmin) {
-                newPages.push(createPage('Admin', '/admin'));
-            }
             if (isTA) {
                 newPages.push(createPage('Settings', '/settings'));
                 newPages.push(createPage('Metrics', '/metrics'));

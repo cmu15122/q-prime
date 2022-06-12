@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-import MetricsMain from '../components/metrics/MetricsMain'
+
+import Navbar from '../components/navbar/Navbar';
+import MetricsMain from '../components/metrics/MetricsMain';
 
 class Metrics extends Component {
   state = {
@@ -32,6 +34,7 @@ class Metrics extends Component {
   render() {
     return (
       <div className="Metrics">
+          <Navbar theme={this.props.theme} queueData={this.state.queueData}/>
           <MetricsMain theme={this.props.theme} queueData={this.state.queueData}/>
       </div>
     );

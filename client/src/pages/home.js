@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
-import StudentMain from '../components/home/student/StudentMain';
-import SharedMain from '../components/home/shared/SharedMain';
-import HomeMain from '../components/home/HomeMain';
 
-import Navbar from '../components/navbar/Navbar'
+import Navbar from '../components/navbar/Navbar';
+import HomeMain from '../components/home/HomeMain';
 
 class Home extends Component {
   state = {

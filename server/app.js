@@ -14,7 +14,6 @@ slack.init();
 
 // Routes
 const home = require("./routes/home.js");
-const admin = require("./routes/admin.js");
 const settings = require("./routes/settings.js");
 const metrics = require("./routes/metrics.js");
 
@@ -26,7 +25,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 // Setting Routes
 app.use('/', home);
-app.use('/admin', admin);
 app.use('/settings', settings);
 app.use('/metrics', metrics)
 

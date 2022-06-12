@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-import Main from '../components/settings/Main';
+
+import Navbar from '../components/navbar/Navbar';
+import SettingsMain from '../components/settings/SettingsMain';
 
 class Settings extends Component {
   state = {
@@ -32,7 +34,8 @@ class Settings extends Component {
   render() {
     return (
       <div className="Settings">
-        <Main theme={this.props.theme} queueData={this.state.queueData}/>
+        <Navbar theme={this.props.theme} queueData={this.state.queueData}/>
+        <SettingsMain theme={this.props.theme} queueData={this.state.queueData}/>
       </div>
     );
   }

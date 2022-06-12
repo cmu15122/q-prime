@@ -1,11 +1,16 @@
-import React, { useState } from 'react';
-import Navbar from '../navbar/Navbar';
+import React from 'react';
+import {
+    Typography
+} from '@mui/material';
+
 import DateTimeSelector from './DateTimeSelector';
 
 function MetricsMain (props) {
     return (
         <div>
-            <Navbar theme={props.theme} queueData={props.queueData}/>
+            <Typography variant="h3" textAlign='center' sx={{ mt: 4 }} fontWeight='bold'>
+                Metrics
+            </Typography>
             <DateTimeSelector theme={props.theme}/>
         </div>
     );
