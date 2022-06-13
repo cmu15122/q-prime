@@ -12,6 +12,7 @@ import MessageRespond from './MessageRespond'
 import QueueStats from './QueueStats'
 
 import LoginAdminNavbar from '../../navbar/LoginAdminNavbar'
+import StudentEntries from '../ta/StudentEntries';
 
 function Main (props) {
     const [removeConfirm, setRemoveConfirm] = useState(false);
@@ -47,6 +48,9 @@ function Main (props) {
             open={updateQ}
             handleClose={() => setUpdateQ(false)}
           />
+
+          <StudentEntries theme={props.theme}></StudentEntries>
+
           <MessageRespond theme = {props.theme}
           />
 
