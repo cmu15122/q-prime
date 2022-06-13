@@ -31,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
     is_ta: DataTypes.INTEGER
   }, {
     sequelize,
-    modelName: 'Semester_Users',
+    modelName: 'semester_user',
   });
   return Semester_Users;
 };

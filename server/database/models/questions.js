@@ -49,7 +49,7 @@ module.exports = (sequelize, DataTypes) => {
     fixed: DataTypes.BIGINT
   }, {
     sequelize,
-    modelName: 'Questions',
+    modelName: 'questions',
   });
   return Questions;
 };

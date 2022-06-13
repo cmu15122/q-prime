@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
     time_on_queue: DataTypes.BIGINT
   }, {
     sequelize,
-    modelName: 'Students',
+    modelName: 'students',
   });
   return Students;
 };
