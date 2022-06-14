@@ -3,8 +3,8 @@ import { useCookies } from 'react-cookie';
 
 import config from '../../config/config.json';
 
-function LoginMain(props) {
-    const { theme, queueData } = props
+function GoogleLogin(props) {
+    const { queueData } = props
     const [cookies, setCookie] = useCookies(['user']);
 
     useEffect(() => {
@@ -42,4 +42,4 @@ function LoginMain(props) {
     )
 }
   
-export default LoginMain;
+export default GoogleLogin;

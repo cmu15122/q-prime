@@ -6,7 +6,7 @@ import {
 
 import OHQueueHeader from './OHQueueHeader';
 import LoggedInAs from './LoggedInAs';
-import LoginMain from '../login/LoginMain';
+import GoogleLogin from './GoogleLogin';
 
 function createPage(page, link) {
     return { page, link };
@@ -97,7 +97,7 @@ export default function Navbar(props) {
                         Logout
                     </Button>
                     :
-                    <LoginMain theme={theme} queueData={queueData}/>
+                    <GoogleLogin theme={theme} queueData={queueData}/>
                 }
             </Box>
         </Toolbar>
