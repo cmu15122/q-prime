@@ -9,7 +9,8 @@ On the come up B)
     ```
     % npm install
     ```
-3. Install [MySQL](https://dev.mysql.com/doc/mysql-installation-excerpt/5.7/en/)
+3. Install [PostgreSQL](https://www.postgresql.org/download/)
+
 
 ## Running Server
 1. Start the server
