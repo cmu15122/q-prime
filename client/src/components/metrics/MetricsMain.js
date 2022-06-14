@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
-import LogoutNavbar from '../navbar/LogoutNavbar';
-import LoginStudentNavbar from '../navbar/LoginStudentNavbar';
-import LoginTANavbar from '../navbar/LoginTANavbar';
-import LoginAdminNavbar from '../navbar/LoginAdminNavbar';
+import React from 'react';
+import {
+    Typography
+} from '@mui/material';
+
 import DateTimeSelector from './DateTimeSelector';
 
 function MetricsMain (props) {
     return (
         <div>
-            <LoginAdminNavbar theme={props.theme}/>
+            <Typography variant="h3" textAlign='center' sx={{ mt: 4 }} fontWeight='bold'>
+                Metrics
+            </Typography>
             <DateTimeSelector theme={props.theme}/>
         </div>
     );

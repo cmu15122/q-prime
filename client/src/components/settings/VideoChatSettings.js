@@ -8,7 +8,7 @@ export default function VideoChatSettings(props) {
     const { } = props
     return (
         <div className='card' style={{ display: 'flex' }}>
-            <Card sx={{ minWidth: '100%', mt: 10 }}>
+            <Card sx={{ minWidth: '100%', mt: 1 }}>
                 <CardContent>
                     <Typography sx={{ fontSize: 16, fontWeight: 'bold', ml: 1, mt: 1}} variant="h5" gutterBottom>
                         Video Chat Settings
