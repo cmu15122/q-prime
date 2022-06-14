@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Routes, Route}
 import { CookiesProvider } from 'react-cookie';
 
 import Home from './pages/home';
-import Admin from './pages/admin';
 import Settings from './pages/settings';
 import Metrics from './pages/metrics';
 import { basicTheme } from './themes/base.js';
@@ -22,7 +21,6 @@ function App() {
                 <Router>
                 <Routes>
                     <Route path='/' element={<Home theme={basicTheme}/>} />
-                    <Route path='/admin' element={<Admin theme={basicTheme}/>} />
                     <Route path='/settings' element={<Settings theme={basicTheme}/>} />
                     <Route path='/metrics' element={<Metrics theme={basicTheme}/>} />
                 </Routes>

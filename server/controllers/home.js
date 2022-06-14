@@ -16,12 +16,16 @@ ohq.enqueue("student3");
 let waitTime = 20;
 
 exports.get = function (req, res) {
+    // TODO: use req to get access token and check for user status
     res.status(200);
     res.send({ 
-        title: "Home Page",
+        title: "15-122 Office Hours Queue",
         queueFrozen: queueFrozen,
         numStudents: ohq.size(),
-        waitTime: waitTime
+        waitTime: waitTime,
+        isAuthenticated: true,
+        isTA: true,
+        isAdmin: true
     });
 }
 
