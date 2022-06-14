@@ -11,6 +11,24 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
+    await queryInterface.bulkInsert('users', [
+		{
+			email: 'jd@gmail.com',
+			fname: 'John',
+			lname: 'Doe',
+			access_token: 'asdf',
+			createdAt: new Date(),
+			updatedAt: new Date()
+		},
+		{
+			email: 'honk@gmail.com',
+			fname: 'Honk',
+			lname: 'Honk',
+			access_token: 'honk',
+			createdAt: new Date(),
+			updatedAt: new Date()
+		}
+	], {});
 
    
   },
@@ -22,5 +40,6 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
+	await queryInterface.bulkDelete('users', null, {});
   }
 };

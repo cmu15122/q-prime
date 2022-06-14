@@ -11,6 +11,24 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
+    await queryInterface.bulkInsert(
+		'semesters', [
+			{
+				sem_id: 'F19',
+				createdAt: new Date(),
+				updatedAt: new Date()
+			},
+			{
+				sem_id: 'S19',
+				createdAt: new Date(),
+				updatedAt: new Date()
+			},
+			{
+				sem_id: 'F20',
+				createdAt: new Date(),
+				updatedAt: new Date()
+			}
+		], {});
   },
 
   async down (queryInterface, Sequelize) {
@@ -20,5 +38,6 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
+	await queryInterface.bulkDelete('semesters', null, {});
   }
 };

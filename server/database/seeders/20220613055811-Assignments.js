@@ -11,6 +11,26 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
+    await queryInterface.bulkInsert(
+		'assignments', [{
+	  		name: 'Scavhunt',
+	  		category: 'Programming',
+			createdAt: new Date(),
+			updatedAt: new Date()
+		},
+		{
+			name: 'Pixels',
+			category: 'Programming',
+			createdAt: new Date(),
+			updatedAt: new Date()
+		},
+		{
+			name: 'Written 12',
+			category: 'Written',
+			createdAt: new Date(),
+			updatedAt: new Date()
+		}
+	  ], {});
 
   },
 
@@ -21,5 +41,6 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
+	await queryInterface.bulkDelete('assignments', null, {});
   }
 };
