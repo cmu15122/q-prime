@@ -1,5 +1,6 @@
 // For Home page
 const queue = require('./queue');
+const tempdb = require('./tempdb');
 
 const OHQueue = queue.OHQueue;
 const StudentStatus = queue.StudentStatus;
@@ -23,9 +24,9 @@ exports.get = function (req, res) {
         queueFrozen: queueFrozen,
         numStudents: ohq.size(),
         waitTime: waitTime,
-        isAuthenticated: true,
-        isTA: true,
-        isAdmin: true
+        isAuthenticated: tempdb.userInfo.isAuthenticated,
+        isTA: tempdb.userInfo.isTA,
+        isAdmin: tempdb.userInfo.isAdmin
     });
 }
 

@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useCookies } from 'react-cookie';
-import {
-    Box, Button, Dialog, DialogContent, FormControlLabel, Checkbox, Typography, TextField, Grid
-} from '@mui/material'
 
 import config from '../../config/config.json';
 
-function LoginMain() {
-    const [user, setUser] = useState(null);
+function LoginMain(props) {
+    const { theme, queueData } = props
     const [cookies, setCookie] = useCookies(['user']);
 
     useEffect(() => {
-        window.onload = setupGoogle;
-    });
+        setupGoogle();
+    }, [queueData]);
 
     const setupGoogle = () => {
         window.google.accounts.id.initialize({

@@ -15,7 +15,6 @@ slack.init();
 // Routes
 const home = require("./routes/home.js");
 const settings = require("./routes/settings.js");
-const login = require("./routes/login.js");
 const metrics = require("./routes/metrics.js");
 
 app.use(logger('dev'));
@@ -27,7 +26,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // Setting Routes
 app.use('/', home);
 app.use('/settings', settings);
-app.use('/login', login);
 app.use('/metrics', metrics)
 
 const port = parseInt(process.env.PORT, 10) || 8000;
