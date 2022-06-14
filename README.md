@@ -9,11 +9,6 @@ On the come up B)
     ```
     % npm install
     ```
-3. Install [PostgreSQL](https://www.postgresql.org/download/)
-
-	
-
-
 
 
 ## Running Server
