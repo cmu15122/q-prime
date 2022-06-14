@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import AdminMain from '../components/admin/AdminMain'
+import MetricsMain from '../components/metrics/MetricsMain'
 
-class Admin extends Component {
+class Metrics extends Component {
   state = {
     data: null
   };
@@ -14,7 +14,7 @@ class Admin extends Component {
 
   // fetching the GET route from the Express server which matches the GET route from server.js
   callBackendAPI = async () => {
-    const response = await fetch('http://localhost:8000/admin');
+    const response = await fetch('http://localhost:8000/metrics');
     const body = await response.json();
 
     if (response.status !== 200) {
@@ -26,11 +26,11 @@ class Admin extends Component {
 
   render() {
     return (
-      <div className="Admin">
-          <AdminMain theme={this.props.theme} />
+      <div className="Metrics">
+          <MetricsMain theme={this.props.theme} />
       </div>
     );
   }
 }
 
-export default Admin;
+export default Metrics;
