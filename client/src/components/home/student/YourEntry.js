@@ -3,8 +3,11 @@ import {
     Typography,
     Divider,
     Card,
-    CardContent
+    CardContent,
+    Stack,
+    IconButton,
 } from '@mui/material'
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function YourEntry(props) {
     const position = 11
@@ -13,15 +16,19 @@ export default function YourEntry(props) {
     const topic = 'Programming X'
     const question = 'Student\'s Question'
     
-    const { } = props
+    const { openRemoveOverlay } = props
     return (
         <div className='card' style={{display:'flex'}}>
             <Card sx={{ minWidth : '100%'}}>
                 <CardContent>
+                    <Stack direction="row" display="flex">
+                        <Typography variant='h5' sx={{fontWeight: 'bold', textAlign: 'left'}}>Your Entry:</Typography>
+                        <IconButton sx={{color: "black", marginLeft: "auto", marginRight:".5em"}} onClick={openRemoveOverlay}>
+                            <DeleteIcon />
+                        </IconButton>
+                    </Stack>
                     
-                    <Typography variant='h5' sx={{fontWeight: 'bold', textAlign: 'left'}}>Your Entry:</Typography>
-                    
-                    <Divider sx={{marginTop:".5em", marginBottom:".5em"}}/>
+                    <Divider sx={{marginBottom:".5em"}}/>
                     
                     <Typography variant='h6' sx={{textAlign:'left'}}>You are <strong>{position}th in line</strong>.</Typography>
                     <Typography variant='h6' sx={{textAlign:'left'}}>The estimated wait time is <strong>{waitTime} minutes</strong> from your position.</Typography>
