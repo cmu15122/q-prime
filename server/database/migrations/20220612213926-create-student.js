@@ -12,7 +12,7 @@ module.exports = {
 		primaryKey:true,
 		allowNull: false,
 		references:{
-			model: {tableName: 'user'},
+			model: {tableName: 'account'},
 			key: 'id'
 		}
 	  },

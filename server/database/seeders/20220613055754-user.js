@@ -11,7 +11,7 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
-    await queryInterface.bulkInsert('user', [
+    await queryInterface.bulkInsert('account', [
 		{
 			email: 'jd@gmail.com',
 			fname: 'John',
@@ -40,6 +40,6 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
-	await queryInterface.bulkDelete('user', null, {});
+	await queryInterface.bulkDelete('account', null, {});
   }
 };
