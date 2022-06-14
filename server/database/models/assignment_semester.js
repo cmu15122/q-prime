@@ -17,14 +17,14 @@ module.exports = (sequelize, DataTypes) => {
     assignmentId:{
 		type: DataTypes.INTEGER,
 		references:{
-			model: Assignments,
+			model: Assignment,
 			key: 'id'
 		}
 	},
 	semesterId:{
 		type: DataTypes.STRING(3),
 		references:{
-			model: Semesters,
+			model: Semester,
 			key: 'sem_id'
 		}
 	},

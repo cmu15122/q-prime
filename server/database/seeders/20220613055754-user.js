@@ -11,27 +11,26 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
     */
-    await queryInterface.bulkInsert(
-		'assignments', [{
-	  		name: 'Scavhunt',
-	  		category: 'Programming',
+    await queryInterface.bulkInsert('user', [
+		{
+			email: 'jd@gmail.com',
+			fname: 'John',
+			lname: 'Doe',
+			access_token: 'asdf',
 			createdAt: new Date(),
 			updatedAt: new Date()
 		},
 		{
-			name: 'Pixels',
-			category: 'Programming',
-			createdAt: new Date(),
-			updatedAt: new Date()
-		},
-		{
-			name: 'Written 12',
-			category: 'Written',
+			email: 'honk@gmail.com',
+			fname: 'Honk',
+			lname: 'Honk',
+			access_token: 'honk',
 			createdAt: new Date(),
 			updatedAt: new Date()
 		}
-	  ], {});
+	], {});
 
+   
   },
 
   async down (queryInterface, Sequelize) {
@@ -41,6 +40,6 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
-	await queryInterface.bulkDelete('assignments', null, {});
+	await queryInterface.bulkDelete('user', null, {});
   }
 };

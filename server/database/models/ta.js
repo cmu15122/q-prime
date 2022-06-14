@@ -30,7 +30,7 @@ module.exports = (sequelize, DataTypes) => {
     time_helped: DataTypes.BIGINT
   }, {
     sequelize,
-    modelName: 'tas',
+    modelName: 'ta',
   });
   return TA;
 };

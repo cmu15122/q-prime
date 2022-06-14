@@ -1,27 +1,29 @@
 'use strict';
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('users', {
+    await queryInterface.createTable('semester_user', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      email: {
-        type: Sequelize.STRING
-      },
-      fname: {
-        type: Sequelize.STRING
-      },
-      lname: {
-        type: Sequelize.STRING
-      },
-      access_token: {
-        type: Sequelize.STRING
-      },
-      settings: {
-        type: Sequelize.JSON
+      user_id:{
+		type: Sequelize.INTEGER,
+		references:{
+			model: {tableName:'user'},
+			key: 'id'
+		}
+	  },
+	  sem_id:{
+		type: Sequelize.STRING(3),
+		references:{
+			model: {tableName:'semester'},
+			key: 'sem_id'
+		}
+	  },
+      is_ta: {
+        type: Sequelize.INTEGER
       },
       createdAt: {
         allowNull: false,
@@ -34,6 +36,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('users');
+    await queryInterface.dropTable('semester_user');
   }
 };

@@ -11,14 +11,14 @@ module.exports = {
       assignmentId:{
 		type: Sequelize.INTEGER,
 		references:{
-			model: {tableName: 'assignments'},
+			model: {tableName: 'assignment'},
 			key: 'id'
 		}
 	  },
 	  semesterId:{
 		type: Sequelize.STRING(3),
 		references:{
-			model: {tableName: 'semesters'},
+			model: {tableName: 'semester'},
 			key: 'sem_id'
 		}
 	  },

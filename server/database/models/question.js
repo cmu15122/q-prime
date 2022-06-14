@@ -3,7 +3,7 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Questions extends Model {
+  class Question extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -11,16 +11,16 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-	  Questions.hasMany(models.Semesters, {foreignKey: 'sem_id'});
-	  Questions.hasMany(models.Students, {foreignKey: 'student_id'});
-	  Questions.hasMany(models.TA, {foreignKey: 'ta_id'});
+	  Question.hasMany(models.Semester, {foreignKey: 'sem_id'});
+	  Question.hasMany(models.Student, {foreignKey: 'student_id'});
+	  Question.hasMany(models.TA, {foreignKey: 'ta_id'});
     }
   }
-  Questions.init({
+  Question.init({
 	student_id:{
 		type: DataTypes.INTEGER,
 		references:{
-			model: Students,
+			model: Student,
 			key: 'student_id'
 		}
 	},
@@ -35,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
 	sem_id:{
 		type: DataTypes.STRING,
 		references:{
-			model: Semesters,
+			model: Semester,
 			key: 'sem_id'
 		}
 	},
@@ -49,7 +49,7 @@ module.exports = (sequelize, DataTypes) => {
     fixed: DataTypes.BIGINT
   }, {
     sequelize,
-    modelName: 'questions',
+    modelName: 'question',
   });
-  return Questions;
+  return Question;
 };

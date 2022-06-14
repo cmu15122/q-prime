@@ -1,7 +1,7 @@
 'use strict';
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('questions', {
+    await queryInterface.createTable('question', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -11,21 +11,21 @@ module.exports = {
 	  student_id:{
 		type: Sequelize.INTEGER,
 		references:{
-			model: {tableName: 'students'},
+			model: {tableName: 'student'},
 			key: 'student_id'
 		}
 	  },
 	  ta_id:{
 		type: Sequelize.INTEGER,
 		references:{
-			model: {tableName: 'tas'},
+			model: {tableName: 'ta'},
 			key: 'ta_id'
 		}
 	  },
 	  sem_id:{
 		type: Sequelize.STRING,
 		references:{
-			model: {tableName: 'semesters'},
+			model: {tableName: 'semester'},
 			key: 'sem_id'
 		}
 	  },
@@ -64,6 +64,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('questions');
+    await queryInterface.dropTable('question');
   }
 };

@@ -10,6 +10,31 @@ On the come up B)
     % npm install
     ```
 3. Install [PostgreSQL](https://www.postgresql.org/download/)
+4. Run the following commands to create a user and database:
+	```
+	% psql
+	postgres=# CREATE USER <user> WITH PASSWORD <password>;
+	postgres=# CREATE DATABASE <dbname>;
+	postgres=# GRANT ALL PRIVILEGES ON DATABASE <dbname> to <user>;
+	```
+5. Start the database by migrating the schema
+	```
+	% npx sequelize db:migrate
+	```
+	To undo migration:
+	```
+	% npx sequelize db:migrate:undo:all(if you want to remove all migrations)
+	```
+6. Edit the seed files with dummy data for testing. When ready, run the following commands to seed the database:
+	```
+	% npx sequelize db:seed:all
+	```
+	Undo:
+	```
+	% npx sequelize db:seed:undo:all
+	```
+
+
 
 
 ## Running Server
