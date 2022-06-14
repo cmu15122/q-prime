@@ -9,7 +9,7 @@ On the come up B)
     ```
     % npm install
     ```
-3. Install [MySQL](https://dev.mysql.com/doc/mysql-installation-excerpt/5.7/en/)
+
 
 ## Running Server
 1. Start the server
