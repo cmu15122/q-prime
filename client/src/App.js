@@ -12,7 +12,9 @@ import { basicTheme } from './themes/base.js';
 import { ThemeProvider } from '@mui/material'
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-  
+
+import './App.css';
+
 function App() {
     return (
         <ThemeProvider theme={basicTheme}>

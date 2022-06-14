@@ -3,8 +3,7 @@ import StudentMain from '../components/home/student/StudentMain';
 import SharedMain from '../components/home/shared/SharedMain';
 
 import LoginAdminNavbar from '../components/navbar/LoginAdminNavbar'
-
-import Login from '../components/login';
+import LogoutNavbar from '../components/navbar/LogoutNavbar'
 
 class Home extends Component {
   state = {
@@ -36,7 +35,7 @@ class Home extends Component {
   render() {
     return (
       <div className="App">
-          <LoginAdminNavbar theme={this.props.theme}/>
+          <LogoutNavbar theme={this.props.theme}/>
           <SharedMain
             theme={this.props.theme}
             queueData={this.state.queueData}
