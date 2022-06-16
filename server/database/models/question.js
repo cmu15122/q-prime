@@ -2,6 +2,7 @@
 const {
   Model
 } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Question extends Model {
     /**
@@ -11,34 +12,33 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-	  Question.hasMany(models.Semester, {foreignKey: 'sem_id'});
-	  Question.hasMany(models.Student, {foreignKey: 'student_id'});
-	  Question.hasMany(models.TA, {foreignKey: 'ta_id'});
+      Question.hasMany(models.semester, {foreignKey: 'sem_id'});
+      Question.hasMany(models.student, {foreignKey: 'student_id'});
+      Question.hasMany(models.ta, {foreignKey: 'ta_id'});
     }
   }
   Question.init({
-	student_id:{
-		type: DataTypes.INTEGER,
-		references:{
-			model: Student,
-			key: 'student_id'
-		}
-	},
-	ta_id:{
-		type: DataTypes.INTEGER,
-		references:{
-			model: TA,
-			key: 'ta_id'
-		}
-
-	},
-	sem_id:{
-		type: DataTypes.STRING,
-		references:{
-			model: Semester,
-			key: 'sem_id'
-		}
-	},
+    student_id:{
+      type: DataTypes.INTEGER,
+      references:{
+        model: 'student',
+        key: 'student_id'
+      }
+    },
+    ta_id:{
+      type: DataTypes.INTEGER,
+      references:{
+        model: 'ta',
+        key: 'ta_id'
+      }
+    },
+    sem_id:{
+      type: DataTypes.STRING,
+      references:{
+        model: 'semester',
+        key: 'sem_id'
+      }
+    },
     question: DataTypes.TEXT,
     attempted: DataTypes.TEXT,
     location: DataTypes.STRING,
@@ -50,6 +50,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'question',
+    tableName: 'question'
   });
   return Question;
 };

@@ -2,6 +2,7 @@
 const {
   Model
 } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Student extends Model {
     /**
@@ -11,24 +12,25 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-	  Student.hasOne(models.User, {foreignKey: 'id'});
-	  Student.belongsTo(models.Question, {foreignKey: 'student_id'});
+      Student.hasOne(models.account, {foreignKey: 'id'});
+      Student.belongsTo(models.question, {foreignKey: 'student_id'});
     }
   }
   Student.init({
     student_id:{
-		type: DataTypes.INTEGER,
-		primaryKey:true,
-		references:{
-			model: User,
-			key: 'id'
-		}
-	},
+      type: DataTypes.INTEGER,
+      primaryKey:true,
+      references:{
+        model: 'account',
+        key: 'id'
+      }
+    },
     num_Question: DataTypes.BIGINT,
     time_on_queue: DataTypes.BIGINT
   }, {
     sequelize,
     modelName: 'student',
+    tableName: 'student'
   });
   return Student;
 };

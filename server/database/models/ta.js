@@ -2,6 +2,7 @@
 const {
   Model
 } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class TA extends Model {
     /**
@@ -11,19 +12,19 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-	  TA.hasOne(models.Users, {foreignKey: 'id'});
-	  TA.belongsTo(models.Questions, {foreignKey: 'ta_id'});
+      TA.hasOne(models.account, {foreignKey: 'id'});
+      TA.belongsTo(models.question, {foreignKey: 'ta_id'});
     }
   }
   TA.init({
     ta_id:{
-		type: DataTypes.INTEGER,
-		primaryKey: true,
-		references:{
-			model: Users,
-			key: 'id'
-		}
-	},
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      references:{
+        model: 'account',
+        key: 'id'
+      }
+    },
     is_admin: DataTypes.INTEGER,
     zoom_url: DataTypes.STRING,
     num_helped: DataTypes.BIGINT,
@@ -31,6 +32,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'ta',
+    tableName: 'ta'
   });
   return TA;
 };

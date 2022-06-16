@@ -34,4 +34,14 @@ app.set('port', port);
 const server = http.createServer(app);
 server.listen(port);
 
+const db = require("./database/models");
+db.sequelize.authenticate().then(() => {
+    console.log("Connected to the database!");
+  })
+  .catch(err => {
+    console.log("Cannot connect to the database!", err);
+    process.exit();
+  });
+db.sequelize.sync();
+
 module.exports = app;
