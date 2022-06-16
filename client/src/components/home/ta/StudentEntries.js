@@ -1,30 +1,11 @@
 
 import * as React from 'react';
 import {
-    styled, Button, Card, CardActions, IconButton, Collapse, Divider,
-    Typography, Table, TableRow, TableCell, TableBody
+    Card, CardActions, Divider, Typography, Table, TableBody
 } from '@mui/material';
-import {
-    Help, Delete, ExpandMore
-} from '@mui/icons-material';
 
-import AddTopicDialog from '../../admin/dialogs/AddTopicDialog';
-import EditTopicDialog from '../../admin/dialogs/EditTopicDialog';
-import DeleteTopicDialog from '../../admin/dialogs/DeleteTopicDialog';
-
-import { DateTime } from 'luxon';
 import StudentEntry from './StudentEntry';
 
-const Expand = styled((props) => {
-        const { expand, ...other } = props;
-        return <IconButton {...other} />;
-    })(({ theme, expand }) => ({
-        transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
-        marginLeft: 'auto',
-        transition: theme.transitions.create('transform', {
-        duration: theme.transitions.duration.shortest,
-    }),
-}));
 
 
 function createData(name, andrewID, topic, question) {
