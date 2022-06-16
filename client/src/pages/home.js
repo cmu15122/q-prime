@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import StudentMain from '../components/home/student/StudentMain';
-import SharedMain from '../components/home/shared/SharedMain';
 
-import LoginAdminNavbar from '../components/navbar/LoginAdminNavbar'
+import Navbar from '../components/navbar/Navbar';
+import HomeMain from '../components/home/HomeMain';
 
 class Home extends Component {
   state = {
@@ -15,6 +14,7 @@ class Home extends Component {
           this.setState({ 
             queueData: res
           });
+          document.title = res.title;
         })
         .catch(err => console.log(err));
   };
@@ -34,12 +34,8 @@ class Home extends Component {
   render() {
     return (
       <div className="App">
-          <LoginAdminNavbar theme={this.props.theme}/>
-          <SharedMain
-            theme={this.props.theme}
-            queueData={this.state.queueData}
-          />
-          <StudentMain 
+          <Navbar theme={this.props.theme} queueData={this.state.queueData} />
+          <HomeMain 
             theme={this.props.theme}
             queueData={this.state.queueData}
           />

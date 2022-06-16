@@ -1,14 +1,21 @@
 import React, { Component } from 'react';
-import MetricsMain from '../components/metrics/MetricsMain'
+
+import Navbar from '../components/navbar/Navbar';
+import MetricsMain from '../components/metrics/MetricsMain';
 
 class Metrics extends Component {
   state = {
-    data: null
+    queueData: null
   };
 
   componentDidMount() {
     this.callBackendAPI()
-        .then(res => this.setState({ data: res.title }))
+        .then(res => {
+          this.setState({ 
+            queueData: res
+          });
+          document.title = res.title;
+        })
         .catch(err => console.log(err));
   };
 
@@ -27,7 +34,8 @@ class Metrics extends Component {
   render() {
     return (
       <div className="Metrics">
-          <MetricsMain theme={this.props.theme} />
+          <Navbar theme={this.props.theme} queueData={this.state.queueData}/>
+          <MetricsMain theme={this.props.theme} queueData={this.state.queueData}/>
       </div>
     );
   }

@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
-const metricsView = require('../controllers/metricsController');
+const metricsView = require('../controllers/metrics');
 
-router.get('/metrics', metricsView);
+router.get('/', metricsView);
 
 module.exports = router;
