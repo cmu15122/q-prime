@@ -43,13 +43,6 @@ const students = [
 export default function StudentEntries(props) {
     const { theme } = props
 
-    const [open, setOpen] = React.useState(true);
-
-    const handleClick = () => {
-        setOpen(!open);
-    };
-
-
     return (
         <div className='card' style={{ display:'flex' }}>
             <Card sx={{ minWidth: '100%' }}>
@@ -57,31 +50,21 @@ export default function StudentEntries(props) {
                     <Typography sx={{ fontSize: 16, fontWeight: 'bold', ml: 2, mt: 1 }} variant="h5" gutterBottom>
                         Students
                     </Typography>
-                    <Expand
-                        expand={open}
-                        onClick={handleClick}
-                        aria-expanded={open}
-                        aria-label="show more"
-                        sx={{ mr: 1 }}
-                    >
-                        <ExpandMore />
-                    </Expand>
                 </CardActions>
-                <Collapse in={open} timeout="auto" unmountOnExit>
-                    <Divider></Divider>
-                        <Table aria-label="topicsTable">
-                            <TableBody>
+                <Divider></Divider>
+                    <Table aria-label="topicsTable">
+                        <TableBody>
                             {students.map((student, index) => {
-                              
-                              let studentProps = {
+                                
+                                let studentProps = {
                                 ...props,
                                 student: student,
                                 index: index
-                              }
+                                }
 
-                              return StudentEntry(studentProps);
-                              
-                              })}
+                                return StudentEntry(studentProps);
+                                
+                                })}
                             
                             {/* don't delete this code, if we want the add student button as a popup this would be nice to have */}
                             {/* <TableRow
@@ -95,10 +78,8 @@ export default function StudentEntries(props) {
                                 </TableCell>
                             </TableRow> */}
 
-
-                            </TableBody>
-                        </Table>
-                </Collapse>
+                        </TableBody>
+                    </Table>
             </Card>
         </div>
     );
