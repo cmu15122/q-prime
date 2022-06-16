@@ -69,8 +69,7 @@ export default function StudentEntry(props) {
         <TableCell padding='none' component="th" scope="row" sx={{ fontSize: '16px', pl: 3.25, pr: 2, width: '15%'}}>
             {student.name} ({student.andrewID})
         </TableCell>
-        <TableCell padding='none' align="left" sx={{ fontSize: '16px', width: '15%', pr: 2 }}>{student.topic}</TableCell>
-        <TableCell padding='none' align="left" sx={{ fontSize: '16px', width: '35%' }}>{student.question}</TableCell>
+        <TableCell padding='none' align="left" sx={{ fontSize: '16px', width: '50%', pr: 2 }}>{`[${student.topic}] ${student.question}`}</TableCell>
         <TableCell padding='none' text-align="center" align="right" sx={{ pr: 3, width: '35%' }}>
           <Toolbar sx={{alignItems: 'right', justifyContent:'right'}}>
 
