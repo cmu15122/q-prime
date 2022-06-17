@@ -3,7 +3,6 @@ import {
     Box,
     Button
 } from '@mui/material'
-import QueueStats from '../shared/QueueStats';
 import YourEntry from './YourEntry';
 import RemoveQOverlay from './RemoveQConfirm';
 import FrozenOverlay from './FrozenOverlay';
@@ -11,14 +10,8 @@ import TAHelpingOverlay from './TAHelpingOverlay';
 import UpdateQuestionOverlay from './UpdateQuestionOverlay';
 import MessageRespond from './MessageRespond'
 import AskQuestion from './AskQuestion';
-import Announcements from '../Annoucements';
-
-import Footer from '../Footer';
-import Navbar from '../../navbar/Navbar';
-import StudentEntries from '../shared/StudentEntries';
 
 function StudentMain (props) {
-    const gitHubLink = 'https://www.github.com'
     const [questionValue, setQuestionValue] = useState('')
     const [removeConfirm, setRemoveConfirm] = useState(false);
     const [frozen, setFrozen] = useState(false);
@@ -27,9 +20,6 @@ function StudentMain (props) {
 
     return (
       <div>
-          <Navbar theme={props.theme}/>
-          <QueueStats theme={props.theme}/>
-          
           <YourEntry
             openRemoveOverlay={() => setRemoveConfirm(true)}
             theme={props.theme}
@@ -61,10 +51,7 @@ function StudentMain (props) {
             setQuestionValue={setQuestionValue}
           />
 
-          <StudentEntries theme={props.theme}/>
-
           <MessageRespond theme = {props.theme} />
-          <Footer gitHubLink={gitHubLink} />
       </div>
     );
 }

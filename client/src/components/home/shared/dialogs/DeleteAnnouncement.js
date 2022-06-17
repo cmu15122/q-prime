@@ -5,7 +5,7 @@ import {
 } from '@mui/material'
 
 export default function DeleteAnnouncement(props) {
-    const { isOpen, onClose, topicInfo } = props
+    const { isOpen, onClose, announcementInfo } = props
 
     return (
         <Dialog
@@ -17,7 +17,7 @@ export default function DeleteAnnouncement(props) {
                     Delete Topic
                 </Typography>
                 <Typography sx={{ textAlign: 'center' }}>
-                    Are you sure you want to remove <strong>{" " + topicInfo?.name}</strong>? 
+                    Are you sure you want to remove <strong>{" " + announcementInfo?.header}</strong>? 
                     <br/>
                     This action cannot be undone.
                 </Typography>

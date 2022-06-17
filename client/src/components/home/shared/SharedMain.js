@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Announcements from '../Annoucements';
+import Announcements from './Annoucements';
 import QueueStats from './QueueStats'
 
 function SharedMain (props) {
@@ -7,7 +7,7 @@ function SharedMain (props) {
 
     return (
       <div>
-          <Announcements theme={theme}/>
+          <Announcements theme={theme} queueData={queueData} />
           <QueueStats 
             theme={theme}
             queueData={queueData}

@@ -1,4 +1,3 @@
-
 import * as React from 'react';
 import {
     styled, Button, Badge, Box, Card, CardActions, IconButton, Collapse, Divider, Stack,
@@ -35,10 +34,8 @@ const rows = [
     createData('Respecting the Queue', 'We can only answer the question you specified in your entry. If you have a new question, remove your entry and ask a TA to approve skipping the cooldown.', false),
 ];
 
-const isTA = true;
-
 export default function Announcements(props) {
-    const { theme } = props
+    const { theme, queueData } = props
 
     const [open, setOpen] = React.useState(false);
 
@@ -99,13 +96,12 @@ export default function Announcements(props) {
     return (
         <div className='card' style={{ display:'flex' }}>
             <Card sx={{ minWidth: '100%' }}>
-                <CardActions disableSpacing>
+                <CardActions disableSpacing onClick={handleClick} style={{ cursor: 'pointer' }}>
                     <Typography sx={{ fontSize: 16, fontWeight: 'bold', ml: 2, mt: 1 }} variant="h5" gutterBottom>
                         Announcements
                     </Typography>
                     <Expand
                         expand={open}
-                        onClick={handleClick}
                         aria-expanded={open}
                         aria-label="show more"
                         sx={{ mr: 1 }}
@@ -138,29 +134,34 @@ export default function Announcements(props) {
                                                 </Badge>
                                             </IconButton>
                                         }
-                                        {isTA && 
-                                        <Box>
-                                            <IconButton sx={{ mr: 1 }} color="info" onClick={() => handleEdit(row)}>
-                                                <Edit />
-                                            </IconButton>
+                                        {
+                                            queueData?.isTA && 
+                                            <Box>
+                                                <IconButton sx={{ mr: 1 }} color="info" onClick={() => handleEdit(row)}>
+                                                    <Edit />
+                                                </IconButton>
 
-                                            <IconButton color="error" onClick={() => handleDelete(row)}>
-                                                <Delete />
-                                            </IconButton>
-                                        </Box>}
+                                                <IconButton color="error" onClick={() => handleDelete(row)}>
+                                                    <Delete />
+                                                </IconButton>
+                                            </Box>
+                                        }
                                     </Stack>
                                 </TableRow>
                             ))}
+                            {
+                                queueData?.isTA &&
                                 <TableRow
                                     key='add'
                                     style={{ background : theme?.palette?.background.default }}
                                 >
                                     <TableCell align="center" colSpan={4}>
                                         <Button sx={{ mr: 1, fontWeight: 'bold', fontSize: '18px' }} color="primary" variant="contained" onClick={() => handleAdd()}>
-                                            + Add Topic
+                                            + Create
                                         </Button>
                                     </TableCell>
                                 </TableRow>
+                            }
                             </TableBody>
                         </Table>
                 </Collapse>
@@ -172,6 +173,7 @@ export default function Announcements(props) {
                 onClose={handleClose}
                 onMarkRead={handleMarkRead}
             />
+
             <AddAnnouncement
                 isOpen={openAdd}
                 onClose={handleClose}
@@ -189,7 +191,7 @@ export default function Announcements(props) {
             <DeleteAnnouncement
                 isOpen={openDelete}
                 onClose={handleClose}
-                topicInfo={selectedRow}
+                announcementInfo={selectedRow}
             />
         </div>
     );

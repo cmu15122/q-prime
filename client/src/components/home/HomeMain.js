@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import SharedMain from './shared/SharedMain';
 import StudentMain from './student/StudentMain';
 import TAMain from './ta/TAMain';
+import Footer from './Footer';
 
 function HomeMain (props) {
     const { theme, queueData } = props;
+
+    const gitHubLink = 'https://www.github.com'
     
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isTA, setIsTA] = useState(false);
@@ -37,6 +40,7 @@ function HomeMain (props) {
             queueData={queueData}
           />
           {mainPage}
+          <Footer gitHubLink={gitHubLink} />
       </div>
     );
 }

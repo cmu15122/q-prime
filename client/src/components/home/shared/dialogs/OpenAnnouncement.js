@@ -20,7 +20,7 @@ export default function OpenAnnouncement(props) {
                     {announcementInfo?.content}
                 </Typography>
                 <Box textAlign='center' sx={{pt: 5}}>
-                    <Button onClick={onMarkRead} variant="contained" color="error" sx={{ alignSelf: 'center' }}>{announcementInfo?.markedRead ? 'Close' : 'Mark As Read'}</Button>
+                    <Button onClick={onMarkRead} variant="contained" sx={{ alignSelf: 'center' }}>{announcementInfo?.markedRead ? 'Close' : 'Mark As Read'}</Button>
                 </Box>
             </DialogContent>
         </Dialog>
