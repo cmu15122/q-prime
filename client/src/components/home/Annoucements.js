@@ -1,15 +1,17 @@
 
 import * as React from 'react';
 import {
-    styled, Button, Card, CardActions, IconButton, Collapse, Divider,
+    styled, Button, Badge, Box, Card, CardActions, IconButton, Collapse, Divider, Stack,
     Typography, Table, TableRow, TableCell, TableBody
 } from '@mui/material';
 import {
-    Delete, ExpandMore
+    Edit, Delete, ExpandMore, FindInPage
 } from '@mui/icons-material';
 
-import AddTopicDialog from './dialogs/AddTopicDialog';
-import DeleteTopicDialog from './dialogs/DeleteTopicDialog';
+import OpenAnnouncement from './dialogs/OpenAnnouncement';
+import AddAnnouncement from './dialogs/AddAnnouncement';
+import EditAnnouncement from './dialogs/EditAnnouncement';
+import DeleteAnnouncement from './dialogs/DeleteAnnouncement';
 
 const Expand = styled((props) => {
         const { expand, ...other } = props;
@@ -33,8 +35,7 @@ const rows = [
     createData('Respecting the Queue', 'We can only answer the question you specified in your entry. If you have a new question, remove your entry and ask a TA to approve skipping the cooldown.', false),
 ];
 
-// TODO: create AnnouncementDialog that takes in content as a prop with Open Announcement Button
-// TODO: add dialogs for delete and a isTA boolean
+const isTA = true;
 
 export default function Announcements(props) {
     const { theme } = props
@@ -45,12 +46,27 @@ export default function Announcements(props) {
         setOpen(!open);
     };
 
+    const [openAnnouncement, setOpenAnnouncement] = React.useState(false);
     const [openAdd, setOpenAdd] = React.useState(false);
+    const [openEdit, setOpenEdit] = React.useState(false);
     const [openDelete, setOpenDelete] = React.useState(false);
     const [selectedRow, setSelectedRow] = React.useState();
 
+    const [newHeader, setQuestionHeader] = React.useState('')
+    const [newContent, setQuestionContent] = React.useState('')
+
+    const handleOpenAnnouncement = (row) => {
+        setOpenAnnouncement(true);
+        setSelectedRow(row);
+    }
+
     const handleAdd = () => {
         setOpenAdd(true);
+    };
+
+    const handleEdit = (row) => {
+        setOpenEdit(true);
+        setSelectedRow(row);
     };
 
     const handleDelete = (row) => {
@@ -59,16 +75,31 @@ export default function Announcements(props) {
     };
 
     const handleClose = () => {
+        setOpenAnnouncement(false);
         setOpenAdd(false);
+        setOpenEdit(false);
         setOpenDelete(false);
     };
+
+    const handleMarkRead = () => {
+        selectedRow['markedRead'] = true;
+        console.log(selectedRow.markedRead);
+        setOpenAnnouncement(false);
+    };
+
+    const handleSave = () => {
+        selectedRow['header'] = newHeader == '' ? selectedRow?.header : newHeader;
+        selectedRow['content'] = newContent == '' ? selectedRow?.content : newContent;
+        selectedRow['markedRead'] = false;
+        setOpenEdit(false);
+    }
 
     return (
         <div className='card' style={{ display:'flex' }}>
             <Card sx={{ minWidth: '100%' }}>
                 <CardActions disableSpacing>
                     <Typography sx={{ fontSize: 16, fontWeight: 'bold', ml: 2, mt: 1 }} variant="h5" gutterBottom>
-                        Queue Topic Settings
+                        Announcements
                     </Typography>
                     <Expand
                         expand={open}
@@ -82,27 +113,40 @@ export default function Announcements(props) {
                 </CardActions>
                 <Collapse in={open} timeout="auto" unmountOnExit>
                     <Divider></Divider>
-                        <Table aria-label="topicsTable">
+                        <Table aria-label="topicsTxable">
                             <TableBody>
                             {rows.map((row, index) => (
                                 <TableRow
-                                    key={row.name}
+                                    key={row.header}
                                     style={ index % 2 ? { background : theme.palette.background.paper }:{ background : theme.palette.background.default }}
                                 >
                                     <TableCell component="th" scope="row" sx={{ fontSize: '16px', fontWeight: 'bold', pl: 3.25 }}>
-                                        {row.name}
+                                        {row.header}
                                     </TableCell>
-                                    <TableCell align="left" sx={{ fontSize: '16px' }}>{row.dateIn.toLocaleString(DateTime.DATETIME_SHORT)}</TableCell>
-                                    <TableCell align="left" sx={{ fontSize: '16px' }}>{row.dateOut.toLocaleString(DateTime.DATETIME_SHORT)}</TableCell>
-                                    <TableCell align="right" sx={{ pr: 3 }}>
-                                        <IconButton sx={{ mr: 1 }} color="info" onClick={() => handleEdit(row)}>
-                                            <Edit />
-                                        </IconButton>
+                                    <Stack sx={{ mr: 2 }}direction='row' margin='auto' justifyContent='flex-end'>
+                                        {row.markedRead
+                                         ?
+                                            <IconButton color="primary" variant='contained' sx={{ mr: 1 }} onClick={() => handleOpenAnnouncement(row)}>
+                                                <FindInPage />
+                                            </IconButton>
+                                         : 
+                                            <IconButton color="primary" variant='contained' sx={{ mr: 1 }} onClick={() => handleOpenAnnouncement(row)}>
+                                                <Badge badgeContent="new" color="success" anchorOrigin={{ vertical: 'top', horizontal: 'left' }} overlap="rectangular" variant='standard'>
+                                                    <FindInPage />
+                                                </Badge>
+                                            </IconButton>
+                                        }
+                                        {isTA && 
+                                        <Box>
+                                            <IconButton sx={{ mr: 1 }} color="info" onClick={() => handleEdit(row)}>
+                                                <Edit />
+                                            </IconButton>
 
-                                        <IconButton color="error" onClick={() => handleDelete(row)}>
-                                            <Delete />
-                                        </IconButton>
-                                    </TableCell>
+                                            <IconButton color="error" onClick={() => handleDelete(row)}>
+                                                <Delete />
+                                            </IconButton>
+                                        </Box>}
+                                    </Stack>
                                 </TableRow>
                             ))}
                                 <TableRow
@@ -119,12 +163,28 @@ export default function Announcements(props) {
                         </Table>
                 </Collapse>
             </Card>
-            <AddTopicDialog
+            
+            <OpenAnnouncement 
+                isOpen={openAnnouncement}
+                announcementInfo={selectedRow}
+                onClose={handleClose}
+                onMarkRead={handleMarkRead}
+            />
+            <AddAnnouncement
                 isOpen={openAdd}
                 onClose={handleClose}
             />
 
-            <DeleteTopicDialog
+            <EditAnnouncement
+                isOpen={openEdit}
+                onClose={handleClose}
+                announcementInfo={selectedRow}
+                onSave={handleSave}
+                setHeader={setQuestionHeader}
+                setContent={setQuestionContent}
+            />
+
+            <DeleteAnnouncement
                 isOpen={openDelete}
                 onClose={handleClose}
                 topicInfo={selectedRow}

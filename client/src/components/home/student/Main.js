@@ -11,6 +11,7 @@ import UpdateQuestionOverlay from './UpdateQuestionOverlay';
 import MessageRespond from './MessageRespond'
 import QueueStats from './QueueStats'
 import AskQuestion from './AskQuestion';
+import Announcements from '../Annoucements';
 
 import Footer from '../Footer';
 import LoginAdminNavbar from '../../navbar/LoginAdminNavbar'
@@ -27,6 +28,7 @@ function Main (props) {
       <div>
           <LoginAdminNavbar theme={props.theme}/>
           <QueueStats theme={props.theme}/>
+          <Announcements theme={props.theme}/>
           <YourEntry
             openRemoveOverlay={() => setRemoveConfirm(true)}
             theme={props.theme}
