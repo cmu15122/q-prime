@@ -5,8 +5,15 @@ const db = require('../database/models');
 
 let currSem = "S22" //TODO: grab the current semester from somewhere instead of creating it here
 
-exports.get = function (req, res) {
-    // TODO: use req to get access token and check for user status
+function respond(req, res, message, data, status) {
+    res.status(status);
+    if (message) {
+        data['message'] = message;
+    }
+    res.json(data);
+}
+
+function get_response(req, res, message = null) {
     db.assignment_semester.findAll({
         where: { sem_id: currSem },
         order: [['end_date', 'ASC']]
@@ -28,15 +35,20 @@ exports.get = function (req, res) {
             }
         }
 
-        res.status(200);
-        res.send({ 
+        let data = { 
             title: "15-122 Office Hours Queue | Settings",
             topics: assignments,
             isAuthenticated: true,
             isTA: true,
             isAdmin: true
-        });
+        };
+        respond(req, res, message, data, 200);
     });
+}
+
+exports.get = function (req, res) {
+    // TODO: use req to get access token and check for user status
+    get_response(req, res);
 }
 
 exports.post_create_topic = function (req, res) {
@@ -68,7 +80,7 @@ exports.post_create_topic = function (req, res) {
                 start_date: start_date,
                 end_date: end_date
             }).then(function() {
-                res.redirect("/settings");
+                get_response(req, res, `Assignment ${name} created successfully`);
             });
         });
     });
@@ -119,7 +131,7 @@ exports.post_update_topic = function (req, res) {
                 });
 
                 assignment.save().then(function() {
-                    res.redirect("/settings");
+                    get_response(req, res, `Assignment ${name} updated successfully`);
                 })
             });
         });
@@ -140,6 +152,6 @@ exports.post_delete_topic = function (req, res) {
             assignment_id: assignment_id
         }
     }).then(function() {
-        res.redirect("/settings");
+        get_response(req, res, `Assignment deleted successfully`);
     });
 }
