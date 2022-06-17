@@ -8,7 +8,7 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { DateTime } from 'luxon';
 
 export default function AddTopicDialog(props) {
-    const { isOpen, onClose } = props
+    const { isOpen, onClose, updateTopics } = props
 
     const [name, setName] = React.useState("");
     const [category, setCategory] = React.useState("");
@@ -35,6 +35,7 @@ export default function AddTopicDialog(props) {
             throw Error(body.message);
         }
 
+        updateTopics(body.topics);
         onClose();
     };
 
@@ -87,20 +88,20 @@ export default function AddTopicDialog(props) {
                         <DateTimePicker
                             renderInput={(props) => <TextField {...props} variant="standard" required fullWidth />}
                             label="Start Date"
+                            value={startDate}
                             onChange={(newValue) => {
                                 updateStartDate(newValue);
                             }}
-                            value={startDate}
                         />
                     </Grid>
                     <Grid className="d-flex" item xs={6}>
                         <DateTimePicker
                             renderInput={(props) => <TextField {...props} variant="standard" required fullWidth />}
                             label="End Date"
+                            value={endDate}
                             onChange={(newValue) => {
                                 setEndDate(newValue);
                             }}
-                            value={endDate}
                             minDate={startDate}
                         />
                     </Grid>
