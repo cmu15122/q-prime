@@ -12,14 +12,29 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Assignment.belongsToMany(models.semester, {through: models.assignment_semester, foreignKey:'id'});
+      Assignment.hasMany(models.assignment_semester, {
+        foreignKey: 'assignment_id'
+      });
     }
   }
   Assignment.init({
-    name: DataTypes.STRING,
-    category: DataTypes.STRING
+    assignment_id: {
+      type: DataTypes.INTEGER,
+      unique: true,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    category: {
+      type: DataTypes.STRING,
+      allowNull: false
+    }
   }, {
     sequelize,
+    initialAutoIncrement: 1,
     modelName: 'assignment',
     tableName: 'assignment'
   });

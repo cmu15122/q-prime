@@ -12,41 +12,31 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Question.hasMany(models.semester, {foreignKey: 'sem_id'});
-      Question.hasMany(models.student, {foreignKey: 'student_id'});
-      Question.hasMany(models.ta, {foreignKey: 'ta_id'});
     }
   }
   Question.init({
+    question_id: {
+      type: DataTypes.INTEGER,
+      unique: true,
+      primaryKey: true
+    },
     student_id:{
       type: DataTypes.INTEGER,
-      references:{
-        model: 'student',
-        key: 'student_id'
-      }
     },
     ta_id:{
       type: DataTypes.INTEGER,
-      references:{
-        model: 'ta',
-        key: 'ta_id'
-      }
     },
     sem_id:{
-      type: DataTypes.STRING,
-      references:{
-        model: 'semester',
-        key: 'sem_id'
-      }
+      type: DataTypes.STRING(3),
     },
     question: DataTypes.TEXT,
-    attempted: DataTypes.TEXT,
+    tried_so_far: DataTypes.TEXT,
     location: DataTypes.STRING,
     assignment: DataTypes.STRING,
     entry_time: DataTypes.DATE,
     help_time: DataTypes.DATE,
     exit_time: DataTypes.DATE,
-    fixed: DataTypes.BIGINT
+    num_asked_to_fix: DataTypes.BIGINT
   }, {
     sequelize,
     modelName: 'question',

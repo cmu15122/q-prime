@@ -12,20 +12,21 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Student.hasOne(models.account, {foreignKey: 'id'});
-      Student.belongsTo(models.question, {foreignKey: 'student_id'});
+      Student.belongsTo(models.account, {
+        foreignKey: 'user_id'
+      });
+      Student.hasMany(models.question, {
+        foreignKey: 'student_id'
+      });
     }
   }
   Student.init({
-    student_id:{
+    student_id: {
       type: DataTypes.INTEGER,
-      primaryKey:true,
-      references:{
-        model: 'account',
-        key: 'id'
-      }
+      unique: true,
+      primaryKey: true,
     },
-    num_Question: DataTypes.BIGINT,
+    num_questions: DataTypes.BIGINT,
     time_on_queue: DataTypes.BIGINT
   }, {
     sequelize,

@@ -12,18 +12,19 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      TA.hasOne(models.account, {foreignKey: 'id'});
-      TA.belongsTo(models.question, {foreignKey: 'ta_id'});
+      TA.belongsTo(models.account, {
+        foreignKey: 'user_id'
+      });
+      TA.hasMany(models.question, {
+        foreignKey: 'ta_id'
+      });
     }
   }
   TA.init({
     ta_id:{
       type: DataTypes.INTEGER,
+      unique: true,
       primaryKey: true,
-      references:{
-        model: 'account',
-        key: 'id'
-      }
     },
     is_admin: DataTypes.INTEGER,
     zoom_url: DataTypes.STRING,

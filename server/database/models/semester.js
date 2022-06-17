@@ -12,16 +12,13 @@ module.exports = (sequelize, DataTypes) => {
      */ 
     static associate(models) {
       // define association here
-      Semester.belongsToMany(models.assignment, {
-        through: models.assignment_semester,
+      Semester.hasMany(models.assignment_semester, {
         foreignKey: "sem_id"
       });
-      Semester.belongsToMany(models.account, {
-        through: models.semester_user,
+      Semester.hasMany(models.semester_user, {
         foreignKey: "sem_id"
       });
-      Semester.belongsToMany(models.question, {
-        through: "sem_id",
+      Semester.hasMany(models.question, {
         foreignKey: "sem_id"
       })
     }
