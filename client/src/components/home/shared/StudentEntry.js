@@ -66,10 +66,10 @@ export default function StudentEntry(props) {
         key={student.andrewID}
         style={ index % 2 ? { background : theme.palette.background.paper }:{ background : theme.palette.background.default }}
     >
-        <TableCell padding='none' component="th" scope="row" sx={{ fontSize: '16px', pl: 3.25, pr: 2, width: '15%'}}>
+        <TableCell padding='none' component="th" scope="row" sx={{fontSize: '16px', pl: 3.25, pr: 2, width: '15%'}}>
             {student.name} ({student.andrewID})
         </TableCell>
-        <TableCell padding='none' align="left" sx={{ fontSize: '16px', width: '50%', pr: 2 }}>{`[${student.topic}] ${student.question}`}</TableCell>
+        <TableCell padding='none' align="left" sx={{ pt: 2, pb: 2, fontSize: '16px', width: '50%', pr: 2 }}>{`[${student.topic}] ${student.question}`}</TableCell>
         <TableCell padding='none' text-align="center" align="right" sx={{ pr: 3, width: '35%' }}>
           <Toolbar sx={{alignItems: 'right', justifyContent:'right'}}>
 

@@ -17,7 +17,7 @@ const students = [
     createData('Student 1', 'stu1', 'Topic 1', 'help'),
     createData('Student 2', 'stu2', 'Topic 1', 'help'),
     createData('Student 3', 'stu3', 'Style Regrade', 'help'),
-    createData('Student 4', 'stu4', 'Topic 1', 'testing longer help entry'),
+    createData('Student 4', 'stu4', 'Topic 1', `testing longer help entry.  Let's see what happens if we put something really long into here because a student will definitely do it at somepoint so if this broke everything then that would be very sad`),
     createData('Student 5', 'stu5', 'Topic 1', 'help'),
 ];
 
