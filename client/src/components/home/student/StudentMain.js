@@ -50,8 +50,7 @@ function StudentMain (props) {
             setQuestionValue={setQuestionValue}
           />
 
-          <MessageRespond theme = {props.theme}
-          />
+          <MessageRespond theme = {props.theme} />
       </div>
     );
 }
