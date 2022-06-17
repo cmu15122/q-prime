@@ -7,10 +7,10 @@ import {
 import { DateTime } from 'luxon';
 
 const columns = [
-    { id: 'andrew_id', label: 'Andrew ID', minWidth: 100 },
-    { id: 'name', label: 'Name', minWidth: 100 },
-    { id: 'time_start', label: 'Time Start', minWidth: 100 },
-    { id: 'time_end', label: 'Time End', minWidth: 100 },
+    { id: 'andrew_id', label: 'Andrew ID', width: 50 },
+    { id: 'name', label: 'Name', width: 75 },
+    { id: 'time_start', label: 'Time Start', width: 100 },
+    { id: 'time_end', label: 'Time End', width: 100 },
   ];
   
   function createData(andrew_id, name, time_start, time_end) {
@@ -59,7 +59,7 @@ export default function PersonalStats(props) {
     return (
         <div>
             <Typography variant="h5" sx={{ mt: 4, ml: 10 }} fontWeight='bold'>
-                OH Session Statistics
+                Personal Statistics
             </Typography>
             <Card
                 sx={{
@@ -70,6 +70,7 @@ export default function PersonalStats(props) {
                 borderRadius: 1,
                 mt: 4,
                 mx: 13,
+                overflow: 'hidden'
                 }}
             >
                 <Grid sx={{ px: 4, py: 4, alignItems: 'center', textAlign: 'center' }}>
@@ -82,8 +83,8 @@ export default function PersonalStats(props) {
                     <Typography variant='h3' wrap sx={{ mt: 2 }} fontWeight='bold'>15</Typography>
                 </Grid>
                 <Divider orientation="vertical" flexItem />
-                <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-                    <TableContainer sx={{ maxHeight: 220 }}>
+                <Paper sx={{ width: '100%' }}>
+                    <TableContainer sx={{ height: 220 }}>
                         <Table stickyHeader aria-label="sticky table">
                         <TableHead>
                             <TableRow>
@@ -91,7 +92,7 @@ export default function PersonalStats(props) {
                                 <TableCell
                                 key={column.id}
                                 align={column.align}
-                                style={{ minWidth: column.minWidth }}
+                                style={{ width: column.width, textOverflow: 'ellipsis' }}
                                 >
                                 {column.label}
                                 </TableCell>
@@ -107,7 +108,7 @@ export default function PersonalStats(props) {
                                     {columns.map((column) => {
                                     const value = row[column.id];
                                     return (
-                                        <TableCell key={column.id} align={column.align}>
+                                        <TableCell key={column.id} align={column.align} sx={{ width: 50, textOverflow: 'ellipsis' }}>
                                         {column.format && typeof value === 'number'
                                             ? column.format(value)
                                             : value}

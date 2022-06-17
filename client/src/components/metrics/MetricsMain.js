@@ -8,7 +8,7 @@ import PersonalStats from './PersonalStats';
 
 function MetricsMain (props) {
     const { theme, queueData } = props;
-    
+
     return (
         <div>
             <Typography variant="h3" textAlign='center' sx={{ mt: 4 }} fontWeight='bold'>
