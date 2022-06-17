@@ -38,9 +38,9 @@ export default function StudentEntries(props) {
                             {students.map((student, index) => {
                                 
                                 let studentProps = {
-                                ...props,
-                                student: student,
-                                index: index
+                                    ...props,
+                                    student: student,
+                                    index: index
                                 }
 
                                 return StudentEntry(studentProps);
