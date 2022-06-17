@@ -26,10 +26,10 @@ const Expand = styled((props) => {
     })
 );
 
-function createData(name, category, dateIn, dateOut) {
+function createData(assignment_id, name, category, dateIn, dateOut) {
     dateIn = DateTime.fromISO(dateIn);
     dateOut = DateTime.fromISO(dateOut);
-    return { name, category, dateIn, dateOut };
+    return { assignment_id, name, category, dateIn, dateOut };
 }
 
 export default function QueueTopicSettings(props) {
@@ -49,11 +49,7 @@ export default function QueueTopicSettings(props) {
 
     useEffect(() => {
         if (queueData != null) {
-            let newRows = [];
-            queueData.topics.forEach (topic => {
-                newRows.push(createData(topic.name, topic.category, topic.start_date, topic.end_date))
-            });
-            setRows(newRows);
+            updateTopics(queueData.topics);
         }
     }, [queueData]);
 
@@ -76,6 +72,20 @@ export default function QueueTopicSettings(props) {
         setOpenEdit(false);
         setOpenDelete(false);
     };
+
+    const updateTopics = (newTopics) => {
+        let newRows = [];
+        newTopics.forEach (topic => {
+            newRows.push(createData(
+                topic.assignment_id, 
+                topic.name, 
+                topic.category, 
+                topic.start_date, 
+                topic.end_date
+            ));
+        });
+        setRows(newRows);
+    }
 
     return (
         <div className='card' style={{ display:'flex' }}>
@@ -138,18 +148,21 @@ export default function QueueTopicSettings(props) {
             <AddTopicDialog
                 isOpen={openAdd}
                 onClose={handleClose}
+                updateTopics={updateTopics}
             />
 
             <EditTopicDialog
                 isOpen={openEdit}
                 onClose={handleClose}
                 topicInfo={selectedRow}
+                updateTopics={updateTopics}
             />
 
             <DeleteTopicDialog
                 isOpen={openDelete}
                 onClose={handleClose}
                 topicInfo={selectedRow}
+                updateTopics={updateTopics}
             />
         </div>
     );

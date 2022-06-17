@@ -42,3 +42,7 @@
   margin: auto;
   padding: 10px;
 }
+
+.Toastify__toast-body {
+  color: #000000;
+}
