@@ -15,6 +15,7 @@ let sequelize = new Sequelize(config.DB, config.USER, config.PASSWORD, {
     port: config.PORT,
     dialect: config.dialect,
     logging: false,
+    omitNull: true,
     dialectOptions: {
       ssl: {
         require: true,

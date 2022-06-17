@@ -12,24 +12,16 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Assignment_Semester.hasOne(models.assignment, {foreignKey: 'id'});
-      Assignment_Semester.hasOne(models.semester, {foreignKey: 'sem_id'});
     }
   }
   Assignment_Semester.init({
-    assignmentId:{
+    assignment_id:{
       type: DataTypes.INTEGER,
-      references:{
-        model: 'assignment',
-        key: 'id'
-      }
+      allowNull: false
     },
-    semesterId:{
+    sem_id:{
       type: DataTypes.STRING(3),
-      references:{
-        model: 'semester',
-        key: 'sem_id'
-      }
+      allowNull: false
     },
     start_date:{
       type: DataTypes.DATE,

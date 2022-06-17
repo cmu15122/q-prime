@@ -17,17 +17,9 @@ module.exports = (sequelize, DataTypes) => {
   Semester_User.init({
     user_id:{
       type: DataTypes.INTEGER,
-      references:{
-        model: 'assignment',
-        key: 'id'
-      }
     },
     sem_id:{
       type: DataTypes.STRING(3),
-      references:{
-        model: 'semester',
-        key: 'sem_id'
-      }
     },
     is_ta: DataTypes.INTEGER
   }, {

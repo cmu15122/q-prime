@@ -9,7 +9,7 @@ import { DateTime } from 'luxon';
 export default function AddTopicDialog(props) {
     const { isOpen, onClose } = props
 
-    const [name, setName] = React.useState("");
+    const [name, setName] = React.useState("Written 1");
     const [category, setCategory] = React.useState("Written");
     const [startDate, setStartDate] = React.useState(DateTime.now());
     const [endDate, setEndDate] = React.useState(DateTime.now());
@@ -24,8 +24,8 @@ export default function AddTopicDialog(props) {
                 body: JSON.stringify({
                     name: name,
                     category: category,
-                    start_date: startDate,
-                    end_date: endDate
+                    start_date: startDate.toString(),
+                    end_date: endDate.toString()
                 })
             });
         const body = await response.json();
@@ -59,9 +59,6 @@ export default function AddTopicDialog(props) {
                             label="Topic Name"
                             variant="standard"
                             required
-                            onChange={(newValue) => {
-                                setName(newValue);
-                            }}
                             fullWidth
                         />
                     </Grid>

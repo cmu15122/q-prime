@@ -7,13 +7,28 @@ exports.get = function (req, res) {
     // TODO: use req to get access token and check for user status
 
     db.assignment_semester.findAll({
-        include: [{model: db.assignment, as: "assignment"}],
         order: [['end_date', 'ASC']]
     }).then(function(results) {
+        let assignments = []
+        results.forEach(assignment => {
+            db.assignment.find({
+                assignment_id: assignment.assignment_id,
+            }).then(function(assignment) {
+                if (assignment != null) {
+                    assignments.push({
+                        name: assignment.name,
+                        category: assignment.category,
+                        start_date: assignment.start_date,
+                        end_date: assignment.end_date,
+                    });
+                }
+            })
+        });
+
         res.status(200);
         res.send({ 
             title: "15-122 Office Hours Queue | Settings",
-            topics: results,
+            topics: assignments,
             isAuthenticated: true,
             isTA: true,
             isAdmin: true
@@ -35,17 +50,22 @@ exports.post_add_topic = function (req, res) {
 
     db.assignment.findOrCreate({ 
         where: { 
-            name: name
-        },
-        defaults: {
             name: name,
             category: category
-        } 
+        }
     }).then(function([assignment, created]) {
-        db.assignment_semester.create({
-            assignmentId: assignment.id,
-            start_date: start_date,
-            end_date: end_date
+        db.semester.findOrCreate({ 
+            where: { 
+                sem_id: 'S22'
+            }
+        }).then(function([semester, created]) {
+            db.assignment_semester.create({
+                assignment_id: assignment.assignment_id,
+                semester_id: semester.sem_id,
+                sem_id: semester.sem_id,
+                start_date: start_date,
+                end_date: end_date
+            });
         });
     });
 
