@@ -2,15 +2,24 @@ require('dotenv').config()
 
 module.exports = {
   development: {
-    url: process.env.DEV_DATABASE_URL,
+    HOST: process.env.POSTGRESQL_DB_HOST,
+    USER: process.env.POSTGRESQL_DB_USER,
+    PASSWORD: process.env.POSTGRESQL_DB_PASSWORD,
+    DB: process.env.POSTGRESQL_DB,
     dialect: 'postgres',
   },
   test: {
-    url: process.env.TEST_DATABASE_URL,
-    dialect: 'postgres',
+    HOST: process.env.POSTGRESQL_DB_HOST,
+    USER: process.env.POSTGRESQL_DB_USER,
+    PASSWORD: process.env.POSTGRESQL_DB_PASSWORD,
+    DB: process.env.POSTGRESQL_DB,
+    dialect: 'postgres'
   },
   production: {
-    url: process.env.DATABASE_URL,
-    dialect: 'postgres',
+    HOST: process.env.POSTGRESQL_DB_HOST,
+    USER: process.env.POSTGRESQL_DB_USER,
+    PASSWORD: process.env.POSTGRESQL_DB_PASSWORD,
+    DB: process.env.POSTGRESQL_DB,
+    dialect: 'postgres'
   },
 }

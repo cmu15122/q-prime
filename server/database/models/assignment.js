@@ -2,6 +2,7 @@
 const {
   Model
 } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Assignment extends Model {
     /**
@@ -11,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-	  Assignment.belongsToMany(models.Semester, {through: models.Assignment_Semester, foreignKey:'id'});
+      Assignment.belongsToMany(models.semester, {through: models.assignment_semester, foreignKey:'id'});
     }
   }
   Assignment.init({
@@ -20,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'assignment',
+    tableName: 'assignment'
   });
   return Assignment;
 };
