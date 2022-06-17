@@ -1,7 +1,8 @@
 
 import React from 'react';
 import {
-    Box, Button, Dialog, DialogContent, Typography, TextField, Grid
+    Box, Button, Dialog, DialogContent, Typography, TextField, Grid, 
+    Select, MenuItem, InputLabel, FormControl
 } from '@mui/material'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { DateTime } from 'luxon';
@@ -9,8 +10,8 @@ import { DateTime } from 'luxon';
 export default function AddTopicDialog(props) {
     const { isOpen, onClose } = props
 
-    const [name, setName] = React.useState("Written 1");
-    const [category, setCategory] = React.useState("Written");
+    const [name, setName] = React.useState("");
+    const [category, setCategory] = React.useState("");
     const [startDate, setStartDate] = React.useState(DateTime.now());
     const [endDate, setEndDate] = React.useState(DateTime.now());
 
@@ -54,13 +55,33 @@ export default function AddTopicDialog(props) {
                     Add New Topic
                 </Typography>
                 <Grid container spacing={3} >
-                    <Grid className="d-flex" item xs={12}>
+                    <Grid className="d-flex" item xs={6}>
                         <TextField
                             label="Topic Name"
                             variant="standard"
                             required
                             fullWidth
+                            value={name}
+                            onChange={(e) => {
+                                setName(e.target.value)
+                            }}
                         />
+                    </Grid>
+                    <Grid className="d-flex" item xs={6}>
+                        <FormControl variant="standard" fullWidth required>
+                            <InputLabel>Category</InputLabel>
+                            <Select
+                                label="Category"
+                                value={category}
+                                onChange={(e) => {
+                                    setCategory(e.target.value)
+                                }}
+                            >
+                                <MenuItem value={"Written"}>Written</MenuItem>
+                                <MenuItem value={"Programming"}>Programming</MenuItem>
+                                <MenuItem value={"Other"}>Other</MenuItem>
+                            </Select> 
+                        </FormControl>
                     </Grid>
                     <Grid className="d-flex" item xs={6}>
                         <DateTimePicker
