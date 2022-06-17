@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 
 import Navbar from '../components/navbar/Navbar';
-import SettingsMain from '../components/settings/SettingsMain';
+import MetricsMain from '../components/metrics/MetricsMain';
 
-class Settings extends Component {
+class Metrics extends Component {
   state = {
     queueData: null
   };
@@ -21,7 +21,7 @@ class Settings extends Component {
 
   // fetching the GET route from the Express server which matches the GET route from server.js
   callBackendAPI = async () => {
-    const response = await fetch('http://localhost:8000/settings');
+    const response = await fetch('http://localhost:8000/metrics');
     const body = await response.json();
 
     if (response.status !== 200) {
@@ -33,12 +33,12 @@ class Settings extends Component {
 
   render() {
     return (
-      <div className="Settings">
-        <Navbar theme={this.props.theme} queueData={this.state.queueData}/>
-        <SettingsMain theme={this.props.theme} queueData={this.state.queueData}/>
+      <div className="Metrics">
+          <Navbar theme={this.props.theme} queueData={this.state.queueData}/>
+          <MetricsMain theme={this.props.theme} queueData={this.state.queueData}/>
       </div>
     );
   }
 }
 
-export default Settings;
+export default Metrics;

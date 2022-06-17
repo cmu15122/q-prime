@@ -1,16 +1,21 @@
 import React, { Component } from 'react';
-// import YourEntry from '../components/YourEntry';
-// import RemoveQOverlay from '../components/RemoveQConfirm';
-import Main from '../components/home/student/Main';
+
+import Navbar from '../components/navbar/Navbar';
+import HomeMain from '../components/home/HomeMain';
 
 class Home extends Component {
   state = {
-    data: null
+    queueData: null
   };
 
   componentDidMount() {
     this.callBackendAPI()
-        .then(res => this.setState({ data: res.title }))
+        .then(res => {
+          this.setState({ 
+            queueData: res
+          });
+          document.title = res.title;
+        })
         .catch(err => console.log(err));
   };
 
@@ -26,12 +31,14 @@ class Home extends Component {
     return body;
   };
 
-  
-
   render() {
     return (
       <div className="App">
-          <Main theme={this.props.theme}/>
+          <Navbar theme={this.props.theme} queueData={this.state.queueData} />
+          <HomeMain 
+            theme={this.props.theme}
+            queueData={this.state.queueData}
+          />
       </div>
     );
   }

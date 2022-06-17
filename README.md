@@ -9,15 +9,19 @@ On the come up B)
     ```
     % npm install
     ```
-3. Install [MySQL](https://dev.mysql.com/doc/mysql-installation-excerpt/5.7/en/)
+
 
 ## Running Server
 1. Start the server
     ```
     % cd server
-    % nodemon app.js
+    % npm start
     ```
 2. Server should now correctly run and update when you make changes to the files! You can check the various endpoints to see what gets returned at [localhost:8000](http://localhost:8000)
+3. You can run the test cases for the server by running
+    ```
+    % npm test
+    ```
 
 ## Running Client
 1. Start the client
@@ -26,6 +30,10 @@ On the come up B)
     % npm start
     ```
 2. Open browser at [localhost:3000](http://localhost:3000)
+3. You can run the test cases for the client by running
+    ```
+    % npm test
+    ```
 
 
 ## Setting Up the Database

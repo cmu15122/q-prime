@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
-const settingsView = require('../controllers/settingsController');
+const settings = require('../controllers/settings');
 
-router.get('/', settingsView);
+router.get('/', settings.get);
+router.post('/topics/add', settings.post_add_topic);
 
 module.exports = router;

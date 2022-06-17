@@ -118,7 +118,7 @@ export default function Announcements(props) {
                             {rows.map((row, index) => (
                                 <TableRow
                                     key={row.header}
-                                    style={ index % 2 ? { background : theme.palette.background.paper }:{ background : theme.palette.background.default }}
+                                    style={ index % 2 ? { background : theme?.palette?.background.paper }:{ background : theme?.palette?.background.default }}
                                 >
                                     <TableCell component="th" scope="row" sx={{ fontSize: '16px', fontWeight: 'bold', pl: 3.25 }}>
                                         {row.header}
@@ -151,7 +151,7 @@ export default function Announcements(props) {
                             ))}
                                 <TableRow
                                     key='add'
-                                    style={{ background : theme.palette.background.default }}
+                                    style={{ background : theme?.palette?.background.default }}
                                 >
                                     <TableCell align="center" colSpan={4}>
                                         <Button sx={{ mr: 1, fontWeight: 'bold', fontSize: '18px' }} color="primary" variant="contained" onClick={() => handleAdd()}>
