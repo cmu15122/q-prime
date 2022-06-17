@@ -10,6 +10,7 @@ import TAHelpingOverlay from './TAHelpingOverlay';
 import UpdateQuestionOverlay from './UpdateQuestionOverlay';
 import MessageRespond from './MessageRespond'
 import AskQuestion from './AskQuestion';
+import StudentEntries from '../ta/StudentEntries';
 
 function StudentMain (props) {
     const [questionValue, setQuestionValue] = useState('')
@@ -50,6 +51,9 @@ function StudentMain (props) {
             handleClose={() => setUpdateQ(false)}
             setQuestionValue={setQuestionValue}
           />
+
+          <StudentEntries theme={props.theme}></StudentEntries>
+
           <MessageRespond theme = {props.theme}
           />
       </div>
