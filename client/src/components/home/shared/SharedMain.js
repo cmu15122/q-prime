@@ -7,11 +7,11 @@ function SharedMain (props) {
 
     return (
       <div>
+          <Announcements theme={theme}/>
           <QueueStats 
             theme={theme}
             queueData={queueData}
           />
-          <Announcements theme={theme}/>
       </div>
     );
 }
