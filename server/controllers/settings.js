@@ -39,7 +39,7 @@ exports.get = function (req, res) {
     });
 }
 
-exports.post_add_topic = function (req, res) {
+exports.post_create_topic = function (req, res) {
     // TODO: use req to get access token and check for user status
 
     var name = req.body.name;
@@ -74,7 +74,7 @@ exports.post_add_topic = function (req, res) {
     });
 }
 
-exports.post_edit_topic = function (req, res) {
+exports.post_update_topic = function (req, res) {
     // TODO: use req to get access token and check for user status
 
     var assignment_id = req.body.assignment_id;

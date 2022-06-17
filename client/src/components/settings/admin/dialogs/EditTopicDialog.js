@@ -5,6 +5,8 @@ import {
 } from '@mui/material'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 
+import SettingsService from '../../../../services/SettingsService';
+
 export default function EditTopicDialog(props) {
     const { isOpen, onClose, topicInfo, updateTopics } = props;
 
@@ -22,29 +24,19 @@ export default function EditTopicDialog(props) {
         }
     }, [topicInfo]);
 
-    const callEditTopicAPI = async () => {
-        const response = await fetch('http://localhost:8000/settings/topics/edit', 
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                  },
-                body: JSON.stringify({
-                    assignment_id: topicInfo?.assignment_id,
-                    name: name,
-                    category: category,
-                    start_date: startDate.toString(),
-                    end_date: endDate.toString()
-                })
-            });
-        const body = await response.json();
-  
-        if (response.status !== 200) {
-            throw Error(body.message);
-        }
-
-        updateTopics(body.topics);
-        onClose();
+    const handleUpdate = () => {
+        SettingsService.updateTopic(
+            JSON.stringify({
+                assignment_id: topicInfo?.assignment_id,
+                name: name,
+                category: category,
+                start_date: startDate.toString(),
+                end_date: endDate.toString()
+            })
+        ).then(res => {
+            updateTopics(res.data.topics);
+            onClose();
+        });
     };
 
     const updateStartDate = (newStartDate) => {
@@ -115,7 +107,7 @@ export default function EditTopicDialog(props) {
                     </Grid>
                 </Grid>
                 <Box textAlign='center' sx={{pt: 6}}>
-                    <Button onClick={callEditTopicAPI} variant="contained" color="info" sx={{ alignSelf: 'center' }} >Save</Button>
+                    <Button onClick={handleUpdate} variant="contained" color="info" sx={{ alignSelf: 'center' }} >Save</Button>
                 </Box>
             </DialogContent>
         </Dialog>

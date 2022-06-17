@@ -7,6 +7,8 @@ import {
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { DateTime } from 'luxon';
 
+import SettingsService from '../../../../services/SettingsService';
+
 export default function AddTopicDialog(props) {
     const { isOpen, onClose, updateTopics } = props
 
@@ -15,28 +17,18 @@ export default function AddTopicDialog(props) {
     const [startDate, setStartDate] = React.useState(DateTime.now());
     const [endDate, setEndDate] = React.useState(DateTime.now());
 
-    const callAddTopicAPI = async () => {
-        const response = await fetch('http://localhost:8000/settings/topics/add', 
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                  },
-                body: JSON.stringify({
-                    name: name,
-                    category: category,
-                    start_date: startDate.toString(),
-                    end_date: endDate.toString()
-                })
-            });
-        const body = await response.json();
-  
-        if (response.status !== 200) {
-            throw Error(body.message);
-        }
-
-        updateTopics(body.topics);
-        onClose();
+    const handleCreate = () => {
+        SettingsService.createTopic(
+            JSON.stringify({
+                name: name,
+                category: category,
+                start_date: startDate.toString(),
+                end_date: endDate.toString()
+            })
+        ).then(res => {
+            updateTopics(res.data.topics);
+            onClose();
+        });
     };
 
     const updateStartDate = (newStartDate) => {
@@ -107,7 +99,7 @@ export default function AddTopicDialog(props) {
                     </Grid>
                 </Grid>
                 <Box textAlign='center' sx={{pt: 6}}>
-                    <Button onClick={callAddTopicAPI} variant="contained" sx={{ alignSelf: 'center' }} >Create</Button>
+                    <Button onClick={handleCreate} variant="contained" sx={{ alignSelf: 'center' }}>Create</Button>
                 </Box>
             </DialogContent>
         </Dialog>
