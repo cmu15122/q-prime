@@ -8,22 +8,22 @@ exports.get = function (req, res) {
 
     db.assignment_semester.findAll({
         order: [['end_date', 'ASC']]
-    }).then(function(results) {
-        let assignments = []
-        results.forEach(assignment => {
-            db.assignment.find({
-                assignment_id: assignment.assignment_id,
-            }).then(function(assignment) {
-                if (assignment != null) {
-                    assignments.push({
-                        name: assignment.name,
-                        category: assignment.category,
-                        start_date: assignment.start_date,
-                        end_date: assignment.end_date,
-                    });
-                }
+    }).then(async function(results) {
+        let assignments = [];
+
+        for (const assignmentSem of results) {
+            let assignment = await db.assignment.findOne({
+                where: { assignment_id: assignmentSem.dataValues.assignment_id }
             })
-        });
+            if (assignment != null) {
+                assignments.push({
+                    name: assignment.dataValues.name,
+                    category: assignment.dataValues.category,
+                    start_date: assignmentSem.dataValues.start_date,
+                    end_date: assignmentSem.dataValues.end_date,
+                });
+            }
+        }
 
         res.status(200);
         res.send({ 

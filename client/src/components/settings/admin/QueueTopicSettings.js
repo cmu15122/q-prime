@@ -51,7 +51,7 @@ export default function QueueTopicSettings(props) {
         if (queueData != null) {
             let newRows = [];
             queueData.topics.forEach (topic => {
-                newRows.push(createData(topic.assignment.name, topic.assignment.category, topic.start_date, topic.end_date))
+                newRows.push(createData(topic.name, topic.category, topic.start_date, topic.end_date))
             });
             setRows(newRows);
         }
