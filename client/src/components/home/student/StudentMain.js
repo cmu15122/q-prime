@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-    Box,
     Button
 } from '@mui/material'
 import YourEntry from './YourEntry';
@@ -10,7 +9,6 @@ import TAHelpingOverlay from './TAHelpingOverlay';
 import UpdateQuestionOverlay from './UpdateQuestionOverlay';
 import MessageRespond from './MessageRespond'
 import AskQuestion from './AskQuestion';
-import StudentEntries from '../shared/StudentEntries';
 
 function StudentMain (props) {
     const [questionValue, setQuestionValue] = useState('')
@@ -51,8 +49,6 @@ function StudentMain (props) {
             handleClose={() => setUpdateQ(false)}
             setQuestionValue={setQuestionValue}
           />
-
-          <StudentEntries theme={props.theme}></StudentEntries>
 
           <MessageRespond theme = {props.theme}
           />
