@@ -10,7 +10,7 @@ import TAHelpingOverlay from './TAHelpingOverlay';
 import UpdateQuestionOverlay from './UpdateQuestionOverlay';
 import MessageRespond from './MessageRespond'
 import AskQuestion from './AskQuestion';
-import StudentEntries from '../ta/StudentEntries';
+import StudentEntries from '../shared/StudentEntries';
 
 function StudentMain (props) {
     const [questionValue, setQuestionValue] = useState('')
