@@ -42,6 +42,10 @@ db.sequelize.authenticate().then(() => {
     console.log("Cannot connect to the database!", err);
     process.exit();
   });
-db.sequelize.sync();
+
+db.sequelize.sync().catch((err) => {
+    console.log(err);
+    process.exit();
+  });
 
 module.exports = app;
