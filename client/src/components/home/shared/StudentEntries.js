@@ -46,18 +46,6 @@ export default function StudentEntries(props) {
                                 return StudentEntry(studentProps);
                                 
                                 })}
-                            
-                            {/* don't delete this code, if we want the add student button as a popup this would be nice to have */}
-                            {/* <TableRow
-                                key='add'
-                                style={{ background : theme.palette.background.default }}
-                            >
-                                <TableCell align="center" colSpan={4}>
-                                    <Button sx={{ mr: 1, fontWeight: 'bold', fontSize: '18px' }} color="primary" variant="contained" onClick={() => handleAdd()}>
-                                        + Add Student (?)
-                                    </Button>
-                                </TableCell>
-                            </TableRow> */}
 
                         </TableBody>
                     </Table>

@@ -4,7 +4,7 @@ import {
 } from '@mui/material'
 
 import {
-  Help, Delete
+    Delete
 } from '@mui/icons-material';
 
 import ExtraStudentOptions from '../ta/ExtraStudentOptions'
