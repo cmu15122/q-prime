@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-    Box,
     Button
 } from '@mui/material'
 import YourEntry from './YourEntry';
