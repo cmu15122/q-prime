@@ -4,8 +4,27 @@ import {
     Box, Button, Dialog, DialogContent, FormControlLabel, Checkbox, Typography, TextField, Grid
 } from '@mui/material'
 
+import SettingsService from '../../../../services/SettingsService';
+
 export default function AddTADialog(props) {
-    const { isOpen, onClose } = props
+    const { isOpen, onClose, updateTAs } = props
+
+    const [name, setName] = React.useState("");
+    const [email, setEmail] = React.useState("");
+    const [isAdmin, setIsAdmin] = React.useState(false);
+
+    const handleCreate = () => {
+        SettingsService.createTA(
+            JSON.stringify({
+                name: name,
+                email: email,
+                isAdmin: isAdmin
+            })
+        ).then(res => {
+            updateTAs(res.data.tas);
+            onClose();
+        });
+    };
 
     return (
         <Dialog
@@ -23,10 +42,21 @@ export default function AddTADialog(props) {
                             variant="standard"
                             required
                             fullWidth
+                            value={name}
+                            onChange={(e) => {
+                                setName(e.target.value)
+                            }}
                         />
                     </Grid>
                     <Grid className="d-flex" align="left" item xs={4}>
-                        <FormControlLabel label="Is Admin?" labelPlacement="start" control={<Checkbox />} fullWidth />
+                        <FormControlLabel label="Is Admin?" labelPlacement="start" control={
+                            <Checkbox 
+                                checked={isAdmin}
+                                onChange={(e) => {
+                                    setIsAdmin(e.target.checked);
+                                }}
+                            />
+                        } sx={{ pt: 1 }} />
                     </Grid>
                     <Grid className="d-flex" item xs={12}>
                         <TextField
@@ -34,11 +64,15 @@ export default function AddTADialog(props) {
                             variant="standard"
                             required
                             fullWidth
+                            value={email}
+                            onChange={(e) => {
+                                setEmail(e.target.value)
+                            }}
                         />
                     </Grid>
                 </Grid>
                 <Box textAlign='center' sx={{pt: 6}}>
-                    <Button onClick={onClose} variant="contained" sx={{ alignSelf: 'center' }}>Create</Button>
+                    <Button onClick={handleCreate} variant="contained" sx={{ alignSelf: 'center' }}>Create</Button>
                 </Box>
             </DialogContent>
         </Dialog>

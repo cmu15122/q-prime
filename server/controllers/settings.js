@@ -1,9 +1,18 @@
 // For settings page
 const moment = require("moment-timezone");
+const Promise = require("bluebird");
 
 const db = require('../database/models');
+const semester_user = require("../database/models/semester_user");
+const account = require("../database/models/account");
 
 let currSem = "S22" //TODO: grab the current semester from somewhere instead of creating it here
+
+/** Helper Functions **/
+function respond_error(req, res, message, status) {
+    res.status(status);
+    res.json({message: message});
+}
 
 function respond(req, res, message, data, status) {
     res.status(status);
@@ -14,43 +23,69 @@ function respond(req, res, message, data, status) {
 }
 
 function get_response(req, res, message = null) {
-    db.assignment_semester.findAll({
-        where: { sem_id: currSem },
-        order: [['end_date', 'ASC']]
+    Promise.props({
+        assignment_semesters: function() {
+            return db.assignment_semester.findAll({
+                where: { sem_id: currSem },
+                include: db.assignment,
+                order: [['end_date', 'ASC']]
+            });
+        }(),
+        semester_users: function() {
+            return db.semester_user.findAll({
+                where: { sem_id: currSem, is_ta: 1 },
+                include: [ db.account ]
+            })
+        }()
     }).then(async function(results) {
         let assignments = [];
+        let tas = [];
 
-        for (const assignmentSem of results) {
-            let assignment = await db.assignment.findOne({
-                where: { assignment_id: assignmentSem.dataValues.assignment_id }
-            })
-            if (assignment != null) {
-                assignments.push({
-                    assignment_id: assignmentSem.dataValues.assignment_id,
-                    name: assignment.dataValues.name,
-                    category: assignment.dataValues.category,
-                    start_date: assignmentSem.dataValues.start_date,
-                    end_date: assignmentSem.dataValues.end_date,
-                });
-            }
+        for (const assignmentSem of results.assignment_semesters) {
+            let assignment = assignmentSem.assignment;
+            assignments.push({
+                assignment_id: assignmentSem.assignment_id,
+                name: assignment.name,
+                category: assignment.category,
+                start_date: assignmentSem.start_date,
+                end_date: assignmentSem.end_date,
+            });
+        }
+
+        for (const semUser of results.semester_users) {
+            let ta = await db.ta.findByPk(semUser.user_id);
+            let account = semUser.account;
+            tas.push({
+                ta_id: ta.ta_id,
+                fname: account.fname,
+                lname: account.lname,
+                email: account.email,
+                isAdmin: ta.is_admin == 1
+            });
         }
 
         let data = { 
             title: "15-122 Office Hours Queue | Settings",
             topics: assignments,
+            tas: tas,
             isAuthenticated: true,
             isTA: true,
             isAdmin: true
         };
         respond(req, res, message, data, 200);
+    }).catch(err => {
+        message = err.message || "An error occurred while retrieving data";
+        respond_error(req, res, message, 500);
     });
 }
 
+/** Get Function **/
 exports.get = function (req, res) {
     // TODO: use req to get access token and check for user status
     get_response(req, res);
 }
 
+/** Topics Functions **/
 exports.post_create_topic = function (req, res) {
     // TODO: use req to get access token and check for user status
 
@@ -59,30 +94,38 @@ exports.post_create_topic = function (req, res) {
     var start_date = moment.tz(new Date(req.body.start_date), "America/New_York").toDate(); // TODO: get timezone (get from client? global config?)
     var end_date = moment.tz(new Date(req.body.end_date), "America/New_York").toDate();
     if (!start_date.getTime() || !end_date.getTime() || !name || !category) {
-        res.status(500); // TODO: add correct status codes + error messages, etc.
+        respond_error(req, res, "Invalid/missing parameters in request", 400);
         return;
     }
 
-    db.assignment.findOrCreate({ 
-        where: { 
-            name: name,
-            category: category
-        }
-    }).then(function([assignment, created]) {
-        db.semester.findOrCreate({ 
-            where: { 
-                sem_id: currSem
-            }
-        }).then(function([semester, created]) {
-            db.assignment_semester.create({
-                assignment_id: assignment.assignment_id,
-                sem_id: semester.sem_id,
-                start_date: start_date,
-                end_date: end_date
-            }).then(function() {
-                get_response(req, res, `Assignment ${name} created successfully`);
+    Promise.props({
+        assignment: function() {
+            return db.assignment.findOrCreate({ 
+                where: { 
+                    name: name,
+                    category: category
+                }
             });
-        });
+        }(),
+        semester: function() {
+            return db.semester.findOrCreate({ 
+                where: { 
+                    sem_id: currSem
+                }
+            });
+        }()
+    }).then(function(results) {
+        return db.assignment_semester.create({
+            assignment_id: results.assignment[0].assignment_id,
+            sem_id: results.semester[0].sem_id,
+            start_date: start_date,
+            end_date: end_date
+        })
+    }).then(function() {
+        get_response(req, res, `Assignment ${name} created successfully`);
+    }).catch(err => {
+        message = err.message || "An error occurred while creating topic";
+        respond_error(req, res, message, 500);
     });
 }
 
@@ -95,46 +138,51 @@ exports.post_update_topic = function (req, res) {
     var start_date = moment.tz(new Date(req.body.start_date), "America/New_York").toDate(); // TODO: get timezone (get from client? global config?)
     var end_date = moment.tz(new Date(req.body.end_date), "America/New_York").toDate();
     if (!start_date.getTime() || !end_date.getTime() || !name || !category || !assignment_id) {
-        res.status(500); // TODO: add correct status codes + error messages, etc.
+        respond_error(req, res, "Invalid/missing parameters in request", 400);
         return;
     }
 
-    db.assignment_semester.findOne({ 
-        where: { 
-            assignment_id: assignment_id,
-            sem_id: currSem
-        }
-    }).then(function(assignment_semester) {
-        if (assignment_semester == null) {
-            res.status(500); // TODO: add correct status codes + error messages, etc.
-            return;
-        }
-       
-        assignment_semester.set({
-            start_date: start_date,
-            end_date: end_date
-        });
-        assignment_semester.save().then(function () {
-            db.assignment.findOne({ 
+    Promise.props({
+        assignment_semester: function() {
+            return db.assignment_semester.findOne({ 
+                where: { 
+                    assignment_id: assignment_id,
+                    sem_id: currSem
+                }
+            })
+        }(),
+        assignment: function() {
+            return db.assignment.findOne({ 
                 where: { 
                     assignment_id: assignment_id
                 }
-            }).then(function(assignment) {
-                if (assignment == null) {
-                    res.status(500); // TODO: add correct status codes + error messages, etc.
-                    return;
-                }
+            });
+        }()
+    }).then(function(results) {
+        if (results.assignment_semester == null || results.assignment == null) {
+            respond_error(req, res, "Invalid assignment id: topic not found", 400);
+            return;
+        }
 
-                assignment.set({
+        return Promise.props({
+            assignment_semester: function() {
+                return results.assignment_semester.update({
+                    start_date: start_date,
+                    end_date: end_date
+                })
+            }(),
+            assignment: function() {
+                return results.assignment.update({
                     name: name,
                     category: category
                 });
-
-                assignment.save().then(function() {
-                    get_response(req, res, `Assignment ${name} updated successfully`);
-                })
-            });
-        });
+            }()
+        })
+    }).then(function() {
+        get_response(req, res, `Assignment ${name} updated successfully`);
+    }).catch(err => {
+        message = err.message || "An error occurred while updating topic";
+        respond_error(req, res, message, 500);
     });
 }
 
@@ -143,7 +191,7 @@ exports.post_delete_topic = function (req, res) {
 
     var assignment_id = req.body.assignment_id;
     if (!assignment_id) {
-        res.status(500); // TODO: add correct status codes + error messages, etc.
+        respond_error(req, res, "Invalid/missing parameters in request", 400);
         return;
     }
 
@@ -153,5 +201,155 @@ exports.post_delete_topic = function (req, res) {
         }
     }).then(function() {
         get_response(req, res, `Assignment deleted successfully`);
+    }).catch(err => {
+        message = err.message || "An error occurred while deleting topic";
+        respond_error(req, res, message, 500);
+    });
+}
+
+/** TA Functions **/
+exports.post_create_ta = function (req, res) {
+    // TODO: use req to get access token and check for user status
+
+    var name = req.body.name;
+    var email = req.body.email;
+    var isAdmin = req.body.isAdmin;
+    if (!name || !email) {
+        respond_error(req, res, "Invalid/missing parameters in request", 400);
+        return;
+    }
+
+    let [fname, lname] = name.split(" ");
+
+    Promise.props({
+        account: function() {
+            return db.account.findOrCreate({ 
+                where: {
+                    fname: fname,
+                    lname: lname,
+                    email: email
+                }
+            });
+        }(),
+        semester: function() {
+            return db.semester.findOrCreate({ 
+                where: { 
+                    sem_id: currSem
+                }
+            });
+        }()
+    }).then(function(results) {
+        return Promise.props({
+            semester_user: function() {
+                return db.semester_user.findOrCreate({
+                    where: {
+                        user_id: results.account[0].user_id,
+                        sem_id: results.semester[0].sem_id
+                    }
+                });
+            }(),
+            ta: function() {
+                return db.ta.findOrCreate({
+                    where: {
+                        ta_id: results.account[0].user_id,
+                        is_admin: isAdmin ? 1 : 0
+                    }
+                });
+            }()
+        })
+    }).then(function(results) {
+        return results.semester_user[0].update({
+            is_ta: 1
+        });
+        
+    }).then(function() {
+        get_response(req, res, `TA ${name} created successfully`);
+    }).catch(err => {
+        message = err.message || "An error occurred while creating topic";
+        respond_error(req, res, message, 500);
+    });
+}
+
+exports.post_update_ta = function (req, res) {
+    // TODO: use req to get access token and check for user status
+    // TODO: from a design perspective, should we allow them to modify email or first/last name? 
+    // It doesn't really make sense to me; perhaps only isAdmin can be updated
+
+    var user_id = req.body.user_id;
+    var isAdmin = req.body.isAdmin;
+    if (!user_id) {
+        respond_error(req, res, "Invalid/missing parameters in request", 400);
+        return;
+    }
+
+    Promise.props({
+        semester_user: function() {
+            // We grab this to verify the user exists for this semester
+            return db.semester_user.findOne({ 
+                where: { 
+                    user_id: user_id,
+                    sem_id: currSem
+                }
+            })
+        }(),
+        account: function() {
+            // We grab this to verify the user has an account
+            return db.account.findOne({ 
+                where: { 
+                    user_id: user_id
+                }
+            });
+        }(),
+        ta: function() {
+            return db.ta.findOne({ 
+                where: { 
+                    ta_id: user_id
+                }
+            });
+        }(),
+    }).then(function(results) {
+        if (results.semester_user == null || results.account == null || results.ta == null) {
+            respond_error(req, res, "Invalid user id: TA not found", 400);
+            return;
+        }
+
+        return Promise.props({
+            ta: function() {
+                return results.ta.update({
+                    is_admin: isAdmin ? 1 : 0
+                });
+            }(),
+            name: account.name
+        })
+    }).then(function(results) {
+        get_response(req, res, `TA ${results.name} updated successfully`);
+    }).catch(err => {
+        message = err.message || "An error occurred while updating TA";
+        respond_error(req, res, message, 500);
+    });
+}
+
+exports.post_delete_ta = function (req, res) {
+    // TODO: use req to get access token and check for user status
+
+    var user_id = req.body.user_id;
+    if (!user_id) {
+        respond_error(req, res, "Invalid/missing parameters in request", 400);
+        return;
+    }
+
+    db.semester_user.findOne({
+        where: {
+            user_id: user_id
+        }
+    }).then(function(sem_user) {
+        return sem_user.update({
+            is_ta: 0
+        });
+    }).then(function() {
+        get_response(req, res, `TA deleted successfully`);
+    }).catch(err => {
+        message = err.message || "An error occurred while deleting TA";
+        respond_error(req, res, message, 500);
     });
 }

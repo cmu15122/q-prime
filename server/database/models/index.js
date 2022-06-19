@@ -21,7 +21,7 @@ let sequelize = new Sequelize(config.DB, config.USER, config.PASSWORD, {
         require: true,
         rejectUnauthorized: false
       }
-    },
+    }
 });
 
 fs

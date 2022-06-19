@@ -12,7 +12,7 @@ function AdminMain (props) {
   const { theme, queueData } = props;
 
   return (
-    <div>
+    <div style={{ paddingBottom: '80px' }}>
       <Typography variant="h4" textAlign='center' sx={{ my: 4}} fontWeight='bold'>
         Admin Settings
       </Typography>
@@ -20,7 +20,7 @@ function AdminMain (props) {
       <ConfigSettings theme={theme}></ConfigSettings>
       <QueueRejoinSettings theme={theme}></QueueRejoinSettings>
       <QueueTopicSettings theme={theme} queueData={queueData}></QueueTopicSettings>
-      <TASettings theme={theme}></TASettings>
+      <TASettings theme={theme} queueData={queueData}></TASettings>
     </div>
   );
 }
