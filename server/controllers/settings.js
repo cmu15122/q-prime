@@ -1,7 +1,7 @@
 // For settings page
 const moment = require("moment-timezone");
 
-const db = require('../database/models');
+const models = require('../models');
 
 let currSem = "S22" //TODO: grab the current semester from somewhere instead of creating it here
 
@@ -14,14 +14,14 @@ function respond(req, res, message, data, status) {
 }
 
 function get_response(req, res, message = null) {
-    db.assignment_semester.findAll({
+    models.assignment_semester.findAll({
         where: { sem_id: currSem },
         order: [['end_date', 'ASC']]
     }).then(async function(results) {
         let assignments = [];
 
         for (const assignmentSem of results) {
-            let assignment = await db.assignment.findOne({
+            let assignment = await models.assignment.findOne({
                 where: { assignment_id: assignmentSem.dataValues.assignment_id }
             })
             if (assignment != null) {
@@ -63,18 +63,18 @@ exports.post_create_topic = function (req, res) {
         return;
     }
 
-    db.assignment.findOrCreate({ 
+    models.assignment.findOrCreate({ 
         where: { 
             name: name,
             category: category
         }
     }).then(function([assignment, created]) {
-        db.semester.findOrCreate({ 
+        models.semester.findOrCreate({ 
             where: { 
                 sem_id: currSem
             }
         }).then(function([semester, created]) {
-            db.assignment_semester.create({
+            models.assignment_semester.create({
                 assignment_id: assignment.assignment_id,
                 sem_id: semester.sem_id,
                 start_date: start_date,
@@ -99,7 +99,7 @@ exports.post_update_topic = function (req, res) {
         return;
     }
 
-    db.assignment_semester.findOne({ 
+    models.assignment_semester.findOne({ 
         where: { 
             assignment_id: assignment_id,
             sem_id: currSem
@@ -115,7 +115,7 @@ exports.post_update_topic = function (req, res) {
             end_date: end_date
         });
         assignment_semester.save().then(function () {
-            db.assignment.findOne({ 
+            models.assignment.findOne({ 
                 where: { 
                     assignment_id: assignment_id
                 }
@@ -147,7 +147,7 @@ exports.post_delete_topic = function (req, res) {
         return;
     }
 
-    db.assignment.destroy({ 
+    models.assignment.destroy({ 
         where: { 
             assignment_id: assignment_id
         }

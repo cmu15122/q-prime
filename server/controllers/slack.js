@@ -1,7 +1,7 @@
 const SlackWebhook = require("slack-webhook");
 
-const config = require('../config/config.json');
-const webhook_url = config["slack-webhook"];
+const config = require('../config/config');
+const webhook_url = config.SLACK_WEBHOOK_URL;
 
 var slack = null;
 var last_updated = new Date(0);

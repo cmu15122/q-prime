@@ -34,8 +34,8 @@ app.set('port', port);
 const server = http.createServer(app);
 server.listen(port);
 
-const db = require("./database/models");
-db.sequelize.authenticate().then(() => {
+const models = require("./models");
+models.sequelize.authenticate().then(() => {
     console.log("Connected to the database!");
   })
   .catch(err => {
@@ -43,7 +43,7 @@ db.sequelize.authenticate().then(() => {
     process.exit();
   });
 
-db.sequelize.sync().catch((err) => {
+models.sequelize.sync().catch((err) => {
     console.log(err);
     process.exit();
   });
