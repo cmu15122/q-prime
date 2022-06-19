@@ -69,6 +69,8 @@ export default function AskQuestion(props) {
                         onChange={(event)=>setQuestionValue(event.target.value)}
                         fullWidth
                         multiline
+                        inputProps={{ maxLength: 256 }}
+                        type="text"
                     />
                     <Button fullWidth variant="contained" sx={{marginTop: "1em", alignContent: "center"}} 
                         onClick={()=>console.log(questionValue)}

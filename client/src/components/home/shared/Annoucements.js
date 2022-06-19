@@ -43,8 +43,6 @@ export default function Announcements(props) {
         setOpen(!open);
     };
 
-    // TODO: modify "Add Announcment" so that it does what it's suppose to do
-
     const [openAnnouncement, setOpenAnnouncement] = React.useState(false);
     const [openAdd, setOpenAdd] = React.useState(false);
     const [openEdit, setOpenEdit] = React.useState(false);
