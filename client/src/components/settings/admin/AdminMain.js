@@ -17,10 +17,10 @@ function AdminMain (props) {
         Admin Settings
       </Typography>
 
-      <ConfigSettings theme={theme}></ConfigSettings>
-      <QueueRejoinSettings theme={theme}></QueueRejoinSettings>
-      <QueueTopicSettings theme={theme} queueData={queueData}></QueueTopicSettings>
-      <TASettings theme={theme} queueData={queueData}></TASettings>
+      <ConfigSettings theme={theme} queueData={queueData}></ConfigSettings>
+      <QueueRejoinSettings theme={theme} queueData={queueData}></QueueRejoinSettings>
+      { queueData.adminSettings.currSem && <QueueTopicSettings theme={theme} queueData={queueData}></QueueTopicSettings> }
+      { queueData.adminSettings.currSem && <TASettings theme={theme} queueData={queueData}></TASettings> }
     </div>
   );
 }

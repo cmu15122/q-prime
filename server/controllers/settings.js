@@ -3,10 +3,21 @@ const moment = require("moment-timezone");
 const Promise = require("bluebird");
 
 const db = require('../database/models');
-const semester_user = require("../database/models/semester_user");
-const account = require("../database/models/account");
+const slack = require('./slack');
 
-let currSem = "S22" //TODO: grab the current semester from somewhere instead of creating it here
+// Global admin settings
+// FIXME: some default values are set to simplify testing;
+// In production, these should be cleared
+let adminSettings = {
+    currSem: "S22", 
+    slackURL: null,
+    questionsURL: null,
+    rejoinTime: 0
+};
+
+exports.get_admin_settings = function() {
+    return adminSettings;
+}
 
 /** Helper Functions **/
 function respond_error(req, res, message, status) {
@@ -25,15 +36,19 @@ function respond(req, res, message, data, status) {
 function get_response(req, res, message = null) {
     Promise.props({
         assignment_semesters: function() {
+            if (!adminSettings.currSem) return [];
+
             return db.assignment_semester.findAll({
-                where: { sem_id: currSem },
+                where: { sem_id: adminSettings.currSem },
                 include: db.assignment,
                 order: [['end_date', 'ASC']]
             });
         }(),
         semester_users: function() {
+            if (!adminSettings.currSem) return [];
+
             return db.semester_user.findAll({
-                where: { sem_id: currSem, is_ta: 1 },
+                where: { sem_id: adminSettings.currSem, is_ta: 1 },
                 include: [ db.account ]
             })
         }()
@@ -68,6 +83,7 @@ function get_response(req, res, message = null) {
             title: "15-122 Office Hours Queue | Settings",
             topics: assignments,
             tas: tas,
+            adminSettings: adminSettings,
             isAuthenticated: true,
             isTA: true,
             isAdmin: true
@@ -83,6 +99,82 @@ function get_response(req, res, message = null) {
 exports.get = function (req, res) {
     // TODO: use req to get access token and check for user status
     get_response(req, res);
+}
+
+/** ADMIN FUNCTIONS **/
+/** Config Settings **/
+exports.post_update_semester = function (req, res) {
+    // TODO: use req to get access token and check for user status
+
+    var sem_id = req.body.sem_id;
+    if (!sem_id || sem_id.length != 3) {
+        respond_error(req, res, "Invalid/missing parameters in request", 400);
+        return;
+    }
+
+    // If already at current semester, no need to change
+    if (sem_id == adminSettings.currSem) {
+        get_response(req, res);
+        return;
+    }
+
+    db.semester.findOrCreate({ 
+        where: { 
+            sem_id: sem_id
+        }
+    }).then(function(results) {
+        adminSettings.currSem = results[0].sem_id;
+        get_response(req, res, `Current semester set to ${sem_id} successfully`);
+    }).catch(err => {
+        message = err.message || "An error occurred while updating current semester";
+        respond_error(req, res, message, 500);
+    });
+}
+
+exports.post_update_slack_url = function (req, res) {
+    // TODO: use req to get access token and check for user status
+
+    var slackURL = req.body.slackURL;
+    if (!slackURL) {
+        respond_error(req, res, "Invalid/missing parameters in request", 400);
+        return;
+    }
+
+    if (adminSettings.slackURL == slackURL) return;
+
+    adminSettings.slackURL = slackURL;
+    slack.update_slack();
+    respond(req, res, `Slack Webhook URL updated successfully`, {}, 200);
+}
+
+exports.post_update_questions_url = function (req, res) {
+    // TODO: use req to get access token and check for user status
+
+    var questionsURL = req.body.questionsURL;
+    if (!questionsURL) {
+        respond_error(req, res, "Invalid/missing parameters in request", 400);
+        return;
+    }
+
+    if (adminSettings.questionsURL == questionsURL) return;
+
+    adminSettings.questionsURL = questionsURL;
+    respond(req, res, `Questions Guide URL updated successfully`, {}, 200);
+}
+
+exports.post_update_rejoin_time = function (req, res) {
+    // TODO: use req to get access token and check for user status
+
+    var rejoinTime = req.body.rejoinTime;
+    if (!rejoinTime || isNaN(rejoinTime)) {
+        respond_error(req, res, "Invalid/missing parameters in request", 400);
+        return;
+    }
+
+    if (adminSettings.rejoinTime == rejoinTime) return;
+
+    adminSettings.rejoinTime = rejoinTime;
+    respond(req, res, `Rejoin time updated successfully to ${rejoinTime} minutes`, {}, 200);
 }
 
 /** Topics Functions **/
@@ -110,7 +202,7 @@ exports.post_create_topic = function (req, res) {
         semester: function() {
             return db.semester.findOrCreate({ 
                 where: { 
-                    sem_id: currSem
+                    sem_id: adminSettings.currSem
                 }
             });
         }()
@@ -147,7 +239,7 @@ exports.post_update_topic = function (req, res) {
             return db.assignment_semester.findOne({ 
                 where: { 
                     assignment_id: assignment_id,
-                    sem_id: currSem
+                    sem_id: adminSettings.currSem
                 }
             })
         }(),
@@ -234,7 +326,7 @@ exports.post_create_ta = function (req, res) {
         semester: function() {
             return db.semester.findOrCreate({ 
                 where: { 
-                    sem_id: currSem
+                    sem_id: adminSettings.currSem
                 }
             });
         }()
@@ -288,7 +380,7 @@ exports.post_update_ta = function (req, res) {
             return db.semester_user.findOne({ 
                 where: { 
                     user_id: user_id,
-                    sem_id: currSem
+                    sem_id: adminSettings.currSem
                 }
             })
         }(),
@@ -319,7 +411,7 @@ exports.post_update_ta = function (req, res) {
                     is_admin: isAdmin ? 1 : 0
                 });
             }(),
-            name: account.name
+            name: results.account.fname + " " + results.account.lname
         })
     }).then(function(results) {
         get_response(req, res, `TA ${results.name} updated successfully`);
