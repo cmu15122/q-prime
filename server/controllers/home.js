@@ -24,7 +24,7 @@ exports.get = function (req, res) {
         numStudents: ohq.size(),
         waitTime: waitTime,
         isAuthenticated: true,
-        isTA: false,
+        isTA: true,
         isAdmin: true
     });
 }

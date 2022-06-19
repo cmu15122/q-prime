@@ -13,12 +13,14 @@ export default function QueueStats(props) {
     const [queueFrozen, setQueueFrozen] = useState();
     const [numStudents, setNumStudents] = useState();
     const [waitTime, setWaitTime] = useState();
+    const [isTA, setIsTA] = useState();
 
     useEffect(() => {
         if (queueData != null) {
             setQueueFrozen(queueData.queueFrozen);
             setNumStudents(queueData.numStudents);
             setWaitTime(queueData.waitTime);
+            setIsTA(queueData.isTA);
         }
     }, [queueData]);
 
@@ -72,12 +74,12 @@ export default function QueueStats(props) {
                 </Card>
             </div>
             <div>
-                {
+                {isTA && (
                     queueFrozen ?
                     <Button variant="contained" onClick={() => callUnfreezeAPI()} sx={{m:0.5}}>Unfreeze</Button>
                     :
                     <Button variant="contained" onClick={() => callFreezeAPI()} sx={{m:0.5}}>Freeze</Button>
-                }
+                )}
             </div>
         </div>
     );
