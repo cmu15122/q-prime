@@ -22,13 +22,13 @@ export default function AskQuestion(props) {
     const locations = ['Remote', 'GHC 4211', 'Honk\'s Closet'];
     const topics = ['Knock knock', 'Who\'s there?', 'Honk', 'Honk Who?', 'Honk you!'];
     
-    const { questionValue, setQuestionValue, openRemoveOverlay } = props
+    const { questionValue, setQuestionValue, openRemoveOverlay, theme } = props
 
     const [location, setLocation] = useState('')
     const [topic, setTopic] = useState('')
     return (
         <div className='card' style={{display:'flex'}}>
-            <Card sx={{ minWidth : '100%'}}>
+            <Card sx={{ minWidth : '100%', background: theme.palette.background.paper}}>
                 <CardContent>
                     <Typography variant='h5' sx={{fontWeight: 'bold', textAlign: 'left'}}>Ask A Question</Typography>
                     

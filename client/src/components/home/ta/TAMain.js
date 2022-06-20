@@ -12,6 +12,7 @@ function TAMain (props) {
         <AskQuestion
           questionValue={questionValue}
           setQuestionValue={setQuestionValue}
+          theme={props.theme}
         />
       </div>
     );
