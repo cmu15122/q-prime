@@ -20,6 +20,9 @@ export const basicTheme = createTheme({
         background: {
             paper: '#F0F0F0',
         },
+        cancel: {
+            main: '#9e9e9e',
+        },
     },
     components: {
         MuiButton: {
