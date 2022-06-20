@@ -52,7 +52,7 @@ export default function StudentEntry(props) {
         </TableCell>
         <TableCell padding='none' align="left" sx={{ pt: 2, pb: 2, fontSize: '16px', width: '50%', pr: 2 }}>{`[${student.topic}] ${student.question}`}</TableCell>
         <TableCell padding='none' text-align="center" align="right" sx={{ width: '35%' }}>
-          <Toolbar sx={{alignItems: 'right', justifyContent:'right'}}>
+          <Toolbar sx={{alignItems: 'right', justifyContent:'flex-end'}}>
 
             <div ref={removeRef} onClick={() => handleRemoveButton()}>
               {confirmRemove ?

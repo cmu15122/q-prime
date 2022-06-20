@@ -8,9 +8,8 @@ import {
 } from '@mui/material'
 
 export default function QueueStats(props) {
-    const { theme, queueData } = props;
+    const { theme, queueData, queueFrozen, setQueueFrozen } = props;
 
-    const [queueFrozen, setQueueFrozen] = useState();
     const [numStudents, setNumStudents] = useState();
     const [waitTime, setWaitTime] = useState();
     const [isTA, setIsTA] = useState();
