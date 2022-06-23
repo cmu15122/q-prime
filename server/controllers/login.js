@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const Promise = require('bluebird');
 
 const settings = require('./settings');
-const db = require('../database/models');
+const models = require('../models');
 
 const { OAuth2Client } = require('google-auth-library');
 
@@ -24,7 +24,7 @@ exports.post_login = async (req, res) => {
 
     const [fname, lname] = name.split(" ");
 
-    db.account.findOrCreate({ 
+    models.account.findOrCreate({ 
         where: {
             email: email
         }
@@ -53,15 +53,15 @@ exports.post_login = async (req, res) => {
 
         return Promise.props({
             account: account.save(),
-            semUser: db.semester_user.findOrCreate({
+            semUser: models.semester_user.findOrCreate({
                 where: {
-                    sem_id: settings.currSem,
+                    sem_id: settings.get_admin_settings().currSem,
                     user_id: account.user_id
                 }
             }),
             ta: function() {
                 if (isTA) {
-                    return db.ta.findOrCreate({
+                    return models.ta.findOrCreate({
                         where: {
                             ta_id: account.user_id
                         }
@@ -115,7 +115,7 @@ exports.post_login = async (req, res) => {
 };
 
 exports.post_logout = (req, res) => {
-    tempdb.setIsAuthenticated(false);
-	tempdb.setAccessToken("");
+    tempmodels.setIsAuthenticated(false);
+	tempmodels.setAccessToken("");
     res.status(200);
 };
