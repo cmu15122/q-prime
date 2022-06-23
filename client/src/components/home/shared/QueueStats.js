@@ -5,7 +5,9 @@ import {
     Card,
     Toolbar,
     Button
-} from '@mui/material'
+} from '@mui/material';
+
+import HomeService from '../../../services/HomeService';
 
 export default function QueueStats(props) {
     const { theme, queueData } = props;
@@ -33,12 +35,18 @@ export default function QueueStats(props) {
         setQueueFrozen(body.queueFrozen);
     }
 
-    const callFreezeAPI = async () => {
-        await postToBackend('http://localhost:8000/freezeQueue');
+    const callFreezeAPI = () => {
+        HomeService.freezeQueue()
+            .then((res) => {
+                setQueueFrozen(res.data.queueFrozen);
+            })
     };
 
-    const callUnfreezeAPI = async () => {
-        await postToBackend('http://localhost:8000/unfreezeQueue');
+    const callUnfreezeAPI = () => {
+        HomeService.unfreezeQueue()
+            .then((res) => {
+                setQueueFrozen(res.data.queueFrozen);
+            })
     };
 
     const textStyle = {

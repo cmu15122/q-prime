@@ -1,4 +1,10 @@
-const tempdb = require('./tempdb');
+require('dotenv').config() // TODO: move the process.env over to config.js
+
+const jwt = require('jsonwebtoken');
+const Promise = require('bluebird');
+
+const settings = require('./settings');
+const db = require('../database/models');
 
 const { OAuth2Client } = require('google-auth-library');
 
@@ -16,35 +22,96 @@ exports.post_login = async (req, res) => {
 
     const { name, email } = ticket.getPayload(); // TODO: get any other info we need
 
-    // TODO: store in db
-    tempdb.setIsAuthenticated(true);
+    const [fname, lname] = name.split(" ");
 
-    // TODO: Very basic check for andrew email - currently used to determine 
-    // whether you're a TA or not
-    if (email.split('@')[1] === 'andrew.cmu.edu') {
-        tempdb.setIsTA(true);
-        tempdb.setIsAdmin(true);
-    } else {
-        tempdb.setIsTA(false);
-        tempdb.setIsAdmin(false);
-    }
+    db.account.findOrCreate({ 
+        where: {
+            email: email
+        }
+    }).then(function([account, created]) {
+        if (created) {
+            const access_token = jwt.sign(
+                {
+                    name: name,
+                    email: email
+                },
+                process.env.TOKEN_KEY,
+                {
+                    algorithm: 'HS256'
+                }
+            );
 
-    // TODO: get/generate token to give back to the client
-	const user_token = jwt.sign(
-		{
-			name: name,
-			email: email
-		},
-		process.env.TOKEN_KEY,
-		{
-			algorithm: 'HS256'
-		}
-	);
+            account.set({
+                fname: fname,
+                lname: lname,
+                access_token: access_token
+            });
+        }
 
-	tempdb.setAccessToken(user_token);
+        // TODO: replace with grabbing TA information from database
+        let isTA = email.split('@')[1] === 'andrew.cmu.edu';
 
-    res.status(201);
-    res.json({ name: name, email: email, user_token: user_token });
+        return Promise.props({
+            account: account.save(),
+            semUser: db.semester_user.findOrCreate({
+                where: {
+                    sem_id: settings.currSem,
+                    user_id: account.user_id
+                }
+            }),
+            ta: function() {
+                if (isTA) {
+                    return db.ta.findOrCreate({
+                        where: {
+                            ta_id: account.user_id
+                        }
+                    });
+                }
+                return [null, false];
+            }(),
+            isTA: isTA,
+            isAdmin: isTA // TODO: change
+        });
+    }).then(function(results) {
+        let [semUser, semUserCreated] = results.semUser;
+        let account = results.account;
+        let [ta, taCreated] = results.ta;
+
+        if (semUserCreated && results.isTA) {
+            if (results.isTA) {
+                semUser.set({
+                    is_ta: 1
+                });
+            } else {
+                semUser.set({
+                    is_ta: 0
+                });
+            }
+
+            if (results.isAdmin) {
+                ta.set({
+                    is_admin: 1
+                });
+            }
+        }
+
+        return Promise.props({
+            account: account,
+            semUser: semUser.save(),
+            ta: function() {
+                if (!ta) return null;
+                return ta.save();
+            }(),
+            isTA: results.isTA,
+            isAdmin: results.isAdmin,
+            access_token: account.access_token
+        });
+    }).then(function(results) {
+        res.status(201);
+        res.json({ name: name, email: email, access_token: results.access_token });
+    }).catch(function (err) {
+        console.log(err);
+    });
 };
 
 exports.post_logout = (req, res) => {

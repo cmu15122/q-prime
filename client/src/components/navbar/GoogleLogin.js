@@ -30,7 +30,6 @@ function GoogleLogin(props) {
             }
         });
 
-        console.log(document.getElementById("signInDiv"));
         window.google.accounts.id.renderButton(
             document.getElementById("signInDiv"),
             { theme: "outline", size: "large" }

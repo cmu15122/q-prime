@@ -5,6 +5,8 @@ const db = require('../database/models');
 
 let currSem = "S22" //TODO: grab the current semester from somewhere instead of creating it here
 
+exports.currSem = currSem;
+
 function respond(req, res, message, data, status) {
     res.status(status);
     if (message) {
@@ -14,6 +16,10 @@ function respond(req, res, message, data, status) {
 }
 
 function get_response(req, res, message = null) {
+    if (!req.user || !req.user.isTA) {
+        return;
+    }
+
     db.assignment_semester.findAll({
         where: { sem_id: currSem },
         order: [['end_date', 'ASC']]
@@ -38,9 +44,9 @@ function get_response(req, res, message = null) {
         let data = { 
             title: "15-122 Office Hours Queue | Settings",
             topics: assignments,
-            isAuthenticated: true,
-            isTA: true,
-            isAdmin: true
+            isAuthenticated: req.user.isAuthenticated,
+            isTA: req.user.isAuthenticated,
+            isAdmin: req.user.isAuthenticated
         };
         respond(req, res, message, data, 200);
     });

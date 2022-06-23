@@ -1,6 +1,8 @@
 // For Home page
+const Promise = require('bluebird');
+
 const queue = require('./queue');
-const tempdb = require('./tempdb');
+const db = require('../database/models');
 
 const OHQueue = queue.OHQueue;
 const StudentStatus = queue.StudentStatus;
@@ -17,29 +19,32 @@ ohq.enqueue("student3");
 let waitTime = 20;
 
 exports.get = function (req, res) {
-    // TODO: use req to get access token and check for user status
-	access_token = tempdb.getAccessToken();
-	if(access_token !== "") {
-		res.status(200);
-		res.send({ 
-			title: "15-122 Office Hours Queue",
-			queueFrozen: queueFrozen,
-			numStudents: ohq.size(),
-			waitTime: waitTime,
-			isAuthenticated: true,
-			isTA: false,
-			isAdmin: true,
-			access_token: access_token
-		});
-	} 
+    res.status(200);
+    res.send({ 
+        title: "15-122 Office Hours Queue",
+        queueFrozen: queueFrozen,
+        numStudents: ohq.size(),
+        waitTime: waitTime,
+        isAuthenticated: req.user?.isAuthenticated,
+        isTA: req.user?.isTA,
+        isAdmin: req.user?.isAdmin
+    });
 }
 
 exports.post_freeze_queue = function (req, res) {
+    if (!req.user || !req.user.isTA) {
+        return;
+    }
+
     queueFrozen = true;
     res.redirect("/");
 }
 
 exports.post_unfreeze_queue = function (req, res) {
+    if (!req.user || !req.user.isTA) {
+        return;
+    }
+
     queueFrozen = false;
     res.redirect("/");
 }

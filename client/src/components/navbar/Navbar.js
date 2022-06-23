@@ -48,17 +48,8 @@ export default function Navbar(props) {
     }
 
     function handleLogout() {
-        fetch('/logout', {
-            method: 'POST',
-            body: JSON.stringify({
-                // TODO: pass in whatever we use to store current user info
-            }),
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        });
         removeCookie('user');
-        window.location.reload();
+        window.location.href = "/";
     }
 
     return (
