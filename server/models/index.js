@@ -19,7 +19,7 @@ let sequelize = new Sequelize(config.DB, config.DB_USER, config.DB_PASSWORD, {
         require: true,
         rejectUnauthorized: false
       }
-    },
+    }
 });
 
 fs

@@ -32,6 +32,17 @@ httpInstance.interceptors.response.use(
         return res;
     },
     (err) => {
+        if (err.response.data.message) {
+            let message = err.message + ": " + err.response.data.message;
+            toast.error(message, {
+                position: "bottom-left",
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+            });
+        }
        return Promise.reject(err);
     }
 );

@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/pranavaddepalli/122q#readme",
   "dependencies": {
+    "bluebird": "^3.7.2",
     "body-parser": "^1.20.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",
