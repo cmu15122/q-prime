@@ -1,5 +1,5 @@
 
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     styled, Button, Card, CardActions, IconButton, Collapse, Divider,
     Typography, Table, TableRow, TableCell, TableBody
@@ -23,18 +23,18 @@ const Expand = styled((props) => {
     }),
 }));
 
-function createData(name, email, isAdmin) {
-    return { name, email, isAdmin };
+function createData(user_id, name, email, isAdmin) {
+    return { user_id, name, email, isAdmin };
 }
   
-const rows = [
-    createData('Angela Zhang', 'angelaz1@andrew.cmu.edu', false),
-    createData('Amanda Li', 'xal@andrew.cmu.edu', true),
-    createData('Lora Zhou', 'lbzhou@andrew.cmu.edu', true),
-];
+// const rows = [
+//     createData('Angela Zhang', 'angelaz1@andrew.cmu.edu', false),
+//     createData('Amanda Li', 'xal@andrew.cmu.edu', true),
+//     createData('Lora Zhou', 'lbzhou@andrew.cmu.edu', true),
+// ];
 
 export default function TASettings(props) {
-    const { theme } = props
+    const { theme, queueData } = props
 
     const [open, setOpen] = React.useState(false);
 
@@ -46,6 +46,13 @@ export default function TASettings(props) {
     const [openEdit, setOpenEdit] = React.useState(false);
     const [openDelete, setOpenDelete] = React.useState(false);
     const [selectedRow, setSelectedRow] = React.useState();
+    const [rows, setRows] = useState([]);
+
+    useEffect(() => {
+        if (queueData != null) {
+            updateTAs(queueData.tas);
+        }
+    }, [queueData]);
 
     const handleAdd = () => {
         setOpenAdd(true);
@@ -67,16 +74,28 @@ export default function TASettings(props) {
         setOpenDelete(false);
     };
 
+    const updateTAs = (newTAs) => {
+        let newRows = [];
+        newTAs.forEach (ta => {
+            newRows.push(createData(
+                ta.ta_id,
+                ta.fname + " " + ta.lname, 
+                ta.email,
+                ta.isAdmin
+            ));
+        });
+        setRows(newRows);
+    }
+
     return (
         <div className='card' style={{ display:'flex' }}>
             <Card sx={{ minWidth: '100%' }}>
-                <CardActions disableSpacing>
+                <CardActions disableSpacing style={{ cursor: 'pointer' }} onClick={handleClick}>
                     <Typography sx={{ fontSize: 16, fontWeight: 'bold', ml: 2, mt: 1 }} variant="h5" gutterBottom>
                         TA Settings
                     </Typography>
                     <Expand
                         expand={open}
-                        onClick={handleClick}
                         aria-expanded={open}
                         aria-label="show more"
                         sx={{ mr: 1 }}
@@ -126,18 +145,21 @@ export default function TASettings(props) {
             <AddTADialog
                 isOpen={openAdd}
                 onClose={handleClose}
+                updateTAs={updateTAs}
             />
 
             <EditTADialog
                 isOpen={openEdit}
                 onClose={handleClose}
                 taInfo={selectedRow}
+                updateTAs={updateTAs}
             />
 
             <DeleteTADialog
                 isOpen={openDelete}
                 onClose={handleClose}
                 taInfo={selectedRow}
+                updateTAs={updateTAs}
             />
         </div>
     );

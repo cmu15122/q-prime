@@ -2,10 +2,58 @@
 import React from 'react';
 import {
     Button, Card, CardContent, Typography, TextField, Grid
-} from '@mui/material'
+} from '@mui/material';
+
+import SettingsService from '../../../services/SettingsService';
 
 export default function ConfigSettings(props) {
-    const { } = props
+    const { queueData } = props
+
+    const [ currSem, setCurrSem ] = React.useState("");
+    const [ slackURL, setSlackURL ] = React.useState("");
+    const [ questionsURL, setQuestionsURL ] = React.useState("");
+
+    React.useEffect(() => {
+        if (queueData != null && queueData.adminSettings != null) {
+            setCurrSem(queueData.adminSettings.currSem);
+            setSlackURL(queueData.adminSettings.slackURL);
+            setQuestionsURL(queueData.adminSettings.questionsURL);
+        }
+    }, [queueData]);
+
+    const handleUpdateSemester = () => {
+        if (currSem === queueData.adminSettings.currSem) return;
+
+        SettingsService.updateSemester(
+            JSON.stringify({
+                sem_id: currSem,
+            })
+        ).then(() => {
+            // Reload entire page since we've changed semesters
+            window.location.reload();
+        });
+    };
+
+    const handleUpdateSlackURL = () => {
+        if (slackURL === queueData.adminSettings.slackURL) return;
+
+        SettingsService.updateSlackURL(
+            JSON.stringify({
+                slackURL: slackURL,
+            })
+        );
+    };
+
+    const handleUpdateQuestionsURL = () => {
+        if (questionsURL === queueData.adminSettings.questionsURL) return;
+
+        SettingsService.updateQuestionsURL(
+            JSON.stringify({
+                questionsURL: questionsURL,
+            })
+        );
+    };
+
     return (
         <div className='card' style={{ display:'flex' }}>
             <Card sx={{ minWidth: '100%' }}>
@@ -14,16 +62,52 @@ export default function ConfigSettings(props) {
                         Config Settings
                     </Typography>
                     <Grid container spacing={2} >
-                        <Grid className="d-flex" item sx={{ mt: 1, mx: 1 }} xs={12}>
+                        <Grid className="d-flex" item sx={{ mt: 1, ml: 1 }}>
                             Current Semester:
-                            <TextField id="current-sem" variant="standard" sx={{ ml: 1, mt: -1 }} style={{ width: '80px' }}/>
-                            <Button variant="contained" sx={{ ml: 1, mt: -1 }}>Save</Button>
+                            <TextField 
+                                id="current-sem" 
+                                variant="standard" 
+                                sx={{ ml: 1, mt: -1 }} 
+                                style={{ width: '60px' }} 
+                                inputProps={{ maxLength: 3 }}
+                                value={currSem ?? ""}
+                                onChange={(e) => {
+                                    setCurrSem(e.target.value)
+                                }}
+                            />
                         </Grid>
-                        <Grid className="d-flex" item sx={{ mx: 1 }} xs={12}>
-                            <TextField id="slack-url" placeholder="Slack Webhook URL" variant="standard" fullWidth/>
+                        <Grid className="d-flex" item sx={{ mr: 2 }}>
+                            <Button onClick={handleUpdateSemester} variant="contained">Save</Button>
                         </Grid>
-                        <Grid className="d-flex" item sx={{ mx: 1, mb: 1 }} xs={12}>
-                            <TextField id="questions-url" placeholder="Questions Guide URL" variant="standard" fullWidth/>
+                        <Grid className="d-flex" item sx={{ mx: 1 }} xs={10}>
+                            <TextField 
+                                id="slack-url" 
+                                placeholder="Slack Webhook URL" 
+                                variant="standard" 
+                                fullWidth
+                                value={slackURL ?? ""}
+                                onChange={(e) => {
+                                    setSlackURL(e.target.value)
+                                }}
+                            />
+                        </Grid>
+                        <Grid className="d-flex" item sx={{ mr: 2 }} xs={1.5}>
+                            <Button onClick={handleUpdateSlackURL} variant="contained">Save</Button>
+                        </Grid>
+                        <Grid className="d-flex" item sx={{ mx: 1, mb: 1 }} xs={10}>
+                            <TextField 
+                                id="questions-url" 
+                                placeholder="Questions Guide URL" 
+                                variant="standard" 
+                                fullWidth
+                                value={questionsURL ?? ""}
+                                onChange={(e) => {
+                                    setQuestionsURL(e.target.value)
+                                }}
+                            />
+                        </Grid>
+                        <Grid className="d-flex" item sx={{ mr: 2 }} xs={1.5}>
+                            <Button onClick={handleUpdateQuestionsURL} variant="contained">Save</Button>
                         </Grid>
                     </Grid>
                 </CardContent>
