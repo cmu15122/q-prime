@@ -15,7 +15,7 @@ function createPage(page, link) {
 export default function Navbar(props) {
     const { theme, queueData } = props;
     
-    const [removeCookie] = useCookies(['user']);
+    const [cookies, setCookie, removeCookie] = useCookies(['user']);
 
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isTA, setIsTA] = useState(false);

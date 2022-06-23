@@ -5,7 +5,7 @@ import config from '../../config/config.json';
 
 function GoogleLogin(props) {
     const { queueData } = props
-    const [setCookie] = useCookies(['user']);
+    const [cookies, setCookie] = useCookies(['user']);
 
     useEffect(() => {
         window.google.accounts.id.initialize({
