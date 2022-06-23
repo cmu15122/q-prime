@@ -12,8 +12,16 @@ const db = {};
 
 let sequelize = new Sequelize(config.DB, config.USER, config.PASSWORD, {
     host: config.HOST,
+    port: config.PORT,
     dialect: config.dialect,
     logging: false,
+    omitNull: true,
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
+    },
 });
 
 fs

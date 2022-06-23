@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import AskQuestion from './AskQuestion';
+import StudentEntries from '../shared/StudentEntries';
 
 function TAMain (props) {
     const { theme, queueData } = props;
@@ -7,10 +8,13 @@ function TAMain (props) {
 
     return (
       <div>
-          <AskQuestion
-            questionValue={questionValue}
-            setQuestionValue={setQuestionValue}
-          />
+        <AskQuestion
+          questionValue={questionValue}
+          setQuestionValue={setQuestionValue}
+        />
+
+        <StudentEntries theme={props.theme}></StudentEntries>
+
       </div>
     );
 }

@@ -19,9 +19,13 @@ export default function NotificationSettings(props) {
                         </Grid>
                         <Grid className="d-flex" item sx={{ mt: -3 }} xs={12}>
                             <FormControlLabel control={<Checkbox size="small" sx={{ ml: 1 }}/>} 
-                            label={<p>Remind me after I've been helping for 
-                                <TextField id="time-notif" variant="standard" sx={{ mr: 1, ml: 1, mt: -1 }} style={{ width: '50px' }}/> 
-                                minutes</p>} />
+                            label={
+                                <div>
+                                    Remind me after I've been helping for
+                                    <TextField id="time-notif" variant="standard" sx={{ mr: 1, ml: 1, mt: -1 }} style={{ width: '50px' }}/> 
+                                    minutes
+                                </div>
+                            } />
                         </Grid>
                     </Grid>
                 </CardContent>

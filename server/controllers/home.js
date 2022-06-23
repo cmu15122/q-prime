@@ -24,9 +24,9 @@ exports.get = function (req, res) {
         queueFrozen: queueFrozen,
         numStudents: ohq.size(),
         waitTime: waitTime,
-        isAuthenticated: tempdb.userInfo.isAuthenticated,
-        isTA: tempdb.userInfo.isTA,
-        isAdmin: tempdb.userInfo.isAdmin
+        isAuthenticated: true,
+        isTA: false,
+        isAdmin: true
     });
 }
 

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-    Box,
     Button
 } from '@mui/material'
 import YourEntry from './YourEntry';
@@ -50,8 +49,8 @@ function StudentMain (props) {
             handleClose={() => setUpdateQ(false)}
             setQuestionValue={setQuestionValue}
           />
-          <MessageRespond theme = {props.theme}
-          />
+
+          <MessageRespond theme = {props.theme} />
       </div>
     );
 }

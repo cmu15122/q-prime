@@ -1,5 +1,5 @@
 
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     styled, Button, Card, CardActions, IconButton, Collapse, Divider,
     Typography, Table, TableRow, TableCell, TableBody
@@ -21,35 +21,37 @@ const Expand = styled((props) => {
         transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
         marginLeft: 'auto',
         transition: theme.transitions.create('transform', {
-        duration: theme.transitions.duration.shortest,
-    }),
-}));
+            duration: theme.transitions.duration.shortest,  
+        }),
+    })
+);
 
-function createData(name, dateIn, dateOut) {
-    return { name, dateIn, dateOut };
+function createData(assignment_id, name, category, dateIn, dateOut) {
+    dateIn = DateTime.fromISO(dateIn);
+    dateOut = DateTime.fromISO(dateOut);
+    return { assignment_id, name, category, dateIn, dateOut };
 }
-  
-const rows = [
-    createData('Written 1', DateTime.fromISO('2022-08-29T21:00:00'), DateTime.fromISO('2022-09-05T21:00:00')),
-    createData('Written 2', DateTime.fromISO('2022-08-29T21:00:00'), DateTime.fromISO('2022-09-05T21:00:00')),
-    createData('Written 3', DateTime.fromISO('2022-08-29T21:00:00'), DateTime.fromISO('2022-09-05T21:00:00')),
-    createData('Written 4', DateTime.fromISO('2022-08-29T21:00:00'), DateTime.fromISO('2022-09-05T21:00:00')),
-    createData('Written 5', DateTime.fromISO('2022-08-29T21:00:00'), DateTime.fromISO('2022-09-05T21:00:00')),
-];
 
 export default function QueueTopicSettings(props) {
-    const { theme } = props
+    const { theme, queueData } = props
 
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
 
     const handleClick = () => {
         setOpen(!open);
     };
 
-    const [openAdd, setOpenAdd] = React.useState(false);
-    const [openEdit, setOpenEdit] = React.useState(false);
-    const [openDelete, setOpenDelete] = React.useState(false);
-    const [selectedRow, setSelectedRow] = React.useState();
+    const [openAdd, setOpenAdd] = useState(false);
+    const [openEdit, setOpenEdit] = useState(false);
+    const [openDelete, setOpenDelete] = useState(false);
+    const [selectedRow, setSelectedRow] = useState();
+    const [rows, setRows] = useState([]);
+
+    useEffect(() => {
+        if (queueData != null) {
+            updateTopics(queueData.topics);
+        }
+    }, [queueData]);
 
     const handleAdd = () => {
         setOpenAdd(true);
@@ -71,16 +73,29 @@ export default function QueueTopicSettings(props) {
         setOpenDelete(false);
     };
 
+    const updateTopics = (newTopics) => {
+        let newRows = [];
+        newTopics.forEach (topic => {
+            newRows.push(createData(
+                topic.assignment_id, 
+                topic.name, 
+                topic.category, 
+                topic.start_date, 
+                topic.end_date
+            ));
+        });
+        setRows(newRows);
+    }
+
     return (
         <div className='card' style={{ display:'flex' }}>
             <Card sx={{ minWidth: '100%' }}>
-                <CardActions disableSpacing>
+                <CardActions disableSpacing style={{ cursor: 'pointer' }} onClick={handleClick}>
                     <Typography sx={{ fontSize: 16, fontWeight: 'bold', ml: 2, mt: 1 }} variant="h5" gutterBottom>
                         Queue Topic Settings
                     </Typography>
                     <Expand
                         expand={open}
-                        onClick={handleClick}
                         aria-expanded={open}
                         aria-label="show more"
                         sx={{ mr: 1 }}
@@ -100,6 +115,9 @@ export default function QueueTopicSettings(props) {
                                     <TableCell component="th" scope="row" sx={{ fontSize: '16px', fontWeight: 'bold', pl: 3.25 }}>
                                         {row.name}
                                     </TableCell>
+                                    <TableCell component="th" scope="row" sx={{ fontSize: '16px', fontStyle: 'italic', pl: 3.25 }}>
+                                        {row.category}
+                                    </TableCell>
                                     <TableCell align="left" sx={{ fontSize: '16px' }}>{row.dateIn.toLocaleString(DateTime.DATETIME_SHORT)}</TableCell>
                                     <TableCell align="left" sx={{ fontSize: '16px' }}>{row.dateOut.toLocaleString(DateTime.DATETIME_SHORT)}</TableCell>
                                     <TableCell align="right" sx={{ pr: 3 }}>
@@ -117,7 +135,7 @@ export default function QueueTopicSettings(props) {
                                     key='add'
                                     style={{ background : theme.palette.background.default }}
                                 >
-                                    <TableCell align="center" colSpan={4}>
+                                    <TableCell align="center" colSpan={5}>
                                         <Button sx={{ mr: 1, fontWeight: 'bold', fontSize: '18px' }} color="primary" variant="contained" onClick={() => handleAdd()}>
                                             + Add Topic
                                         </Button>
@@ -130,18 +148,21 @@ export default function QueueTopicSettings(props) {
             <AddTopicDialog
                 isOpen={openAdd}
                 onClose={handleClose}
+                updateTopics={updateTopics}
             />
 
             <EditTopicDialog
                 isOpen={openEdit}
                 onClose={handleClose}
                 topicInfo={selectedRow}
+                updateTopics={updateTopics}
             />
 
             <DeleteTopicDialog
                 isOpen={openDelete}
                 onClose={handleClose}
                 topicInfo={selectedRow}
+                updateTopics={updateTopics}
             />
         </div>
     );

@@ -11,8 +11,8 @@ import { basicTheme } from './themes/base.js';
 import { ThemeProvider } from '@mui/material'
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-
-import './App.css';
+import { ToastContainer } from 'material-react-toastify';
+import 'material-react-toastify/dist/ReactToastify.css';
 
 function App() {
     return (
@@ -25,6 +25,17 @@ function App() {
                     <Route path='/metrics' element={<Metrics theme={basicTheme}/>} />
                 </Routes>
                 </Router>
+                <ToastContainer
+                    position="bottom-left"
+                    autoClose={5000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                />
             </LocalizationProvider>
         </ThemeProvider>
     );

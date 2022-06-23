@@ -26,7 +26,7 @@ export default function DateTimeSelector(props) {
              <Typography variant="h5" sx={{ mt: 4, ml: 10 }} fontWeight='bold'>
                 OH Session Statistics
             </Typography>
-            <Grid container spacing={3} sx={{ mt: 2, ml: 10 }} >
+            <Grid container spacing={3} sx={{ mt: 2, ml: 10, maxWidth: '90%' }} >
                 <Grid className="d-flex" item xs={2}>
                     <DesktopDatePicker  
                     label="Date"
