@@ -24,3 +24,7 @@ exports.setIsAdmin = function (value) {
 exports.setAccessToken = function (value) {
 	userInfo.accessToken = value;
 }
+
+exports.getAccessToken = function () {
+	return userInfo.accessToken;
+}
