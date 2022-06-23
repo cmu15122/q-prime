@@ -37,18 +37,18 @@ sockets.init(server);
 
 server.listen(port, () => console.log(`Listening on port ${port}`));
 
-const db = require("./database/models");
-db.sequelize.authenticate().then(() => {
-  console.log("Connected to the database!");
-})
-.catch(err => {
-  console.log("Cannot connect to the database!", err);
-  process.exit();
-});
+const models = require("./models");
+models.sequelize.authenticate().then(() => {
+    console.log("Connected to the database!");
+  })
+  .catch(err => {
+    console.log("Cannot connect to the database!", err);
+    process.exit();
+  });
 
-db.sequelize.sync().catch((err) => {
-  console.log(err);
-  process.exit();
-});
+models.sequelize.sync().catch((err) => {
+    console.log(err);
+    process.exit();
+  });
 
 module.exports = app;

@@ -2,7 +2,7 @@
 const moment = require("moment-timezone");
 const Promise = require("bluebird");
 
-const db = require('../database/models');
+const models = require('../models');
 const slack = require('./slack');
 
 // Global admin settings
@@ -38,18 +38,18 @@ function get_response(req, res, message = null) {
         assignment_semesters: function() {
             if (!adminSettings.currSem) return [];
 
-            return db.assignment_semester.findAll({
+            return models.assignment_semester.findAll({
                 where: { sem_id: adminSettings.currSem },
-                include: db.assignment,
+                include: models.assignment,
                 order: [['end_date', 'ASC']]
             });
         }(),
         semester_users: function() {
             if (!adminSettings.currSem) return [];
 
-            return db.semester_user.findAll({
+            return models.semester_user.findAll({
                 where: { sem_id: adminSettings.currSem, is_ta: 1 },
-                include: [ db.account ]
+                include: [ models.account ]
             })
         }()
     }).then(async function(results) {
@@ -68,7 +68,7 @@ function get_response(req, res, message = null) {
         }
 
         for (const semUser of results.semester_users) {
-            let ta = await db.ta.findByPk(semUser.user_id);
+            let ta = await models.ta.findByPk(semUser.user_id);
             let account = semUser.account;
             tas.push({
                 ta_id: ta.ta_id,
@@ -118,7 +118,7 @@ exports.post_update_semester = function (req, res) {
         return;
     }
 
-    db.semester.findOrCreate({ 
+    models.semester.findOrCreate({ 
         where: { 
             sem_id: sem_id
         }
@@ -192,7 +192,7 @@ exports.post_create_topic = function (req, res) {
 
     Promise.props({
         assignment: function() {
-            return db.assignment.findOrCreate({ 
+            return models.assignment.findOrCreate({ 
                 where: { 
                     name: name,
                     category: category
@@ -200,14 +200,14 @@ exports.post_create_topic = function (req, res) {
             });
         }(),
         semester: function() {
-            return db.semester.findOrCreate({ 
+            return models.semester.findOrCreate({ 
                 where: { 
                     sem_id: adminSettings.currSem
                 }
             });
         }()
     }).then(function(results) {
-        return db.assignment_semester.create({
+        return models.assignment_semester.create({
             assignment_id: results.assignment[0].assignment_id,
             sem_id: results.semester[0].sem_id,
             start_date: start_date,
@@ -236,7 +236,7 @@ exports.post_update_topic = function (req, res) {
 
     Promise.props({
         assignment_semester: function() {
-            return db.assignment_semester.findOne({ 
+            return models.assignment_semester.findOne({ 
                 where: { 
                     assignment_id: assignment_id,
                     sem_id: adminSettings.currSem
@@ -244,7 +244,7 @@ exports.post_update_topic = function (req, res) {
             })
         }(),
         assignment: function() {
-            return db.assignment.findOne({ 
+            return models.assignment.findOne({ 
                 where: { 
                     assignment_id: assignment_id
                 }
@@ -287,7 +287,7 @@ exports.post_delete_topic = function (req, res) {
         return;
     }
 
-    db.assignment.destroy({ 
+    models.assignment.destroy({ 
         where: { 
             assignment_id: assignment_id
         }
@@ -315,7 +315,7 @@ exports.post_create_ta = function (req, res) {
 
     Promise.props({
         account: function() {
-            return db.account.findOrCreate({ 
+            return models.account.findOrCreate({ 
                 where: {
                     fname: fname,
                     lname: lname,
@@ -324,7 +324,7 @@ exports.post_create_ta = function (req, res) {
             });
         }(),
         semester: function() {
-            return db.semester.findOrCreate({ 
+            return models.semester.findOrCreate({ 
                 where: { 
                     sem_id: adminSettings.currSem
                 }
@@ -333,7 +333,7 @@ exports.post_create_ta = function (req, res) {
     }).then(function(results) {
         return Promise.props({
             semester_user: function() {
-                return db.semester_user.findOrCreate({
+                return models.semester_user.findOrCreate({
                     where: {
                         user_id: results.account[0].user_id,
                         sem_id: results.semester[0].sem_id
@@ -341,7 +341,7 @@ exports.post_create_ta = function (req, res) {
                 });
             }(),
             ta: function() {
-                return db.ta.findOrCreate({
+                return models.ta.findOrCreate({
                     where: {
                         ta_id: results.account[0].user_id,
                         is_admin: isAdmin ? 1 : 0
@@ -377,7 +377,7 @@ exports.post_update_ta = function (req, res) {
     Promise.props({
         semester_user: function() {
             // We grab this to verify the user exists for this semester
-            return db.semester_user.findOne({ 
+            return models.semester_user.findOne({ 
                 where: { 
                     user_id: user_id,
                     sem_id: adminSettings.currSem
@@ -386,14 +386,14 @@ exports.post_update_ta = function (req, res) {
         }(),
         account: function() {
             // We grab this to verify the user has an account
-            return db.account.findOne({ 
+            return models.account.findOne({ 
                 where: { 
                     user_id: user_id
                 }
             });
         }(),
         ta: function() {
-            return db.ta.findOne({ 
+            return models.ta.findOne({ 
                 where: { 
                     ta_id: user_id
                 }
@@ -430,7 +430,7 @@ exports.post_delete_ta = function (req, res) {
         return;
     }
 
-    db.semester_user.findOne({
+    models.semester_user.findOne({
         where: {
             user_id: user_id
         }
