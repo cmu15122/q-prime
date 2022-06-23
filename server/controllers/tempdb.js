@@ -3,7 +3,8 @@
 let userInfo = {
     isAuthenticated: false,
     isTA: false,
-    isAdmin: false
+    isAdmin: false,
+	accessToken: ""
 }
 
 exports.userInfo = userInfo;
@@ -18,4 +19,8 @@ exports.setIsTA = function (value) {
 
 exports.setIsAdmin = function (value) {
     userInfo.isAdmin = value;
+}
+
+exports.setAccessToken = function (value) {
+	userInfo.accessToken = value;
 }

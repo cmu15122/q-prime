@@ -30,12 +30,25 @@ exports.post_login = async (req, res) => {
     }
 
     // TODO: get/generate token to give back to the client
+	const user_token = jwt.sign(
+		{
+			name: name,
+			email: email
+		},
+		process.env.TOKEN_KEY,
+		{
+			algorithm: 'HS256'
+		}
+	);
+
+	tempdb.setAccessToken(user_token);
 
     res.status(201);
-    res.json({ name: name, email: email });
+    res.json({ name: name, email: email, user_token: user_token });
 };
 
 exports.post_logout = (req, res) => {
     tempdb.setIsAuthenticated(false);
+	tempdb.setAccessToken("");
     res.status(200);
 };
