@@ -24,8 +24,8 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-const db = require("./database/models");
-db.sequelize.authenticate().then(() => {
+const models = require("./models");
+models.sequelize.authenticate().then(() => {
     console.log("Connected to the database!");
 })
 .catch(err => {
@@ -33,7 +33,7 @@ db.sequelize.authenticate().then(() => {
     process.exit();
 });
 
-db.sequelize.sync().catch((err) => {
+models.sequelize.sync().catch((err) => {
     console.log(err);
     process.exit();
 });
@@ -46,7 +46,7 @@ app.use(function(req, res, next) {
         return;
     }
     
-    db.account.findOne({
+    models.account.findOne({
         where: {
             access_token: access_token
         }
@@ -54,21 +54,21 @@ app.use(function(req, res, next) {
         return Promise.props({
             account: account,
             sem_user: function() {
-                return db.semester_user.findOne({
+                return models.semester_user.findOne({
                     where: {
                         user_id: account.user_id
                     }
                 })
             }(),
             student: function() {
-                return db.student.findOne({
+                return models.student.findOne({
                     where: {
                         student_id: account.user_id
                     }
                 })
             }(),
             ta: function() {
-                return db.ta.findOne({
+                return models.ta.findOne({
                     where: {
                         ta_id: account.user_id
                     }
