@@ -55,7 +55,7 @@ exports.post_login = async (req, res) => {
             account: account.save(),
             semUser: db.semester_user.findOrCreate({
                 where: {
-                    sem_id: settings.currSem,
+                    sem_id: settings.get_admin_settings().currSem,
                     user_id: account.user_id
                 }
             }),
