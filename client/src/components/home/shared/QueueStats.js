@@ -10,7 +10,7 @@ import {
 import HomeService from '../../../services/HomeService';
 
 export default function QueueStats(props) {
-    const { theme, queueData } = props;
+    const { queueData } = props;
 
     const [queueFrozen, setQueueFrozen] = useState();
     const [numStudents, setNumStudents] = useState();
@@ -23,17 +23,6 @@ export default function QueueStats(props) {
             setWaitTime(queueData.waitTime);
         }
     }, [queueData]);
-
-    const postToBackend = async (postURL) => {
-        const response = await fetch(postURL, {method: 'POST'});
-        const body = await response.json();
-  
-        if (response.status !== 200) {
-            throw Error(body.message);
-        }
-    
-        setQueueFrozen(body.queueFrozen);
-    }
 
     const callFreezeAPI = () => {
         HomeService.freezeQueue()

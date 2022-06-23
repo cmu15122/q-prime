@@ -15,7 +15,7 @@ function createPage(page, link) {
 export default function Navbar(props) {
     const { theme, queueData } = props;
     
-    const [cookies, setCookie, removeCookie] = useCookies(['user']);
+    const [removeCookie] = useCookies(['user']);
 
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isTA, setIsTA] = useState(false);
@@ -31,10 +31,6 @@ export default function Navbar(props) {
     }, [queueData]);
 
     useEffect(() => {
-        updatePages();
-    }, [isAuthenticated, isTA, isAdmin]);
-    
-    const updatePages = () => {
         let newPages = [];
 
         if (isAuthenticated) {
@@ -45,7 +41,7 @@ export default function Navbar(props) {
         }
 
         setPages(newPages);
-    }
+    }, [isAuthenticated, isTA, isAdmin]);
 
     function handleLogout() {
         removeCookie('user');
