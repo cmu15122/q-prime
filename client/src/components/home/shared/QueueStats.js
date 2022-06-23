@@ -5,10 +5,12 @@ import {
     Card,
     Toolbar,
     Button
-} from '@mui/material'
+} from '@mui/material';
+
+import HomeService from '../../../services/HomeService';
 
 export default function QueueStats(props) {
-    const { theme, queueData } = props;
+    const { queueData } = props;
 
     const [queueFrozen, setQueueFrozen] = useState();
     const [numStudents, setNumStudents] = useState();
@@ -22,23 +24,18 @@ export default function QueueStats(props) {
         }
     }, [queueData]);
 
-    const postToBackend = async (postURL) => {
-        const response = await fetch(postURL, {method: 'POST'});
-        const body = await response.json();
-  
-        if (response.status !== 200) {
-            throw Error(body.message);
-        }
-    
-        setQueueFrozen(body.queueFrozen);
-    }
-
-    const callFreezeAPI = async () => {
-        await postToBackend('http://localhost:8000/freezeQueue');
+    const callFreezeAPI = () => {
+        HomeService.freezeQueue()
+            .then((res) => {
+                setQueueFrozen(res.data.queueFrozen);
+            })
     };
 
-    const callUnfreezeAPI = async () => {
-        await postToBackend('http://localhost:8000/unfreezeQueue');
+    const callUnfreezeAPI = () => {
+        HomeService.unfreezeQueue()
+            .then((res) => {
+                setQueueFrozen(res.data.queueFrozen);
+            })
     };
 
     const textStyle = {

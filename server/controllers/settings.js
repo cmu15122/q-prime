@@ -34,6 +34,10 @@ function respond(req, res, message, data, status) {
 }
 
 function get_response(req, res, message = null) {
+    if (!req.user || !req.user.isTA) {
+        return;
+    }
+
     Promise.props({
         assignment_semesters: function() {
             if (!adminSettings.currSem) return [];
@@ -84,9 +88,9 @@ function get_response(req, res, message = null) {
             topics: assignments,
             tas: tas,
             adminSettings: adminSettings,
-            isAuthenticated: true,
-            isTA: true,
-            isAdmin: true
+            isAuthenticated: req.user.isAuthenticated,
+            isTA: req.user.isTA,
+            isAdmin: req.user.isAdmin
         };
         respond(req, res, message, data, 200);
     }).catch(err => {

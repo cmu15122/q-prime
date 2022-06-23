@@ -1,6 +1,7 @@
+const bodyParser = require('body-parser');
 const express = require('express');
 const logger = require('morgan');
-const bodyParser = require('body-parser');
+const Promise = require('bluebird');
 
 const http = require('http');
 const cors = require("cors");
@@ -22,6 +23,73 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
+const models = require("./models");
+models.sequelize.authenticate().then(() => {
+    console.log("Connected to the database!");
+})
+.catch(err => {
+    console.log("Cannot connect to the database!", err);
+    process.exit();
+});
+
+models.sequelize.sync().catch((err) => {
+    console.log(err);
+    process.exit();
+});
+
+app.use(function(req, res, next) {
+    let access_token = req.headers['authorization'];
+    if (!access_token) {
+        req.user = { isAuthenticated: false };
+        next();
+        return;
+    }
+    
+    models.account.findOne({
+        where: {
+            access_token: access_token
+        }
+    }).then(function(account) {
+        return Promise.props({
+            account: account,
+            sem_user: function() {
+                return models.semester_user.findOne({
+                    where: {
+                        user_id: account.user_id
+                    }
+                })
+            }(),
+            student: function() {
+                return models.student.findOne({
+                    where: {
+                        student_id: account.user_id
+                    }
+                })
+            }(),
+            ta: function() {
+                return models.ta.findOne({
+                    where: {
+                        ta_id: account.user_id
+                    }
+                })
+            }()
+        });
+    }).then(function(results) {
+        let isTA = results.sem_user?.is_ta == 1;
+        let isAdmin = results.ta?.is_admin == 1;
+        req.user = {
+            account: results.account,
+            sem_user: results.sem_user,
+            student: results.student,
+            ta: results.ta,
+            isAuthenticated: true, 
+            isTA: isTA,
+            isAdmin: isAdmin
+        };
+        next();
+    });
+});
+
 // Setting Routes
 app.use('/', home);
 app.use('/settings', settings);
@@ -36,19 +104,4 @@ slack.init();
 sockets.init(server);
 
 server.listen(port, () => console.log(`Listening on port ${port}`));
-
-const models = require("./models");
-models.sequelize.authenticate().then(() => {
-    console.log("Connected to the database!");
-  })
-  .catch(err => {
-    console.log("Cannot connect to the database!", err);
-    process.exit();
-  });
-
-models.sequelize.sync().catch((err) => {
-    console.log(err);
-    process.exit();
-  });
-
 module.exports = app;

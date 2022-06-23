@@ -4,9 +4,9 @@ const metricsView = (req, res) => {
     res.status(200);
     res.send({ 
         title: "15-122 Office Hours Queue | Metrics",
-        isAuthenticated: true,
-        isTA: true,
-        isAdmin: true
+        isAuthenticated: req.user.isAuthenticated,
+        isTA: req.user.isTA,
+        isAdmin: req.user.isAdmin
     });
 };
 

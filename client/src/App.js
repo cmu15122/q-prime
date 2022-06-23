@@ -1,7 +1,7 @@
 import React from 'react';
-import './App.css';
 import { BrowserRouter as Router, Routes, Route}
     from 'react-router-dom';
+
 import Home from './pages/home';
 import Settings from './pages/settings';
 import Metrics from './pages/metrics';
@@ -11,7 +11,9 @@ import { ThemeProvider } from '@mui/material'
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { ToastContainer } from 'material-react-toastify';
+
 import 'material-react-toastify/dist/ReactToastify.css';
+import './App.css';
 
 function App() {
     return (
@@ -39,5 +41,5 @@ function App() {
         </ThemeProvider>
     );
 }
-  
+
 export default App;

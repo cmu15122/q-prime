@@ -1,4 +1,5 @@
 import http from "../http-common";
+
 class SettingsDataService {
   getAll() {
     return http.get("/settings");
@@ -34,4 +35,5 @@ class SettingsDataService {
     return http.post("/settings/config/rejoin/update", data);
   }
 }
+
 export default new SettingsDataService();
