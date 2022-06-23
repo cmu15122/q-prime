@@ -12,6 +12,7 @@ function HomeMain (props) {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isTA, setIsTA] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [queueFrozen, setQueueFrozen] = useState(true);
     const [mainPage, setMainPage] = useState();
 
     useEffect(() => {
@@ -19,25 +20,34 @@ function HomeMain (props) {
             setIsAuthenticated(queueData.isAuthenticated);
             setIsTA(queueData.isTA);
             setIsAdmin(queueData.isAdmin);
+            setQueueFrozen(queueData.queueFrozen);
         }
     }, [queueData]);
 
     useEffect(() => {
-        if (isAuthenticated) {
+        if (queueFrozen) {
+            setMainPage();
+        } else if (isAuthenticated) {
             if (isTA) {
                 setMainPage(<TAMain theme={theme} queueData={queueData} />);
+                console.log('in TA');
             }
             else {
                 setMainPage(<StudentMain theme={theme} queueData={queueData} />);
             }
+        } else {
+            // queue is open and you are not logged in
+            setMainPage();
         }
-    }, [isAuthenticated, isTA, isAdmin]);
+    }, [isAuthenticated, isTA, isAdmin, queueFrozen, queueData]);
 
     return (
       <div>
           <SharedMain
             theme={theme}
             queueData={queueData}
+            queueFrozen={queueFrozen}
+            setQueueFrozen={setQueueFrozen}
           />
           {mainPage}
           <Footer gitHubLink={gitHubLink} />

@@ -30,6 +30,7 @@ function StudentMain (props) {
           <AskQuestion
             questionValue={questionValue}
             setQuestionValue={setQuestionValue}
+            theme={props.theme}
           />
           <Button variant="contained" onClick={() => setFrozen(true)} sx={{m:0.5}}>Open Frozen Overlay</Button>
           <FrozenOverlay 

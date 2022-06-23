@@ -95,7 +95,7 @@ export default function Announcements(props) {
         <div className='card' style={{ display:'flex' }}>
             <Card sx={{ minWidth: '100%' }}>
                 <CardActions disableSpacing onClick={handleClick} style={{ cursor: 'pointer' }}>
-                    <Typography sx={{ fontSize: 16, fontWeight: 'bold', ml: 2, mt: 1 }} variant="h5" gutterBottom>
+                    <Typography sx={{ fontSize: 20, fontWeight: 'bold', ml: 2, mt: 1 }} variant="h5" gutterBottom>
                         Announcements
                     </Typography>
                     <Expand
