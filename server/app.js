@@ -8,14 +8,13 @@ const cors = require("cors");
 const app = express();
 
 // Initializing other controllers
-const slack = require('./controllers/slack.js');
-
-slack.init();
+const slack = require('./controllers/slack');
+const sockets = require('./controllers/sockets');
 
 // Routes
-const home = require("./routes/home.js");
-const settings = require("./routes/settings.js");
-const metrics = require("./routes/metrics.js");
+const home = require("./routes/home");
+const settings = require("./routes/settings");
+const metrics = require("./routes/metrics");
 
 app.use(logger('dev'));
 app.use(cors());
@@ -32,7 +31,11 @@ const port = parseInt(process.env.PORT, 10) || 8000;
 app.set('port', port);
 
 const server = http.createServer(app);
-server.listen(port);
+
+slack.init();
+sockets.init(server);
+
+server.listen(port, () => console.log(`Listening on port ${port}`));
 
 const models = require("./models");
 models.sequelize.authenticate().then(() => {

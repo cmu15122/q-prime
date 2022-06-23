@@ -1,5 +1,6 @@
 // For Home page
 const queue = require('./queue');
+const sockets = require('./sockets');
 
 const OHQueue = queue.OHQueue;
 const StudentStatus = queue.StudentStatus;

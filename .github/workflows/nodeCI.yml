@@ -21,8 +21,3 @@ jobs:
         run: cd server && npm install
       - name: Run Server Tests
         run: cd server && npm test
-
-      - name: Set Up Client Tests
-        run: cd client && npm install
-      - name: Run Client Tests
-        run: cd client && npm test
