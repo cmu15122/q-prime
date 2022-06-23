@@ -1,7 +1,6 @@
 const SlackWebhook = require("slack-webhook");
 
-const config = require('../config/config.json');
-const webhook_url = config["slack-webhook"];
+const settings = require('./settings');
 
 var slack = null;
 var last_updated = new Date(0);
@@ -10,17 +9,7 @@ const ping_interval_secs = 30;
 
 exports.init = function() {
     // Initialize slack based on webhook URL
-    if (webhook_url && webhook_url != "") {
-        slack = new SlackWebhook(webhook_url, {
-            defaults: {
-                "username": "QueueBot",
-                // "icon_url": TODO: set icon
-            }
-        });
-    } else {
-        slack = null;
-    }
-
+    exports.update_slack();
     exports.update_wait_times();
     setInterval(function() {
         var prev_ping_time = new Date();
@@ -46,5 +35,19 @@ exports.update_wait_times = function() {
 exports.send_message = function(message) {
     if (slack) {
         slack.send(message);
+    }
+}
+
+exports.update_slack = function() {
+    let webhook_url = settings.get_admin_settings().slackURL;
+    if (webhook_url && webhook_url != "") {
+        slack = new SlackWebhook(webhook_url, {
+            defaults: {
+                "username": "QueueBot",
+                // "icon_url": TODO: set icon
+            }
+        });
+    } else {
+        slack = null;
     }
 }

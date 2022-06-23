@@ -38,11 +38,30 @@
 }
 
 .card {
-  width: 60%;
   margin: auto;
   padding: 10px;
 }
 
+@media only screen and (min-width: 600px) {
+  .card {
+    width: 80%;
+  }
+}
+
+@media only screen and (min-width: 950px) {
+  .card {
+    width: 60%;
+  }
+}
+
 .Toastify__toast-body {
+  padding: 10px 5px;
+}
+
+.Toastify__toast {
   color: #000000;
+}
+
+.Toastify__toast--error {
+  color: #ffffff;
 }

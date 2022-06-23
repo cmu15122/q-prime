@@ -9,14 +9,13 @@ const cors = require("cors");
 const app = express();
 
 // Initializing other controllers
-const slack = require('./controllers/slack.js');
-
-slack.init();
+const slack = require('./controllers/slack');
+const sockets = require('./controllers/sockets');
 
 // Routes
-const home = require("./routes/home.js");
-const settings = require("./routes/settings.js");
-const metrics = require("./routes/metrics.js");
+const home = require("./routes/home");
+const settings = require("./routes/settings");
+const metrics = require("./routes/metrics");
 
 app.use(logger('dev'));
 app.use(cors());
@@ -24,8 +23,8 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-const db = require("./database/models");
-db.sequelize.authenticate().then(() => {
+const models = require("./models");
+models.sequelize.authenticate().then(() => {
     console.log("Connected to the database!");
 })
 .catch(err => {
@@ -33,7 +32,7 @@ db.sequelize.authenticate().then(() => {
     process.exit();
 });
 
-db.sequelize.sync().catch((err) => {
+models.sequelize.sync().catch((err) => {
     console.log(err);
     process.exit();
 });
@@ -46,7 +45,7 @@ app.use(function(req, res, next) {
         return;
     }
     
-    db.account.findOne({
+    models.account.findOne({
         where: {
             access_token: access_token
         }
@@ -54,21 +53,21 @@ app.use(function(req, res, next) {
         return Promise.props({
             account: account,
             sem_user: function() {
-                return db.semester_user.findOne({
+                return models.semester_user.findOne({
                     where: {
                         user_id: account.user_id
                     }
                 })
             }(),
             student: function() {
-                return db.student.findOne({
+                return models.student.findOne({
                     where: {
                         student_id: account.user_id
                     }
                 })
             }(),
             ta: function() {
-                return db.ta.findOne({
+                return models.ta.findOne({
                     where: {
                         ta_id: account.user_id
                     }
@@ -100,6 +99,9 @@ const port = parseInt(process.env.PORT, 10) || 8000;
 app.set('port', port);
 
 const server = http.createServer(app);
-server.listen(port);
 
+slack.init();
+sockets.init(server);
+
+server.listen(port, () => console.log(`Listening on port ${port}`));
 module.exports = app;
