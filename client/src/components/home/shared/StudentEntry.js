@@ -11,10 +11,10 @@ import ExtraStudentOptions from '../ta/ExtraStudentOptions'
 
 export default function StudentEntry(props) {
 
-  const {theme, student, index } = props
+  const {theme, student, index, isHelping, setIsHelping, helpIdx, setHelpIdx } = props
   
   const [confirmRemove, setConfirmRemove] = React.useState(false);
-  const [isHelping, setIsHelping] = React.useState(false);
+  
 
   const removeRef = React.useRef();
   
@@ -43,6 +43,11 @@ export default function StudentEntry(props) {
     }
   }
 
+  const handleClickHelp = (index) => {
+    setHelpIdx(index);
+    setIsHelping(true);
+  }
+
   return (
     <TableRow 
         key={student.andrewID}
@@ -53,7 +58,7 @@ export default function StudentEntry(props) {
         </TableCell>
         <TableCell padding='none' align="left" sx={{ pt: 2, pb: 2, fontSize: '16px', width: '60%', pr: 2 }}>{`[${student.topic}] ${student.question}`}</TableCell>
         <TableCell padding='none' align="center">
-          {isHelping ? 
+          {(isHelping && (index == helpIdx)) ? 
           <Stack sx={{ pt: 1, pb: 1}}>
             <Typography fontSize='14px' color={theme.palette.success.main}>You are helping</Typography>
             <Stack direction='row' justifyContent='center' spacing={2} sx={{ marginRight: '10px' }}>
@@ -67,6 +72,9 @@ export default function StudentEntry(props) {
           </Stack>
           :
           (<Toolbar sx={{alignItems: 'right', justifyContent:'flex-end'}}>
+            {!isHelping && <div>
+              <Button color="info" variant="contained" onClick={() => handleClickHelp(index)} sx={{m:0.5}}>Help</Button>
+            </div>}
 
             <div ref={removeRef} onClick={() => handleRemoveButton()}>
               {confirmRemove ?
@@ -76,10 +84,6 @@ export default function StudentEntry(props) {
                   <Delete />
                 </IconButton>)
               }
-            </div>
-
-            <div>
-              <Button color="info" variant="contained" onClick={() => setIsHelping(true)} sx={{m:0.5}}>Help</Button>
             </div>
 
             <div>

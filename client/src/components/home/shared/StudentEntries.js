@@ -23,6 +23,8 @@ const students = [
 
 export default function StudentEntries(props) {
     const { theme } = props
+    const [isHelping, setIsHelping] = React.useState(false);
+    const [helpIdx, setHelpIdx] = React.useState(); // idx of student that you are helping, only valid when isHelping is true
 
     return (
         <div className='card' style={{ display:'flex' }}>
@@ -40,7 +42,11 @@ export default function StudentEntries(props) {
                                 let studentProps = {
                                     ...props,
                                     student: student,
-                                    index: index
+                                    index: index, 
+                                    isHelping: isHelping,
+                                    setIsHelping: setIsHelping,
+                                    helpIdx: helpIdx,
+                                    setHelpIdx: setHelpIdx
                                 }
 
                                 return StudentEntry(studentProps);

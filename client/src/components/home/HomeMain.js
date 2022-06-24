@@ -25,15 +25,17 @@ function HomeMain (props) {
     }, [queueData]);
 
     useEffect(() => {
-        if (queueFrozen) {
-            setMainPage();
-        } else if (isAuthenticated) {
+        if (isAuthenticated) {
             if (isTA) {
                 setMainPage(<TAMain theme={theme} queueData={queueData} />);
                 console.log('in TA');
             }
-            else {
-                setMainPage(<StudentMain theme={theme} queueData={queueData} />);
+            else { // is student
+                if (queueFrozen) {
+                    setMainPage();
+                } else {
+                    setMainPage(<StudentMain theme={theme} queueData={queueData} />);
+                }
             }
         } else {
             // queue is open and you are not logged in
