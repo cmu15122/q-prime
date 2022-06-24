@@ -11,7 +11,9 @@ import { ThemeProvider } from '@mui/material'
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { ToastContainer } from 'material-react-toastify';
+
 import 'material-react-toastify/dist/ReactToastify.css';
+import './App.css';
 
 function App() {
     return (

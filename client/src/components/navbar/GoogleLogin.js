@@ -1,13 +1,18 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useCookies } from 'react-cookie';
 
 import config from '../../config/config.json';
 
 function GoogleLogin(props) {
     const { queueData } = props
-    const [setCookie] = useCookies(['user']);
+    const [cookies, setCookie] = useCookies(['user']);
+    const divRef = useRef(null);
 
     useEffect(() => {
+        if (!divRef.current) {
+            return;
+        }
+
         window.google.accounts.id.initialize({
             client_id: config.google_client_id,
             callback: async (response) => {
@@ -27,13 +32,13 @@ function GoogleLogin(props) {
         });
 
         window.google.accounts.id.renderButton(
-            document.getElementById("signInDiv"),
+            divRef.current,
             { theme: "outline", size: "large" }
         ); 
-    }, [queueData, setCookie]);
+    }, [queueData, setCookie, divRef.current]);
 
     return (
-        <div id="signInDiv"></div>
+        <div ref={divRef} id="signInDiv"></div>
     )
 }
   

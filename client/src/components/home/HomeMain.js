@@ -24,13 +24,10 @@ function HomeMain (props) {
         }
     }, [queueData]);
 
-    useEffect(() => {
-        if (queueFrozen) {
-            setMainPage();
-        } else if (isAuthenticated) {
+    useEffect(() => {        
+        if (isAuthenticated) {
             if (isTA) {
                 setMainPage(<TAMain theme={theme} queueData={queueData} />);
-                console.log('in TA');
             }
             else {
                 setMainPage(<StudentMain theme={theme} queueData={queueData} />);

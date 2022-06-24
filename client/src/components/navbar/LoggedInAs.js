@@ -4,12 +4,10 @@ import {
 } from '@mui/material'
 
 export default function LoggedInAs(props) {
-    const {} = props;
+    const { queueData } = props;
     return (
-        <Box sx={{ flexGrow: 0, display: { xs: "none", md: "flex" } }}>
-            <Button disabled variant="h8" sx={{ color: "#FFFFFF"}}>
-            Logged in as [ANDREWID]
-            </Button>
-        </Box>
+        <Button disabled variant="h8" sx={{ color: "#FFFFFF"}}>
+            Logged in as {queueData.andrewID}
+        </Button>
     );
 }

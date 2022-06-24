@@ -2,7 +2,7 @@
 const Promise = require('bluebird');
 
 const queue = require('./queue');
-const db = require('../database/models');
+const models = require('../models');
 
 const OHQueue = queue.OHQueue;
 const StudentStatus = queue.StudentStatus;
@@ -27,7 +27,8 @@ exports.get = function (req, res) {
         waitTime: waitTime,
         isAuthenticated: req.user?.isAuthenticated,
         isTA: req.user?.isTA,
-        isAdmin: req.user?.isAdmin
+        isAdmin: req.user?.isAdmin,
+        andrewID: req.user?.andrewID
     });
 }
 

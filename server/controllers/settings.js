@@ -72,7 +72,7 @@ function get_response(req, res, message = null) {
         }
 
         for (const semUser of results.semester_users) {
-            let ta = await models.ta.finmodelsyPk(semUser.user_id);
+            let ta = await models.ta.findByPk(semUser.user_id);
             let account = semUser.account;
             tas.push({
                 ta_id: ta.ta_id,
@@ -90,7 +90,8 @@ function get_response(req, res, message = null) {
             adminSettings: adminSettings,
             isAuthenticated: req.user.isAuthenticated,
             isTA: req.user.isAuthenticated,
-            isAdmin: req.user.isAuthenticated
+            isAdmin: req.user.isAuthenticated,
+            andrewID: req.user?.andrewID
         };
         respond(req, res, message, data, 200);
     }).catch(err => {
