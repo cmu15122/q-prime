@@ -9,7 +9,7 @@ function GoogleLogin(props) {
     const divRef = useRef(null);
 
     useEffect(() => {
-        if (!divRef.current) {
+        if (!window.google || !divRef.current) {
             return;
         }
 

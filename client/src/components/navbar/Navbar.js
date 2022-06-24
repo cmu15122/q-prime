@@ -64,7 +64,18 @@ export default function Navbar(props) {
         window.location.href = "/";
     }
 
-    if (!isMobileView) {
+    if (!queueData) {
+        return (
+            <AppBar position="static">
+            <Toolbar sx={{ display: "flex space-between" }}>  
+                <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }}}>
+                    <OHQueueHeader theme={theme}/>
+                </Box>
+            </Toolbar>
+          </AppBar>
+        );
+    }
+    else if (!isMobileView) {
         return (
             <AppBar position="static">
             <Toolbar sx={{ display: "flex space-between" }}>  

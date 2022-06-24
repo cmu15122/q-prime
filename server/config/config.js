@@ -9,5 +9,6 @@ module.exports = {
   DB_USER: process.env.POSTGRESQL_DB_USER,
   DB_PASSWORD: process.env.POSTGRESQL_DB_PASSWORD,
   DB_PORT: 5432,
-  DB_DIALECT: 'postgres'
+  DB_DIALECT: 'postgres',
+  TOKEN_KEY: process.env.TOKEN_KEY
 }
