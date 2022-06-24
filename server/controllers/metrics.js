@@ -6,7 +6,8 @@ const metricsView = (req, res) => {
         title: "15-122 Office Hours Queue | Metrics",
         isAuthenticated: req.user.isAuthenticated,
         isTA: req.user.isTA,
-        isAdmin: req.user.isAdmin
+        isAdmin: req.user.isAdmin,
+        andrewID: req.user?.andrewID
     });
 };
 

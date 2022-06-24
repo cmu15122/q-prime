@@ -69,13 +69,23 @@ exports.post_login = async (req, res) => {
                 }
                 return [null, false];
             }(),
+            student: function() {
+                if (!isTA) {
+                    return models.student.findOrCreate({
+                        where: {
+                            student_id: account.user_id
+                        }
+                    });
+                }
+                return [null, false];
+            }(),
             isTA: isTA,
             isAdmin: isTA // TODO: change
         });
     }).then(function(results) {
         let [semUser, semUserCreated] = results.semUser;
         let account = results.account;
-        let [ta, taCreated] = results.ta;
+        let [ta, _] = results.ta;
 
         if (semUserCreated && results.isTA) {
             if (results.isTA) {
@@ -96,14 +106,11 @@ exports.post_login = async (req, res) => {
         }
 
         return Promise.props({
-            account: account,
             semUser: semUser.save(),
             ta: function() {
                 if (!ta) return null;
                 return ta.save();
             }(),
-            isTA: results.isTA,
-            isAdmin: results.isAdmin,
             access_token: account.access_token
         });
     }).then(function(results) {

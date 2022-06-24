@@ -24,7 +24,7 @@ function HomeMain (props) {
         }
     }, [queueData]);
 
-    useEffect(() => {
+    useEffect(() => {        
         if (isAuthenticated) {
             if (isTA) {
                 setMainPage(<TAMain theme={theme} queueData={queueData} />);

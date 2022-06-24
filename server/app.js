@@ -77,6 +77,8 @@ app.use(function(req, res, next) {
     }).then(function(results) {
         let isTA = results.sem_user?.is_ta == 1;
         let isAdmin = results.ta?.is_admin == 1;
+        let andrewID = results.account.email.split("@")[0];
+
         req.user = {
             account: results.account,
             sem_user: results.sem_user,
@@ -84,7 +86,8 @@ app.use(function(req, res, next) {
             ta: results.ta,
             isAuthenticated: true, 
             isTA: isTA,
-            isAdmin: isAdmin
+            isAdmin: isAdmin,
+            andrewID: andrewID
         };
         next();
     });
