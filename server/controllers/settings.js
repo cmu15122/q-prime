@@ -91,7 +91,7 @@ function get_response(req, res, message = null) {
             isAuthenticated: req.user.isAuthenticated,
             isTA: req.user.isAuthenticated,
             isAdmin: req.user.isAuthenticated,
-            andrewID: req.user?.andrewID
+            andrewID: req.user.andrewID
         };
         respond(req, res, message, data, 200);
     }).catch(err => {

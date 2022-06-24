@@ -3,6 +3,7 @@ const Promise = require('bluebird');
 
 const queue = require('./queue');
 const models = require('../models');
+const sockets = require('./sockets');
 
 const OHQueue = queue.OHQueue;
 const StudentStatus = queue.StudentStatus;
