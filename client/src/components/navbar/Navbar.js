@@ -15,7 +15,7 @@ function createPage(page, link) {
 
 export default function Navbar(props) {
     const { theme, queueData } = props;
-    const isMobileView = useMediaQuery("(max-width: 900px)");
+    const isMobileView = useMediaQuery("(max-width: 899px)");
     
     const [cookies, setCookie, removeCookie] = useCookies(['user']);
 
