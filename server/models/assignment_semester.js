@@ -12,6 +12,12 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Assignment_Semester.belongsTo(models.assignment, {
+        foreignKey: 'assignment_id'
+      });
+      Assignment_Semester.belongsTo(models.semester, {
+        foreignKey: 'sem_id'
+      });
     }
   }
   Assignment_Semester.init({
@@ -34,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'assignment_semester',
-    tableName: 'assignment_semester'
+    tableName: 'assignment_semester',
   });
   return Assignment_Semester;
 };

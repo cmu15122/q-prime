@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useCookies } from 'react-cookie';
 import {
     AppBar, Toolbar, Box, Button
 } from '@mui/material';
 
 import OHQueueHeader from './OHQueueHeader';
 import LoggedInAs from './LoggedInAs';
+import GoogleLogin from './GoogleLogin';
 
 function createPage(page, link) {
     return { page, link };
@@ -12,6 +14,8 @@ function createPage(page, link) {
 
 export default function Navbar(props) {
     const { theme, queueData } = props;
+    
+    const [cookies, setCookie, removeCookie] = useCookies(['user']);
 
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isTA, setIsTA] = useState(false);
@@ -27,10 +31,6 @@ export default function Navbar(props) {
     }, [queueData]);
 
     useEffect(() => {
-        updatePages();
-    }, [isAuthenticated, isTA, isAdmin]);
-    
-    const updatePages = () => {
         let newPages = [];
 
         if (isAuthenticated) {
@@ -38,13 +38,14 @@ export default function Navbar(props) {
                 newPages.push(createPage('Settings', '/settings'));
                 newPages.push(createPage('Metrics', '/metrics'));
             }
-            newPages.push(createPage('Log Out', '/'));
-        }
-        else {
-            newPages.push(createPage('Log In', '/'));
         }
 
         setPages(newPages);
+    }, [isAuthenticated, isTA, isAdmin]);
+
+    function handleLogout() {
+        removeCookie('user');
+        window.location.href = "/";
     }
 
     return (
@@ -71,6 +72,20 @@ export default function Navbar(props) {
                         {page.page}
                     </Button>
                 ))}
+
+                {
+                    isAuthenticated ?
+                    <Button
+                        disableElevation
+                        variant='h8'
+                        sx={{ color: "#FFFFFF", backgroundColor: 'transparent' }} 
+                        onClick={handleLogout}
+                    >
+                        Logout
+                    </Button>
+                    :
+                    <GoogleLogin theme={theme} queueData={queueData}/>
+                }
             </Box>
         </Toolbar>
       </AppBar>

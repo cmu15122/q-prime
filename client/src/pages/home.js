@@ -1,47 +1,38 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import Navbar from '../components/navbar/Navbar';
 import HomeMain from '../components/home/HomeMain';
 
-class Home extends Component {
-  state = {
-    queueData: null
-  };
+import HomeService from "../services/HomeService";
+import { initiateSocket, socketSubscribeTo } from '../services/SocketsService';
 
-  componentDidMount() {
-    this.callBackendAPI()
-        .then(res => {
-          this.setState({ 
-            queueData: res
-          });
-          document.title = res.title;
-        })
-        .catch(err => console.log(err));
-  };
+function Home(props) {
+  const { theme } = props;
+  const [queueData, setQueueData] = useState(null);
 
-  // fetching the GET route from the Express server which matches the GET route from server.js
-  callBackendAPI = async () => {
-    const response = await fetch('http://localhost:8000/');
-    const body = await response.json();
+  useEffect(() => {
+    HomeService.getAll()
+      .then(res => {
+        setQueueData(res.data);
+        document.title = res.data.title;
+      });
+    
+    initiateSocket();
+    socketSubscribeTo("update", (data) => {
+      console.log(data);
+    })
+  }, []);
 
-    if (response.status !== 200) {
-      throw Error(body.message);
-    }
-
-    return body;
-  };
-
-  render() {
-    return (
-      <div className="App">
-          <Navbar theme={this.props.theme} queueData={this.state.queueData} />
-          <HomeMain 
-            theme={this.props.theme}
-            queueData={this.state.queueData}
-          />
-      </div>
-    );
-  }
+  return (
+    <div className="App">
+        <Navbar theme={theme} queueData={queueData} />
+        <HomeMain 
+          theme={theme}
+          queueData={queueData}
+        />
+    </div>
+  );
 }
-  
+
 export default Home;
+    

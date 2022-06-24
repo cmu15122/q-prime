@@ -3,17 +3,15 @@
 const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
-const envConfigs =  require('../config/config');
+const config =  require('../config/config');
 
 const basename = path.basename(__filename);
-const env = process.env.NODE_ENV || 'development';
-const config = envConfigs[env];
 const db = {};
 
-let sequelize = new Sequelize(config.DB, config.USER, config.PASSWORD, {
-    host: config.HOST,
-    port: config.PORT,
-    dialect: config.dialect,
+let sequelize = new Sequelize(config.DB, config.DB_USER, config.DB_PASSWORD, {
+    host: config.DB_HOST,
+    port: config.DB_PORT,
+    dialect: config.DB_DIALECT,
     logging: false,
     omitNull: true,
     dialectOptions: {
@@ -21,7 +19,7 @@ let sequelize = new Sequelize(config.DB, config.USER, config.PASSWORD, {
         require: true,
         rejectUnauthorized: false
       }
-    },
+    }
 });
 
 fs
