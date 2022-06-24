@@ -23,7 +23,8 @@ module.exports = (sequelize, DataTypes) => {
     user_id: {
       type: DataTypes.INTEGER,
       unique: true,
-      primaryKey: true,
+      autoIncrement: true,
+      primaryKey: true
     },
     email: {
       type: DataTypes.STRING,
@@ -47,6 +48,7 @@ module.exports = (sequelize, DataTypes) => {
     },
   }, {
     sequelize,
+    initialAutoIncrement: 1,
     modelName: 'account',
     tableName: 'account'
   });

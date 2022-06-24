@@ -5,6 +5,8 @@ import {
 
 import DateTimeSelector from './DateTimeSelector';
 import PersonalStats from './PersonalStats';
+import OverallStats from './OverallStats';
+import CumulativeStats from './CumulativeStats';
 
 function MetricsMain (props) {
     const { theme, queueData } = props;
@@ -16,6 +18,8 @@ function MetricsMain (props) {
             </Typography>
             <DateTimeSelector theme={props.theme}/>
             <PersonalStats theme={props.theme}/>
+            <OverallStats theme={props.theme}/>
+            <CumulativeStats theme={props.theme}/>
         </div>
     );
 }

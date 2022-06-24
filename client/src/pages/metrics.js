@@ -3,32 +3,21 @@ import React, { Component } from 'react';
 import Navbar from '../components/navbar/Navbar';
 import MetricsMain from '../components/metrics/MetricsMain';
 
+import MetricsDataService from '../services/MetricsService';
+
 class Metrics extends Component {
   state = {
     queueData: null
   };
 
   componentDidMount() {
-    this.callBackendAPI()
+    MetricsDataService.getAll()
         .then(res => {
           this.setState({ 
-            queueData: res
+            queueData: res.data
           });
-          document.title = res.title;
+          document.title = res.data.title;
         })
-        .catch(err => console.log(err));
-  };
-
-  // fetching the GET route from the Express server which matches the GET route from server.js
-  callBackendAPI = async () => {
-    const response = await fetch('http://localhost:8000/metrics');
-    const body = await response.json();
-
-    if (response.status !== 200) {
-      throw Error(body.message);
-    }
-
-    return body;
   };
 
   render() {

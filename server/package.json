@@ -20,12 +20,15 @@
   },
   "homepage": "https://github.com/pranavaddepalli/122q#readme",
   "dependencies": {
+    "bluebird": "^3.7.2",
     "body-parser": "^1.20.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.1",
     "ejs": "^3.1.8",
     "express": "^4.18.1",
+    "google-auth-library": "^8.0.2",
     "jest": "^28.1.0",
+    "jsonwebtoken": "^8.5.1",
     "moment": "^2.29.3",
     "morgan": "^1.10.0",
     "mysql2": "^2.3.3",
@@ -34,7 +37,8 @@
     "pg": "^8.7.3",
     "sequelize": "^6.20.1",
     "sequelize-cli": "^6.4.1",
-    "slack-webhook": "^1.0.0"
+    "slack-webhook": "^1.0.0",
+    "socket.io": "^4.5.1"
   },
   "devDependencies": {
     "@babel/core": "^7.18.2",
