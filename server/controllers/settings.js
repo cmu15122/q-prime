@@ -92,8 +92,8 @@ function get_response(req, res, message = null) {
             tas: tas,
             adminSettings: adminSettings,
             isAuthenticated: req.user.isAuthenticated,
-            isTA: req.user.isAuthenticated,
-            isAdmin: req.user.isAuthenticated,
+            isTA: req.user.isTA,
+            isAdmin: req.user.isAdmin,
             andrewID: req.user.andrewID
         };
         respond(req, res, message, data, 200);
