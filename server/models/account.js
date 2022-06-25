@@ -47,7 +47,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     access_token: {
       type: DataTypes.STRING,
-      defaultValue: false
+      defaultValue: null
     },
     settings: {
       type: DataTypes.JSON,

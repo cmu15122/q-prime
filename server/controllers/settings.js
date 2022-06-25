@@ -347,12 +347,19 @@ exports.post_create_ta = function (req, res) {
 
     models.account.findOrCreate({ 
         where: {
-            fname: fname,
-            lname: lname,
             email: email
         }
-    }).then(function([account, _]) {
+    }).then(function([account, accountCreated]) {
         return Promise.props({
+            account: function() {
+                if (accountCreated) {
+                    account.set({
+                        fname: fname,
+                        lname: lname
+                    });
+                }
+                return account.save();
+            }(),
             semester_user: function() {
                 return models.semester_user.findOrCreate({
                     where: {
