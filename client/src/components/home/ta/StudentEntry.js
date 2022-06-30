@@ -7,7 +7,7 @@ import {
     Delete, StackedBarChart
 } from '@mui/icons-material';
 
-import ExtraStudentOptions from './ExtraStudentOptions'
+import ExtraStudentOptions from './TailOptions/ExtraStudentOptions'
 import EntryTails from './EntryTails';
 
 export default function StudentEntry(props) {

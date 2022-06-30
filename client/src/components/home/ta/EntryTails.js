@@ -9,7 +9,7 @@ import {
 
 import YouAreHelping from './TailOptions/YouAreHelping';
 import StudentIsHelped from './TailOptions/StudentIsHelped';
-import ExtraStudentOptions from './ExtraStudentOptions'
+import ExtraStudentOptions from './TailOptions/ExtraStudentOptions'
 
 export default function EntryTails(props) {
 

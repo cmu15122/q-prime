@@ -1,0 +1,25 @@
+import * as React from 'react';
+import {
+    TableRow, TableCell, IconButton, Button, Toolbar, Stack, Typography
+} from '@mui/material'
+
+import PersistentOptions from './PersistentOptions';
+
+export default function ActionsHelp(props) {
+
+  const {
+    theme, student, index, isHelping, setIsHelping, helpIdx,
+    removeRef, confirmRemove, handleRemoveButton, handleClickHelp
+  } = props
+
+  return (
+    <Toolbar sx={{alignItems: 'right', justifyContent:'flex-end'}}>
+        {!isHelping && <div>
+          <Button color="info" variant="contained" onClick={() => handleClickHelp(index)} sx={{m:0.5}}>Help</Button>
+        </div>}
+
+        {PersistentOptions(props)}
+
+    </Toolbar>
+  )
+}
