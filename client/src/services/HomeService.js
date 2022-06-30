@@ -10,6 +10,9 @@ class HomeDataService {
   unfreezeQueue() {
     return http.post("/unfreezeQueue");
   }
+  addQuestion(data) {
+    return http.post("/addQuestion", data);
+  }
 }
 
 export default new HomeDataService();

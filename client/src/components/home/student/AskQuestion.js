@@ -15,17 +15,37 @@ import {
     TextField,
     Button
 } from '@mui/material'
+import HomeService from '../../../services/HomeService';
 
 export default function AskQuestion(props) {
-    const position = 11
     const waitTime = 20
     const locations = ['Remote', 'GHC 4211', 'Honk\'s Closet'];
     const topics = ['Knock knock', 'Who\'s there?', 'Honk', 'Honk Who?', 'Honk you!'];
     
-    const { questionValue, setQuestionValue, openRemoveOverlay, theme } = props
-
+    const { questionValue, setQuestionValue, openRemoveOverlay, theme, setPosition } = props
+    
     const [location, setLocation] = useState('')
     const [topic, setTopic] = useState('')
+
+    const callAddQuestionAPI = () => {
+        HomeService.addQuestion(
+            JSON.stringify({
+                question_value: questionValue,
+                location: location,
+                // TODO: unclear if this is entirely safe
+                topic: encodeURI(topic)
+            })
+        ).then((res) => {
+            
+            // TODO: Remove ask question menu, "th" "rd" "st" for different numbers.  Handler 0 case elegantly
+
+            if(res.status === 200) {
+                console.log(res.data)
+                setPosition(res.data.position)
+            }
+        })
+    }
+
     return (
         <div className='card' style={{display:'flex'}}>
             <Card sx={{ minWidth : '100%', background: theme.palette.background.paper}}>
@@ -73,7 +93,7 @@ export default function AskQuestion(props) {
                         type="text"
                     />
                     <Button fullWidth variant="contained" sx={{marginTop: "1em", alignContent: "center"}} 
-                        onClick={()=>console.log(questionValue)}
+                        onClick={()=>callAddQuestionAPI()}
                     >
                         Ask
                     </Button>

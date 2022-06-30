@@ -16,11 +16,13 @@ function StudentMain (props) {
     const [frozen, setFrozen] = useState(false);
     const [taHelping, setTAHelping] = useState(false);
     const [updateQ, setUpdateQ] = useState(false);
+    const [position, setPosition] = useState(0)
 
     return (
       <div>
           <YourEntry
             openRemoveOverlay={() => setRemoveConfirm(true)}
+            position={position}
             theme={props.theme}
           />
           <RemoveQOverlay 
@@ -30,6 +32,7 @@ function StudentMain (props) {
           <AskQuestion
             questionValue={questionValue}
             setQuestionValue={setQuestionValue}
+            setPosition={setPosition}
             theme={props.theme}
           />
           <Button variant="contained" onClick={() => setFrozen(true)} sx={{m:0.5}}>Open Frozen Overlay</Button>

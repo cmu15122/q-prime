@@ -331,11 +331,14 @@ class OHQueue {
     }
 
     /** Enqueues student to the queue */
-    enqueue(studentID) {
+    enqueue(studentID, question, location, topic) {
         this.queue.addLast({
-            id: studentID,
             status: StudentStatus.WAITING,
-            isFrozen: false
+            isFrozen: false,
+            id: studentID,
+            question: question,
+            location: location,
+            topic: topic
         });
     }
 
