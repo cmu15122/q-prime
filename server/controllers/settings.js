@@ -35,9 +35,12 @@ function respond(req, res, message, data, status) {
 
 function get_response(req, res, message = null) {
     if (!req.user || !req.user.isTA) {
+        message = "You don't have permissions to view this page";
+        respond_error(req, res, message, 404);
         return;
     }
 
+    // TODO: there's no need to fetch everything for non-admin TAs
     Promise.props({
         assignment_semesters: function() {
             if (!adminSettings.currSem) return [];
@@ -89,8 +92,8 @@ function get_response(req, res, message = null) {
             tas: tas,
             adminSettings: adminSettings,
             isAuthenticated: req.user.isAuthenticated,
-            isTA: req.user.isAuthenticated,
-            isAdmin: req.user.isAuthenticated,
+            isTA: req.user.isTA,
+            isAdmin: req.user.isAdmin,
             andrewID: req.user.andrewID
         };
         respond(req, res, message, data, 200);
@@ -102,14 +105,17 @@ function get_response(req, res, message = null) {
 
 /** Get Function **/
 exports.get = function (req, res) {
-    // TODO: use req to get access token and check for user status
     get_response(req, res);
 }
 
 /** ADMIN FUNCTIONS **/
 /** Config Settings **/
 exports.post_update_semester = function (req, res) {
-    // TODO: use req to get access token and check for user status
+    if (!req.user || !req.user.isAdmin) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
 
     var sem_id = req.body.sem_id;
     if (!sem_id || sem_id.length != 3) {
@@ -124,7 +130,7 @@ exports.post_update_semester = function (req, res) {
     }
 
     models.semester.findOrCreate({ 
-        where: { 
+        where: {
             sem_id: sem_id
         }
     }).then(function(results) {
@@ -137,7 +143,11 @@ exports.post_update_semester = function (req, res) {
 }
 
 exports.post_update_slack_url = function (req, res) {
-    // TODO: use req to get access token and check for user status
+    if (!req.user || !req.user.isAdmin) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
 
     var slackURL = req.body.slackURL;
     if (!slackURL) {
@@ -153,7 +163,11 @@ exports.post_update_slack_url = function (req, res) {
 }
 
 exports.post_update_questions_url = function (req, res) {
-    // TODO: use req to get access token and check for user status
+    if (!req.user || !req.user.isAdmin) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
 
     var questionsURL = req.body.questionsURL;
     if (!questionsURL) {
@@ -168,7 +182,11 @@ exports.post_update_questions_url = function (req, res) {
 }
 
 exports.post_update_rejoin_time = function (req, res) {
-    // TODO: use req to get access token and check for user status
+    if (!req.user || !req.user.isAdmin) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
 
     var rejoinTime = req.body.rejoinTime;
     if (!rejoinTime || isNaN(rejoinTime)) {
@@ -184,7 +202,11 @@ exports.post_update_rejoin_time = function (req, res) {
 
 /** Topics Functions **/
 exports.post_create_topic = function (req, res) {
-    // TODO: use req to get access token and check for user status
+    if (!req.user || !req.user.isAdmin) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
 
     var name = req.body.name;
     var category = req.body.category;
@@ -203,18 +225,11 @@ exports.post_create_topic = function (req, res) {
                     category: category
                 }
             });
-        }(),
-        semester: function() {
-            return models.semester.findOrCreate({ 
-                where: { 
-                    sem_id: adminSettings.currSem
-                }
-            });
         }()
     }).then(function(results) {
         return models.assignment_semester.create({
             assignment_id: results.assignment[0].assignment_id,
-            sem_id: results.semester[0].sem_id,
+            sem_id: adminSettings.currSem,
             start_date: start_date,
             end_date: end_date
         })
@@ -227,7 +242,11 @@ exports.post_create_topic = function (req, res) {
 }
 
 exports.post_update_topic = function (req, res) {
-    // TODO: use req to get access token and check for user status
+    if (!req.user || !req.user.isAdmin) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
 
     var assignment_id = req.body.assignment_id;
     var name = req.body.name;
@@ -284,7 +303,11 @@ exports.post_update_topic = function (req, res) {
 }
 
 exports.post_delete_topic = function (req, res) {
-    // TODO: use req to get access token and check for user status
+    if (!req.user || !req.user.isAdmin) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
 
     var assignment_id = req.body.assignment_id;
     if (!assignment_id) {
@@ -306,7 +329,11 @@ exports.post_delete_topic = function (req, res) {
 
 /** TA Functions **/
 exports.post_create_ta = function (req, res) {
-    // TODO: use req to get access token and check for user status
+    if (!req.user || !req.user.isAdmin) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
 
     var name = req.body.name;
     var email = req.body.email;
@@ -318,37 +345,33 @@ exports.post_create_ta = function (req, res) {
 
     let [fname, lname] = name.split(" ");
 
-    Promise.props({
-        account: function() {
-            return models.account.findOrCreate({ 
-                where: {
-                    fname: fname,
-                    lname: lname,
-                    email: email
-                }
-            });
-        }(),
-        semester: function() {
-            return models.semester.findOrCreate({ 
-                where: { 
-                    sem_id: adminSettings.currSem
-                }
-            });
-        }()
-    }).then(function(results) {
+    models.account.findOrCreate({ 
+        where: {
+            email: email
+        }
+    }).then(function([account, accountCreated]) {
         return Promise.props({
+            account: function() {
+                if (accountCreated) {
+                    account.set({
+                        fname: fname,
+                        lname: lname
+                    });
+                }
+                return account.save();
+            }(),
             semester_user: function() {
                 return models.semester_user.findOrCreate({
                     where: {
-                        user_id: results.account[0].user_id,
-                        sem_id: results.semester[0].sem_id
+                        user_id: account.user_id,
+                        sem_id: adminSettings.currSem
                     }
                 });
             }(),
             ta: function() {
                 return models.ta.findOrCreate({
                     where: {
-                        ta_id: results.account[0].user_id,
+                        ta_id: account.user_id,
                         is_admin: isAdmin ? 1 : 0
                     }
                 });
@@ -368,9 +391,11 @@ exports.post_create_ta = function (req, res) {
 }
 
 exports.post_update_ta = function (req, res) {
-    // TODO: use req to get access token and check for user status
-    // TODO: from a design perspective, should we allow them to modify email or first/last name? 
-    // It doesn't really make sense to me; perhaps only isAdmin can be updated
+    if (!req.user || !req.user.isAdmin) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
 
     var user_id = req.body.user_id;
     var isAdmin = req.body.isAdmin;
@@ -427,7 +452,11 @@ exports.post_update_ta = function (req, res) {
 }
 
 exports.post_delete_ta = function (req, res) {
-    // TODO: use req to get access token and check for user status
+    if (!req.user || !req.user.isAdmin) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
 
     var user_id = req.body.user_id;
     if (!user_id) {
