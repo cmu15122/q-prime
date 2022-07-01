@@ -331,11 +331,19 @@ class OHQueue {
     }
 
     /** Enqueues student to the queue */
-    enqueue(studentID) {
+    enqueue(studentID, andrewID, question, location, topic, entryTime) {
         this.queue.addLast({
             id: studentID,
+            andrewID: andrewID,
             status: StudentStatus.WAITING,
-            isFrozen: false
+            question: question,
+            location: location,
+            topic: topic,
+            entryTime: entryTime,
+            taID: null,
+            helpTime: null,
+            isFrozen: false,
+            numAskedToFix: 0
         });
     }
 
@@ -374,7 +382,7 @@ class OHQueue {
         var node = this.queue.find(x => x.id == studentID);
         if (node == null) return;
         
-        this.queue.removeNode(node);
+        data = this.queue.removeNode(node);
             
         // Move up all students behind a frozen student
         var currNode = this.queue.end;
@@ -387,6 +395,7 @@ class OHQueue {
             } 
             currNode = prevNode;
         }
+        return data;
     }
 
     /// Setting status of students ///
