@@ -20,15 +20,15 @@ export default function AskQuestion(props) {
     const locations = ['Remote', 'GHC 4211', 'Honk\'s Closet'];
     const topics = ['Knock knock', 'Who\'s there?', 'Honk', 'Honk Who?', 'Honk you!'];
     
-    const { questionValue, setQuestionValue } = props
+    const { questionValue, setQuestionValue, theme } = props
 
     const [location, setLocation] = useState('')
     const [topic, setTopic] = useState('')
     return (
         <div className='card' style={{display:'flex'}}>
-            <Card sx={{ minWidth : '100%'}}>
+            <Card sx={{ minWidth : '100%', background: theme.palette.background.paper}}>
                 <CardContent>
-                    <Typography variant='h5' sx={{fontWeight: 'bold', textAlign: 'left'}}>Ask A Question</Typography>
+                    <Typography fontSize={20} sx={{fontWeight: 'bold', textAlign: 'left'}}>Ask A Question</Typography>
                     
                     <Divider sx={{marginTop: ".5em", marginBottom:"1em"}}/>
                     <Stack direction="row" justifyContent="left">
@@ -61,7 +61,7 @@ export default function AskQuestion(props) {
                             </FormControl>
                         </Box>
                     </Stack>
-                    <Typography variant='h5' sx={{fontWeight: 'bold', textAlign: 'left', marginTop: "2em"}}>Question:</Typography>
+                    <Typography fontSize={16} sx={{fontWeight: 'bold', textAlign: 'left', marginTop: "2em"}}>Question:</Typography>
                     <Input 
                         placeholder='Question (max 256 characters)'
                         onChange={(event)=>setQuestionValue(event.target.value)}

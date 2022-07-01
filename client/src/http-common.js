@@ -39,6 +39,10 @@ httpInstance.interceptors.response.use(
         return res;
     },
     (err) => {
+        if (err.response.status === 404) {
+            // Redirect to homepage
+            window.location.href = "/";
+        }
         if (err.response.data.message) {
             let message = err.message + ": " + err.response.data.message;
             toast.error(message, {

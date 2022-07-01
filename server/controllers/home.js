@@ -28,7 +28,8 @@ exports.get = function (req, res) {
         waitTime: waitTime,
         isAuthenticated: req.user?.isAuthenticated,
         isTA: req.user?.isTA,
-        isAdmin: req.user?.isAdmin
+        isAdmin: req.user?.isAdmin,
+        andrewID: req.user?.andrewID
     });
 }
 

@@ -1,22 +1,24 @@
 import {
     Typography,
     Stack,
+    AppBar,
     Divider,
-    Link
+    Link,
+    Box
 } from '@mui/material';
 
 export default function Footer(props) {
     const { gitHubLink } = props
 
     return (
-        <Stack direction='row' 
-            alignItems='center' 
-            fullWidth 
+        <Stack direction='row'
+            alignItems='center'
             divider={<Divider orientation="vertical" flexItem />}
-            spacing={1} 
+            spacing={1}
+            sx={{ my: 5 }}
             justifyContent='center'
         >
-            <Typography>Created by 122 Staff S22, Sponsored by Honk</Typography>
+            <Typography>Created by Carnegie Mellon's 15-122 Staff Spring 2022, Sponsored by Honk</Typography>
             <Link href={gitHubLink}>Submit a queue website bug report</Link>
         </Stack>
     )

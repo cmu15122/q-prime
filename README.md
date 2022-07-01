@@ -126,6 +126,7 @@ server. Create a `.env` file with the following fields to set up the server:
 | POSTGRESQL_DB_HOST | Name of the PostgreSQL database host | Fill using values from [setting up the database](#setting-up-the-database), only required if hosting the database elsewhere (i.e. on Heroku) | Pranav |
 | POSTGRESQL_DB_USER | Username to access the PostgreSQL database | Fill using values from [setting up the database](#setting-up-the-database) | Pranav |
 | POSTGRESQL_DB_PASSWORD | Password for the user to access the PostgreSQL database | Fill using values from [setting up the database](#setting-up-the-database) | Pranav |
+| TOKEN_KEY | Key used to generate access tokens for users | Can use any random alphanumerical string | Bhargav |
 
 Add them to the `.env` file like so:
 ```

@@ -8,13 +8,12 @@ function TAMain (props) {
 
     return (
       <div>
+        <StudentEntries theme={props.theme}></StudentEntries>
         <AskQuestion
           questionValue={questionValue}
           setQuestionValue={setQuestionValue}
+          theme={props.theme}
         />
-
-        <StudentEntries theme={props.theme}></StudentEntries>
-
       </div>
     );
 }

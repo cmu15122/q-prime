@@ -1,7 +1,6 @@
 const bodyParser = require('body-parser');
 const express = require('express');
 const logger = require('morgan');
-const Promise = require('bluebird');
 
 const http = require('http');
 const cors = require("cors");
@@ -11,6 +10,7 @@ const app = express();
 // Initializing other controllers
 const slack = require('./controllers/slack');
 const sockets = require('./controllers/sockets');
+const settingsCtr = require('./controllers/settings');
 
 // Routes
 const home = require("./routes/home");
@@ -48,43 +48,44 @@ app.use(function(req, res, next) {
     models.account.findOne({
         where: {
             access_token: access_token
-        }
+        },
+        include: [
+            { 
+                model: models.semester_user,  
+                where: {
+                    sem_id: settingsCtr.get_admin_settings().currSem,
+                }, 
+                as: "semester_users" 
+            },
+            { model: models.student, as: "student" },
+            { model: models.ta, as: "ta" },
+        ]
     }).then(function(account) {
-        return Promise.props({
-            account: account,
-            sem_user: function() {
-                return models.semester_user.findOne({
-                    where: {
-                        user_id: account.user_id
-                    }
-                })
-            }(),
-            student: function() {
-                return models.student.findOne({
-                    where: {
-                        student_id: account.user_id
-                    }
-                })
-            }(),
-            ta: function() {
-                return models.ta.findOne({
-                    where: {
-                        ta_id: account.user_id
-                    }
-                })
-            }()
-        });
-    }).then(function(results) {
-        let isTA = results.sem_user?.is_ta == 1;
-        let isAdmin = results.ta?.is_admin == 1;
+        let semester_user = account?.semester_users[0];
+        let student = account?.student;
+        let ta = account?.ta;
+
+        if (account == null || semester_user == null || 
+            (student == null && ta == null)) 
+        {
+            req.user = { isAuthenticated: false };
+            next();
+            return;
+        }
+
+        let isTA = semester_user.is_ta == 1;
+        let isAdmin = ta?.is_admin == 1;
+        let andrewID = account.email.split("@")[0];
+
         req.user = {
-            account: results.account,
-            sem_user: results.sem_user,
-            student: results.student,
-            ta: results.ta,
+            account: account,
+            sem_user: semester_user,
+            student: student,
+            ta: ta,
             isAuthenticated: true, 
             isTA: isTA,
-            isAdmin: isAdmin
+            isAdmin: isAdmin,
+            andrewID: andrewID
         };
         next();
     });
