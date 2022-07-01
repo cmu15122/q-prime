@@ -1,4 +1,5 @@
 // For Home page
+const moment = require("moment-timezone");
 const Promise = require('bluebird');
 
 const queue = require('./queue');
@@ -53,15 +54,21 @@ exports.post_unfreeze_queue = function (req, res) {
 
 exports.post_add_question = function (req, res) {
     // fields we get from client
-    const question = req.body.question
-    const location = req.body.location
-    const topic = req.body.topic
+    const question = req.body.question;
+    const location = req.body.location;
+    const topic = req.body.topic;
 
-    // TODO: error handling 
+    // TODO: error handling
+    if (!question || !location || !topic) {
+        respond_error(req, res, "Invalid/missing parameters in request", 400);
+        return;
+    }
 
     // add qn to the queue
-    const studentID = req.user.account.user_id
-    ohq.enqueue(studentID);
+    const studentID = req.user.account.user_id;
+    const andrewID = req.user.andrewID;
+    const entryTime = moment.tz(new Date(), "America/New_York").toDate();
+    ohq.enqueue(studentID, andrewID, question, location, topic, entryTime);
     const position = ohq.getPosition()
 
     // add qn to the database
