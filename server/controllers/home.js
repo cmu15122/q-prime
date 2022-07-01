@@ -49,3 +49,20 @@ exports.post_unfreeze_queue = function (req, res) {
     queueFrozen = false;
     res.redirect("/");
 }
+
+exports.post_add_question = function (req, res) {
+    // fields we get from client
+    const question = req.body.question
+    const location = req.body.location
+    const topic = req.body.topic
+
+    // TODO: error handling 
+
+    // add qn to the queue
+    const studentID = req.user.account.user_id
+    ohq.enqueue(studentID);
+    const position = ohq.getPosition()
+
+    // add qn to the database
+    
+}
