@@ -11,11 +11,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function YourEntry(props) {
     const waitTime = 20
-    const location = 'Remote - TA Zoom will be provided when helped.'
-    const topic = 'Programming X'
-    const question = 'Student\'s Question'
     
-    const { openRemoveOverlay, position } = props
+    const { openRemoveOverlay, position, location, topic, question } = props
     return (
         <div className='card' style={{display:'flex'}}>
             <Card sx={{ minWidth : '100%'}}>

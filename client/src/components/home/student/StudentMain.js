@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Button
 } from '@mui/material'
@@ -9,54 +9,122 @@ import TAHelpingOverlay from './TAHelpingOverlay';
 import UpdateQuestionOverlay from './UpdateQuestionOverlay';
 import MessageRespond from './MessageRespond'
 import AskQuestion from './AskQuestion';
+import HomeService from '../../../services/HomeService';
 
 function StudentMain (props) {
-    const [questionValue, setQuestionValue] = useState('')
-    const [removeConfirm, setRemoveConfirm] = useState(false);
-    const [frozen, setFrozen] = useState(false);
-    const [taHelping, setTAHelping] = useState(false);
-    const [updateQ, setUpdateQ] = useState(false);
-    const [position, setPosition] = useState(0)
+  const [questionValue, setQuestionValue] = useState('')
+  const [locationValue, setLocationValue] = useState('')
+  const [topicValue, setTopicValue] = useState('')
+  
+  const [removeConfirm, setRemoveConfirm] = useState(false);
+  const [frozen, setFrozen] = useState(false);
+  const [taHelping, setTAHelping] = useState(false);
+  const [updateQ, setUpdateQ] = useState(false);
+  const [position, setPosition] = useState(0)
 
-    return (
-      <div>
+  const [askQuestionOrYourEntry, setAskQuestionOrYourEntry] = useState(false)
+
+  // check if student on queue on page load
+  useEffect(() => {
+    HomeService.getStudent()
+      .then(res => {
+        if(res.data.position !== -1) {
+          setAskQuestionOrYourEntry(true)
+          setPosition(res.data.position)
+          setLocationValue(res.data.location)
+          setTopicValue(res.data.topic)
+          setQuestionValue(res.data.question)
+          setFrozen(res.data.isFrozen)
+
+          let status = res.data.status
+          if(status === 0) {
+            setTAHelping(true)
+          } else if(status === 1) {
+            setTAHelping(false)
+          } else if(status === 2) {
+            setUpdateQ(true)
+            console.log(updateQ)
+          } else if(status === 3) {
+            setFrozen(true)
+          } else if(status === 4) {
+            setFrozen(true)
+            // cooldown violation
+          } else {
+            console.log("error in status")
+          }
+        }
+      })
+  })
+
+  function removeFromQueue() {
+
+    HomeService.removeStudent().then(res => {
+      if(res.status === 200) {
+        setRemoveConfirm(false)
+        setAskQuestionOrYourEntry(false)
+      } else {
+        console.log("error in remove from queue")
+      }
+    })
+
+  }
+
+  return (
+    <div>
+      {
+        askQuestionOrYourEntry ?
+        <div>
           <YourEntry
             openRemoveOverlay={() => setRemoveConfirm(true)}
             position={position}
+            location={locationValue}
+            topic={topicValue}
+            question={questionValue}
+            setAskQuestionOrYourEntry={setAskQuestionOrYourEntry}
             theme={props.theme}
           />
           <RemoveQOverlay 
             open={removeConfirm}
+            removeFromQueue={() => removeFromQueue()}
             handleClose={() => setRemoveConfirm(false)}
           />
-          <AskQuestion
-            questionValue={questionValue}
-            setQuestionValue={setQuestionValue}
-            setPosition={setPosition}
-            theme={props.theme}
-          />
-          <Button variant="contained" onClick={() => setFrozen(true)} sx={{m:0.5}}>Open Frozen Overlay</Button>
-          <FrozenOverlay 
-            open={frozen}
-            handleClose={() => setFrozen(false)}
-          />
-          <Button variant="contained" onClick={() => setTAHelping(true)} sx={{m:0.5}}>Open TA Helping Overlay</Button>
-          
-          <TAHelpingOverlay
-            open={taHelping}
-            handleClose={() => setTAHelping(false)}
-          />
-          <Button variant="contained" onClick={() => setUpdateQ(true)} sx={{m:0.5}}>Open Update Question Overlay</Button>
-        
-          <UpdateQuestionOverlay
-            open={updateQ}
-            handleClose={() => setUpdateQ(false)}
-            setQuestionValue={setQuestionValue}
-          />
+        </div>
+        :
+        <AskQuestion
+          questionValue={questionValue}
+          setQuestionValue={setQuestionValue}
+          locationValue={locationValue}
+          setLocationValue={setLocationValue}
+          topicValue={topicValue}
+          setTopicValue={setTopicValue}
+          setPosition={setPosition}
+          setAskQuestionOrYourEntry={setAskQuestionOrYourEntry}
+          theme={props.theme}
+        />
+      }
+      
+      <Button variant="contained" onClick={() => setFrozen(true)} sx={{m:0.5}}>Open Frozen Overlay</Button>
+      <FrozenOverlay 
+        open={frozen}
+        handleClose={() => setFrozen(false)}
+      />
+      <Button variant="contained" onClick={() => setTAHelping(true)} sx={{m:0.5}}>Open TA Helping Overlay</Button>
+      
+      <TAHelpingOverlay
+        open={taHelping}
+        handleClose={() => setTAHelping(false)}
+      />
+      <Button variant="contained" onClick={() => setUpdateQ(true)} sx={{m:0.5}}>Open Update Question Overlay</Button>
+  
+      <UpdateQuestionOverlay
+        open={updateQ}
+        handleClose={() => setUpdateQ(false)}
+        setQuestionValue={setQuestionValue}
+      />
 
-          <MessageRespond theme = {props.theme} />
-      </div>
-    );
+      <MessageRespond theme = {props.theme} />
+    </div>
+  );
 }
   
 export default StudentMain;

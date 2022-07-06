@@ -16,34 +16,65 @@ import {
     Button
 } from '@mui/material'
 import HomeService from '../../../services/HomeService';
+import { toast } from 'material-react-toastify';
 
 export default function AskQuestion(props) {
     const waitTime = 20
     const locations = ['Remote', 'GHC 4211', 'Honk\'s Closet'];
     const topics = ['Knock knock', 'Who\'s there?', 'Honk', 'Honk Who?', 'Honk you!'];
     
-    const { questionValue, setQuestionValue, openRemoveOverlay, theme, setPosition } = props
+    const { 
+        questionValue, 
+        setQuestionValue, 
+        locationValue,
+        setLocationValue,
+        topicValue,
+        setTopicValue,
+        openRemoveOverlay, 
+        theme, 
+        setPosition, 
+        setAskQuestionOrYourEntry 
+    } = props
     
-    const [location, setLocation] = useState('')
-    const [topic, setTopic] = useState('')
-
     const callAddQuestionAPI = () => {
-        HomeService.addQuestion(
-            JSON.stringify({
-                question_value: questionValue,
-                location: location,
-                // TODO: unclear if this is entirely safe
-                topic: encodeURI(topic)
-            })
-        ).then((res) => {
-            
-            // TODO: Remove ask question menu, "th" "rd" "st" for different numbers.  Handler 0 case elegantly
 
-            if(res.status === 200) {
-                console.log(res.data)
-                setPosition(res.data.position)
-            }
-        })
+        let toastProps = {
+            position: "bottom-left",
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+        }
+
+        if (locationValue === '') {
+            toast("Please enter a location", toast)
+        }
+        if (topicValue === '') {
+            toast("Please enter a topic", toast)
+        }
+        if (questionValue === '') {
+            toast("Please enter a question", toast)
+        }
+
+        if (locationValue !== '' && topicValue !== '' && questionValue !== '') {
+            HomeService.addQuestion(
+                JSON.stringify({
+                    // TODO: unclear if this is entirely safe
+                    question_value: questionValue,
+                    location: locationValue,
+                    topic: topicValue
+                })
+            ).then(res => {
+                if(res.status === 200) {
+                    console.log(res.data)
+                    setPosition(res.data.position)
+                    setAskQuestionOrYourEntry(true)
+                } else {
+                    console.log('error with adding to queue')
+                }
+            })
+        }
     }
 
     return (
@@ -60,9 +91,9 @@ export default function AskQuestion(props) {
                                 <Select
                                     labelId="location-select-label"
                                     id="location-select"
-                                    value={location}
+                                    value={locationValue}
                                     label="Location"
-                                    onChange={(e)=>setLocation(e.target.value)}
+                                    onChange={(e)=>setLocationValue(e.target.value)}
                                 >
                                     {locations.map((loc) => <MenuItem value={loc} key={loc}>{loc}</MenuItem>)}
                                 </Select>
@@ -74,9 +105,9 @@ export default function AskQuestion(props) {
                                 <Select
                                     labelId="topic-select-label"
                                     id="topic-select"
-                                    value={topic}
+                                    value={topicValue}
                                     label="Topic"
-                                    onChange={(e)=>setTopic(e.target.value)}
+                                    onChange={(e)=>setTopicValue(e.target.value)}
                                 >
                                     {topics.map((top) => <MenuItem value={top} key={top}>{top}</MenuItem>)}
                                 </Select>
