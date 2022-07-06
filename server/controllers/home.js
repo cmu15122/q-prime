@@ -34,6 +34,31 @@ exports.get = function (req, res) {
     });
 }
 
+exports.get_student = function (req, res) {
+    if (!req.user) {
+        res.status(400)
+        res.json({message: 'user data not passed to server'})
+        return
+    } 
+
+    let data = {
+        position: ohq.getPosition(req.user.andrewID),
+    }
+
+    if(data.position !== -1) {
+        let entry = ohq.queue.get(data.position)
+        data['status'] = entry.status
+        data['isFrozen'] = entry.isFrozen
+        // doesn't include ID because it doesn't need to be passed to client
+        data['question'] = entry.question
+        data['location'] = entry.location
+        data['topic'] = entry.topic
+    }
+
+    res.status(200);
+    res.send(data)
+}
+
 exports.post_freeze_queue = function (req, res) {
     if (!req.user || !req.user.isTA) {
         return;
@@ -53,7 +78,13 @@ exports.post_unfreeze_queue = function (req, res) {
 }
 
 exports.post_add_question = function (req, res) {
-    if (!req.user || ohq.getPosition(req.user.andrewID) != -1) {
+    if (!req.user) {
+        res.status(400)
+        res.json({message: 'user data not passed to server'})
+        return
+    } 
+
+    if (ohq.getPosition(req.user.andrewID) != -1) {
         res.status(400)
         res.json({message: 'student already on the queue'})
         return
@@ -88,6 +119,35 @@ exports.post_add_question = function (req, res) {
         res.json({message: 'the server was unable to add you to the queue'})
     }
 
-    // console.log(ohq.print())
-    // res.redirect("/")
+    ohq.print()
+}
+
+exports.post_remove_student = function(req, res) {
+    if (!req.user) {
+        res.status(400)
+        res.json({message: 'user data not passed to server'})
+        return
+    } 
+    
+    if (ohq.getPosition(req.user.andrewID) === -1) {
+        res.status(400)
+        res.json({message: 'student not on the queue'})
+        return
+    }
+
+    let id = req.user.andrewID
+
+    ohq.remove(id)
+
+    if(ohq.getPosition(id) != -1) {
+        res.status(500)
+        res.json({message: "the server was unable to remove you from the queue"})
+    }
+
+    let data = {
+        'message': "successfully removed from the queue"
+    }
+    
+    res.status(200)
+    res.json(data)
 }
