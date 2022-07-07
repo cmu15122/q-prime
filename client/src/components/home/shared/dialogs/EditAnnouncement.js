@@ -1,16 +1,43 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box, Button, Dialog, DialogContent, Typography, TextField, Grid
 } from '@mui/material'
 
+import HomeService from '../../../../services/HomeService';
+
 export default function EditAnnouncement(props) {
-    const { isOpen, onSave, onClose, setHeader, setContent, announcementInfo } = props
+    const { isOpen, onClose, announcementInfo, updateAnnouncements } = props
+
+    const [header, setHeader] = useState("");
+    const [content, setContent] = useState("");
+
+    useEffect(() => {
+        if (announcementInfo != null) {
+            setHeader(announcementInfo.header);
+            setContent(announcementInfo.content);
+        }
+    }, [announcementInfo]);
+
+    const handleEdit = () => {
+        HomeService.updateAnnouncement(
+            JSON.stringify({
+                id: announcementInfo.id,
+                header: header,
+                content: content
+            })
+        ).then(res => {
+            updateAnnouncements(res.data.announcements);
+            onClose();
+        });
+    };
 
     return (
         <Dialog
             open={isOpen}
             onClose={onClose}
+            maxWidth="sm"
+            fullWidth
         >
             <DialogContent>
                 <Typography sx={{ pb: 1, fontWeight: 'bold', fontSize: '22px', textAlign: 'center' }}>
@@ -26,6 +53,8 @@ export default function EditAnnouncement(props) {
                             fullWidth
                             onChange={(event) => setHeader(event.target.value)}
                         />
+                    </Grid>
+                    <Grid className="d-flex" item xs={12}>
                         <TextField 
                             label="Content"
                             defaultValue={announcementInfo?.content}
@@ -38,7 +67,7 @@ export default function EditAnnouncement(props) {
                     </Grid>
                 </Grid>
                 <Box textAlign='center' sx={{pt: 6}}>
-                    <Button onClick={onSave} variant="contained" color="info" sx={{ alignSelf: 'center' }} >Save</Button>
+                    <Button onClick={handleEdit} variant="contained" color="info" sx={{ alignSelf: 'center' }} >Save</Button>
                 </Box>
             </DialogContent>
         </Dialog>
