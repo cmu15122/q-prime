@@ -39,6 +39,7 @@ exports.post_freeze_queue = function (req, res) {
     }
 
     queueFrozen = true;
+    sockets.queueFrozen(queueFrozen);
     res.redirect("/");
 }
 
@@ -48,5 +49,6 @@ exports.post_unfreeze_queue = function (req, res) {
     }
 
     queueFrozen = false;
+    sockets.queueFrozen(queueFrozen);
     res.redirect("/");
 }
