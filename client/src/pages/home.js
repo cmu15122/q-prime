@@ -13,8 +13,8 @@ function Home(props) {
   useEffect(() => {
     HomeService.getAll()
       .then(res => {
-        setQueueData(res.data);
-        document.title = res.data.title;
+        setQueueData(res.data.queueData);
+        document.title = res.data.queueData.title;
       });
     
     initiateSocket();

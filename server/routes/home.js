@@ -5,7 +5,6 @@ const home = require('../controllers/home');
 const login = require('../controllers/login');
 
 router.get('/', home.get);
-router.get('/getStudent', home.get_student)
 router.post('/freezeQueue', home.post_freeze_queue);
 router.post('/unfreezeQueue', home.post_unfreeze_queue);
 router.post('/addQuestion', home.post_add_question)

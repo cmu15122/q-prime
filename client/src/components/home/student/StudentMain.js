@@ -26,17 +26,17 @@ function StudentMain (props) {
 
   // check if student on queue on page load
   useEffect(() => {
-    HomeService.getStudent()
+    HomeService.getAll()
       .then(res => {
-        if(res.data.position !== -1) {
+        if(res.data.studentData.position !== -1) {
           setAskQuestionOrYourEntry(true)
-          setPosition(res.data.position)
-          setLocationValue(res.data.location)
-          setTopicValue(res.data.topic)
-          setQuestionValue(res.data.question)
-          setFrozen(res.data.isFrozen)
+          setPosition(res.data.studentData.position)
+          setLocationValue(res.data.studentData.location)
+          setTopicValue(res.data.studentData.topic)
+          setQuestionValue(res.data.studentData.question)
+          setFrozen(res.data.studentData.isFrozen)
 
-          let status = res.data.status
+          let status = res.data.studentData.status
           if(status === 0) {
             setTAHelping(true)
           } else if(status === 1) {

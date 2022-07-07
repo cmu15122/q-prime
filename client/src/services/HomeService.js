@@ -4,9 +4,6 @@ class HomeDataService {
   getAll() {
     return http.get("/");
   }
-  getStudent() {
-    return http.get("/getStudent")
-  }
   freezeQueue() {
     return http.post("/freezeQueue");
   }

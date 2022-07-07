@@ -22,41 +22,36 @@ let waitTime = 20;
 
 exports.get = function (req, res) {
     res.status(200);
-    res.send({ 
-        title: "15-122 Office Hours Queue",
-        queueFrozen: queueFrozen,
-        numStudents: ohq.size(),
-        waitTime: waitTime,
-        isAuthenticated: req.user?.isAuthenticated,
-        isTA: req.user?.isTA,
-        isAdmin: req.user?.isAdmin,
-        andrewID: req.user?.andrewID
-    });
-}
-
-exports.get_student = function (req, res) {
-    if (!req.user) {
-        res.status(400)
-        res.json({message: 'user data not passed to server'})
-        return
-    } 
 
     let data = {
-        position: ohq.getPosition(req.user.andrewID),
+        queueData: {
+            title: "15-122 Office Hours Queue",
+            queueFrozen: queueFrozen,
+            numStudents: ohq.size(),
+            waitTime: waitTime,
+            isAuthenticated: req.user?.isAuthenticated,
+            isTA: req.user?.isTA,
+            isAdmin: req.user?.isAdmin,
+            andrewID: req.user?.andrewID
+        },
+        studentData: {}
     }
 
-    if(data.position !== -1) {
-        let entry = ohq.queue.get(data.position)
-        data['status'] = entry.status
-        data['isFrozen'] = entry.isFrozen
-        // doesn't include ID because it doesn't need to be passed to client
-        data['question'] = entry.question
-        data['location'] = entry.location
-        data['topic'] = entry.topic
+    if (req.user) {
+        data.studentData["position"] = ohq.getPosition(req.user.andrewID)
+
+        if (data.studentData.position !== -1) {
+            let entry = ohq.queue.get(data.studentData.position)
+            data.studentData['status'] = entry.status
+            data.studentData['isFrozen'] = entry.isFrozen
+            // doesn't include ID because it doesn't need to be passed to client
+            data.studentData['question'] = entry.question
+            data.studentData['location'] = entry.location
+            data.studentData['topic'] = entry.topic
+        }
     }
 
-    res.status(200);
-    res.send(data)
+    res.send(data);
 }
 
 exports.post_freeze_queue = function (req, res) {
