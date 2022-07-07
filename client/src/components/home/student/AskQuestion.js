@@ -48,13 +48,13 @@ export default function AskQuestion(props) {
         }
 
         if (locationValue === '') {
-            toast("Please enter a location", toast)
+            toast.error("Please enter a location", toast)
         }
         if (topicValue === '') {
-            toast("Please enter a topic", toast)
+            toast.error("Please enter a topic", toast)
         }
         if (questionValue === '') {
-            toast("Please enter a question", toast)
+            toast.error("Please enter a question", toast)
         }
 
         if (locationValue !== '' && topicValue !== '' && questionValue !== '') {

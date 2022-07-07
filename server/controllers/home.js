@@ -37,7 +37,7 @@ exports.get = function (req, res) {
         studentData: {}
     }
 
-    if (req.user) {
+    if (req.user && !req.user.isTA) {
         data.studentData["position"] = ohq.getPosition(req.user.andrewID)
 
         if (data.studentData.position !== -1) {
