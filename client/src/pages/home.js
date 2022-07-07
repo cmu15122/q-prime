@@ -18,9 +18,6 @@ function Home(props) {
       });
     
     initiateSocket();
-    socketSubscribeTo("update", (data) => {
-      console.log(data);
-    })
   }, []);
 
   return (

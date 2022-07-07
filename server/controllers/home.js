@@ -4,6 +4,7 @@ const Promise = require('bluebird');
 const queue = require('./queue');
 const models = require('../models');
 const sockets = require('./sockets');
+const waittime = require('./waittimes')
 
 const OHQueue = queue.OHQueue;
 const StudentStatus = queue.StudentStatus;
@@ -17,7 +18,9 @@ ohq.enqueue("student1");
 ohq.enqueue("student2");
 ohq.enqueue("student3");
 
-let waitTime = 20;
+exports.getOHQ = function() {
+    return ohq;
+};
 
 exports.get = function (req, res) {
     res.status(200);
@@ -25,7 +28,7 @@ exports.get = function (req, res) {
         title: "15-122 Office Hours Queue",
         queueFrozen: queueFrozen,
         numStudents: ohq.size(),
-        waitTime: waitTime,
+        waitTime: waittime.get(),
         isAuthenticated: req.user?.isAuthenticated,
         isTA: req.user?.isTA,
         isAdmin: req.user?.isAdmin,

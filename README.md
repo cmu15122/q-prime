@@ -113,6 +113,12 @@ Each of these are configured in the main `client/src/App.js` file:
 | Metrics Page  | `/metrics`  | `localhost:8000/metrics`  |
 
 ## Configuration
+### Admin Settings
+Below are settings that can be set in the Admin Settings page:
+| Name          | Description        | Link  | Point of Contact for Help |
+| ------------- | ------------------ | -------------------- | ------------------------- |
+| SLACK_WEBHOOK_URL | URL to your incoming Slack webhook | https://my.slack.com/services/new/incoming-webhook/ | Angela |
+
 ### Server-Side
 The `server/config/config.js` file has all the fields required to configure the
 server. Create a `.env` file with the following fields to set up the server:
@@ -121,7 +127,6 @@ server. Create a `.env` file with the following fields to set up the server:
 | ------------- | ------------------ | -------------------- | ------------------------- |
 | GOOGLE_CLIENT_ID | Google Client ID, used for Google OAuth | https://console.cloud.google.com/apis/credentials (Note: can not create project with Andrew email due to org permissions, need to use personal gmail) | Angela |
 | GOOGLE_CLIENT_SECRET | Google Client Secret, used for Google OAuth | https://console.cloud.google.com/apis/credentials (Note: can not create project with Andrew email due to org permissions, need to use personal gmail) | Angela |
-| SLACK_WEBHOOK_URL | URL to your incoming Slack webhook (note: will be deprecated once admin settings are set up) | https://my.slack.com/services/new/incoming-webhook/ | Angela |
 | POSTGRESQL_DB | Name of the PostgreSQL database | Fill using values from [setting up the database](#setting-up-the-database) | Pranav |
 | POSTGRESQL_DB_HOST | Name of the PostgreSQL database host | Fill using values from [setting up the database](#setting-up-the-database), only required if hosting the database elsewhere (i.e. on Heroku) | Pranav |
 | POSTGRESQL_DB_USER | Username to access the PostgreSQL database | Fill using values from [setting up the database](#setting-up-the-database) | Pranav |
@@ -130,8 +135,7 @@ server. Create a `.env` file with the following fields to set up the server:
 
 Add them to the `.env` file like so:
 ```
-{    
-    ...,
+{
     name=value,
     name=value,
 }

@@ -23,15 +23,11 @@ exports.init = function(server) {
             if (!auth) return;
 
             models.account.findOne({
-                where: {
-                    access_token: auth
-                }, 
+                where: { access_token: auth }, 
                 include: [
                     { 
                         model: models.semester_user,  
-                        where: {
-                            sem_id: settings.get_admin_settings().currSem,
-                        }, 
+                        where: { sem_id: settings.get_admin_settings().currSem }, 
                         as: "semester_users"
                     }
                 ]
@@ -53,10 +49,6 @@ exports.init = function(server) {
           socket.leave(ta_room);
         });
     });
-
-    // We can have sockets ping things on an interval (like wait times), i.e.
-    // exports.update();
-    // setInterval(() => exports.update(), 5000);
 };
 
 exports.queueFrozen = function(isFrozen) {
@@ -81,6 +73,7 @@ exports.waittimes = function(times) {
     });
 }
 
+// Example function, delete when done
 exports.update = function() {
     // Emitting a new message. Will be consumed by the client
     const response = new Date();

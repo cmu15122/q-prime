@@ -20,7 +20,7 @@ function HomeMain (props) {
     useEffect(() => {
         socketSubscribeTo("queueFrozen", (data) => {
             setQueueFrozen(data.isFrozen);
-        })
+        });
     }, []);
 
     useEffect(() => {

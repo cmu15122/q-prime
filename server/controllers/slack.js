@@ -9,17 +9,6 @@ exports.init = function() {
     exports.update_slack();
 };
 
-// TODO: not sure if this function should be in the slack controller, feels like 
-// something we do in queue/wherever we eventually store wait times
-exports.update_wait_times = function() {
-    var now = new Date();
-
-    // TODO: Get current wait time
-    // TODO: send wait time message
-    // exports.send_message("<!channel> Help! Honk is on fire! Save him! :everythingsfineparrot:");
-    last_updated = now;
-}
-
 exports.send_message = function(message) {
     if (slack) {
         slack.send(message);
