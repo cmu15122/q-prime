@@ -26,9 +26,10 @@ exports.get = function (req, res) {
         queueFrozen: queueFrozen,
         numStudents: ohq.size(),
         waitTime: waitTime,
-        isAuthenticated: true,
-        isTA: true,
-        isAdmin: req.user?.isAdmin
+        isAuthenticated: req.user?.isAuthenticated,
+        isTA: req.user?.isTA,
+        isAdmin: req.user?.isAdmin,
+        andrewID: req.user?.andrewID
     });
 }
 

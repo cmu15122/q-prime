@@ -11,17 +11,15 @@ export default function Footer(props) {
     const { gitHubLink } = props
 
     return (
-        <Box>
-            <Stack direction='row' 
-                alignItems='center' 
-                fullWidth 
-                divider={<Divider orientation="vertical" flexItem />}
-                spacing={1} 
-                justifyContent='center'
-            >
-                <Typography>Created by Carnegie Mellon's 15-122 Staff Spring 2022, Sponsored by Honk</Typography>
-                <Link href={gitHubLink}>Submit a queue website bug report</Link>
-            </Stack>
-        </Box>
+        <Stack direction='row'
+            alignItems='center'
+            divider={<Divider orientation="vertical" flexItem />}
+            spacing={1}
+            sx={{ my: 5 }}
+            justifyContent='center'
+        >
+            <Typography>Created by Carnegie Mellon's 15-122 Staff Spring 2022, Sponsored by Honk</Typography>
+            <Link href={gitHubLink}>Submit a queue website bug report</Link>
+        </Stack>
     )
 }

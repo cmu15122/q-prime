@@ -24,11 +24,10 @@ function HomeMain (props) {
         }
     }, [queueData]);
 
-    useEffect(() => {
+    useEffect(() => {        
         if (isAuthenticated) {
             if (isTA) {
                 setMainPage(<TAMain theme={theme} queueData={queueData} />);
-                console.log('in TA');
             }
             else { // is student
                 if (queueFrozen) {
