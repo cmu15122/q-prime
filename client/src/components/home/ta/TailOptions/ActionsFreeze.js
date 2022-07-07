@@ -14,9 +14,7 @@ export default function ActionsFreeze(props) {
 
   return (
     <Toolbar sx={{alignItems: 'right', justifyContent:'flex-end'}}>
-        {!isHelping && <div>
-          <Button color="info" variant="contained" onClick={() => handleClickUnfreeze(index)} sx={{m:0.5}}>Unfreeze</Button>
-        </div>}
+        <Button color="info" variant="contained" onClick={() => handleClickUnfreeze(index)} sx={{m:0.5}}>Unfreeze</Button>
 
         {PersistentOptions(props)}
 

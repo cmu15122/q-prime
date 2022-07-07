@@ -7,7 +7,7 @@ import * as React from 'react';
 export default function StudentStatus(props) {
 
   const {
-    student
+    student, theme
   } = props
 
   const status = student.status
@@ -15,14 +15,15 @@ export default function StudentStatus(props) {
   const chooseText = (status) => {
       switch (status) {
           case 0: return 'TA is Helping'
-          case 2: return 'Frozen'
-          case 3: return 'Updating Question'
+          case 2: return 'Updating Question'
+          case 3: return 'Frozen'
+          case 4: return 'Joined Before Cooldown'
           default: return 'Not valid position'
       }
   }
 
   return (
-    <Typography>
+    <Typography fontSize='14px' color={theme.palette.success.main}>
         {chooseText(status)}
     </Typography>
   )

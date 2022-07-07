@@ -7,6 +7,8 @@ import {
     Delete
 } from '@mui/icons-material';
 
+import ExtraStudentOptions from './ExtraStudentOptions';
+
 export default function PersistentOptions(props) {
 
   const {

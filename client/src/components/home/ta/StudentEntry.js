@@ -12,7 +12,7 @@ import EntryTails from './EntryTails';
 
 export default function StudentEntry(props) {
 
-  const {theme, student, index, isHelping, setIsHelping, helpIdx, setHelpIdx } = props
+  const {theme, student, index, isHelping, helpIdx, handleClickHelp, handleCancel, handleClickUnfreeze } = props
   
   const [confirmRemove, setConfirmRemove] = React.useState(false);
   
@@ -34,19 +34,19 @@ export default function StudentEntry(props) {
     }
   })
 
+  function removeStudent() {
+    console.log("removing student");
+  }
+
   function handleRemoveButton() {
     if (confirmRemove) {
       setConfirmRemove(false);
       //REMOVE STUDENT FROM QUEUE
+      removeStudent();
     }
     else {
       setConfirmRemove(true);
     }
-  }
-
-  const handleClickHelp = (index) => {
-    setHelpIdx(index);
-    setIsHelping(true);
   }
 
   return (
@@ -63,8 +63,9 @@ export default function StudentEntry(props) {
             ... props,
             removeRef:removeRef, 
             confirmRemove: confirmRemove, 
-            handleRemoveButton: handleRemoveButton, 
-            handleClickHelp: handleClickHelp,
+            handleRemoveButton: handleRemoveButton,
+            removeStudent: removeStudent,
+            handleClickUnfreeze: handleClickUnfreeze
           }
         )}
     </TableRow>

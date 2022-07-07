@@ -10,12 +10,13 @@ import {
 import YouAreHelping from './TailOptions/YouAreHelping';
 import ActionsHelp from './TailOptions/ActionsHelp';
 import ActionsFreeze from './TailOptions/ActionsFreeze';
+import StudentStatus from './TailOptions/StudentStatus';
 
 export default function EntryTails(props) {
 
   const {
-    theme, student, index, isHelping, setIsHelping, helpIdx,
-    removeRef, confirmRemove, handleRemoveButton, handleClickHelp
+    theme, student, index, isHelping, helpIdx,
+    removeRef, confirmRemove, handleRemoveButton, handleClickHelp, handleClickUnfreeze, handleCancel
   } = props
 
   const status = student.status
@@ -28,7 +29,7 @@ export default function EntryTails(props) {
             YouAreHelping(props)
           )
         } else {
-          return (ActionsHelp(props))
+          return (StudentStatus(props))
         }
       }
       
@@ -37,11 +38,36 @@ export default function EntryTails(props) {
       }
       
       case 2: {
-        return (ActionsFreeze(props))
+        return (
+          <Stack sx={{ pt: 1, pb: 1}}>
+            <StudentStatus 
+              student={student}
+              theme={theme}
+            />
+            {ActionsHelp(props)}
+          </Stack>
+        )
       }
   
       case 3: {
-        return (ActionsHelp(props))
+        return (
+          <Stack sx={{ pt: 1, pb: 1}}>
+            <StudentStatus 
+              student={student}
+              theme={theme}
+            />
+            {ActionsFreeze(props)}
+          </Stack>
+        )
+      }
+      
+      case 4: {
+        return (
+          <StudentStatus 
+              student={student}
+              theme={theme}
+          />
+        )
       }
       default:
         return
@@ -49,8 +75,8 @@ export default function EntryTails(props) {
   }
 
   return (
-    <TableCell padding='none' align="center">
-      {getCorrectTail(status)}
-    </TableCell>
+        <TableCell padding='none' align="center">
+          {getCorrectTail(status)}
+        </TableCell>
   )
 }
