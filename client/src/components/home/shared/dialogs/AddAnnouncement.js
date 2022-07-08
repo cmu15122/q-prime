@@ -12,7 +12,8 @@ export default function AddAnnouncement(props) {
     const [header, setHeader] = useState("");
     const [content, setContent] = useState("");
 
-    const handleCreate = () => {
+    const onSubmit = event => {
+        event.preventDefault();
         HomeService.createAnnouncement(
             JSON.stringify({
                 header: header,
@@ -35,30 +36,32 @@ export default function AddAnnouncement(props) {
                 <Typography sx={{ pb: 1, fontWeight: 'bold', fontSize: '22px', textAlign: 'center' }}>
                     Create New Announcement
                 </Typography>
-                <Grid container spacing={3} >
-                    <Grid className="d-flex" item xs={12}>
-                        <TextField
-                            label="Header"
-                            variant="standard"
-                            required
-                            fullWidth
-                            onChange={(event) => setHeader(event.target.value)}
-                        />
+                <form onSubmit={onSubmit}>
+                    <Grid container spacing={3}>
+                        <Grid className="d-flex" item xs={12}>
+                            <TextField
+                                label="Header"
+                                variant="standard"
+                                required
+                                fullWidth
+                                onChange={(event) => setHeader(event.target.value)}
+                            />
+                        </Grid>
+                        <Grid className="d-flex" item xs={12}>
+                            <TextField 
+                                label="Content"
+                                variant="standard"
+                                required
+                                multiline
+                                fullWidth
+                                onChange={(event) => setContent(event.target.value)}
+                            />
+                        </Grid>
                     </Grid>
-                    <Grid className="d-flex" item xs={12}>
-                        <TextField 
-                            label="Content"
-                            variant="standard"
-                            required
-                            multiline
-                            fullWidth
-                            onChange={(event) => setContent(event.target.value)}
-                        />
-                    </Grid>
-                </Grid>
-                <Box textAlign='center' sx={{pt: 6}}>
-                    <Button onClick={handleCreate} variant="contained" sx={{ alignSelf: 'center' }} >Create</Button>
-                </Box>
+                    <Box textAlign='center' sx={{pt: 6}}>
+                        <Button type="submit" variant="contained" sx={{ alignSelf: 'center' }} >Create</Button>
+                    </Box>
+                </form>
             </DialogContent>
         </Dialog>
     );
