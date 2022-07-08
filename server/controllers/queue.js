@@ -355,6 +355,14 @@ class OHQueue {
         });
     }
 
+    getData(studentID) {
+        var node = this.queue.find(x => x.id == studentID);
+        if (node == null) return StudentStatus.ERROR;
+        
+        assert(node.data != null);
+        return node.data;
+    }
+
     /** If found, returns the status of the student with the given id; else returns error */
     getStatus(studentID) {
         var node = this.queue.find(x => x.id == studentID);
