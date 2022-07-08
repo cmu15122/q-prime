@@ -13,7 +13,8 @@ export default function AddTADialog(props) {
     const [email, setEmail] = React.useState("");
     const [isAdmin, setIsAdmin] = React.useState(false);
 
-    const handleCreate = () => {
+    const onSubmit = event => {
+        event.preventDefault();
         SettingsService.createTA(
             JSON.stringify({
                 name: name,
@@ -35,45 +36,47 @@ export default function AddTADialog(props) {
                 <Typography sx={{ pb: 2, fontWeight: 'bold', fontSize: '22px', textAlign: 'center' }}>
                     Add New TA
                 </Typography>
-                <Grid container spacing={3} >
-                    <Grid className="d-flex" item xs={8}>
-                        <TextField
-                            label="TA Name"
-                            variant="standard"
-                            required
-                            fullWidth
-                            value={name}
-                            onChange={(e) => {
-                                setName(e.target.value)
-                            }}
-                        />
-                    </Grid>
-                    <Grid className="d-flex" align="left" item xs={4}>
-                        <FormControlLabel label="Is Admin?" labelPlacement="start" control={
-                            <Checkbox 
-                                checked={isAdmin}
+                <form onSubmit={onSubmit}>
+                    <Grid container spacing={3} >
+                        <Grid className="d-flex" item xs={8}>
+                            <TextField
+                                label="TA Name"
+                                variant="standard"
+                                required
+                                fullWidth
+                                value={name}
                                 onChange={(e) => {
-                                    setIsAdmin(e.target.checked);
+                                    setName(e.target.value)
                                 }}
                             />
-                        } sx={{ pt: 1 }} />
+                        </Grid>
+                        <Grid className="d-flex" align="left" item xs={4}>
+                            <FormControlLabel label="Is Admin?" labelPlacement="start" control={
+                                <Checkbox 
+                                    checked={isAdmin}
+                                    onChange={(e) => {
+                                        setIsAdmin(e.target.checked);
+                                    }}
+                                />
+                            } sx={{ pt: 1 }} />
+                        </Grid>
+                        <Grid className="d-flex" item xs={12}>
+                            <TextField
+                                label="TA Email"
+                                variant="standard"
+                                required
+                                fullWidth
+                                value={email}
+                                onChange={(e) => {
+                                    setEmail(e.target.value)
+                                }}
+                            />
+                        </Grid>
                     </Grid>
-                    <Grid className="d-flex" item xs={12}>
-                        <TextField
-                            label="TA Email"
-                            variant="standard"
-                            required
-                            fullWidth
-                            value={email}
-                            onChange={(e) => {
-                                setEmail(e.target.value)
-                            }}
-                        />
-                    </Grid>
-                </Grid>
-                <Box textAlign='center' sx={{pt: 6}}>
-                    <Button onClick={handleCreate} variant="contained" sx={{ alignSelf: 'center' }}>Create</Button>
-                </Box>
+                    <Box textAlign='center' sx={{pt: 6}}>
+                        <Button type="submit" variant="contained" sx={{ alignSelf: 'center' }}>Create</Button>
+                    </Box>
+                </form>
             </DialogContent>
         </Dialog>
     );

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box, Button, Dialog, DialogContent, Typography, TextField, Grid, 
     Select, MenuItem, InputLabel, FormControl
@@ -10,12 +10,12 @@ import SettingsService from '../../../../services/SettingsService';
 export default function EditTopicDialog(props) {
     const { isOpen, onClose, topicInfo, updateTopics } = props;
 
-    const [name, setName] = React.useState('');
-    const [category, setCategory] = React.useState('');
-    const [startDate, setStartDate] = React.useState(topicInfo?.dateIn);
-    const [endDate, setEndDate] = React.useState(topicInfo?.dateOut);
+    const [name, setName] = useState('');
+    const [category, setCategory] = useState('');
+    const [startDate, setStartDate] = useState(topicInfo?.dateIn);
+    const [endDate, setEndDate] = useState(topicInfo?.dateOut);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (topicInfo != null) {
             setName(topicInfo.name);
             setCategory(topicInfo.category);
@@ -24,7 +24,8 @@ export default function EditTopicDialog(props) {
         }
     }, [topicInfo]);
 
-    const handleUpdate = () => {
+    const onSubmit = event => {
+        event.preventDefault();
         SettingsService.updateTopic(
             JSON.stringify({
                 assignment_id: topicInfo?.assignment_id,
@@ -55,60 +56,62 @@ export default function EditTopicDialog(props) {
                 <Typography sx={{ pb: 2, fontWeight: 'bold', fontSize: '22px', textAlign: 'center' }}>
                     Edit Topic Info
                 </Typography>
-                <Grid container spacing={3} >
-                    <Grid className="d-flex" item xs={6}>
-                        <TextField
-                            label="Topic Name"
-                            variant="standard"
-                            required
-                            fullWidth
-                            value={name}
-                            onChange={(e) => {
-                                setName(e.target.value)
-                            }}
-                        />
-                    </Grid>
-                    <Grid className="d-flex" item xs={6}>
-                        <FormControl variant="standard" fullWidth required>
-                            <InputLabel>Category</InputLabel>
-                            <Select
-                                label="Category"
-                                value={category}
+                <form onSubmit={onSubmit}>
+                    <Grid container spacing={3} >
+                        <Grid className="d-flex" item xs={6}>
+                            <TextField
+                                label="Topic Name"
+                                variant="standard"
+                                required
+                                fullWidth
+                                value={name}
                                 onChange={(e) => {
-                                    setCategory(e.target.value)
+                                    setName(e.target.value)
                                 }}
-                            >
-                                <MenuItem value={"Written"}>Written</MenuItem>
-                                <MenuItem value={"Programming"}>Programming</MenuItem>
-                                <MenuItem value={"Other"}>Other</MenuItem>
-                            </Select> 
-                        </FormControl>
+                            />
+                        </Grid>
+                        <Grid className="d-flex" item xs={6}>
+                            <FormControl variant="standard" fullWidth required>
+                                <InputLabel>Category</InputLabel>
+                                <Select
+                                    label="Category"
+                                    value={category}
+                                    onChange={(e) => {
+                                        setCategory(e.target.value)
+                                    }}
+                                >
+                                    <MenuItem value={"Written"}>Written</MenuItem>
+                                    <MenuItem value={"Programming"}>Programming</MenuItem>
+                                    <MenuItem value={"Other"}>Other</MenuItem>
+                                </Select> 
+                            </FormControl>
+                        </Grid>
+                        <Grid className="d-flex" item xs={6}>
+                            <DateTimePicker
+                                renderInput={(props) => <TextField {...props} variant="standard" required fullWidth />}
+                                label="Start Date"
+                                value={startDate}
+                                onChange={(newValue) => {
+                                    updateStartDate(newValue);
+                                }}
+                            />
+                        </Grid>
+                        <Grid className="d-flex" item xs={6}>
+                            <DateTimePicker
+                                renderInput={(props) => <TextField {...props} variant="standard" required fullWidth />}
+                                label="End Date"
+                                value={endDate}
+                                onChange={(newValue) => {
+                                    setEndDate(newValue);
+                                }}
+                                minDate={startDate}
+                            />
+                        </Grid>
                     </Grid>
-                    <Grid className="d-flex" item xs={6}>
-                        <DateTimePicker
-                            renderInput={(props) => <TextField {...props} variant="standard" required fullWidth />}
-                            label="Start Date"
-                            value={startDate}
-                            onChange={(newValue) => {
-                                updateStartDate(newValue);
-                            }}
-                        />
-                    </Grid>
-                    <Grid className="d-flex" item xs={6}>
-                        <DateTimePicker
-                            renderInput={(props) => <TextField {...props} variant="standard" required fullWidth />}
-                            label="End Date"
-                            value={endDate}
-                            onChange={(newValue) => {
-                                setEndDate(newValue);
-                            }}
-                            minDate={startDate}
-                        />
-                    </Grid>
-                </Grid>
-                <Box textAlign='center' sx={{pt: 6}}>
-                    <Button onClick={handleUpdate} variant="contained" color="info" sx={{ alignSelf: 'center' }} >Save</Button>
-                </Box>
+                    <Box textAlign='center' sx={{pt: 6}}>
+                        <Button type="submit" variant="contained" color="info" sx={{ alignSelf: 'center' }} >Save</Button>
+                    </Box>
+                </form>
             </DialogContent>
         </Dialog>
     );

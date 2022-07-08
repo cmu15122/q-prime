@@ -21,7 +21,8 @@ export default function EditTADialog(props) {
         }
     }, [taInfo]);
 
-    const handleUpdate = () => {
+    const onSubmit = event => {
+        event.preventDefault();
         SettingsService.updateTA(
             JSON.stringify({
                 user_id: taInfo.user_id,
@@ -42,45 +43,44 @@ export default function EditTADialog(props) {
                 <Typography sx={{ pb: 2, fontWeight: 'bold', fontSize: '22px', textAlign: 'center' }}>
                     Edit TA Info
                 </Typography>
-                <Grid container spacing={3} >
-                    <Grid className="d-flex" item xs={8}>
-                        <TextField
-                            label="TA Name"
-                            variant="standard"
-                            required
-                            fullWidth
-                            value={name}
-                            InputProps={{
-                                readOnly: true,
-                            }}
-                        />
-                    </Grid>
-                    <Grid className="d-flex" align="left" item xs={4}>
-                        <FormControlLabel label="Is Admin?" labelPlacement="start" control={
-                            <Checkbox 
-                                checked={isAdmin}
-                                onChange={(e) => {
-                                    setIsAdmin(e.target.checked);
-                                }}
+                <form onSubmit={onSubmit}>
+
+                    <Grid container spacing={3} >
+                        <Grid className="d-flex" item xs={8}>
+                            <TextField
+                                label="TA Name"
+                                variant="standard"
+                                required
+                                fullWidth
+                                value={name}
+                                disabled
                             />
-                        } sx={{ pt: 1 }} />
+                        </Grid>
+                        <Grid className="d-flex" align="left" item xs={4}>
+                            <FormControlLabel label="Is Admin?" labelPlacement="start" control={
+                                <Checkbox 
+                                    checked={isAdmin}
+                                    onChange={(e) => {
+                                        setIsAdmin(e.target.checked);
+                                    }}
+                                />
+                            } sx={{ pt: 1 }} />
+                        </Grid>
+                        <Grid className="d-flex" item xs={12}>
+                            <TextField
+                                label="TA Email"
+                                variant="standard"
+                                required
+                                fullWidth
+                                value={email}
+                                disabled
+                            />
+                        </Grid>
                     </Grid>
-                    <Grid className="d-flex" item xs={12}>
-                    <TextField
-                            label="TA Email"
-                            variant="standard"
-                            required
-                            fullWidth
-                            value={email}
-                            InputProps={{
-                                readOnly: true,
-                            }}
-                        />
-                    </Grid>
-                </Grid>
-                <Box textAlign='center' sx={{pt: 6}}>
-                    <Button onClick={handleUpdate} variant="contained" color="info" sx={{ alignSelf: 'center' }} >Save</Button>
-                </Box>
+                    <Box textAlign='center' sx={{pt: 6}}>
+                        <Button type="submit" variant="contained" color="info" sx={{ alignSelf: 'center' }} >Save</Button>
+                    </Box>
+                </form>
             </DialogContent>
         </Dialog>
     );
