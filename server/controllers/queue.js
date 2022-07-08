@@ -310,8 +310,16 @@ const StudentStatus = Object.freeze({
  * Student data structure
  * {
  *      id: string,
+ *      andrewID: string,
  *      status: StudentStatus,
- *      ...
+ *      question: string,
+ *      location: string,
+ *      topic: string,
+ *      entryTime: Moment object,
+ *      taID: int,
+ *      helpTime: Moment object,
+ *      isFrozen: bool,
+ *      numAskedToFix: int
  * }
  */
 
@@ -401,10 +409,12 @@ class OHQueue {
     /// Setting status of students ///
 
     /** If found, helps the student with the given id */
-    help(studentID) {
+    help(studentID, taID, helpTime) {
         var node = this.queue.find(x => x.id == studentID);
         if (node != null) {
             node.data.status = StudentStatus.BEING_HELPED;
+            node.data.taID = taID;
+            node.data.helpTime = helpTime;
             node.data.isFrozen = false;
         }
     }
@@ -414,6 +424,8 @@ class OHQueue {
         var node = this.queue.find(x => x.id == studentID);
         if (node != null) {
             node.data.status = StudentStatus.WAITING;
+            node.data.taID = null;
+            node.data.helpTime = null;
             node.data.isFrozen = false;
         }
     }
@@ -442,6 +454,7 @@ class OHQueue {
         if (node != null) {
             node.data.status = StudentStatus.FIXING_QUESTION;
             node.data.isFrozen = true;
+            node.data.numAskedToFix += 1;
         }
     }
 
