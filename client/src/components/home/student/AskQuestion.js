@@ -67,7 +67,6 @@ export default function AskQuestion(props) {
                 })
             ).then(res => {
                 if(res.status === 200) {
-                    console.log(res.data)
                     setPosition(res.data.position)
                     setAskQuestionOrYourEntry(true)
                 } else {

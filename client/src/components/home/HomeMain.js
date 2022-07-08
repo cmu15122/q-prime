@@ -5,7 +5,7 @@ import TAMain from './ta/TAMain';
 import Footer from './Footer';
 
 function HomeMain (props) {
-    const { theme, queueData } = props;
+    const { theme, queueData, studentData } = props;
 
     const gitHubLink = 'https://www.github.com'
     
@@ -33,14 +33,14 @@ function HomeMain (props) {
                 if (queueFrozen) {
                     setMainPage();
                 } else {
-                    setMainPage(<StudentMain theme={theme} queueData={queueData} />);
+                    setMainPage(<StudentMain theme={theme} queueData={queueData} studentData={studentData} />);
                 }
             }
         } else {
             // queue is open and you are not logged in
             setMainPage();
         }
-    }, [isAuthenticated, isTA, isAdmin, queueFrozen, queueData]);
+    }, [isAuthenticated, isTA, isAdmin, queueFrozen, queueData, studentData, theme]);
 
     return (
       <div>
