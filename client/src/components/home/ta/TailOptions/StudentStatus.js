@@ -23,7 +23,7 @@ export default function StudentStatus(props) {
   }
 
   return (
-    <Typography fontSize='14px' color={theme.palette.success.main}>
+    <Typography fontSize='14px' color={theme.palette.success.main} alignSelf='center'>
         {chooseText(status)}
     </Typography>
   )

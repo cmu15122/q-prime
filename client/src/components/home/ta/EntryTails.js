@@ -11,6 +11,7 @@ import YouAreHelping from './TailOptions/YouAreHelping';
 import ActionsHelp from './TailOptions/ActionsHelp';
 import ActionsFreeze from './TailOptions/ActionsFreeze';
 import StudentStatus from './TailOptions/StudentStatus';
+import LeapStudentActions from './TailOptions/LeapStudentActions';
 
 export default function EntryTails(props) {
 
@@ -29,7 +30,16 @@ export default function EntryTails(props) {
             YouAreHelping(props)
           )
         } else {
-          return (StudentStatus(props))
+          return (
+            <Stack direction='row' sx={{ pt: 1, pb: 1}} justifyContent='space-between'>
+              <StudentStatus 
+                student={student}
+                theme={theme}
+                justifySelf='flex-start'
+              />
+              {ActionsHelp(props)}
+          </Stack>
+          )
         }
       }
       
@@ -39,10 +49,11 @@ export default function EntryTails(props) {
       
       case 2: {
         return (
-          <Stack sx={{ pt: 1, pb: 1}}>
+          <Stack direction='row' sx={{ pt: 1, pb: 1}} justifyContent='space-between'>
             <StudentStatus 
               student={student}
               theme={theme}
+              justifySelf='flex-start'
             />
             {ActionsHelp(props)}
           </Stack>
@@ -51,7 +62,7 @@ export default function EntryTails(props) {
   
       case 3: {
         return (
-          <Stack sx={{ pt: 1, pb: 1}}>
+          <Stack direction='row' sx={{ pt: 1, pb: 1}} justifyContent='space-between'>
             <StudentStatus 
               student={student}
               theme={theme}
@@ -63,10 +74,13 @@ export default function EntryTails(props) {
       
       case 4: {
         return (
-          <StudentStatus 
-              student={student}
-              theme={theme}
-          />
+          <Stack direction='row' sx={{ pt: 1, pb: 1}} justifyContent='space-between'>
+            <StudentStatus 
+                student={student}
+                theme={theme}
+            />
+            {LeapStudentActions(props)}
+          </Stack>
         )
       }
       default:
@@ -75,7 +89,7 @@ export default function EntryTails(props) {
   }
 
   return (
-        <TableCell padding='none' align="center">
+        <TableCell align="flex-end" sx={{mr: 1}} alignSelf='flex-end'>
           {getCorrectTail(status)}
         </TableCell>
   )

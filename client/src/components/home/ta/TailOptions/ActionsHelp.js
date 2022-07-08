@@ -14,9 +14,9 @@ export default function ActionsHelp(props) {
 
   return (
     <Toolbar sx={{alignItems: 'right', justifyContent:'flex-end'}}>
-        {!isHelping && <div>
-          <Button color="info" variant="contained" onClick={() => handleClickHelp(index)} sx={{m:0.5}}>Help</Button>
-        </div>}
+        <div>
+          <Button disabled={student.status == 0 || isHelping} color="info" variant="contained" onClick={() => handleClickHelp(index)} sx={{m:0.5}}>Help</Button>
+        </div>
 
         {PersistentOptions(props)}
 

@@ -17,7 +17,7 @@ export default function PersistentOptions(props) {
   } = props
 
   return (
-    <Toolbar sx={{alignItems: 'right', justifyContent:'flex-end'}}>
+    <Toolbar sx={{alignItems: 'center', justifyContent:'flex-end', justifySelf: 'flex-end'}}>
 
         <div ref={removeRef} onClick={() => handleRemoveButton()}>
           {confirmRemove ?
