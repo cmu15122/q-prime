@@ -390,7 +390,7 @@ class OHQueue {
         var node = this.queue.find(x => x.id == studentID);
         if (node == null) return;
         
-        data = this.queue.removeNode(node);
+        var data = this.queue.removeNode(node);
             
         // Move up all students behind a frozen student
         var currNode = this.queue.end;
