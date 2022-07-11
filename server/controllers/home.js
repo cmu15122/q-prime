@@ -39,7 +39,7 @@ exports.get = function (req, res) {
     }
 
     if (req.user && !req.user.isTA) {
-        data.studentData["position"] = ohq.getPosition(req.user.andrewID)
+        data.studentData["position"] = ohq.getPosition(req.user.student.student_id)
 
         if (data.studentData.position !== -1) {
             let entry = ohq.queue.get(data.studentData.position)
@@ -80,19 +80,21 @@ exports.post_add_question = function (req, res) {
         return
     } 
 
-    if (ohq.getPosition(req.user.andrewID) != -1) {
+    if (ohq.getPosition(req.user.student.student_id) != -1) {
         res.status(400)
         res.json({message: 'student already on the queue'})
         return
     }
 
-    let id = req.user.andrewID
+    let id = req.user.student.student_id
 
     ohq.enqueue(
-        id, 
-        req.body.question_value, 
+        id,
+        req.body.andrewID,
+        req.body.question, 
         req.body.location, 
-        req.body.topic
+        req.body.topic,
+        moment.tz(new Date(), "America/New_York").toDate()
     )
 
     
@@ -125,13 +127,13 @@ exports.post_remove_student = function(req, res) {
         return
     } 
     
-    if (ohq.getPosition(req.user.andrewID) === -1) {
+    if (ohq.getPosition(req.user.student.student_id) === -1) {
         res.status(400)
         res.json({message: 'student not on the queue'})
         return
     }
 
-    let id = req.user.andrewID
+    let id = req.user.student.student_id
 
     ohq.remove(id)
 
