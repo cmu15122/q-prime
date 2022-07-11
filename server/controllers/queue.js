@@ -310,8 +310,16 @@ const StudentStatus = Object.freeze({
  * Student data structure
  * {
  *      id: string,
+ *      andrewID: string,
  *      status: StudentStatus,
- *      ...
+ *      question: string,
+ *      location: string,
+ *      topic: string,
+ *      entryTime: Moment object,
+ *      taID: int,
+ *      helpTime: Moment object,
+ *      isFrozen: bool,
+ *      numAskedToFix: int
  * }
  */
 
@@ -331,15 +339,28 @@ class OHQueue {
     }
 
     /** Enqueues student to the queue */
-    enqueue(studentID, question, location, topic) {
+    enqueue(studentID, andrewID, question, location, topic, entryTime) {
         this.queue.addLast({
-            status: StudentStatus.WAITING,
-            isFrozen: false,
             id: studentID,
+            andrewID: andrewID,
+            status: StudentStatus.WAITING,
             question: question,
             location: location,
-            topic: topic
+            topic: topic,
+            entryTime: entryTime,
+            taID: null,
+            helpTime: null,
+            isFrozen: false,
+            numAskedToFix: 0
         });
+    }
+
+    getData(studentID) {
+        var node = this.queue.find(x => x.id == studentID);
+        if (node == null) return StudentStatus.ERROR;
+        
+        assert(node.data != null);
+        return node.data;
     }
 
     /** If found, returns the status of the student with the given id; else returns error */
@@ -377,7 +398,7 @@ class OHQueue {
         var node = this.queue.find(x => x.id == studentID);
         if (node == null) return;
         
-        this.queue.removeNode(node);
+        var data = this.queue.removeNode(node);
             
         // Move up all students behind a frozen student
         var currNode = this.queue.end;
@@ -390,15 +411,18 @@ class OHQueue {
             } 
             currNode = prevNode;
         }
+        return data;
     }
 
     /// Setting status of students ///
 
     /** If found, helps the student with the given id */
-    help(studentID) {
+    help(studentID, taID, helpTime) {
         var node = this.queue.find(x => x.id == studentID);
         if (node != null) {
             node.data.status = StudentStatus.BEING_HELPED;
+            node.data.taID = taID;
+            node.data.helpTime = helpTime;
             node.data.isFrozen = false;
         }
     }
@@ -408,6 +432,8 @@ class OHQueue {
         var node = this.queue.find(x => x.id == studentID);
         if (node != null) {
             node.data.status = StudentStatus.WAITING;
+            node.data.taID = null;
+            node.data.helpTime = null;
             node.data.isFrozen = false;
         }
     }
@@ -436,6 +462,7 @@ class OHQueue {
         if (node != null) {
             node.data.status = StudentStatus.FIXING_QUESTION;
             node.data.isFrozen = true;
+            node.data.numAskedToFix += 1;
         }
     }
 
