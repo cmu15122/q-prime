@@ -42,7 +42,7 @@ export default function AskQuestion(props) {
         HomeService.addQuestion(
             JSON.stringify({
                 // TODO: unclear if this is entirely safe
-                question_value: questionValue,
+                question: questionValue,
                 location: locationValue,
                 topic: topicValue
             })
