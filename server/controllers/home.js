@@ -36,19 +36,20 @@ exports.get = function (req, res) {
             andrewID: req.user?.andrewID
         },
         studentData: {}
-    }
+    };
 
-    if (req.user && !req.user.isTA) {
-        data.studentData["position"] = ohq.getPosition(req.user.student.student_id)
+    // Handle when logged-in user is a student
+    if (req.user.isAuthenticated && !req.user.isTA) {
+        data.studentData["position"] = ohq.getPosition(req.user.student.student_id);
 
         if (data.studentData.position !== -1) {
-            let entry = ohq.queue.get(data.studentData.position)
-            data.studentData['status'] = entry.status
-            data.studentData['isFrozen'] = entry.isFrozen
-            // doesn't include ID because it doesn't need to be passed to client
-            data.studentData['question'] = entry.question
-            data.studentData['location'] = entry.location
-            data.studentData['topic'] = entry.topic
+            // doesn't include question ID because it doesn't need to be passed to client
+            let entry = ohq.queue.get(data.studentData.position);
+            data.studentData["status"] = entry.status;
+            data.studentData["isFrozen"] = entry.isFrozen;
+            data.studentData["question"] = entry.question;
+            data.studentData["location"] = entry.location;
+            data.studentData["topic"] = entry.topic;
         }
     }
 
@@ -105,9 +106,7 @@ exports.post_add_question = function (req, res) {
 
     if(data.status != null && data.position != null) {
         res.status(200)
-
-        data['message'] = "successfully added to queue"
-
+        data['message'] = "successfully added to queue";
         res.json(data)
     } else if (data.status == 5 || data.position == -1) {
         res.status(400)

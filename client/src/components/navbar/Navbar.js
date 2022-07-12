@@ -1,30 +1,42 @@
 import React, { useState, useEffect } from 'react';
 import { useCookies } from 'react-cookie';
 import {
-    useMediaQuery, AppBar, Toolbar, Box, Button, MenuItem, Menu, IconButton, Typography
+    useMediaQuery, AppBar, Toolbar, Box, Button, MenuItem, Menu, 
+    IconButton, Typography
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
+import { styled } from '@mui/material/styles';
 
 import OHQueueHeader from './OHQueueHeader';
 import LoggedInAs from './LoggedInAs';
 import GoogleLogin from './GoogleLogin';
 
+import HomeService from '../../services/HomeService';
+
 function createPage(page, link) {
     return { page, link };
 }
 
+const NavbarButton = styled(Button)({
+    disableElevation: true,
+    variant: 'h8',
+    color: "#FFFFFF", 
+    backgroundColor: 'transparent'
+});
+
 export default function Navbar(props) {
-    const { theme, queueData } = props;
-    const isMobileView = useMediaQuery("(max-width: 899px)");
+    const { theme, queueData, isHome } = props;
+    const isMobileView = useMediaQuery("(max-width: 1000px)");
     
-    const [cookies, setCookie, removeCookie] = useCookies(['user']);
+    const [ , , removeCookie] = useCookies(['user']);
 
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isTA, setIsTA] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
     const [pages, setPages] = useState([]);
+    const [queueFrozen, setQueueFrozen] = useState(false);
 
-    const [anchorElNav, setAnchorElNav] = React.useState(null);
+    const [anchorElNav, setAnchorElNav] = useState(null);
   
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
@@ -34,12 +46,13 @@ export default function Navbar(props) {
         setAnchorElNav(null);
     };
 
-    const goToPage = (pageLink) => (event) => { 
+    const goToPage = (pageLink) => () => { 
         window.location.href = pageLink;
     };
 
     useEffect(() => {
         if (queueData != null) {
+            setQueueFrozen(queueData.queueFrozen);
             setIsAuthenticated(queueData.isAuthenticated);
             setIsTA(queueData.isTA);
             setIsAdmin(queueData.isAdmin);
@@ -49,11 +62,9 @@ export default function Navbar(props) {
     useEffect(() => {
         let newPages = [];
 
-        if (isAuthenticated) {
-            if (isTA) {
-                newPages.push(createPage('Settings', '/settings'));
-                newPages.push(createPage('Metrics', '/metrics'));
-            }
+        if (isAuthenticated && isTA) {
+            newPages.push(createPage('Settings', '/settings'));
+            newPages.push(createPage('Metrics', '/metrics'));
         }
 
         setPages(newPages);
@@ -64,124 +75,144 @@ export default function Navbar(props) {
         window.location.href = "/";
     }
 
+    const freezeQueue = () => {
+        HomeService.freezeQueue()
+            .then((res) => {
+                setQueueFrozen(res.data.queueFrozen);
+            });
+    };
+
+    const unfreezeQueue = () => {
+        HomeService.unfreezeQueue()
+            .then((res) => {
+                setQueueFrozen(res.data.queueFrozen);
+            });
+    };
+
+    const unfreezeButton = <Button color="secondary" variant="contained" sx={{ mx: 2 }} onClick={unfreezeQueue}>Unfreeze</Button>;
+    const freezeButton = <Button color="secondary" variant="contained" sx={{ mx: 2 }} onClick={freezeQueue}>Freeze</Button>;
+
     if (!queueData) {
+        // No queue data received, nothing to render
         return (
             <AppBar position="static">
             <Toolbar sx={{ display: "flex space-between" }}>  
-                <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }}}>
+                <Box sx={{ flexGrow: 1, display: "flex" }}>
                     <OHQueueHeader theme={theme}/>
                 </Box>
             </Toolbar>
           </AppBar>
         );
     }
-    else if (!isMobileView) {
+    else if (isMobileView) {
         return (
             <AppBar position="static">
-            <Toolbar sx={{ display: "flex space-between" }}>  
-                <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }}}>
-                    <OHQueueHeader theme={theme}/>
-                </Box>
-
-                <Box sx={{ flexGrow: 0, display: { xs: "none", md: "flex" }, justifyContent: 'flex-end'}}>
-                    {
-                        isAuthenticated && <LoggedInAs theme={theme} queueData={queueData}/>
-                    }
-                </Box>
-
-                <Box sx={{ flexGrow: 0, display: { xs: "none", md: "flex" }}}>
-                    {pages?.map((page) => (
-                        <Button
-                            disableElevation
-                            key={page.page}
-                            variant='h8'
-                            href={page.link}
-                            sx={{ color: "#FFFFFF", backgroundColor: 'transparent' }}
+            <Toolbar sx={{ display: "flex space-between" }}>
+                {
+                    ((pages && pages.length > 0) || isAuthenticated)  && 
+                    <Box sx={{ flexGrow: 1, display: 'flex' }}>
+                        <IconButton
+                            size="large"
+                            onClick={handleOpenNavMenu}
+                            color="inherit"
                         >
-                            {page.page}
-                        </Button>
-                    ))}
-
-                    {
-                        isAuthenticated ?
-                        <Button
-                            disableElevation
-                            variant='h8'
-                            sx={{ color: "#FFFFFF", backgroundColor: 'transparent' }} 
-                            onClick={handleLogout}
+                            <MenuIcon/>
+                        </IconButton>
+                        <Menu
+                            id="navbar-menu"
+                            anchorEl={anchorElNav}
+                            anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'left',
+                            }}
+                            keepMounted
+                            transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'left',
+                            }}
+                            open={Boolean(anchorElNav)}
+                            onClose={handleCloseNavMenu}
+                            sx={{ display: 'block' }}
                         >
-                            Logout
-                        </Button>
-                        :
-                        <GoogleLogin theme={theme} queueData={queueData}/>
+                            {
+                                isTA && isHome && (queueFrozen ? 
+                                    <MenuItem onClick={unfreezeQueue}>
+                                        <Typography variant='h8' sx={{ mx: 2 }}>
+                                            Unfreeze
+                                        </Typography>
+                                    </MenuItem>
+                                    : 
+                                    <MenuItem onClick={freezeQueue}>
+                                        <Typography variant='h8' sx={{ mx: 2 }}>
+                                            Freeze
+                                        </Typography>
+                                    </MenuItem>
+                                )
+                            }
+                            {
+                                pages?.map((page) => (
+                                    <MenuItem key={page.page} onClick={goToPage(page.link)}>
+                                        <Typography variant='h8' sx={{ mx: 2 }}>
+                                            {page.page}
+                                        </Typography>
+                                    </MenuItem>
+                                ))
+                            }
+                            {
+                                isAuthenticated &&
+                                <MenuItem onClick={handleLogout}>
+                                    <Typography variant='h8' sx={{ mx: 2 }}>
+                                        Logout
+                                    </Typography>
+                                </MenuItem>
+                            }
+                        </Menu>
+                    </Box>
+                }
+    
+                <Box sx={{ flexGrow: 1, display: 'flex' }} >
+                    <OHQueueHeader/>
+                </Box>
+                <Box sx={{ flexGrow: 0, display: 'flex', justifyContent: 'flex-end' }} >
+                    {
+                        !isAuthenticated && <GoogleLogin theme={theme} queueData={queueData}/>
                     }
                 </Box>
             </Toolbar>
-          </AppBar>
+            </AppBar>
         );
     }
+
+    // Desktop view
     return (
         <AppBar position="static">
-        <Toolbar sx={{ display: "flex space-between" }}>
-            {
-                ((pages && pages.length > 0) || isAuthenticated)  && 
-                <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }} >
-                    <IconButton
-                        size="large"
-                        aria-label="account of current user"
-                        aria-controls="menu-appbar"
-                        aria-haspopup="true"
-                        onClick={handleOpenNavMenu}
-                        color="inherit"
-                    >
-                        <MenuIcon/>
-                    </IconButton>
-                    <Menu
-                        id="menu-appbar"
-                        anchorEl={anchorElNav}
-                        anchorOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'left',
-                        }}
-                        keepMounted
-                        transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'left',
-                        }}
-                        open={Boolean(anchorElNav)}
-                        onClose={handleCloseNavMenu}
-                        sx={{
-                            display: { xs: 'block', md: 'none' },
-                        }}
-                    >
-                        {pages?.map((page) => (
-                            <MenuItem key={page.page} onClick={goToPage(page.link)}>
-                                <Typography variant='h8' sx={{ mx: 2 }}>
-                                    {page.page}
-                                </Typography>
-                            </MenuItem>
-                        ))}
-                        {
-                            isAuthenticated &&
-                            <MenuItem onClick={handleLogout}>
-                                <Typography variant='h8' sx={{ mx: 2 }}>
-                                    Logout
-                                </Typography>
-                            </MenuItem>
-                        }
-                    </Menu>
-                </Box>
-            }
-
-            <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }} >
-                <OHQueueHeader />
-            </Box>
-            <Box sx={{ flexGrow: 0, display: { xs: 'flex', md: 'none' } }} >
+        <Toolbar sx={{ display: "flex space-between" }}>  
+            <Box sx={{ flexGrow: 1, display: "flex" }}>
+                <OHQueueHeader/>
                 {
-                    !isAuthenticated && <GoogleLogin theme={theme} queueData={queueData}/>
+                    isTA && isHome && (queueFrozen ? unfreezeButton : freezeButton)
+                }
+            </Box>
+            <Box sx={{ flexGrow: 0, display: "flex", justifyContent: 'flex-end'}}>
+                {
+                    isAuthenticated && <LoggedInAs theme={theme} queueData={queueData}/>
+                }
+            </Box>
+
+            <Box sx={{ flexGrow: 0, display: "flex" }}>
+                {
+                    pages?.map((page) => (
+                        <NavbarButton key={page.page} href={page.link}>{page.page}</NavbarButton>
+                    ))
+                }
+                {
+                    isAuthenticated ?
+                    <NavbarButton onClick={handleLogout}>Logout</NavbarButton>
+                    :
+                    <GoogleLogin theme={theme} queueData={queueData}/>
                 }
             </Box>
         </Toolbar>
-      </AppBar>
+        </AppBar>
     );
 }

@@ -10,34 +10,19 @@ import {
 import HomeService from '../../../services/HomeService';
 
 export default function QueueStats(props) {
-    const { theme, queueData, queueFrozen, setQueueFrozen } = props;
+    const { theme, queueData } = props;
 
     const [numStudents, setNumStudents] = useState();
     const [waitTime, setWaitTime] = useState();
-    const [isTA, setIsTA] = useState();
+    const [queueFrozen, setQueueFrozen] = useState();
 
     useEffect(() => {
         if (queueData != null) {
-            setQueueFrozen(queueData.queueFrozen);
             setNumStudents(queueData.numStudents);
             setWaitTime(queueData.waitTime);
-            setIsTA(queueData.isTA);
+            setQueueFrozen(queueData.queueFrozen);
         }
     }, [queueData]);
-
-    const callFreezeAPI = () => {
-        HomeService.freezeQueue()
-            .then((res) => {
-                setQueueFrozen(res.data.queueFrozen);
-            })
-    };
-
-    const callUnfreezeAPI = () => {
-        HomeService.unfreezeQueue()
-            .then((res) => {
-                setQueueFrozen(res.data.queueFrozen);
-            })
-    };
 
     const textStyle = {
         borderRight: "0.1em solid black",
@@ -68,14 +53,6 @@ export default function QueueStats(props) {
                         </Toolbar>
                     </CardContent>
                 </Card>
-            </div>
-            <div>
-                {isTA && (
-                    queueFrozen ?
-                    <Button variant="contained" onClick={() => callUnfreezeAPI()} sx={{m:0.5}}>Unfreeze</Button>
-                    :
-                    <Button variant="contained" onClick={() => callFreezeAPI()} sx={{m:0.5}}>Freeze</Button>
-                )}
             </div>
         </div>
     );
