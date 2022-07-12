@@ -6,7 +6,7 @@ export const basicTheme = createTheme({
             main: '#EF8EC3',
         },
         secondary: {
-            main: '#F50057',
+            main: '#EA3947',
         },
         success: {
             main: '#43a047',
@@ -22,6 +22,9 @@ export const basicTheme = createTheme({
         },
         cancel: {
             main: '#9e9e9e',
+        },
+        unfreeze: {
+            main: '#ba68c8',
         },
     },
     components: {
