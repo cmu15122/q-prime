@@ -31,7 +31,7 @@ export default function VideoChatSettings(props) {
     }
     
     const updateVideoChatSettings = () => {
-        SettingsService.updateVideoChat({
+        SettingsService.updateVideoChatSettings({
             enabled: isVideoChatEnabled,
             url: videoChatURL
         });
@@ -50,7 +50,7 @@ export default function VideoChatSettings(props) {
                                 <Checkbox 
                                     size="small"
                                     sx={{ ml: 1 }}
-                                    checked={isVideoChatEnabled}
+                                    checked={isVideoChatEnabled ?? false}
                                     onChange={(e) => {
                                         setVideoChatEnabled(e.target.checked);
                                     }}
@@ -59,7 +59,7 @@ export default function VideoChatSettings(props) {
                             label="Enable video chat"
                         />
                     </FormGroup>
-                    <Collapse in={isVideoChatEnabled}>
+                    <Collapse in={isVideoChatEnabled ?? false}>
                         <form onSubmit={updateVideoChatURL}>
                             <Grid container spacing={2}>
                                 <Grid className="d-flex" item sx={{ mt: 1, ml: 1 }} xs={9.5}>

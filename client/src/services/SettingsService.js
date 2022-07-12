@@ -4,8 +4,11 @@ class SettingsDataService {
   getAll() {
     return http.get("/settings");
   }
-  updateVideoChat(data) {
+  updateVideoChatSettings(data) {
     return http.post("/settings/videoChat/update", data);
+  }
+  updateNotifSettings(data) {
+    return http.post("/settings/notifs/update", data);
   }
   createTopic(data) {
     return http.post("/settings/topics/create", data);

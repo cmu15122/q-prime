@@ -170,6 +170,47 @@ exports.post_update_video_chat = function (req, res) {
     });
 }
 
+exports.post_update_notifs = function (req, res) {
+    if (!req.user || !req.user.isTA) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    var joinEnabled = req.body.joinEnabled;
+    var remindEnabled = req.body.remindEnabled;
+    var remindTime = req.body.remindTime;
+
+    if (remindTime < 0) {
+        // Do nothing if remind time is invalid
+        get_response(req, res);
+        return;
+    }
+
+    let account = req.user.account;
+    let settings = {};
+    if (account.settings) {
+        settings = account.settings;
+    }
+
+    settings["joinNotifsEnabled"] = joinEnabled;
+    settings["remindNotifsEnabled"] = remindEnabled;
+    settings["remindTime"] = remindTime;
+    account.settings = settings;
+    account.changed("settings", true); // JSON fields need to be explictly marked as changed
+
+    Promise.props({
+        account: account.save()
+    }).then(function(results) {
+        req.user.account = results.account;
+        get_response(req, res);
+    }).catch(err => {
+        console.log(err);
+        message = err.message || "An error occurred while updating settings";
+        respond_error(req, res, message, 500);
+    });
+}
+
 /** ADMIN FUNCTIONS **/
 /** Config Settings **/
 exports.post_update_semester = function (req, res) {
