@@ -9,12 +9,14 @@ import { initiateSocket, socketSubscribeTo } from '../services/SocketsService';
 function Home(props) {
   const { theme } = props;
   const [queueData, setQueueData] = useState(null);
+  const [studentData, setStudentData] = useState(null);
 
   useEffect(() => {
     HomeService.getAll()
       .then(res => {
-        setQueueData(res.data);
-        document.title = res.data.title;
+        setQueueData(res.data.queueData);
+        setStudentData(res.data.studentData)
+        document.title = res.data.queueData.title;
       });
     
     initiateSocket();
@@ -29,6 +31,7 @@ function Home(props) {
         <HomeMain 
           theme={theme}
           queueData={queueData}
+          studentData={studentData}
         />
     </div>
   );
