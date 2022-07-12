@@ -23,6 +23,9 @@ export const basicTheme = createTheme({
         cancel: {
             main: '#9e9e9e',
         },
+        unfreeze: {
+            main: '#ba68c8',
+        },
     },
     components: {
         MuiButton: {
