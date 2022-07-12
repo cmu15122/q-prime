@@ -1,13 +1,8 @@
 import * as React from 'react';
 import {
-    TableRow, TableCell, IconButton, Button, Toolbar, Stack, Typography
+    TableRow, TableCell
 } from '@mui/material'
 
-import {
-    Delete, StackedBarChart
-} from '@mui/icons-material';
-
-import ExtraStudentOptions from './TailOptions/ExtraStudentOptions'
 import EntryTails from './EntryTails';
 
 export default function StudentEntry(props) {

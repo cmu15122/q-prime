@@ -1,11 +1,8 @@
 import * as React from 'react';
 import {
-   Button, Stack, Typography, IconButton, Toolbar
+   Button, Toolbar
 } from '@mui/material'
 
-import {
-    Delete
-} from '@mui/icons-material'
 import PersistentOptions from './PersistentOptions';
 
 

@@ -1,11 +1,7 @@
 import * as React from 'react';
 import {
-    TableRow, TableCell, IconButton, Button, Toolbar, Stack, Typography
+  TableCell, Stack
 } from '@mui/material'
-
-import {
-    Delete, StackedBarChart
-} from '@mui/icons-material';
 
 import YouAreHelping from './TailOptions/YouAreHelping';
 import ActionsHelp from './TailOptions/ActionsHelp';
@@ -89,8 +85,8 @@ export default function EntryTails(props) {
   }
 
   return (
-        <TableCell align="flex-end" sx={{mr: 1}} alignSelf='flex-end'>
-          {getCorrectTail(status)}
-        </TableCell>
+    <TableCell align="flex-end" sx={{mr: 1}} alignSelf='flex-end'>
+      {getCorrectTail(status)}
+    </TableCell>
   )
 }

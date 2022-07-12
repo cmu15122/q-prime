@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {
-    TableRow, TableCell, IconButton, Button, Toolbar, Stack, Typography
+  Button, Toolbar
 } from '@mui/material'
 
 import PersistentOptions from './PersistentOptions';

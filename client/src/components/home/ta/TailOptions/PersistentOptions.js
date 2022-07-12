@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {
-    TableRow, TableCell, IconButton, Button, Toolbar, Stack, Typography
+  IconButton, Button, Toolbar
 } from '@mui/material'
 
 import {
@@ -17,7 +17,7 @@ export default function PersistentOptions(props) {
   } = props
 
   return (
-    <Toolbar sx={{alignItems: 'center', justifyContent:'flex-end', justifySelf: 'flex-end'}}>
+    <Toolbar sx={{alignItems: 'center', justifyContent:'flex-end', justifySelf: 'flex-end'}} disableGutters>
 
         <div ref={removeRef} onClick={() => handleRemoveButton()}>
           {confirmRemove ?
