@@ -32,7 +32,7 @@ exports.get = function (req, res) {
             title: "15-122 Office Hours Queue",
             queueFrozen: queueFrozen,
             numStudents: ohq.size(),
-            waitTime: waitTime,
+            waitTime: waittime.get(),
             isAuthenticated: req.user?.isAuthenticated,
             isTA: req.user?.isTA,
             isAdmin: req.user?.isAdmin,
@@ -66,7 +66,6 @@ exports.post_freeze_queue = function (req, res) {
 
     queueFrozen = true;
     sockets.queueFrozen(queueFrozen);
-    res.redirect("/");
 }
 
 exports.post_unfreeze_queue = function (req, res) {
@@ -76,7 +75,6 @@ exports.post_unfreeze_queue = function (req, res) {
 
     queueFrozen = false;
     sockets.queueFrozen(queueFrozen);
-    res.redirect("/");
 }
 
 exports.post_add_question = function (req, res) {
