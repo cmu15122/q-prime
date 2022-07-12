@@ -10,6 +10,12 @@ class HomeDataService {
   unfreezeQueue() {
     return http.post("/unfreezeQueue");
   }
+  addQuestion(data) {
+    return http.post("/addQuestion", data);
+  }
+  removeStudent(data) {
+    return http.post("/removeStudent", data);
+  }
 }
 
 export default new HomeDataService();
