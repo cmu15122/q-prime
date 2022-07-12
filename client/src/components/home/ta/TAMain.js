@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import AskQuestion from './AskQuestion';
-import StudentEntries from '../shared/StudentEntries';
+import StudentEntries from './StudentEntries';
 
 function TAMain (props) {
     const { theme, queueData } = props;

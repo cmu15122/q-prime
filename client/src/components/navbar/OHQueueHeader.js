@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
-    Box, Link
+    Link
 } from '@mui/material'
 
-export default function OHQueueHeader(props) {
-    const {} = props;
+export default function OHQueueHeader() {
     return (
-        <Link variant="h6" color="#FFFFFF" fontWeight='bold' href="/" underline="none">
+        <Link variant="h6" color="#FFFFFF" fontWeight='bold' href="/" underline="none" sx={{pt: 0.3}}>
             15-122 Office Hours Queue
         </Link>
     );
