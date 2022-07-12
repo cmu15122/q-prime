@@ -22,8 +22,17 @@ export default function AskQuestion(props) {
     
     const { questionValue, setQuestionValue, theme } = props
 
+    const [name, setName] = useState('')
+    const [id, setID] = useState('')
     const [location, setLocation] = useState('')
     const [topic, setTopic] = useState('')
+
+    const handleAsk = () => {
+        console.log(name + " " + id)
+        console.log(location)
+        console.log(topic)
+        console.log(questionValue)
+    }
     return (
         <div className='card' style={{display:'flex'}}>
             <Card sx={{ minWidth : '100%', background: theme.palette.background.paper}}>
@@ -32,6 +41,30 @@ export default function AskQuestion(props) {
                     
                     <Divider sx={{marginTop: ".5em", marginBottom:"1em"}}/>
                     <Stack direction="row" justifyContent="left">
+                        <Box sx={{ minWidth: 120, width: "47%"}}>
+                            <FormControl fullWidth>
+                                <Input 
+                                    placeholder='Student Name'
+                                    onChange={(event)=>setName(event.target.value)}
+                                    fullWidth
+                                    multiline
+                                    inputProps={{ maxLength: 256 }}
+                                />
+                            </FormControl>
+                        </Box>
+                        <Box sx={{ minWidth: 120, width: "47%", margin: "auto", marginRight: ".5em" }}>
+                            <FormControl fullWidth>
+                                <Input 
+                                    placeholder='Student Andrew ID'
+                                    onChange={(event)=>setID(event.target.value)}
+                                    fullWidth
+                                    multiline
+                                    inputProps={{ maxLength: 256 }}
+                                />
+                            </FormControl>
+                        </Box>
+                    </Stack>
+                    <Stack direction="row" justifyContent="left" sx={{marginTop: '1em'}}>
                         <Box sx={{ minWidth: 120, width: "47%"}}>
                             <FormControl fullWidth>
                                 <InputLabel id="demo-simple-select-label">Location</InputLabel>
@@ -70,7 +103,7 @@ export default function AskQuestion(props) {
                         inputProps={{ maxLength: 256 }}
                     />
                     <Button fullWidth variant="contained" sx={{marginTop: "1em", alignContent: "center"}} 
-                        onClick={()=>console.log(questionValue)}
+                        onClick={()=>handleAsk()}
                     >
                         Ask
                     </Button>
