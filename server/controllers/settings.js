@@ -40,6 +40,22 @@ function get_response(req, res, message = null) {
         return;
     }
 
+    // Grab TA settings
+    let settings = req.user.account.settings;
+    settings["videoChatURL"] = req.user.ta.zoom_url;
+
+    if (!req.user.isAdmin) {
+        let data = { 
+            title: "15-122 Office Hours Queue | Settings",
+            settings: settings,
+            isAuthenticated: req.user.isAuthenticated,
+            isTA: req.user.isTA,
+            isAdmin: req.user.isAdmin,
+            andrewID: req.user.andrewID
+        };
+        respond(req, res, message, data, 200);
+    }
+
     // TODO: there's no need to fetch everything for non-admin TAs
     Promise.props({
         assignment_semesters: function() {
@@ -56,10 +72,15 @@ function get_response(req, res, message = null) {
 
             return models.semester_user.findAll({
                 where: { sem_id: adminSettings.currSem, is_ta: 1 },
-                include: [ models.account ]
+                include: [
+                    { 
+                        model: models.account, 
+                        include: [{model: models.ta, as: "ta"}] 
+                    }
+                ],
             })
         }()
-    }).then(async function(results) {
+    }).then(function(results) {
         let assignments = [];
         let tas = [];
 
@@ -75,8 +96,8 @@ function get_response(req, res, message = null) {
         }
 
         for (const semUser of results.semester_users) {
-            let ta = await models.ta.findByPk(semUser.user_id);
             let account = semUser.account;
+            let ta = account.ta;
             tas.push({
                 ta_id: ta.ta_id,
                 fname: account.fname,
@@ -91,6 +112,7 @@ function get_response(req, res, message = null) {
             topics: assignments,
             tas: tas,
             adminSettings: adminSettings,
+            settings: settings,
             isAuthenticated: req.user.isAuthenticated,
             isTA: req.user.isTA,
             isAdmin: req.user.isAdmin,
@@ -98,6 +120,7 @@ function get_response(req, res, message = null) {
         };
         respond(req, res, message, data, 200);
     }).catch(err => {
+        console.log(err);
         message = err.message || "An error occurred while retrieving data";
         respond_error(req, res, message, 500);
     });
@@ -106,6 +129,45 @@ function get_response(req, res, message = null) {
 /** Get Function **/
 exports.get = function (req, res) {
     get_response(req, res);
+}
+
+/** General Settings **/
+exports.post_update_video_chat = function (req, res) {
+    if (!req.user || !req.user.isTA) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    var enabled = req.body.enabled;
+    var url = req.body.url;
+
+    let account = req.user.account;
+    let ta = req.user.ta;
+    let settings = {};
+    if (account.settings) {
+        settings = account.settings;
+    }
+
+    let urlChanged = ta.zoom_url != url;
+
+    settings["videoChatEnabled"] = enabled;
+    account.settings = settings;
+    account.changed("settings", true); // JSON fields need to be explictly marked as changed
+    ta.zoom_url = url;
+
+    Promise.props({
+        ta: ta.save(),
+        account: account.save()
+    }).then(function(results) {
+        req.user.account = results.account;
+        req.user.ta = results.ta;
+        get_response(req, res, urlChanged ? `Settings updated successfully` : "");
+    }).catch(err => {
+        console.log(err);
+        message = err.message || "An error occurred while updating settings";
+        respond_error(req, res, message, 500);
+    });
 }
 
 /** ADMIN FUNCTIONS **/
@@ -381,7 +443,6 @@ exports.post_create_ta = function (req, res) {
         return results.semester_user[0].update({
             is_ta: 1
         });
-        
     }).then(function() {
         get_response(req, res, `TA ${name} created successfully`);
     }).catch(err => {
