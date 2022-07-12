@@ -19,6 +19,12 @@ class HomeDataService {
   deleteAnnouncement(data) {
     return http.post("/announcements/delete", data);
   }
+  addQuestion(data) {
+    return http.post("/addQuestion", data);
+  }
+  removeStudent(data) {
+    return http.post("/removeStudent", data);
+  }
 }
 
 export default new HomeDataService();

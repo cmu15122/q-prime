@@ -8,15 +8,12 @@ import {
     IconButton,
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete';
+import * as converter from 'number-to-words'
 
 export default function YourEntry(props) {
-    const position = 11
     const waitTime = 20
-    const location = 'Remote - TA Zoom will be provided when helped.'
-    const topic = 'Programming X'
-    const question = 'Student\'s Question'
     
-    const { openRemoveOverlay } = props
+    const { openRemoveOverlay, position, location, topic, question } = props
     return (
         <div className='card' style={{display:'flex'}}>
             <Card sx={{ minWidth : '100%'}}>
@@ -30,7 +27,7 @@ export default function YourEntry(props) {
                     
                     <Divider sx={{marginBottom:".5em"}}/>
                     
-                    <Typography variant='h6' sx={{textAlign:'left'}}>You are <strong>{position}th in line</strong>.</Typography>
+                    <Typography variant='h6' sx={{textAlign:'left'}}>You are <strong>{converter.toOrdinal(position)} in line</strong>.</Typography>
                     <Typography variant='h6' sx={{textAlign:'left'}}>The estimated wait time is <strong>{waitTime} minutes</strong> from your position.</Typography>
                     
                     <Divider sx={{marginTop:".5em", marginBottom:".5em"}}/>
