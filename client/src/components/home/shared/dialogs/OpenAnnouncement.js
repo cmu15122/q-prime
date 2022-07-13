@@ -11,6 +11,8 @@ export default function OpenAnnouncement(props) {
         <Dialog
             open={isOpen}
             onClose={onClose}
+            maxWidth="sm"
+            fullWidth
         >
             <DialogContent>
                 <Typography sx={{ pb: 3, fontWeight: 'bold', fontSize: '22px', textAlign: 'center' }}>
