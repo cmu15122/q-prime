@@ -1,11 +1,13 @@
 // For Home page
-const moment = require("moment-timezone");
+const moment = require('moment-timezone');
 const Promise = require('bluebird');
+const Sequelize = require('sequelize');
 
 const queue = require('./queue');
 const models = require('../models');
 const sockets = require('./sockets');
 const waittime = require('./waittimes')
+const settings = require('./settings');
 
 const OHQueue = queue.OHQueue;
 const StudentStatus = queue.StudentStatus;
@@ -24,12 +26,27 @@ exports.getOHQ = function() {
     return ohq;
 };
 
+/** Helper Functions **/
+function respond_error(req, res, message, status) {
+    res.status(status);
+    res.json({message: message});
+}
+
+function respond(req, res, message, data, status) {
+    res.status(status);
+    if (message) {
+        data['message'] = message;
+    }
+    res.json(data);
+}
+
 exports.get = function (req, res) {
     res.status(200);
 
     let data = {
         queueData: {
             title: "15-122 Office Hours Queue",
+            announcements: announcements,
             queueFrozen: queueFrozen,
             numStudents: ohq.size(),
             waitTime: waittime.get(),
@@ -56,7 +73,28 @@ exports.get = function (req, res) {
         }
     }
 
-    res.send(data);
+    models.assignment_semester.findAll({
+        where: {
+            sem_id: settings.get_admin_settings().currSem,
+            start_date: {[Sequelize.Op.lt]: new Date()},
+            end_date: {[Sequelize.Op.gt]: new Date()}
+        },
+        order: [['end_date', 'ASC']],
+        include: models.assignment
+    }).then((results) => {
+        let assignments = [];
+
+        for (const assignmentSem of results) {
+            let assignment = assignmentSem.assignment;
+            assignments.push({
+                assignment_id: assignmentSem.assignment_id,
+                name: assignment.name
+            });
+        }
+
+        data.queueData.topics = assignments;
+        res.send(data);
+    });
 }
 
 exports.post_freeze_queue = function (req, res) {
@@ -77,21 +115,117 @@ exports.post_unfreeze_queue = function (req, res) {
     sockets.queueFrozen(queueFrozen);
 }
 
-exports.post_add_question = function (req, res) {
-    if (!req.user) {
-        res.status(400)
-        res.json({message: 'user data not passed to server'})
-        return
-    } 
+/** Announcements */
+/** 
+ * {
+ *     id: int,
+ *     header: string,
+ *     content: string
+ * }
+ */
+let announcements = [];
+let announcementId = 0;
 
-    if (ohq.getPosition(req.user.student.student_id) != -1) {
-        res.status(400)
-        res.json({message: 'student already on the queue'})
+exports.post_create_announcement = function (req, res) {
+    if (!req.user || !req.user.isTA) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    var header = req.body.header;
+    var content = req.body.content;
+    if (!header || !content) {
+        respond_error(req, res, "Invalid/missing parameters in request", 400);
+        return;
+    }
+
+    announcements.push({
+        id: announcementId,
+        header: header,
+        content: content
+    });
+    announcementId++;
+
+    respond(req, res, `Announcement created successfully`, { announcements: announcements }, 200);
+}
+
+exports.post_update_announcement = function (req, res) {
+    if (!req.user || !req.user.isTA) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    var id = req.body.id;
+    var header = req.body.header;
+    var content = req.body.content;
+    if (!header || !content) {
+        respond_error(req, res, "Invalid/missing parameters in request", 400);
+        return;
+    }
+
+    let index = announcements.findIndex(announcement => announcement.id == id);
+    if (index < 0) {
+        respond_error(req, res, "Announcement ID not found", 500);
+        return;
+    }
+
+    announcements[index] = {
+        id: id,
+        header: header,
+        content: content
+    }
+    // TODO: clear all read cookies once updated, will eventually be handled by sockets
+    
+    respond(req, res, `Announcement updated successfully`, { announcements: announcements }, 200);
+}
+
+exports.post_delete_announcement = function (req, res) {
+    if (!req.user || !req.user.isTA) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    let id = req.body.id;
+    let index = announcements.findIndex(announcement => announcement.id == id);
+    if (index < 0) {
+        respond_error(req, res, "Announcement ID not found", 500);
+        return;
+    }
+
+    announcements.splice(index, 1);
+    
+    respond(req, res, `Announcement deleted successfully`, { announcements: announcements }, 200);
+}
+
+/** Questions */
+exports.post_add_question = function (req, res) {
+    if (!req.user || !req.user.isAuthenticated) {
+        res.status(403)
+        res.json({message: 'Invalid permissions to perform this action'})
         return
     }
 
-    let id = req.user.student.student_id
+    let id = req.user.student?.student_id;
+    
+    if (req.user.isTA) {
+        id = req.body.andrewID;
+    }
 
+    if (!id) {
+        res.status(400);
+        res.json({message: 'Invalid student ID'});
+        return;
+    }
+
+    if (ohq.getPosition(id) != -1) {
+        res.status(400);
+        res.json({message: 'Student already on the queue'});
+        return;
+    }
+    
     ohq.enqueue(
         id,
         req.body.andrewID,
@@ -101,7 +235,6 @@ exports.post_add_question = function (req, res) {
         moment.tz(new Date(), "America/New_York").toDate()
     )
 
-    
     let data = {
         status: ohq.getStatus(id),
         position: ohq.getPosition(id)
@@ -109,14 +242,14 @@ exports.post_add_question = function (req, res) {
 
     if(data.status != null && data.position != null) {
         res.status(200)
-        data['message'] = "successfully added to queue";
+        data['message'] = "Successfully added to queue";
         res.json(data)
     } else if (data.status == 5 || data.position == -1) {
         res.status(400)
-        res.json({message: 'the server was unable to find you on the queue after adding you'})
+        res.json({message: 'The server was unable to find you on the queue after adding you'})
     } else {
         res.status(500)
-        res.json({message: 'the server was unable to add you to the queue'})
+        res.json({message: 'The server was unable to add you to the queue'})
     }
 
     ohq.print()

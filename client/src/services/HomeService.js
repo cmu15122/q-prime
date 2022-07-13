@@ -10,6 +10,15 @@ class HomeDataService {
   unfreezeQueue() {
     return http.post("/unfreezeQueue");
   }
+  createAnnouncement(data) {
+    return http.post("/announcements/create", data);
+  }
+  updateAnnouncement(data) {
+    return http.post("/announcements/update", data);
+  }
+  deleteAnnouncement(data) {
+    return http.post("/announcements/delete", data);
+  }
   addQuestion(data) {
     return http.post("/addQuestion", data);
   }
