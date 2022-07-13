@@ -10,7 +10,7 @@ export default function NotificationSettings(props) {
 
     const [joinNotifsEnabled, setJoinNotifsEnabled] = useState(false);
     const [remindNotifsEnabled, setRemindNotifsEnabled] = useState(false);
-    const [remindTime, setRemindTime] = useState(0);
+    const [remindTime, setRemindTime] = useState(15);
 
     useEffect(() => {
         if (queueData != null && queueData.settings != null) {
@@ -80,7 +80,7 @@ export default function NotificationSettings(props) {
                                             sx={{ mr: 1, ml: 1, mt: -1 }} 
                                             style={{ width: "50px"}}
                                             inputProps={{ style: { textAlign: 'center', min: 0 } }}
-                                            value={remindTime ?? 0}
+                                            value={remindTime ?? 15}
                                             onChange={(e) => {
                                                 setRemindTime(e.target.value);
                                             }}
