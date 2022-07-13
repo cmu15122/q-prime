@@ -28,7 +28,7 @@ export default function DeleteAnnouncement(props) {
         >
             <DialogContent>
                 <Typography sx={{ pb: 3, fontWeight: 'bold', fontSize: '22px', textAlign: 'center' }}>
-                    Delete Topic
+                    Delete Announcement
                 </Typography>
                 <Typography sx={{ textAlign: 'center' }}>
                     Are you sure you want to remove announcement <strong>{" " + announcementInfo?.header}</strong>? 
