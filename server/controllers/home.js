@@ -140,13 +140,16 @@ exports.post_create_announcement = function (req, res) {
         return;
     }
 
-    announcements.push({
+    let announcement = {
         id: announcementId,
         header: header,
         content: content
-    });
+    };
+
+    announcements.push(announcement);
     announcementId++;
 
+    sockets.addAnnouncement(announcement);
     respond(req, res, `Announcement created successfully`, { announcements: announcements }, 200);
 }
 
@@ -176,8 +179,7 @@ exports.post_update_announcement = function (req, res) {
         header: header,
         content: content
     }
-    // TODO: clear all read cookies once updated, will eventually be handled by sockets
-    
+    sockets.updateAnnouncement(id, announcements[index]);
     respond(req, res, `Announcement updated successfully`, { announcements: announcements }, 200);
 }
 
@@ -196,7 +198,7 @@ exports.post_delete_announcement = function (req, res) {
     }
 
     announcements.splice(index, 1);
-    
+    sockets.deleteAnnouncement(id);
     respond(req, res, `Announcement deleted successfully`, { announcements: announcements }, 200);
 }
 

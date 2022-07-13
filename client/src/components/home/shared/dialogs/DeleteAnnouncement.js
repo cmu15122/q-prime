@@ -7,15 +7,14 @@ import {
 import HomeService from '../../../../services/HomeService';
 
 export default function DeleteAnnouncement(props) {
-    const { isOpen, onClose, announcementInfo, updateAnnouncements } = props
+    const { isOpen, onClose, announcementInfo } = props
 
     const handleDelete = () => {
         HomeService.deleteAnnouncement(
             JSON.stringify({
                 id: announcementInfo.id,
             })
-        ).then(res => {
-            updateAnnouncements(res.data.announcements);
+        ).then(() => {
             onClose();
         });
     };

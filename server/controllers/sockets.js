@@ -73,6 +73,37 @@ exports.waittimes = function(times) {
     });
 }
 
+exports.addAnnouncement = function(announcement) {
+    if (!sio) {
+        console.log("ERROR: Socket.io is not initialized yet");
+        return;
+    }
+    sio.emit("addAnnouncement", {
+        announcement: announcement
+    });
+}
+
+exports.updateAnnouncement = function(id, announcement) {
+    if (!sio) {
+        console.log("ERROR: Socket.io is not initialized yet");
+        return;
+    }
+    sio.emit("updateAnnouncement", {
+        updatedId: id,
+        announcement: announcement
+    });
+}
+
+exports.deleteAnnouncement = function(announcementId) {
+    if (!sio) {
+        console.log("ERROR: Socket.io is not initialized yet");
+        return;
+    }
+    sio.emit("deleteAnnouncement", {
+        deletedId: announcementId
+    });
+}
+
 // Example function, delete when done
 exports.update = function() {
     // Emitting a new message. Will be consumed by the client

@@ -7,7 +7,7 @@ import {
 import HomeService from '../../../../services/HomeService';
 
 export default function EditAnnouncement(props) {
-    const { isOpen, onClose, announcementInfo, updateAnnouncements } = props
+    const { isOpen, onClose, announcementInfo } = props
 
     const [header, setHeader] = useState("");
     const [content, setContent] = useState("");
@@ -27,8 +27,7 @@ export default function EditAnnouncement(props) {
                 header: header,
                 content: content
             })
-        ).then(res => {
-            updateAnnouncements(res.data.announcements);
+        ).then(() => {
             onClose();
         });
     };
