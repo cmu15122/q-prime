@@ -134,11 +134,11 @@ class LinkedList {
 
     /** Gets an array of all data in the linked list */
     getAll() {
-        allNodes = []
+        var allNodes = []
         var currNode = this.start;
 
         while (currNode != null) {
-            allNotes.push(currNode.data);
+            allNodes.push(currNode.data);
             currNode = currNode.next;
         }
 
