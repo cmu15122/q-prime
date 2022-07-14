@@ -289,7 +289,7 @@ exports.get_display_students = function(req, res) {
         let studentEntryData = {
             name: "who are you :(", // TODO: update queue to store actual name of student
             andrewID: student.andrewID, 
-            topic: student.topic,
+            topic: student.topic.name,
             question: student.question,
             status: student.status
         }
@@ -297,7 +297,7 @@ exports.get_display_students = function(req, res) {
         return studentEntryData;
 
         })
-    ohq.print();
+        
     res.status(200);
     res.send(allStudents);
 }
