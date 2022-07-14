@@ -281,3 +281,23 @@ exports.post_remove_student = function(req, res) {
     res.status(200)
     res.json(data)
 }
+
+exports.get_display_students = function(req, res) {
+    // assuming that students at front of queue go first
+    var allStudents = ohq.getAllStudentData();
+    allStudents = allStudents.map((student) => {
+        let studentEntryData = {
+            name: "who are you :(", // TODO: update queue to store actual name of student
+            andrewID: student.andrewID, 
+            topic: student.topic,
+            question: student.question,
+            status: student.status
+        }
+
+        return studentEntryData;
+
+        })
+    
+    res.status(200);
+    res.send(allStudents);
+}
