@@ -17,9 +17,9 @@ let queueFrozen = false;
 const ohq = new queue.OHQueue();
 
 /** Dummy information for testing */
-ohq.enqueue("student1");
-ohq.enqueue("student2");
-ohq.enqueue("student3");
+// ohq.enqueue("student1");
+// ohq.enqueue("student2");
+// ohq.enqueue("student3");
 
 let waitTime = 20;
 
@@ -284,6 +284,7 @@ exports.post_remove_student = function(req, res) {
 
 exports.get_display_students = function(req, res) {
     // assuming that students at front of queue go first
+    console.log("Entered get_display_students fn");
     var allStudents = ohq.getAllStudentData();
     allStudents = allStudents.map((student) => {
         let studentEntryData = {
