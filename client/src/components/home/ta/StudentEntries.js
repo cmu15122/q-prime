@@ -23,12 +23,27 @@ function createData(name, andrewID, topic, question, status) {
 //     createData('Student 6', 'stu6', 'Topic 2', 'ya yeeet', 3),
 // ];
 
-var students = []
-
 export default function StudentEntries(props) {
-    // const { theme } = props
+    const { theme } = props
+    const [students, setStudents] = React.useState([]);
     const [isHelping, setIsHelping] = React.useState(false);
     const [helpIdx, setHelpIdx] = React.useState(-1); // idx of student that you are helping, only valid when isHelping is true
+
+    React.useEffect(() => {
+        handleGetStudents();
+    });
+    
+    const handleGetStudents = () => {
+        HomeService.displayStudents().then(res => {
+            if(res.status === 200) {
+                setStudents(res.data);
+                console.log("success", students);
+            } else {
+                setStudents([]);
+                console.log('Error displaying students');
+            }
+        })
+    }
 
     const handleClickHelp = (index) => {
         setHelpIdx(index);
@@ -49,20 +64,6 @@ export default function StudentEntries(props) {
         console.log(index)
         students[index]['status'] = 1;
     }
-
-    const handleGetStudents = () => {
-        HomeService.displayStudents()
-            .then(res => {
-                console.log("status", res.status)
-                if(res.status === 200) {
-                    students = res.data;
-                    console.log("success");
-                } else {
-                    console.log('Error displaying students');
-                    students = [];
-                }
-            })
-        }
     
     const addStudent = (index) => {
         console.log('add student!!');
@@ -81,7 +82,6 @@ export default function StudentEntries(props) {
                     <Table aria-label="topicsTable">
                         <TableBody>
                             {students.map((student, index) => {
-                                
                                 let studentProps = {
                                     ...props,
                                     student: student,

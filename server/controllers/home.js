@@ -284,7 +284,6 @@ exports.post_remove_student = function(req, res) {
 
 exports.get_display_students = function(req, res) {
     // assuming that students at front of queue go first
-    console.log("Entered get_display_students fn");
     var allStudents = ohq.getAllStudentData();
     allStudents = allStudents.map((student) => {
         let studentEntryData = {
@@ -298,7 +297,7 @@ exports.get_display_students = function(req, res) {
         return studentEntryData;
 
         })
-    
+    ohq.print();
     res.status(200);
     res.send(allStudents);
 }
