@@ -71,7 +71,7 @@ export default function StudentEntries(props) {
 
     return (
         <div className='card' style={{ display:'flex' }}>
-            <Button onClick={handleGetStudents}>UPDATE</Button>
+            {/* <Button onClick={handleGetStudents}>UPDATE</Button> */}
             <Card sx={{ minWidth: '100%' }}>
                 <CardActions disableSpacing>
                     <Typography sx={{ fontSize: 20, fontWeight: 'bold', ml: 2, mt: 1 }} variant="h5" gutterBottom>
@@ -81,22 +81,20 @@ export default function StudentEntries(props) {
                 <Divider></Divider>
                     <Table aria-label="topicsTable">
                         <TableBody>
-                            {students.map((student, index) => {
-                                let studentProps = {
-                                    ...props,
-                                    student: student,
-                                    index: index, 
-                                    isHelping: isHelping,
-                                    helpIdx: helpIdx,
-                                    handleClickHelp: handleClickHelp,
-                                    handleCancel: handleCancel,
-                                    handleClickUnfreeze: handleClickUnfreeze,
-                                    addStudent: addStudent,
-                                }
-
-                                return StudentEntry(studentProps);
-                                
-                                })}
+                            {students.map((student, index) => (
+                                <StudentEntry
+                                    key={student.andrewID}
+                                    theme={theme}
+                                    student={student}
+                                    index={index}
+                                    isHelping={isHelping}
+                                    helpIdx={helpIdx}
+                                    handleClickHelp={handleClickHelp}
+                                    handleCancel={handleCancel}
+                                    handleClickUnfreeze={handleClickUnfreeze}
+                                    addStudent={addStudent}
+                                ></StudentEntry>
+                            ))}
 
                         </TableBody>
                     </Table>
