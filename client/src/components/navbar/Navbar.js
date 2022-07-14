@@ -13,6 +13,8 @@ import GoogleLogin from './GoogleLogin';
 
 import HomeService from '../../services/HomeService';
 
+import AlertOnLogout from './dialogs/AlertOnLogout';
+
 function createPage(page, link) {
     return { page, link };
 }
@@ -37,7 +39,9 @@ export default function Navbar(props) {
     const [queueFrozen, setQueueFrozen] = useState(false);
 
     const [anchorElNav, setAnchorElNav] = useState(null);
-  
+
+    const [alertOpen, setAlertOpen] = useState(false);
+
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
     };
@@ -207,11 +211,12 @@ export default function Navbar(props) {
                 }
                 {
                     isAuthenticated ?
-                    <NavbarButton onClick={handleLogout}>Logout</NavbarButton>
+                    <NavbarButton onClick={() => {setAlertOpen(true);}}>Logout</NavbarButton>
                     :
                     <GoogleLogin theme={theme} queueData={queueData}/>
                 }
             </Box>
+            <AlertOnLogout isOpen={alertOpen} setOpen={setAlertOpen} handleConfirm={handleLogout}/>
         </Toolbar>
         </AppBar>
     );
