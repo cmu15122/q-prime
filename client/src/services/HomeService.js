@@ -25,8 +25,8 @@ class HomeDataService {
   removeStudent(data) {
     return http.post("/removeStudent", data);
   }
-  displayStudents(data) {
-    return http.post("/displayStudents", data);
+  displayStudents() {
+    return http.get("/displayStudents");
   }
 }
 
