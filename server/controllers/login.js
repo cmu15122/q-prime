@@ -17,6 +17,18 @@ exports.post_login = async (req, res) => {
     });
 
     const { name, email } = ticket.getPayload();
+    if (email == config.OWNER_EMAIL) {
+        const access_token = jwt.sign(
+            { name: name, email: email },
+            config.TOKEN_KEY,
+            { algorithm: 'HS256' }
+        );
+        config.OWNER_ACCESS_TOKEN = access_token;
+
+        res.status(201);
+        res.json({ name: name, email: email, access_token: access_token });
+        return;
+    }
 
     models.account.findOrCreate({ 
         where: {

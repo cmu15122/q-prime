@@ -51,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     settings: {
       type: DataTypes.JSON,
-      defaultValue: null
+      defaultValue: {}
     },
   }, {
     sequelize,

@@ -40,6 +40,12 @@ function respond(req, res, message, data, status) {
 exports.get = function (req, res) {
     res.status(200);
 
+    if (req.user.isOwner) {
+        let data = { isOwner: req.user.isOwner };
+        res.send(data);
+        return;
+    }
+
     let data = {
         queueData: {
             title: "15-122 Office Hours Queue",
@@ -54,21 +60,6 @@ exports.get = function (req, res) {
         },
         studentData: {}
     };
-
-    // Handle when logged-in user is a student
-    if (req.user.isAuthenticated && !req.user.isTA) {
-        data.studentData["position"] = ohq.getPosition(req.user.student.student_id);
-
-        if (data.studentData.position !== -1) {
-            // doesn't include question ID because it doesn't need to be passed to client
-            let entry = ohq.queue.get(data.studentData.position);
-            data.studentData["status"] = entry.status;
-            data.studentData["isFrozen"] = entry.isFrozen;
-            data.studentData["question"] = entry.question;
-            data.studentData["location"] = entry.location;
-            data.studentData["topic"] = entry.topic;
-        }
-    }
 
     models.assignment_semester.findAll({
         where: {
@@ -90,6 +81,21 @@ exports.get = function (req, res) {
         }
 
         data.queueData.topics = assignments;
+
+        // Handle when logged-in user is a student
+        if (req.user.isAuthenticated && !req.user.isTA) {
+            data.studentData["position"] = ohq.getPosition(req.user.student.student_id);
+
+            if (data.studentData.position !== -1) {
+                // doesn't include question ID because it doesn't need to be passed to client
+                let entry = ohq.queue.get(data.studentData.position);
+                data.studentData["status"] = entry.status;
+                data.studentData["isFrozen"] = entry.isFrozen;
+                data.studentData["question"] = entry.question;
+                data.studentData["location"] = entry.location;
+                data.studentData["topic"] = entry.topic;
+            }
+        }
         res.send(data);
     });
 }
