@@ -17,7 +17,6 @@ exports.post_login = async (req, res) => {
     });
 
     const { name, email } = ticket.getPayload();
-    const [fname, lname] = name.split(" ");
 
     models.account.findOrCreate({ 
         where: {
@@ -35,8 +34,8 @@ exports.post_login = async (req, res) => {
             );
 
             account.set({
-                fname: fname,
-                lname: lname,
+                name: name,
+                preferred_name: "",
                 access_token: access_token
             });
         }
