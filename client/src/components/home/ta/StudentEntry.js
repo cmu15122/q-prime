@@ -4,6 +4,7 @@ import {
 } from '@mui/material'
 
 import EntryTails from './EntryTails';
+import HomeService from '../../../services/HomeService';
 
 export default function StudentEntry(props) {
 
@@ -30,7 +31,17 @@ export default function StudentEntry(props) {
   })
 
   function removeStudent() {
-    console.log("removing student");
+    HomeService.removeStudent(JSON.stringify({
+      // TODO: this relies on Meng's PR
+      andrewID: student.andrewID
+    })).then(res => {
+      if (res.status === 200) {
+        // DO STUFF TO UPDATE THE StudentEntries UI
+        console.log("removedFromQueue")
+      } else {
+        console.log("error in remove from queue")
+      }
+    })
   }
 
   function handleRemoveButton() {

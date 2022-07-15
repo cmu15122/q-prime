@@ -54,7 +54,8 @@ export default function AskQuestion(props) {
             JSON.stringify({
                 question: questionValue,
                 location: locationValue,
-                topic: topicValue
+                topic: topicValue,
+                andrewID: queueData.andrewID
             })
         ).then(res => {
             if(res.status === 200) {

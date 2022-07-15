@@ -57,7 +57,11 @@ function StudentMain(props) {
     }, [studentData, updateQ])
 
     function removeFromQueue() {
-        HomeService.removeStudent().then(res => {
+        HomeService.removeStudent(
+            JSON.stringify({
+                andrewID: queueData.andrewID
+            })
+        ).then(res => {
             if (res.status === 200) {
                 setRemoveConfirm(false)
                 setAskQuestionOrYourEntry(false)

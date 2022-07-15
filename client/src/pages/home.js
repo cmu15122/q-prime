@@ -14,6 +14,7 @@ function Home(props) {
   useEffect(() => {
     HomeService.getAll()
       .then(res => {
+        // TODO: Queue data doesn't get updated on student's page when they add themselves to the queue without a reload
         setQueueData(res.data.queueData);
         setStudentData(res.data.studentData)
         document.title = res.data.queueData.title;

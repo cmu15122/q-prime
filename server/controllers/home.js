@@ -55,9 +55,11 @@ exports.get = function (req, res) {
         studentData: {}
     };
 
+    ohq.print()
+
     // Handle when logged-in user is a student
     if (req.user.isAuthenticated && !req.user.isTA) {
-        data.studentData["position"] = ohq.getPosition(req.user.student.student_id);
+        data.studentData["position"] = ohq.getPosition(req.user.andrewID);
 
         if (data.studentData.position !== -1) {
             // doesn't include question ID because it doesn't need to be passed to client
@@ -205,17 +207,7 @@ exports.post_add_question = function (req, res) {
         return
     }
 
-    let id = req.user.student?.student_id;
-    
-    if (req.user.isTA) {
-        id = req.body.andrewID;
-    }
-
-    if (!id) {
-        res.status(400);
-        res.json({message: 'Invalid student ID'});
-        return;
-    }
+    let id = req.body.andrewID
 
     if (ohq.getPosition(id) != -1) {
         res.status(400);
@@ -225,7 +217,6 @@ exports.post_add_question = function (req, res) {
     
     ohq.enqueue(
         id,
-        req.body.andrewID,
         req.body.question, 
         req.body.location, 
         req.body.topic,
@@ -259,13 +250,14 @@ exports.post_remove_student = function(req, res) {
         return
     } 
     
-    if (ohq.getPosition(req.user.student.student_id) === -1) {
+    let id = req.body.andrewID
+
+    if (ohq.getPosition(id) === -1) {
         res.status(400)
         res.json({message: 'student not on the queue'})
         return
     }
 
-    let id = req.user.student.student_id
 
     ohq.remove(id)
 

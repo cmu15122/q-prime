@@ -339,9 +339,8 @@ class OHQueue {
     }
 
     /** Enqueues student to the queue */
-    enqueue(studentID, andrewID, question, location, topic, entryTime) {
+    enqueue(andrewID, question, location, topic, entryTime) {
         this.queue.addLast({
-            id: studentID,
             andrewID: andrewID,
             status: StudentStatus.WAITING,
             question: question,
@@ -355,8 +354,8 @@ class OHQueue {
         });
     }
 
-    getData(studentID) {
-        var node = this.queue.find(x => x.id == studentID);
+    getData(andrewID) {
+        var node = this.queue.find(x => x.andrewID == andrewID);
         if (node == null) return StudentStatus.ERROR;
         
         assert(node.data != null);
@@ -364,8 +363,8 @@ class OHQueue {
     }
 
     /** If found, returns the status of the student with the given id; else returns error */
-    getStatus(studentID) {
-        var node = this.queue.find(x => x.id == studentID);
+    getStatus(andrewID) {
+        var node = this.queue.find(x => x.andrewID == andrewID);
         if (node == null) return StudentStatus.ERROR;
         
         assert(node.data != null);
@@ -376,12 +375,12 @@ class OHQueue {
      * If found, returns the position of the student with the given id; else returns -1 
      * Position is 0-indexed, i.e. returns 0 for the first person in the queue
      */
-    getPosition(studentID) {
+    getPosition(andrewID) {
         var count = 0;
         var currNode = this.queue.start;
 
         while (currNode != null) {
-            if (currNode.data.id == studentID) return count;
+            if (currNode.data.andrewID == andrewID) return count;
             currNode = currNode.next;
             count++;
         }
@@ -394,8 +393,8 @@ class OHQueue {
      * If found, removes the student with the given id from the queue 
      * Also moves all students behind a frozen student up in the queue
      */
-    remove(studentID) {
-        var node = this.queue.find(x => x.id == studentID);
+    remove(andrewID) {
+        var node = this.queue.find(x => x.andrewID == andrewID);
         if (node == null) return;
         
         var data = this.queue.removeNode(node);
@@ -417,8 +416,8 @@ class OHQueue {
     /// Setting status of students ///
 
     /** If found, helps the student with the given id */
-    help(studentID, taID, helpTime) {
-        var node = this.queue.find(x => x.id == studentID);
+    help(andrewID, taID, helpTime) {
+        var node = this.queue.find(x => x.andrewID == andrewID);
         if (node != null) {
             node.data.status = StudentStatus.BEING_HELPED;
             node.data.taID = taID;
@@ -428,8 +427,8 @@ class OHQueue {
     }
 
     /** If found, unhelps the student with the given id */
-    unhelp(studentID) {
-        var node = this.queue.find(x => x.id == studentID);
+    unhelp(andrewID) {
+        var node = this.queue.find(x => x.andrewID == andrewID);
         if (node != null) {
             node.data.status = StudentStatus.WAITING;
             node.data.taID = null;
@@ -439,8 +438,8 @@ class OHQueue {
     }
 
     /** If found, freezes the student with the given id */
-    freeze(studentID) {
-        var node = this.queue.find(x => x.id == studentID);
+    freeze(andrewID) {
+        var node = this.queue.find(x => x.andrewID == andrewID);
         if (node != null) {
             node.data.status = StudentStatus.FROZEN;
             node.data.isFrozen = true;
@@ -448,8 +447,8 @@ class OHQueue {
     }
 
     /** If found, unfreezes the student with the given id */
-    unfreeze(studentID) {
-        var node = this.queue.find(x => x.id == studentID);
+    unfreeze(andrewID) {
+        var node = this.queue.find(x => x.andrewID == andrewID);
         if (node != null) {
             node.data.status = StudentStatus.WAITING;
             node.data.isFrozen = false;
@@ -457,8 +456,8 @@ class OHQueue {
     }
 
     /** If found, sets the student with the given id to question fixing */
-    setFixQuestion(studentID) {
-        var node = this.queue.find(x => x.id == studentID);
+    setFixQuestion(andrewID) {
+        var node = this.queue.find(x => x.andrewID == andrewID);
         if (node != null) {
             node.data.status = StudentStatus.FIXING_QUESTION;
             node.data.isFrozen = true;
@@ -467,8 +466,8 @@ class OHQueue {
     }
 
     /** If found, unsets the student with the given id to question fixing */
-    unsetFixQuestion(studentID) {
-        var node = this.queue.find(x => x.id == studentID);
+    unsetFixQuestion(andrewID) {
+        var node = this.queue.find(x => x.andrewID == andrewID);
         if (node != null) {
             node.data.status = StudentStatus.WAITING;
             node.data.isFrozen = false;
@@ -476,8 +475,8 @@ class OHQueue {
     }
 
     /** If found, sets the student with the given id to cooldown violation */
-    setCooldownViolation(studentID) {
-        var node = this.queue.find(x => x.id == studentID);
+    setCooldownViolation(andrewID) {
+        var node = this.queue.find(x => x.andrewID == andrewID);
         if (node != null) {
             node.data.status = StudentStatus.COOLDOWN_VIOLATION;
             node.data.isFrozen = true;
@@ -485,8 +484,8 @@ class OHQueue {
     }
 
     /** If found, unsets the student with the given id to cooldown violation */
-    unsetCooldownViolation(studentID) {
-        var node = this.queue.find(x => x.id == studentID);
+    unsetCooldownViolation(andrewID) {
+        var node = this.queue.find(x => x.andrewID == andrewID);
         if (node != null) {
             node.data.status = StudentStatus.WAITING;
             node.data.isFrozen = false;

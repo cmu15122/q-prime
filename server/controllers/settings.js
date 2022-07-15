@@ -42,6 +42,9 @@ function get_response(req, res, message = null) {
 
     // Grab TA settings
     let settings = req.user.account.settings;
+    if (!settings) {
+        settings = {};
+    }
     settings["videoChatURL"] = req.user.ta.zoom_url;
 
     if (!req.user.isAdmin) {
