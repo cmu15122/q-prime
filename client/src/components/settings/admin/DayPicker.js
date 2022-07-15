@@ -3,8 +3,10 @@ import {
     styled, Button, ToggleButton, ToggleButtonGroup
 } from '@mui/material';
 
+const _ = require("underscore")
+
 export default function DayPicker(props) {
-    const { room, roomDictionary } = props
+    const { room, roomDictionary, setDayDictionary, swapAndGroup } = props
     const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     const [newDays, setNewDays] = useState(roomDictionary[room])
     const handleDayClick = (event, newArr) => {
@@ -12,6 +14,8 @@ export default function DayPicker(props) {
         setNewDays(newArr)
         roomDictionary[room] = newArr
         console.log(roomDictionary)
+        let newDayDictionary = swapAndGroup(roomDictionary)
+        setDayDictionary(newDayDictionary)
     }
     return (
         <ToggleButtonGroup

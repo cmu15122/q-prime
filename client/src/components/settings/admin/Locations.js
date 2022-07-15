@@ -4,7 +4,7 @@ import {
     Typography, Table, TableRow, TableCell, TableBody, ToggleButton, ToggleButtonGroup
 } from '@mui/material';
 import {
-    Edit, Delete, ExpandMore, FindInPage
+    Edit, Delete, ExpandMore, FindInPage, DataObjectSharp
 } from '@mui/icons-material';
 import DayPicker from './DayPicker';
 import Cookies from 'universal-cookie';
@@ -31,12 +31,12 @@ export default function Locations(props) {
         setOpen(!open);
         console.log(Object.keys(roomDictionary))
     };
-    const [rows, setRows] = useState([{room: 'GHC'}, {room: 'WEAN'}]);
-    const [roomDictionary, setRoomDictionary] = useState({'GHC': [], 'WEAN': []})
+    const [roomDictionary, setRoomDictionary] = useState({'GHC': [], 'WEAN': []}) // dict of location: [days]
+    const [dayDictionary, setDayDictionary] = useState({})
 
     // useEffect(() => {
     //     if (queueData != null) {
-    //         updateTopics(queueData.topics);
+    //         updateLocations(queueData.locations); // dict of days: [locations]
     //     }
     // }, [queueData]);
 
@@ -60,23 +60,23 @@ export default function Locations(props) {
     //     setOpenDelete(false);
     // };
 
-    // const updateTopics = (newTopics) => {
-    //     let newRows = [];
-    //     newTopics.forEach (topic => {
-    //         newRows.push(createData(
-    //             topic.assignment_id, 
-    //             topic.name, 
-    //             topic.category, 
-    //             topic.start_date, 
-    //             topic.end_date
-    //         ));
-    //     });
-    //     setRows(newRows);
-    // }
-    const handleDaysChange = (days, room) => {
-        console.log(room, days)
-        roomDictionary[room] = days
-        console.log(roomDictionary)
+    const swapAndGroup = (obj) => {
+        return Object.entries(obj).reduce((ret, entry) => {
+            const [ key, value ] = entry;
+            if (ret[value]) {
+                // seen before
+                ret[value].push(key)
+            } else {
+                ret[value] = [key]
+            }
+            return ret;
+          }, {})
+    }
+
+    const updateLocations = (newLocations) => {
+        let newRoomDictionary = swapAndGroup(newLocations)
+        console.log(newRoomDictionary)
+        setRoomDictionary(newRoomDictionary);
     }
 
     return (
@@ -112,7 +112,8 @@ export default function Locations(props) {
                                             room={room}
                                             days={roomDictionary[room]}
                                             roomDictionary={roomDictionary}
-                                            handleDaysChange={handleDaysChange}
+                                            setDayDictionary={setDayDictionary}
+                                            swapAndGroup={swapAndGroup}
                                         />
                                     </TableCell>
                                 </TableRow>
