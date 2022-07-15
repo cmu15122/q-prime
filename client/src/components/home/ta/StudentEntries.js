@@ -41,7 +41,7 @@ export default function StudentEntries(props) {
         console.log(index)
         students[index]['status'] = 1;
     }
-    
+
     const addStudent = (index) => {
         console.log('add student!!');
     }
