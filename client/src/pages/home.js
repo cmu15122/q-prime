@@ -27,7 +27,7 @@ function Home(props) {
 
   return (
     <div className="App">
-        <Navbar theme={theme} queueData={queueData} isHome={true} />
+        <Navbar theme={theme} queueData={queueData} isHome={true} studentData={studentData} />
         <HomeMain 
           theme={theme}
           queueData={queueData}

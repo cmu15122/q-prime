@@ -27,7 +27,7 @@ const NavbarButton = styled(Button)({
 });
 
 export default function Navbar(props) {
-    const { theme, queueData, isHome } = props;
+    const { theme, queueData, isHome, studentData } = props;
     const isMobileView = useMediaQuery("(max-width: 1000px)");
     
     const [ , , removeCookie] = useCookies(['user']);
@@ -75,8 +75,22 @@ export default function Navbar(props) {
     }, [isAuthenticated, isTA, isAdmin]);
 
     function handleLogout() {
+        // console.log('logging out');
         removeCookie('user');
         window.location.href = "/";
+    }
+
+    console.log(studentData !== null && studentData.position !== -1);
+
+    function handleLogoutClick() {
+        console.log('logout clicked ' + studentData !== null && studentData.position !== -1);
+        if (studentData !== null && studentData.position !== -1) {
+            setAlertOpen(true);
+            console.log(alertOpen);
+        } else {
+            console.log('handle logout');
+            handleLogout();
+        }
     }
 
     const freezeQueue = () => {
@@ -164,7 +178,7 @@ export default function Navbar(props) {
                             }
                             {
                                 isAuthenticated &&
-                                <MenuItem onClick={handleLogout}>
+                                <MenuItem onClick={handleLogoutClick}>
                                     <Typography variant='h8' sx={{ mx: 2 }}>
                                         Logout
                                     </Typography>
@@ -211,7 +225,7 @@ export default function Navbar(props) {
                 }
                 {
                     isAuthenticated ?
-                    <NavbarButton onClick={() => {setAlertOpen(true);}}>Logout</NavbarButton>
+                    <NavbarButton onClick={handleLogoutClick}>Logout</NavbarButton>
                     :
                     <GoogleLogin theme={theme} queueData={queueData}/>
                 }
