@@ -37,10 +37,10 @@ export default function StudentEntries(props) {
         HomeService.displayStudents().then(res => {
             if(res.status === 200) {
                 setStudents(res.data);
-                console.log("success", students);
+                console.log("Success.", students);
             } else {
                 setStudents([]);
-                console.log('Error displaying students');
+                console.log('Error displaying students.');
             }
         })
     }
