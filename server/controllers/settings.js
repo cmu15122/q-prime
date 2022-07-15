@@ -41,8 +41,11 @@ function get_response(req, res, message = null) {
     }
 
     // Grab TA settings
-    let settings = req.user.account.settings;
-    settings["videoChatURL"] = req.user.ta.zoom_url;
+    let settings = req.user.account?.settings;
+    if (!settings) {
+        settings = {};
+    }
+    settings["videoChatURL"] = req.user.ta?.zoom_url;
 
     if (!req.user.isAdmin) {
         let data = { 
@@ -51,6 +54,7 @@ function get_response(req, res, message = null) {
             isAuthenticated: req.user.isAuthenticated,
             isTA: req.user.isTA,
             isAdmin: req.user.isAdmin,
+            isOwner: req.user.isOwner,
             andrewID: req.user.andrewID
         };
         respond(req, res, message, data, 200);
@@ -100,8 +104,7 @@ function get_response(req, res, message = null) {
             let ta = account.ta;
             tas.push({
                 ta_id: ta.ta_id,
-                fname: account.fname,
-                lname: account.lname,
+                name: account.name,
                 email: account.email,
                 isAdmin: ta.is_admin == 1
             });
@@ -116,6 +119,7 @@ function get_response(req, res, message = null) {
             isAuthenticated: req.user.isAuthenticated,
             isTA: req.user.isTA,
             isAdmin: req.user.isAdmin,
+            isOwner: req.user.isOwner,
             andrewID: req.user.andrewID
         };
         respond(req, res, message, data, 200);
@@ -446,8 +450,6 @@ exports.post_create_ta = function (req, res) {
         return;
     }
 
-    let [fname, lname] = name.split(" ");
-
     models.account.findOrCreate({ 
         where: {
             email: email
@@ -457,8 +459,8 @@ exports.post_create_ta = function (req, res) {
             account: function() {
                 if (accountCreated) {
                     account.set({
-                        fname: fname,
-                        lname: lname
+                        name: name,
+                        preferred_name: name
                     });
                 }
                 return account.save();
@@ -543,7 +545,7 @@ exports.post_update_ta = function (req, res) {
                     is_admin: isAdmin ? 1 : 0
                 });
             }(),
-            name: results.account.fname + " " + results.account.lname
+            name: results.account.name
         })
     }).then(function(results) {
         get_response(req, res, `TA ${results.name} updated successfully`);

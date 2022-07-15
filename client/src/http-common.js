@@ -26,6 +26,10 @@ httpInstance.interceptors.request.use(
  
 httpInstance.interceptors.response.use(
     (res) => {
+        if (res.data.isOwner && !window.location.href.includes("settings")) {
+            // Redirect to settings
+            window.location.href = "/settings";
+        }
         if (res.data.message) {
             toast(res.data.message, {
                 position: "bottom-left",
