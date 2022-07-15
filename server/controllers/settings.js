@@ -105,6 +105,7 @@ function get_response(req, res, message = null) {
             tas.push({
                 ta_id: ta.ta_id,
                 name: account.name,
+                preferred_name: account.preferred_name,
                 email: account.email,
                 isAdmin: ta.is_admin == 1
             });
@@ -459,8 +460,7 @@ exports.post_create_ta = function (req, res) {
             account: function() {
                 if (accountCreated) {
                     account.set({
-                        name: name,
-                        preferred_name: name
+                        name: name
                     });
                 }
                 return account.save();

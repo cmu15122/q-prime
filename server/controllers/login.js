@@ -17,7 +17,6 @@ exports.post_login = async (req, res) => {
     });
 
     const { name, email } = ticket.getPayload();
-
     if (email == config.OWNER_EMAIL) {
         const access_token = jwt.sign(
             { name: name, email: email },
@@ -48,7 +47,7 @@ exports.post_login = async (req, res) => {
 
             account.set({
                 name: name,
-                preferred_name: name,
+                preferred_name: "",
                 access_token: access_token
             });
         }

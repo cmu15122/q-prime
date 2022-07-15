@@ -79,7 +79,7 @@ export default function TASettings(props) {
         newTAs.forEach (ta => {
             newRows.push(createData(
                 ta.ta_id,
-                ta.name,
+                (ta.preferred_name ? ta.preferred_name : ta.name),
                 ta.email,
                 ta.isAdmin
             ));
