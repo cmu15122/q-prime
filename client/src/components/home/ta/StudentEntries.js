@@ -30,20 +30,18 @@ export default function StudentEntries(props) {
     const [helpIdx, setHelpIdx] = React.useState(-1); // idx of student that you are helping, only valid when isHelping is true
 
     React.useEffect(() => {
+        const handleGetStudents = () => {
+            HomeService.displayStudents().then(res => {
+                if(res.status === 200) {
+                    setStudents(res.data);
+                } else {
+                    setStudents([]);
+                    console.log('Error displaying students.');
+                }
+            })
+        }
         handleGetStudents();
-    });
-    
-    const handleGetStudents = () => {
-        HomeService.displayStudents().then(res => {
-            if(res.status === 200) {
-                setStudents(res.data);
-                console.log("Success.", students);
-            } else {
-                setStudents([]);
-                console.log('Error displaying students.');
-            }
-        })
-    }
+    }, []);
 
     const handleClickHelp = (index) => {
         setHelpIdx(index);
