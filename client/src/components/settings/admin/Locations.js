@@ -29,9 +29,10 @@ export default function Locations(props) {
 
     const handleClick = () => {
         setOpen(!open);
+        console.log(Object.keys(roomDictionary))
     };
     const [rows, setRows] = useState([{room: 'GHC'}, {room: 'WEAN'}]);
-    const [roomDictionary, setRoomDictionary] = useState({})
+    const [roomDictionary, setRoomDictionary] = useState({'GHC': [], 'WEAN': []})
 
     // useEffect(() => {
     //     if (queueData != null) {
@@ -72,7 +73,9 @@ export default function Locations(props) {
     //     });
     //     setRows(newRows);
     // }
-    const handleDaysChange = () => {
+    const handleDaysChange = (days, room) => {
+        console.log(room, days)
+        roomDictionary[room] = days
         console.log(roomDictionary)
     }
 
@@ -96,21 +99,22 @@ export default function Locations(props) {
                     <Divider></Divider>
                         <Table aria-label="topicsTable">
                             <TableBody>
-                            {rows.map((row, index) => (
+                            {Object.keys(roomDictionary).map((room, index) => (
                                 <TableRow
-                                    key={row.room}
-                                    style={ index % 2 ? { background : theme.palette.background.paper }:{ background : theme.palette.background.default }}
+                                    key={room}
+                                    style={ index % 2 ? { background : theme.palette.background.paper }:{ background : theme.palette.background.default } }
                                 >
                                     <TableCell component="th" scope="row" sx={{ fontSize: '16px', fontWeight: 'bold', pl: 3.25 }}>
-                                        {row.room}
+                                        {room}
                                     </TableCell>
-                                    {/* <TableCell component="th" scope="row" sx={{ fontSize: '16px', fontStyle: 'italic', pl: 3.25 }}>
+                                    <TableCell component="th" align='right' sx={{ fontSize: '16px', fontStyle: 'italic', pr: 3.25 }}>
                                         <DayPicker 
-                                            room={row.room}
-                                            days={roomDictionary[row.room]}
+                                            room={room}
+                                            days={roomDictionary[room]}
+                                            roomDictionary={roomDictionary}
                                             handleDaysChange={handleDaysChange}
                                         />
-                                    </TableCell> */}
+                                    </TableCell>
                                 </TableRow>
                             ))}
                                 {/* <TableRow

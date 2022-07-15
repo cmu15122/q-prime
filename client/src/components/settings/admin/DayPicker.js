@@ -4,19 +4,27 @@ import {
 } from '@mui/material';
 
 export default function DayPicker(props) {
-    const { room, days, handleDaysChange } = props
+    const { room, roomDictionary } = props
     const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    const [newDays, setNewDays] = useState(roomDictionary[room])
+    const handleDayClick = (event, newArr) => {
+        console.log(newArr)
+        setNewDays(newArr)
+        roomDictionary[room] = newArr
+        console.log(roomDictionary)
+    }
     return (
         <ToggleButtonGroup
-            value={days}
-            onChange={handleDaysChange(days, room)}
+            value={newDays}
+            onChange={handleDayClick}
             aria-label="text formatting"
+            size='small'
         >
-            {daysOfWeek.map((day) => {
-                <ToggleButton value={day} aria-label={day}>
-                    <Button>{day.charAt(0)}</Button>
+            {daysOfWeek.map((day) => (
+                <ToggleButton value={day} key={day} aria-label={day} size='small' sx={{m: 0, p: 0}}>
+                    <Button size='small' variant={newDays.includes(day) ? 'contained' : 'outlined'} sx={{m: 0, pl: 0, pr: 0}} value={day}>{day.charAt(0)}</Button>
                 </ToggleButton>
-            })}
+            ))}
         </ToggleButtonGroup>
     )
 }
