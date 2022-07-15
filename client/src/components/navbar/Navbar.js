@@ -173,7 +173,7 @@ export default function Navbar(props) {
                             }
                             {
                                 isAuthenticated &&
-                                <MenuItem onClick={handleLogoutClick}>
+                                <MenuItem onClick={handleLogoutClicked}>
                                     <Typography variant='h8' sx={{ mx: 2 }}>
                                         Logout
                                     </Typography>
@@ -220,7 +220,7 @@ export default function Navbar(props) {
                 }
                 {
                     isAuthenticated ?
-                    <NavbarButton onClick={handleLogoutClick}>Logout</NavbarButton>
+                    <NavbarButton onClick={handleLogoutClicked}>Logout</NavbarButton>
                     :
                     <GoogleLogin theme={theme} queueData={queueData}/>
                 }
