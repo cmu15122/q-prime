@@ -16,12 +16,7 @@ export default function StudentEntries(props) {
     React.useEffect(() => {
         const handleGetStudents = () => {
             HomeService.displayStudents().then(res => {
-                if(res.status === 200) {
-                    setStudents(res.data);
-                } else {
-                    setStudents([]);
-                    console.log('Error displaying students.');
-                }
+                setStudents(res.data);
             })
         }
         handleGetStudents();
