@@ -37,11 +37,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       defaultValue: ''
     },
-    fname: {
+    name: {
       type: DataTypes.STRING,
       defaultValue: false
     },
-    lname: {
+    preferred_name: {
       type: DataTypes.STRING,
       defaultValue: false
     },
@@ -51,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     settings: {
       type: DataTypes.JSON,
-      defaultValue: null
+      defaultValue: {}
     },
   }, {
     sequelize,

@@ -17,7 +17,19 @@ exports.post_login = async (req, res) => {
     });
 
     const { name, email } = ticket.getPayload();
-    const [fname, lname] = name.split(" ");
+
+    if (email == config.OWNER_EMAIL) {
+        const access_token = jwt.sign(
+            { name: name, email: email },
+            config.TOKEN_KEY,
+            { algorithm: 'HS256' }
+        );
+        config.OWNER_ACCESS_TOKEN = access_token;
+
+        res.status(201);
+        res.json({ name: name, email: email, access_token: access_token });
+        return;
+    }
 
     models.account.findOrCreate({ 
         where: {
@@ -35,8 +47,8 @@ exports.post_login = async (req, res) => {
             );
 
             account.set({
-                fname: fname,
-                lname: lname,
+                name: name,
+                preferred_name: name,
                 access_token: access_token
             });
         }
