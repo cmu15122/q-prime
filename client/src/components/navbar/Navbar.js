@@ -80,17 +80,12 @@ export default function Navbar(props) {
         window.location.href = "/";
     }
 
-    console.log(studentData !== null && studentData.position !== -1);
+    function openAlert() {
+        setAlertOpen(true);
+    }
 
-    function handleLogoutClick() {
-        console.log('logout clicked ' + studentData !== null && studentData.position !== -1);
-        if (studentData !== null && studentData.position !== -1) {
-            setAlertOpen(true);
-            console.log(alertOpen);
-        } else {
-            console.log('handle logout');
-            handleLogout();
-        }
+    function handleLogoutClicked() {
+        (studentData !== null && studentData.position !== -1) ? openAlert() : handleLogout();
     }
 
     const freezeQueue = () => {
