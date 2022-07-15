@@ -16,11 +16,6 @@ let queueFrozen = false;
 
 const ohq = new queue.OHQueue();
 
-/** Dummy information for testing */
-// ohq.enqueue("student1");
-// ohq.enqueue("student2");
-// ohq.enqueue("student3");
-
 let waitTime = 20;
 
 /** Helper Functions **/
