@@ -12,7 +12,7 @@ export default function AlertOnLogout(props) {
         <Dialog open={isOpen} onClose={() => {setOpen(false);}}>
             <DialogTitle>Are you sure?</DialogTitle>
             <DialogContent>
-                <DialogContentText>Logging out will remove your place in the queue.</DialogContentText>
+                <DialogContentText> When logged out, you may not get notified when you're up next.</DialogContentText>
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleClose}>Cancel</Button>
