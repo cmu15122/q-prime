@@ -16,8 +16,13 @@ function Main (props) {
             <Typography variant="h3" textAlign='center' sx={{ mt: 4 }} fontWeight='bold'>
                 Settings
             </Typography>
-            <VideoChatSettings theme={theme} queueData={queueData}/>
-            <NotificationSettings theme={theme} queueData={queueData}/>
+            {
+                !queueData?.isOwner && <VideoChatSettings theme={theme} queueData={queueData}/>
+            }
+            {
+                !queueData?.isOwner && <NotificationSettings theme={theme} queueData={queueData}/>
+            }
+            
             { 
                 queueData?.isAdmin && <AdminMain theme={theme} queueData={queueData}/>
             }

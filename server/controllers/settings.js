@@ -9,20 +9,20 @@ const slack = require('./slack');
 // FIXME: some default values are set to simplify testing;
 // In production, these should be cleared
 let adminSettings = {
-    currSem: "S22", 
+    currSem: "S22",
     slackURL: null,
     questionsURL: null,
     rejoinTime: 0
 };
 
-exports.get_admin_settings = function() {
+exports.get_admin_settings = function () {
     return adminSettings;
 }
 
 /** Helper Functions **/
 function respond_error(req, res, message, status) {
     res.status(status);
-    res.json({message: message});
+    res.json({ message: message });
 }
 
 function respond(req, res, message, data, status) {
@@ -41,19 +41,20 @@ function get_response(req, res, message = null) {
     }
 
     // Grab TA settings
-    let settings = req.user.account.settings;
+    let settings = req.user.account?.settings;
     if (!settings) {
         settings = {};
     }
-    settings["videoChatURL"] = req.user.ta.zoom_url;
+    settings["videoChatURL"] = req.user.ta?.zoom_url;
 
     if (!req.user.isAdmin) {
-        let data = { 
+        let data = {
             title: "15-122 Office Hours Queue | Settings",
             settings: settings,
             isAuthenticated: req.user.isAuthenticated,
             isTA: req.user.isTA,
             isAdmin: req.user.isAdmin,
+            isOwner: req.user.isOwner,
             andrewID: req.user.andrewID
         };
         respond(req, res, message, data, 200);
@@ -61,7 +62,7 @@ function get_response(req, res, message = null) {
 
     // TODO: there's no need to fetch everything for non-admin TAs
     Promise.props({
-        assignment_semesters: function() {
+        assignment_semesters: function () {
             if (!adminSettings.currSem) return [];
 
             return models.assignment_semester.findAll({
@@ -70,20 +71,20 @@ function get_response(req, res, message = null) {
                 order: [['end_date', 'ASC']]
             });
         }(),
-        semester_users: function() {
+        semester_users: function () {
             if (!adminSettings.currSem) return [];
 
             return models.semester_user.findAll({
                 where: { sem_id: adminSettings.currSem, is_ta: 1 },
                 include: [
-                    { 
-                        model: models.account, 
-                        include: [{model: models.ta, as: "ta"}] 
+                    {
+                        model: models.account,
+                        include: [{ model: models.ta, as: "ta" }]
                     }
                 ],
             })
         }()
-    }).then(function(results) {
+    }).then(function (results) {
         let assignments = [];
         let tas = [];
 
@@ -103,14 +104,14 @@ function get_response(req, res, message = null) {
             let ta = account.ta;
             tas.push({
                 ta_id: ta.ta_id,
-                fname: account.fname,
-                lname: account.lname,
+                name: account.name,
+                preferred_name: account.preferred_name,
                 email: account.email,
                 isAdmin: ta.is_admin == 1
             });
         }
 
-        let data = { 
+        let data = {
             title: "15-122 Office Hours Queue | Settings",
             topics: assignments,
             tas: tas,
@@ -119,6 +120,7 @@ function get_response(req, res, message = null) {
             isAuthenticated: req.user.isAuthenticated,
             isTA: req.user.isTA,
             isAdmin: req.user.isAdmin,
+            isOwner: req.user.isOwner,
             andrewID: req.user.andrewID
         };
         respond(req, res, message, data, 200);
@@ -162,7 +164,7 @@ exports.post_update_video_chat = function (req, res) {
     Promise.props({
         ta: ta.save(),
         account: account.save()
-    }).then(function(results) {
+    }).then(function (results) {
         req.user.account = results.account;
         req.user.ta = results.ta;
         get_response(req, res, urlChanged ? `Settings updated successfully` : "");
@@ -204,7 +206,7 @@ exports.post_update_notifs = function (req, res) {
 
     Promise.props({
         account: account.save()
-    }).then(function(results) {
+    }).then(function (results) {
         req.user.account = results.account;
         get_response(req, res);
     }).catch(err => {
@@ -235,11 +237,11 @@ exports.post_update_semester = function (req, res) {
         return;
     }
 
-    models.semester.findOrCreate({ 
+    models.semester.findOrCreate({
         where: {
             sem_id: sem_id
         }
-    }).then(function(results) {
+    }).then(function (results) {
         adminSettings.currSem = results[0].sem_id;
         get_response(req, res, `Current semester set to ${sem_id} successfully`);
     }).catch(err => {
@@ -324,22 +326,22 @@ exports.post_create_topic = function (req, res) {
     }
 
     Promise.props({
-        assignment: function() {
-            return models.assignment.findOrCreate({ 
-                where: { 
+        assignment: function () {
+            return models.assignment.findOrCreate({
+                where: {
                     name: name,
                     category: category
                 }
             });
         }()
-    }).then(function(results) {
+    }).then(function (results) {
         return models.assignment_semester.create({
             assignment_id: results.assignment[0].assignment_id,
             sem_id: adminSettings.currSem,
             start_date: start_date,
             end_date: end_date
         })
-    }).then(function() {
+    }).then(function () {
         get_response(req, res, `Assignment ${name} created successfully`);
     }).catch(err => {
         message = err.message || "An error occurred while creating topic";
@@ -365,42 +367,42 @@ exports.post_update_topic = function (req, res) {
     }
 
     Promise.props({
-        assignment_semester: function() {
-            return models.assignment_semester.findOne({ 
-                where: { 
+        assignment_semester: function () {
+            return models.assignment_semester.findOne({
+                where: {
                     assignment_id: assignment_id,
                     sem_id: adminSettings.currSem
                 }
             })
         }(),
-        assignment: function() {
-            return models.assignment.findOne({ 
-                where: { 
+        assignment: function () {
+            return models.assignment.findOne({
+                where: {
                     assignment_id: assignment_id
                 }
             });
         }()
-    }).then(function(results) {
+    }).then(function (results) {
         if (results.assignment_semester == null || results.assignment == null) {
             respond_error(req, res, "Invalid assignment id: topic not found", 400);
             return;
         }
 
         return Promise.props({
-            assignment_semester: function() {
+            assignment_semester: function () {
                 return results.assignment_semester.update({
                     start_date: start_date,
                     end_date: end_date
                 })
             }(),
-            assignment: function() {
+            assignment: function () {
                 return results.assignment.update({
                     name: name,
                     category: category
                 });
             }()
         })
-    }).then(function() {
+    }).then(function () {
         get_response(req, res, `Assignment ${name} updated successfully`);
     }).catch(err => {
         message = err.message || "An error occurred while updating topic";
@@ -421,11 +423,11 @@ exports.post_delete_topic = function (req, res) {
         return;
     }
 
-    models.assignment.destroy({ 
-        where: { 
+    models.assignment.destroy({
+        where: {
             assignment_id: assignment_id
         }
-    }).then(function() {
+    }).then(function () {
         get_response(req, res, `Assignment deleted successfully`);
     }).catch(err => {
         message = err.message || "An error occurred while deleting topic";
@@ -449,24 +451,21 @@ exports.post_create_ta = function (req, res) {
         return;
     }
 
-    let [fname, lname] = name.split(" ");
-
-    models.account.findOrCreate({ 
+    models.account.findOrCreate({
         where: {
             email: email
         }
-    }).then(function([account, accountCreated]) {
+    }).then(function ([account, accountCreated]) {
         return Promise.props({
-            account: function() {
+            account: function () {
                 if (accountCreated) {
                     account.set({
-                        fname: fname,
-                        lname: lname
+                        name: name
                     });
                 }
                 return account.save();
             }(),
-            semester_user: function() {
+            semester_user: function () {
                 return models.semester_user.findOrCreate({
                     where: {
                         user_id: account.user_id,
@@ -474,7 +473,7 @@ exports.post_create_ta = function (req, res) {
                     }
                 });
             }(),
-            ta: function() {
+            ta: function () {
                 return models.ta.findOrCreate({
                     where: {
                         ta_id: account.user_id,
@@ -483,11 +482,11 @@ exports.post_create_ta = function (req, res) {
                 });
             }()
         })
-    }).then(function(results) {
+    }).then(function (results) {
         return results.semester_user[0].update({
             is_ta: 1
         });
-    }).then(function() {
+    }).then(function () {
         get_response(req, res, `TA ${name} created successfully`);
     }).catch(err => {
         message = err.message || "An error occurred while creating topic";
@@ -510,45 +509,45 @@ exports.post_update_ta = function (req, res) {
     }
 
     Promise.props({
-        semester_user: function() {
+        semester_user: function () {
             // We grab this to verify the user exists for this semester
-            return models.semester_user.findOne({ 
-                where: { 
+            return models.semester_user.findOne({
+                where: {
                     user_id: user_id,
                     sem_id: adminSettings.currSem
                 }
             })
         }(),
-        account: function() {
+        account: function () {
             // We grab this to verify the user has an account
-            return models.account.findOne({ 
-                where: { 
+            return models.account.findOne({
+                where: {
                     user_id: user_id
                 }
             });
         }(),
-        ta: function() {
-            return models.ta.findOne({ 
-                where: { 
+        ta: function () {
+            return models.ta.findOne({
+                where: {
                     ta_id: user_id
                 }
             });
         }(),
-    }).then(function(results) {
+    }).then(function (results) {
         if (results.semester_user == null || results.account == null || results.ta == null) {
             respond_error(req, res, "Invalid user id: TA not found", 400);
             return;
         }
 
         return Promise.props({
-            ta: function() {
+            ta: function () {
                 return results.ta.update({
                     is_admin: isAdmin ? 1 : 0
                 });
             }(),
-            name: results.account.fname + " " + results.account.lname
+            name: results.account.name
         })
-    }).then(function(results) {
+    }).then(function (results) {
         get_response(req, res, `TA ${results.name} updated successfully`);
     }).catch(err => {
         message = err.message || "An error occurred while updating TA";
@@ -573,11 +572,11 @@ exports.post_delete_ta = function (req, res) {
         where: {
             user_id: user_id
         }
-    }).then(function(sem_user) {
+    }).then(function (sem_user) {
         return sem_user.update({
             is_ta: 0
         });
-    }).then(function() {
+    }).then(function () {
         get_response(req, res, `TA deleted successfully`);
     }).catch(err => {
         message = err.message || "An error occurred while deleting TA";
