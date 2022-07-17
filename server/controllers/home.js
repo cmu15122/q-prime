@@ -26,7 +26,7 @@ let waitTime = 20;
 /** Helper Functions **/
 function respond_error(req, res, message, status) {
     res.status(status);
-    res.json({message: message});
+    res.json({ message: message });
 }
 
 function respond(req, res, message, data, status) {
@@ -75,8 +75,8 @@ exports.get = function (req, res) {
     models.assignment_semester.findAll({
         where: {
             sem_id: settings.get_admin_settings().currSem,
-            start_date: {[Sequelize.Op.lt]: new Date()},
-            end_date: {[Sequelize.Op.gt]: new Date()}
+            start_date: { [Sequelize.Op.lt]: new Date() },
+            end_date: { [Sequelize.Op.gt]: new Date() }
         },
         order: [['end_date', 'ASC']],
         include: models.assignment
@@ -115,7 +115,7 @@ exports.post_unfreeze_queue = function (req, res) {
 }
 
 /** Announcements */
-/** 
+/**
  * {
  *     id: int,
  *     header: string,
@@ -176,7 +176,7 @@ exports.post_update_announcement = function (req, res) {
         content: content
     }
     // TODO: clear all read cookies once updated, will eventually be handled by sockets
-    
+
     respond(req, res, `Announcement updated successfully`, { announcements: announcements }, 200);
 }
 
@@ -195,7 +195,7 @@ exports.post_delete_announcement = function (req, res) {
     }
 
     announcements.splice(index, 1);
-    
+
     respond(req, res, `Announcement deleted successfully`, { announcements: announcements }, 200);
 }
 
@@ -203,7 +203,7 @@ exports.post_delete_announcement = function (req, res) {
 exports.post_add_question = function (req, res) {
     if (!req.user || !req.user.isAuthenticated) {
         res.status(403)
-        res.json({message: 'Invalid permissions to perform this action'})
+        res.json({ message: 'Invalid permissions to perform this action' })
         return
     }
 
@@ -211,14 +211,14 @@ exports.post_add_question = function (req, res) {
 
     if (ohq.getPosition(id) != -1) {
         res.status(400);
-        res.json({message: 'Student already on the queue'});
+        res.json({ message: 'Student already on the queue' });
         return;
     }
-    
+
     ohq.enqueue(
         id,
-        req.body.question, 
-        req.body.location, 
+        req.body.question,
+        req.body.location,
         req.body.topic,
         moment.tz(new Date(), "America/New_York").toDate()
     )
@@ -228,48 +228,55 @@ exports.post_add_question = function (req, res) {
         position: ohq.getPosition(id)
     }
 
-    if(data.status != null && data.position != null) {
+    if (data.status != null && data.position != null) {
         res.status(200)
         data['message'] = "Successfully added to queue";
         res.json(data)
     } else if (data.status == 5 || data.position == -1) {
         res.status(400)
-        res.json({message: 'The server was unable to find you on the queue after adding you'})
+        res.json({ message: 'The server was unable to find you on the queue after adding you' })
     } else {
         res.status(500)
-        res.json({message: 'The server was unable to add you to the queue'})
+        res.json({ message: 'The server was unable to add you to the queue' })
     }
 
     ohq.print()
 }
 
-exports.post_remove_student = function(req, res) {
+exports.post_remove_student = function (req, res) {
     if (!req.user) {
         res.status(400)
-        res.json({message: 'user data not passed to server'})
+        res.json({ message: 'user data not passed to server' })
         return
-    } 
-    
+    }
+
     let id = req.body.andrewID
 
     if (ohq.getPosition(id) === -1) {
         res.status(400)
-        res.json({message: 'student not on the queue'})
+        res.json({ message: 'student not on the queue' })
         return
     }
 
-
     ohq.remove(id)
 
-    if(ohq.getPosition(id) != -1) {
+    if (ohq.getPosition(id) != -1) {
         res.status(500)
-        res.json({message: "the server was unable to remove you from the queue"})
+        res.json({ message: "the server was unable to remove you from the queue" })
+        return
     }
+
+    // TODO, FIXME: Don't write TA added questions to the database or TA manually removed questions
+    // models.question.findOrCreate({
+    //     where: {
+
+    //     }
+    // })
 
     let data = {
         'message': "successfully removed from the queue"
     }
-    
+
     res.status(200)
     res.json(data)
 }
