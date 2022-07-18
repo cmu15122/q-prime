@@ -75,7 +75,6 @@ export default function Navbar(props) {
     }, [isAuthenticated, isTA, isAdmin]);
 
     function handleLogout() {
-        // console.log('logging out');
         removeCookie('user');
         window.location.href = "/";
     }
