@@ -11,7 +11,7 @@ function createData(topic_id, name) {
 }
 
 export default function AskQuestion(props) {
-    const locations = ['Remote', 'GHC 4211', 'Honk\'s Closet'];
+    const [locations, setLocations] = useState([])
     const [topics, setTopics] = useState([]);
 
     const { questionValue, setQuestionValue, queueData, theme } = props
@@ -37,6 +37,10 @@ export default function AskQuestion(props) {
         });
         newRows.push(createData(-1, "Other"));
         setTopics(newRows);
+    }
+
+    function updateLocations(newLocations) {
+        setLocations(newLocations)
     }
     
     function callAddQuestionAPI() {

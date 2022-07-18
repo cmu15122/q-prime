@@ -583,3 +583,50 @@ exports.post_delete_ta = function (req, res) {
         respond_error(req, res, message, 500);
     });
 }
+
+/* BEGIN LOCATIONS */
+let dayDictionary = {}
+exports.post_update_locations = function(req, res) {
+    console.log(req.user)
+    if (!req.user || !req.user.isAdmin) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    var room = req.body.room;
+    var days = req.body.days;
+    var daysOfWeek = req.body.daysOfWeek;
+    if (!room || !days) {
+        respond_error(req, res, "Invalid/missing parameters in request", 400);
+        return;
+    }
+
+    var newDayDictionary = dayDictionary
+    for (var dayIdx in daysOfWeek) {
+        let day = daysOfWeek[dayIdx]
+        if (days.includes(day)) {
+            // day is selected for room
+            // check to see if room already appears for that day in dayDictionary
+            let currRoomForDay = newDayDictionary[day]
+            if (!currRoomForDay) {
+                // no rooms for this day yet
+                newDayDictionary[day] = [room]
+            } else if (currRoomForDay && !currRoomForDay.includes(room)) {
+                currRoomForDay.push(room)
+                newDayDictionary[day] = currRoomForDay
+            }
+        } else {
+            // day is NOT selected for room
+            // make sure that it room doesn't appear for that day
+            let currRoomForDay = newDayDictionary[day]
+            if (currRoomForDay && currRoomForDay.includes(room)) {
+                currRoomForDay.splice(currRoomForDay.indexOf(room), 1)
+                newDayDictionary[day] = currRoomForDay
+            }
+        }
+    }
+    dayDictionary = newDayDictionary
+
+    respond(req, res, `New location day created successfully`, { dayDictionary: dayDictionary }, 200);
+}

@@ -2,20 +2,31 @@ import React, { useState, useEffect } from 'react';
 import {
     styled, Button, ToggleButton, ToggleButtonGroup
 } from '@mui/material';
+import SettingsService from '../../../services/SettingsService';
 
 const _ = require("underscore")
 
 export default function DayPicker(props) {
-    const { room, roomDictionary, setDayDictionary, swapAndGroup } = props
+    const { room, roomDictionary, setRoomDictionary } = props
     const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
     const [newDays, setNewDays] = useState(roomDictionary[room])
+    
     const handleDayClick = (event, newArr) => {
-        console.log(newArr)
         setNewDays(newArr)
-        roomDictionary[room] = newArr
-        console.log(roomDictionary)
-        let newDayDictionary = swapAndGroup(roomDictionary)
-        setDayDictionary(newDayDictionary)
+        let newRoomDictionary = roomDictionary
+        newRoomDictionary[room] = newArr
+        setRoomDictionary(newRoomDictionary)
+        SettingsService.updateLocations(
+            JSON.stringify({
+                room: room,
+                days: newArr,
+                daysOfWeek: daysOfWeek
+            })
+        )
+        .then(res => {
+            // TODO: add func to refresh, pass from home/askaquestion
+            console.log(res)
+        });
     }
     return (
         <ToggleButtonGroup

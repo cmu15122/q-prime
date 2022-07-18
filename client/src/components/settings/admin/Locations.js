@@ -32,11 +32,12 @@ export default function Locations(props) {
         console.log(Object.keys(roomDictionary))
     };
     const [roomDictionary, setRoomDictionary] = useState({'GHC': [], 'WEAN': []}) // dict of location: [days]
+    const [dayDictionary, setDayDictionary] = useState({})
 
-    useEffect(() => {
-        let dayDictionary = swapAndGroup(roomDictionary)
-        queueData.locations = dayDictionary
-    }, [roomDictionary]);
+    // useEffect(() => {
+    //     let dayDictionary = swapAndGroup(roomDictionary)
+    //     queueData.locations = dayDictionary
+    // }, [roomDictionary]);
 
     // const handleAdd = () => {
     //     setOpenAdd(true);
@@ -57,19 +58,6 @@ export default function Locations(props) {
     //     setOpenEdit(false);
     //     setOpenDelete(false);
     // };
-
-    const swapAndGroup = (obj) => {
-        return Object.entries(obj).reduce((ret, entry) => {
-            const [ key, value ] = entry;
-            if (ret[value]) {
-                // seen before
-                ret[value].push(key)
-            } else {
-                ret[value] = [key]
-            }
-            return ret;
-          }, {})
-    }
 
     return (
         <div className='card' style={{ display:'flex' }}>
@@ -104,7 +92,9 @@ export default function Locations(props) {
                                             room={room}
                                             days={roomDictionary[room]}
                                             roomDictionary={roomDictionary}
-                                            swapAndGroup={swapAndGroup}
+                                            setRoomDictionary={setRoomDictionary}
+                                            dayDictionary={dayDictionary}
+                                            setDayDictionary={setDayDictionary}
                                         />
                                     </TableCell>
                                 </TableRow>
