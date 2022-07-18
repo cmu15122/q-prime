@@ -16,6 +16,7 @@ export default function DayPicker(props) {
         let newRoomDictionary = roomDictionary
         newRoomDictionary[room] = newArr
         setRoomDictionary(newRoomDictionary)
+        console.log(roomDictionary)
         SettingsService.updateLocations(
             JSON.stringify({
                 room: room,
@@ -37,7 +38,7 @@ export default function DayPicker(props) {
         >
             {daysOfWeek.map((day) => (
                 <ToggleButton value={day} key={day} aria-label={day} size='small' sx={{m: 0, p: 0}}>
-                    <Button size='small' variant={newDays.includes(day) ? 'contained' : 'outlined'} sx={{m: 0, pl: 0, pr: 0}} value={day}>{day.charAt(0)}</Button>
+                    <Button size='small' variant={roomDictionary[room].includes(day) ? 'contained' : 'outlined'} sx={{m: 0, pl: 0, pr: 0}} value={day}>{day.charAt(0)}</Button>
                 </ToggleButton>
             ))}
         </ToggleButtonGroup>

@@ -50,6 +50,7 @@ exports.get = function (req, res) {
         queueData: {
             title: "15-122 Office Hours Queue",
             announcements: announcements,
+            locations: settings.get_locations(),
             queueFrozen: queueFrozen,
             numStudents: ohq.size(),
             waitTime: waitTime,

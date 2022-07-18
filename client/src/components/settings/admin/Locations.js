@@ -34,10 +34,12 @@ export default function Locations(props) {
     const [roomDictionary, setRoomDictionary] = useState({'GHC': [], 'WEAN': []}) // dict of location: [days]
     const [dayDictionary, setDayDictionary] = useState({})
 
-    // useEffect(() => {
-    //     let dayDictionary = swapAndGroup(roomDictionary)
-    //     queueData.locations = dayDictionary
-    // }, [roomDictionary]);
+    useEffect(() => {
+        if (queueData != null) {
+            setDayDictionary(queueData.locations)
+            updateRoomDictionary(queueData.locations)
+        }
+    }, [queueData]);
 
     // const handleAdd = () => {
     //     setOpenAdd(true);
@@ -58,6 +60,9 @@ export default function Locations(props) {
     //     setOpenEdit(false);
     //     setOpenDelete(false);
     // };
+    const updateRoomDictionary = (newDayDictionary) => {
+        
+    }
 
     return (
         <div className='card' style={{ display:'flex' }}>

@@ -10,6 +10,8 @@ function createData(topic_id, name) {
     return { topic_id, name };
 }
 
+let date = new Date();
+
 export default function AskQuestion(props) {
     const [locations, setLocations] = useState([])
     const [topics, setTopics] = useState([]);
@@ -21,9 +23,19 @@ export default function AskQuestion(props) {
     const [location, setLocation] = useState('')
     const [topic, setTopic] = useState('')
 
+    // useEffect(() => {
+    //     SettingsService.getLocations().then(res => {
+    //         let day = date.getDay()
+    //         console.log(day)
+    //         let roomsForDay = res.data[day]
+    //         console.log(roomsForDay)
+    //     })
+    // }, []);
+
     useEffect(() => {
         if (queueData != null) {
             updateTopics(queueData.topics);
+            updateLocations(queueData.locations)
         }
     }, [queueData]);
 
@@ -40,7 +52,12 @@ export default function AskQuestion(props) {
     }
 
     function updateLocations(newLocations) {
-        setLocations(newLocations)
+        let day = date.getDay()
+        console.log(day)
+        console.log(newLocations)
+        let roomsForDay = newLocations ? newLocations[day] : []
+        console.log(roomsForDay)
+        setLocations(roomsForDay);
     }
     
     function callAddQuestionAPI() {
@@ -115,7 +132,7 @@ export default function AskQuestion(props) {
                                         label="Location"
                                         onChange={(e)=>setLocation(e.target.value)}
                                     >
-                                        {locations.map((loc) => <MenuItem value={loc} key={loc}>{loc}</MenuItem>)}
+                                        {(locations || []).map((loc) => <MenuItem value={loc} key={loc}>{loc}</MenuItem>)}
                                     </Select>
                                 </FormControl>
                             </Box>

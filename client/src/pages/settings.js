@@ -4,6 +4,7 @@ import Navbar from '../components/navbar/Navbar';
 import SettingsMain from '../components/settings/SettingsMain';
 
 import SettingsDataService from "../services/SettingsService";
+import { initiateSocket, socketSubscribeTo } from '../services/SocketsService';
 
 class Settings extends Component {
   state = {

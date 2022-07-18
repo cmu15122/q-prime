@@ -20,7 +20,7 @@ const students = [
     createData('Student 4', 'stu4', 'Topic 1', `testing longer help entry.  Let's see what happens if we put something really long into here because a student will definitely do it at somepoint so if this broke everything then that would be very sad also i'm a bad person and skipped the cooldown period hehee`, 4),
     createData('Student 5', 'stu5', 'Topic 1', 'help', 1),
     createData('Student 6', 'stu6', 'Topic 2', 'dubeg', 3),
-    createData('Student 6', 'stu6', 'Topic 2', 'ya yeeet', 3),
+    createData('Student 7', 'stu7', 'Topic 2', 'ya yeeet', 3),
 ];
 
 export default function StudentEntries(props) {

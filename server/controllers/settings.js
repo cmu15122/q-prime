@@ -3,6 +3,7 @@ const moment = require("moment-timezone");
 const Promise = require("bluebird");
 
 const models = require('../models');
+const sockets = require('./sockets')
 const slack = require('./slack');
 
 // Global admin settings
@@ -603,9 +604,9 @@ exports.post_update_locations = function(req, res) {
     }
 
     var newDayDictionary = dayDictionary
-    for (var dayIdx in daysOfWeek) {
-        let day = daysOfWeek[dayIdx]
-        if (days.includes(day)) {
+    for (var day in daysOfWeek) {
+        if (days.includes(daysOfWeek[day])) {
+            console.log(day)
             // day is selected for room
             // check to see if room already appears for that day in dayDictionary
             let currRoomForDay = newDayDictionary[day]
@@ -627,6 +628,10 @@ exports.post_update_locations = function(req, res) {
         }
     }
     dayDictionary = newDayDictionary
-
+    console.log(dayDictionary)
     respond(req, res, `New location day created successfully`, { dayDictionary: dayDictionary }, 200);
+}
+
+exports.get_locations = () => {
+    return dayDictionary
 }
