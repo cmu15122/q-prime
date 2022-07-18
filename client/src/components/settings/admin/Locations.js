@@ -8,6 +8,7 @@ import {
 } from '@mui/icons-material';
 import DayPicker from './DayPicker';
 import Cookies from 'universal-cookie';
+import SettingsService from '../../../services/SettingsService';
 
 const cookies = new Cookies();
 
@@ -27,41 +28,52 @@ export default function Locations(props) {
 
     const [open, setOpen] = useState(false);
 
+    // TODO: fix string vs int in dictionary so that it properly shows up
+    // TODO: figure out why strings are comma concat when swapping/converting
     const handleClick = () => {
         setOpen(!open);
+        SettingsService.getLocations().then(res => {
+            console.log(res)
+            console.log(res.data)
+            let dayDict = res.data.dayDictionary
+            updateRoomDictionary(dayDict)
+        })
         console.log(Object.keys(roomDictionary))
     };
-    const [roomDictionary, setRoomDictionary] = useState({'GHC': [], 'WEAN': []}) // dict of location: [days]
+    const [roomDictionary, setRoomDictionary] = useState({}) // dict of location: [days]
     const [dayDictionary, setDayDictionary] = useState({})
+
+    useEffect(() => {
+        SettingsService.getLocations().then(res => {
+            updateRoomDictionary(res.data.dayDictionary)
+        })
+    }, []);
 
     useEffect(() => {
         if (queueData != null) {
             setDayDictionary(queueData.locations)
-            updateRoomDictionary(queueData.locations)
         }
     }, [queueData]);
 
-    // const handleAdd = () => {
-    //     setOpenAdd(true);
-    // };
+    const swapAndGroup = (obj) => {
+        return Object.entries(obj).reduce((ret, entry) => {
+            const [ key, value ] = entry;
+            if (ret[value]) {
+                // seen before
+                ret[value].push(key)
+            } else {
+                ret[value] = [key]
+            }
+            return ret;
+          }, {})
+    }
 
-    // const handleEdit = (row) => {
-    //     setOpenEdit(true);
-    //     setSelectedRow(row);
-    // };
-
-    // const handleDelete = (row) => {
-    //     setOpenDelete(true);
-    //     setSelectedRow(row);
-    // };
-
-    // const handleClose = () => {
-    //     setOpenAdd(false);
-    //     setOpenEdit(false);
-    //     setOpenDelete(false);
-    // };
     const updateRoomDictionary = (newDayDictionary) => {
-        
+        if (!newDayDictionary) return
+        console.log(newDayDictionary)
+        let newRoomDictionary = swapAndGroup(newDayDictionary)
+        console.log(newRoomDictionary)
+        setRoomDictionary(newRoomDictionary)
     }
 
     return (

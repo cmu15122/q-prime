@@ -586,7 +586,7 @@ exports.post_delete_ta = function (req, res) {
 }
 
 /* BEGIN LOCATIONS */
-let dayDictionary = {}
+let dayDictionary = {"": ["GHC", "WEAN"]}
 exports.post_update_locations = function(req, res) {
     console.log(req.user)
     if (!req.user || !req.user.isAdmin) {
@@ -632,6 +632,8 @@ exports.post_update_locations = function(req, res) {
     respond(req, res, `New location day created successfully`, { dayDictionary: dayDictionary }, 200);
 }
 
-exports.get_locations = () => {
+exports.get_locations = function (req, res) {
+    // console.log(req, res)
+    respond(req, res, "get locations successful", {dayDictionary: dayDictionary}, 200);
     return dayDictionary
 }

@@ -45,12 +45,11 @@ exports.get = function (req, res) {
         res.send(data);
         return;
     }
-
+    
     let data = {
         queueData: {
             title: "15-122 Office Hours Queue",
             announcements: announcements,
-            locations: settings.get_locations(),
             queueFrozen: queueFrozen,
             numStudents: ohq.size(),
             waitTime: waitTime,

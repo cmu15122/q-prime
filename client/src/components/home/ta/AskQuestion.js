@@ -5,6 +5,7 @@ import {
 } from '@mui/material'
 
 import HomeService from '../../../services/HomeService';
+import SettingsService from '../../../services/SettingsService';
 
 function createData(topic_id, name) {
     return { topic_id, name };
@@ -35,7 +36,7 @@ export default function AskQuestion(props) {
     useEffect(() => {
         if (queueData != null) {
             updateTopics(queueData.topics);
-            updateLocations(queueData.locations)
+            updateLocations()
         }
     }, [queueData]);
 
@@ -51,13 +52,22 @@ export default function AskQuestion(props) {
         setTopics(newRows);
     }
 
-    function updateLocations(newLocations) {
+    function updateLocations() {
         let day = date.getDay()
-        console.log(day)
-        console.log(newLocations)
-        let roomsForDay = newLocations ? newLocations[day] : []
-        console.log(roomsForDay)
-        setLocations(roomsForDay);
+        let newLocations = {}
+        SettingsService.getLocations().then(res => {
+            console.log(res)
+            console.log(res.data)
+            let dayDict = res.data.dayDictionary
+            console.log(dayDict)
+            newLocations = dayDict
+        }).then((res) => {
+            console.log('after')
+            console.log(res)
+            let roomsForDay = newLocations ? newLocations[day] : []
+            console.log(roomsForDay)
+            setLocations(roomsForDay)
+        })
     }
     
     function callAddQuestionAPI() {

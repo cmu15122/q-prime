@@ -44,7 +44,7 @@ class SettingsDataService {
     return http.post("/settings/locations/update", data);
   }
   getLocations() {
-    return http.get("/settings/locations");
+    return http.get("/settings/locations/get");
   }
 }
 
