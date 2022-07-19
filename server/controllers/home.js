@@ -248,6 +248,9 @@ exports.post_add_question = function (req, res) {
 }
 
 exports.post_remove_student = function (req, res) {
+
+    console.log('remove student!')
+
     if (!req.user) {
         res.status(400)
         res.json({ message: 'user data not passed to server' })
@@ -262,7 +265,7 @@ exports.post_remove_student = function (req, res) {
         return
     }
 
-    ohq.remove(id)
+    let returnedData = ohq.remove(id)
 
     if (ohq.getPosition(id) != -1) {
         res.status(500)
@@ -270,17 +273,54 @@ exports.post_remove_student = function (req, res) {
         return
     }
 
+
     // TODO, FIXME: Don't write TA added questions to the database or TA manually removed questions
-    // models.question.findOrCreate({
-    //     where: {
+    models.account.findOrCreate({
+        where: {
+            email: `${returnedData.andrewID}@andrew.edu.cmu`
+        }
+    }).then(([account, created]) => {
+        if (created) {
+            // TODO: ADD QUESTION HERE
+            console.log("a question with an unknown andrewID was completed (likely TA created question)")
+        }
 
-    //     }
-    // })
-
-    let data = {
-        'message': "successfully removed from the queue"
-    }
-
-    res.status(200)
-    res.json(data)
+        return Promise.props({
+            account: account,
+            student: models.student.findOrCreate({
+                student_id: account.user_id
+            })
+        })
+    }).then((results) => {
+        return Promise.props({
+            account: results.account,
+            student: results.student,
+            question: models.findOrCreate({
+                where: {
+                    ta_id: returnedData.taID,
+                    student_id: student.student_id,
+                    sem_id: settings.get_admin_settings().currSem,
+                    question: returnedData.question,
+                    location: returnedData.location,
+                    assignment: returnedData.topic,
+                    entry_time: returnedData.entry_time,
+                    help_time: returnedData.helpTime,
+                    exit_time: moment.tz(new Date(), "America/New_York").toDate(),
+                    num_asked_to_fix: returnedData.num_asked_to_fix
+                }
+            })
+        })
+    }).then((results) => {
+        res.status(200)
+        res.json({
+            message: 'The student was successfully removed form the queue and a question record was added to the database',
+            question_id: results.question.question_id,
+        })
+    }).catch((err) => {
+        console.log(err)
+        res.status(500)
+        res.json({
+            message: 'The student was removed from the queue but an error occurred adding the question to the database'
+        })
+    })
 }

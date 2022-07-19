@@ -20,17 +20,16 @@ module.exports = (sequelize, DataTypes) => {
       unique: true,
       primaryKey: true
     },
-    student_id:{
+    student_id: {
       type: DataTypes.INTEGER,
     },
-    ta_id:{
+    ta_id: {
       type: DataTypes.INTEGER,
     },
-    sem_id:{
+    sem_id: {
       type: DataTypes.STRING(3),
     },
     question: DataTypes.TEXT,
-    tried_so_far: DataTypes.TEXT,
     location: DataTypes.STRING,
     assignment: DataTypes.STRING,
     entry_time: DataTypes.DATE,
