@@ -55,7 +55,7 @@ export default function StudentEntry(props) {
         <TableCell padding='none' align="left" sx={{ pt: 2, pb: 2, fontSize: '16px', width: '60%', pr: 2 }}>{`[${student.topic}] ${student.question}`}</TableCell>
         {EntryTails(
           {
-            ... props,
+            ...props,
             removeRef:removeRef, 
             confirmRemove: confirmRemove, 
             handleRemoveButton: handleRemoveButton,
