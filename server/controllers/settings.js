@@ -629,11 +629,12 @@ exports.post_update_locations = function(req, res) {
     }
     dayDictionary = newDayDictionary
     console.log(dayDictionary)
-    respond(req, res, `New location day created successfully`, { dayDictionary: dayDictionary }, 200);
+    respond(req, res, `Location changed successfully`, { dayDictionary: dayDictionary }, 200);
 }
 
 exports.get_locations = function (req, res) {
     // console.log(req, res)
-    respond(req, res, "get locations successful", {dayDictionary: dayDictionary}, 200);
+    // res.data = {dayDictionary: dayDictionary}
+    respond(req, res, null, {dayDictionary: dayDictionary}, 200);
     return dayDictionary
 }

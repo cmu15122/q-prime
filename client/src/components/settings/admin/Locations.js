@@ -119,6 +119,7 @@ export default function Locations(props) {
                                             convertIdxToDays={convertIdxToDays}
                                             room={room}
                                             days={roomDictionary[room]}
+                                            daysOfWeek={daysOfWeek}
                                             roomDictionary={roomDictionary}
                                             setRoomDictionary={setRoomDictionary}
                                             dayDictionary={dayDictionary}
