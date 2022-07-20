@@ -25,6 +25,9 @@ class HomeDataService {
   removeStudent(data) {
     return http.post("/removeStudent", data);
   }
+  displayStudents() {
+    return http.get("/displayStudents");
+  }
 }
 
 export default new HomeDataService();
