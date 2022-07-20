@@ -18,7 +18,8 @@ module.exports = (sequelize, DataTypes) => {
     question_id: {
       type: DataTypes.INTEGER,
       unique: true,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
     },
     student_id: {
       type: DataTypes.INTEGER,
@@ -38,6 +39,7 @@ module.exports = (sequelize, DataTypes) => {
     num_asked_to_fix: DataTypes.BIGINT
   }, {
     sequelize,
+    initialAutoIncrement: 1,
     modelName: 'question',
     tableName: 'question'
   });

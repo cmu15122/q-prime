@@ -277,7 +277,9 @@ exports.post_remove_student = function (req, res) {
     // TODO, FIXME: Don't write TA added questions to the database or TA manually removed questions
     models.account.findOrCreate({
         where: {
-            email: `${returnedData.andrewID}@andrew.edu.cmu`
+            email: {
+                [Sequelize.Op.like]: returnedData.andrewID + '@%'
+            }
         }
     }).then(([account, created]) => {
         if (created) {
@@ -288,25 +290,27 @@ exports.post_remove_student = function (req, res) {
         return Promise.props({
             account: account,
             student: models.student.findOrCreate({
-                student_id: account.user_id
+                where: {
+                    student_id: account.user_id
+                }
             })
         })
     }).then((results) => {
         return Promise.props({
             account: results.account,
-            student: results.student,
-            question: models.findOrCreate({
+            student: results.student[0],
+            question: models.question.create({
                 where: {
                     ta_id: returnedData.taID,
                     student_id: student.student_id,
                     sem_id: settings.get_admin_settings().currSem,
                     question: returnedData.question,
                     location: returnedData.location,
-                    assignment: returnedData.topic,
+                    assignment: returnedData.topic.topic_id,
                     entry_time: returnedData.entry_time,
                     help_time: returnedData.helpTime,
                     exit_time: moment.tz(new Date(), "America/New_York").toDate(),
-                    num_asked_to_fix: returnedData.num_asked_to_fix
+                    num_asked_to_fix: returnedData.numAskedToFix
                 }
             })
         })
