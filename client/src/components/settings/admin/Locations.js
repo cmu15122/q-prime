@@ -27,6 +27,7 @@ export default function Locations(props) {
     const { theme, queueData } = props
 
     const [open, setOpen] = useState(false);
+    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
     // TODO: fix string vs int in dictionary so that it properly shows up
     // TODO: figure out why strings are comma concat when swapping/converting
@@ -55,15 +56,20 @@ export default function Locations(props) {
         }
     }, [queueData]);
 
-    const swapAndGroup = (obj) => {
+    const dayToRoomDictionary = (obj) => {
         return Object.entries(obj).reduce((ret, entry) => {
-            const [ key, value ] = entry;
-            if (ret[value]) {
-                // seen before
-                ret[value].push(key)
-            } else {
-                ret[value] = [key]
+            const [ key, rooms ] = entry;
+            console.log(key, rooms)
+            for (let roomIdx in rooms) {
+                let room = rooms[roomIdx]
+                if (ret[room]) {
+                    // seen before
+                    ret[room].push(parseInt(key))
+                } else {
+                    ret[room] = [parseInt(key)]
+                }
             }
+            
             return ret;
           }, {})
     }
@@ -71,9 +77,13 @@ export default function Locations(props) {
     const updateRoomDictionary = (newDayDictionary) => {
         if (!newDayDictionary) return
         console.log(newDayDictionary)
-        let newRoomDictionary = swapAndGroup(newDayDictionary)
+        let newRoomDictionary = dayToRoomDictionary(newDayDictionary)
         console.log(newRoomDictionary)
         setRoomDictionary(newRoomDictionary)
+    }
+
+    const convertIdxToDays = (idxArr) => {
+        return idxArr.map((idx) => daysOfWeek[idx])
     }
 
     return (
@@ -105,7 +115,8 @@ export default function Locations(props) {
                                         {room}
                                     </TableCell>
                                     <TableCell component="th" align='right' sx={{ fontSize: '16px', fontStyle: 'italic', pr: 3.25 }}>
-                                        <DayPicker 
+                                        <DayPicker
+                                            convertIdxToDays={convertIdxToDays}
                                             room={room}
                                             days={roomDictionary[room]}
                                             roomDictionary={roomDictionary}

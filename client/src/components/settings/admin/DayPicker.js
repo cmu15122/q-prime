@@ -7,14 +7,18 @@ import SettingsService from '../../../services/SettingsService';
 const _ = require("underscore")
 
 export default function DayPicker(props) {
-    const { room, roomDictionary, setRoomDictionary } = props
+    const { convertIdxToDays, room, roomDictionary, setRoomDictionary } = props
     const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-    const [newDays, setNewDays] = useState(roomDictionary[room])
+    const [newDays, setNewDays] = useState(convertIdxToDays(roomDictionary[room]))
     
+    const convertDaysToIdx = (daysArr) => {
+        return daysArr.map((day) => daysOfWeek.indexOf(day))
+    }
+
     const handleDayClick = (event, newArr) => {
         setNewDays(newArr)
         let newRoomDictionary = roomDictionary
-        newRoomDictionary[room] = newArr
+        newRoomDictionary[room] = convertDaysToIdx(newArr)
         setRoomDictionary(newRoomDictionary)
         console.log(roomDictionary)
         SettingsService.updateLocations(
