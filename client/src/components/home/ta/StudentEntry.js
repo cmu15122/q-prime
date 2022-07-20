@@ -4,11 +4,10 @@ import {
 } from '@mui/material'
 
 import EntryTails from './EntryTails';
-import HomeService from '../../../services/HomeService';
 
 export default function StudentEntry(props) {
 
-  const { theme, student, index, isHelping, helpIdx, handleClickHelp, handleCancel, handleClickUnfreeze } = props
+  const { theme, student, index, isHelping, helpIdx, handleClickHelp, handleCancel, removeStudent, handleClickUnfreeze } = props
 
   const [confirmRemove, setConfirmRemove] = React.useState(false);
 
@@ -30,27 +29,11 @@ export default function StudentEntry(props) {
     }
   })
 
-  function removeStudent() {
-    console.log('remove student sent!')
-    HomeService.removeStudent(JSON.stringify({
-
-      // TODO: this relies on Meng's PR
-      andrewID: student.andrewID
-    })).then(res => {
-      if (res.status === 200) {
-        // TODO: UPDATE THE StudentEntries UI
-        console.log("removedFromQueue")
-      } else {
-        console.log("error in remove from queue")
-      }
-    })
-  }
 
   function handleRemoveButton() {
     if (confirmRemove) {
       setConfirmRemove(false);
-      //REMOVE STUDENT FROM QUEUE
-      removeStudent();
+      removeStudent(index);
     }
     else {
       setConfirmRemove(true);
@@ -73,6 +56,7 @@ export default function StudentEntry(props) {
           confirmRemove: confirmRemove,
           handleRemoveButton: handleRemoveButton,
           removeStudent: removeStudent,
+          handleClickHelp: handleClickHelp,
           handleClickUnfreeze: handleClickUnfreeze
         }
       )}

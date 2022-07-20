@@ -5,7 +5,7 @@ const moment = require("moment-timezone");
 const OHQueue = queue.OHQueue;
 const StudentStatus = queue.StudentStatus;
 
-function testData (data, andrewID, question, location, topic, entryTime) {
+function testData(data, andrewID, question, location, topic, entryTime) {
     expect(data.andrewID).toBe(andrewID);
     expect(data.question).toBe(question);
     expect(data.location).toBe(location);
@@ -26,7 +26,7 @@ describe('Queue tests', () => {
 
         const entryTime = moment.tz(new Date(), "America/New_York").toDate();
         queue.enqueue("student1", "stud1", "qn1", "loc1", "top1", entryTime);
-        
+
         expect(queue.size()).toBe(1);
         expect(queue.getPosition("student1")).toBe(0);
         expect(queue.getStatus("student1")).toBe(StudentStatus.WAITING);
@@ -122,7 +122,7 @@ describe('Queue tests', () => {
         testData(student2Data, "stud2", "qn2", "loc2", "top2", entryTime);
         expect(queue.size()).toBe(0);
     });
-    
+
     test('Can help/unhelp someone on the queue', () => {
         const queue = new OHQueue();
         expect(queue.size()).toBe(0);
@@ -133,20 +133,22 @@ describe('Queue tests', () => {
         expect(queue.getStatus("student1")).toBe(StudentStatus.WAITING);
 
         const helpTime = moment.tz(new Date(), "America/New_York").toDate();
-        queue.help("student1", "ta1", helpTime);
+        queue.help("student1", "ta1", "taAndrew1", helpTime);
         expect(queue.getStatus("student1")).toBe(StudentStatus.BEING_HELPED);
         const student1Data = queue.getData("student1");
         expect(student1Data.taID).toBe("ta1");
+        expect(student1Data.taAndrewID).toBe("taAndrew1");
         expect(student1Data.helpTime).toBe(helpTime);
         expect(student1Data.isFrozen).toBe(false);
 
         queue.unhelp("student1");
         expect(queue.getStatus("student1")).toBe(StudentStatus.WAITING);
         expect(student1Data.taID).toBe(null);
+        expect(student1Data.taAndrewID).toBe(null);
         expect(student1Data.helpTime).toBe(null);
         expect(student1Data.isFrozen).toBe(false);
     });
-    
+
     test('Can freeze/unfreeze someone on the queue', () => {
         const queue = new OHQueue();
         expect(queue.size()).toBe(0);
@@ -166,7 +168,7 @@ describe('Queue tests', () => {
         expect(queue.getStatus("student1")).toBe(StudentStatus.WAITING);
         expect(student1Data.isFrozen).toBe(false);
     });
-    
+
     test('Can set/unset fix question for someone on the queue', () => {
         const queue = new OHQueue();
         expect(queue.size()).toBe(0);
@@ -188,7 +190,7 @@ describe('Queue tests', () => {
         expect(student1Data.isFrozen).toBe(false);
         expect(student1Data.numAskedToFix).toBe(1);
     });
-    
+
     test('Can set/unset cooldown violation for someone on the queue', () => {
         const queue = new OHQueue();
         expect(queue.size()).toBe(0);
@@ -208,7 +210,7 @@ describe('Queue tests', () => {
         expect(queue.getStatus("student1")).toBe(StudentStatus.WAITING);
         expect(student1Data.isFrozen).toBe(false);
     });
-    
+
     test('Removing will shift order bypassing frozen students', () => {
         const queue = new OHQueue();
         expect(queue.size()).toBe(0);
@@ -223,7 +225,7 @@ describe('Queue tests', () => {
         const student2Data = queue.getData("student2");
         const student3Data = queue.getData("student3");
         const student4Data = queue.getData("student4");
-        const student5Data = queue.getData("student5");        
+        const student5Data = queue.getData("student5");
         expect(queue.size()).toBe(5);
 
         queue.freeze("student2");
@@ -254,7 +256,7 @@ describe('Queue tests', () => {
         queue.enqueue("student6", "stud6", "qn6", "loc6", "top6", entryTime);
         queue.setCooldownViolation("student6");
         expect(queue.size()).toBe(4);
-        
+
         queue.enqueue("student7", "stud7", "qn7", "loc7", "top7", entryTime);
         expect(queue.size()).toBe(5);
 
@@ -265,5 +267,5 @@ describe('Queue tests', () => {
         expect(queue.getPosition("student4")).toBe(2);
         expect(queue.getPosition("student6")).toBe(3);
     });
-    
+
 });
