@@ -16,11 +16,6 @@ let queueFrozen = false;
 
 const ohq = new queue.OHQueue();
 
-/** Dummy information for testing */
-ohq.enqueue("student1");
-ohq.enqueue("student2");
-ohq.enqueue("student3");
-
 let waitTime = 20;
 
 /** Helper Functions **/
@@ -327,4 +322,24 @@ exports.post_remove_student = function (req, res) {
             message: 'The student was removed from the queue but an error occurred adding the question to the database'
         })
     })
+}
+
+exports.get_display_students = function(req, res) {
+    // assuming that students at front of queue go first
+    var allStudents = ohq.getAllStudentData();
+    allStudents = allStudents.map((student) => {
+        let studentEntryData = {
+            name: "who are you :(", // TODO: update queue to store actual name of student
+            andrewID: student.andrewID, 
+            topic: student.topic.name,
+            question: student.question,
+            status: student.status
+        }
+
+        return studentEntryData;
+
+        })
+        
+    res.status(200);
+    res.send(allStudents);
 }

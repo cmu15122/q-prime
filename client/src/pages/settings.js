@@ -23,7 +23,7 @@ class Settings extends Component {
   render() {
     return (
       <div className="Settings">
-        <Navbar theme={this.props.theme} queueData={this.state.queueData}/>
+        <Navbar theme={this.props.theme} queueData={this.state.queueData} />
         <SettingsMain theme={this.props.theme} queueData={this.state.queueData}/>
       </div>
     );

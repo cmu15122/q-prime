@@ -132,6 +132,19 @@ class LinkedList {
         return currNode.data;
     }
 
+    /** Gets an array of all data in the linked list */
+    getAll() {
+        var allNodes = []
+        var currNode = this.start;
+
+        while (currNode != null) {
+            allNodes.push(currNode.data);
+            currNode = currNode.next;
+        }
+
+        return allNodes;
+    }
+
     /** Returns the first Node whose data satisfies the given predicate; null if none found */
     find(predicate) {
         var currNode = this.start;
@@ -314,7 +327,7 @@ const StudentStatus = Object.freeze({
  *      status: StudentStatus,
  *      question: string,
  *      location: string,
- *      topic: string,
+ *      topic: json string (fields: topic_id (int), name (string)
  *      entryTime: Moment object,
  *      taID: int,
  *      helpTime: Moment object,
@@ -360,6 +373,11 @@ class OHQueue {
         
         assert(node.data != null);
         return node.data;
+    }
+
+    /** Returns an array of student data for all students currently on the queue */
+    getAllStudentData() {
+        return this.queue.getAll();
     }
 
     /** If found, returns the status of the student with the given id; else returns error */
