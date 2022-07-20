@@ -40,8 +40,8 @@ export default function DayPicker(props) {
             size='small'
         >
             {daysOfWeek.map((day) => (
-                <ToggleButton color='primary' sx={{m: 0, pl: 3, pr: 3}} value={day} key={day} aria-label={day}>
-                    {day.charAt(0)}
+                <ToggleButton color='primary' sx={{m: 0, p: 0}} value={day} key={day} aria-label={day}>
+                    <Button variant={(roomDictionary[room].includes(day)) ? 'outlined' : 'text'} size='small' sx={{m: 0, p: 0}}>{day.charAt(0)}</Button>
                     {/* <Button size='small' variant={(roomDictionary[room].includes(day)) ? 'contained' : 'outlined'} sx={{m: 0, pl: 0, pr: 0}} value={day}>{day.charAt(0)}</Button> */}
                 </ToggleButton>
             ))}
