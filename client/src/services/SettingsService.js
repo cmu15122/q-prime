@@ -46,6 +46,12 @@ class SettingsDataService {
   getLocations() {
     return http.get("/settings/locations/get");
   }
+  addLocation(data) {
+    return http.post("/settings/locations/add", data);
+  }
+  removeLocation(data) {
+    return http.post("/settings/locations/remove", data);
+  }
 }
 
 export default new SettingsDataService();

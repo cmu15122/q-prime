@@ -18,5 +18,7 @@ router.post('/config/questions/update', settings.post_update_questions_url);
 router.post('/config/rejoin/update', settings.post_update_rejoin_time);
 router.post('/locations/update', settings.post_update_locations);
 router.get('/locations/get', settings.get_locations);
+router.post('/locations/add', settings.add_location);
+router.post('/locations/remove', settings.remove_location);
 
 module.exports = router;

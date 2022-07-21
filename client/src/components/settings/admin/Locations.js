@@ -7,6 +7,7 @@ import {
     Edit, Delete, ExpandMore, FindInPage, DataObjectSharp
 } from '@mui/icons-material';
 import DayPicker from './DayPicker';
+import AddLocationDialog from './dialogs/AddLocationDialog';
 import Cookies from 'universal-cookie';
 import SettingsService from '../../../services/SettingsService';
 
@@ -27,20 +28,25 @@ export default function Locations(props) {
     const { theme, queueData } = props
 
     const [open, setOpen] = useState(false);
-    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const [openAdd, setOpenAdd] = React.useState(false);
 
-    // TODO: fix string vs int in dictionary so that it properly shows up
-    // TODO: figure out why strings are comma concat when swapping/converting
     const handleClick = () => {
         setOpen(!open);
         SettingsService.getLocations().then(res => {
-            console.log(res)
-            console.log(res.data)
             let dayDict = res.data.dayDictionary
             updateRoomDictionary(dayDict)
         })
-        console.log(Object.keys(roomDictionary))
     };
+
+    const handleAdd = () => {
+        setOpenAdd(true);
+    };
+
+    const handleClose = () => {
+        setOpenAdd(false);
+    };
+
     const [roomDictionary, setRoomDictionary] = useState({}) // dict of location: [days]
     const [dayDictionary, setDayDictionary] = useState({})
 
@@ -59,14 +65,19 @@ export default function Locations(props) {
     const dayToRoomDictionary = (obj) => {
         return Object.entries(obj).reduce((ret, entry) => {
             const [ key, rooms ] = entry;
-            console.log(key, rooms)
             for (let roomIdx in rooms) {
                 let room = rooms[roomIdx]
                 if (ret[room]) {
                     // seen before
-                    ret[room].push(parseInt(key))
+                    let keyInt = parseInt(key)
+                    if (keyInt != null){
+                        ret[room].push(keyInt)
+                    }
                 } else {
-                    ret[room] = [parseInt(key)]
+                    let keyInt = parseInt(key)
+                    if (keyInt != null){
+                        ret[room] = [keyInt]
+                    }
                 }
             }
             
@@ -76,9 +87,7 @@ export default function Locations(props) {
 
     const updateRoomDictionary = (newDayDictionary) => {
         if (!newDayDictionary) return
-        console.log(newDayDictionary)
         let newRoomDictionary = dayToRoomDictionary(newDayDictionary)
-        console.log(newRoomDictionary)
         setRoomDictionary(newRoomDictionary)
     }
 
@@ -124,24 +133,31 @@ export default function Locations(props) {
                                             setRoomDictionary={setRoomDictionary}
                                             dayDictionary={dayDictionary}
                                             setDayDictionary={setDayDictionary}
+                                            dayToRoomDictionary={dayToRoomDictionary}
                                         />
                                     </TableCell>
                                 </TableRow>
                             ))}
-                                {/* <TableRow
+                                <TableRow
                                     key='add'
                                     style={{ background : theme.palette.background.default }}
                                 >
                                     <TableCell align="center" colSpan={5}>
                                         <Button sx={{ mr: 1, fontWeight: 'bold', fontSize: '18px' }} color="primary" variant="contained" onClick={() => handleAdd()}>
-                                            + Add Topic
+                                            + Add Location
                                         </Button>
                                     </TableCell>
-                                </TableRow> */}
+                                </TableRow>
                             </TableBody>
                         </Table>
                 </Collapse>
             </Card>
+            <AddLocationDialog
+                isOpen={openAdd}
+                onClose={handleClose}
+                setRoomDictionary={setRoomDictionary}
+                dayToRoomDictionary={dayToRoomDictionary}
+            />
         </div>
     );
 }

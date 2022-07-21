@@ -586,7 +586,33 @@ exports.post_delete_ta = function (req, res) {
 }
 
 /* BEGIN LOCATIONS */
-let dayDictionary = {"": ["GHC", "WEAN"]}
+let dayDictionary = {}
+// invariant: rooms are held at -1 to make sure they appear in the options, but could be empty days
+// when removing a room, need to remove it from -1 as well
+// mapping is 1-to-1 where Sunday = 0... Saturday = 6
+
+exports.add_location = function(req, res) {
+    if (!req.user || !req.user.isAdmin) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    var room = req.body.room;
+    if (!room) {
+        respond_error(req, res, "Invalid/missing parameters in request", 400);
+        return;
+    }
+
+    if (dayDictionary["-1"]) {
+        dayDictionary["-1"].push(room)
+    } else {
+        dayDictionary["-1"] = [room]
+    }
+
+    respond(req, res, `Location added successfully`, { dayDictionary: dayDictionary }, 200);
+}
+
 exports.post_update_locations = function(req, res) {
     console.log(req.user)
     if (!req.user || !req.user.isAdmin) {
@@ -598,7 +624,7 @@ exports.post_update_locations = function(req, res) {
     var room = req.body.room;
     var days = req.body.days;
     var daysOfWeek = req.body.daysOfWeek;
-    if (!room || !days) {
+    if (!room || !days || !daysOfWeek) {
         respond_error(req, res, "Invalid/missing parameters in request", 400);
         return;
     }
@@ -606,7 +632,6 @@ exports.post_update_locations = function(req, res) {
     var newDayDictionary = dayDictionary
     for (var day in daysOfWeek) {
         if (days.includes(daysOfWeek[day])) {
-            console.log(day)
             // day is selected for room
             // check to see if room already appears for that day in dayDictionary
             let currRoomForDay = newDayDictionary[day]
@@ -628,7 +653,6 @@ exports.post_update_locations = function(req, res) {
         }
     }
     dayDictionary = newDayDictionary
-    console.log(dayDictionary)
     respond(req, res, `Location changed successfully`, { dayDictionary: dayDictionary }, 200);
 }
 
@@ -637,4 +661,43 @@ exports.get_locations = function (req, res) {
     // res.data = {dayDictionary: dayDictionary}
     respond(req, res, null, {dayDictionary: dayDictionary}, 200);
     return dayDictionary
+}
+
+exports.remove_location = function (req, res) {
+    if (!req.user || !req.user.isAdmin) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    var room = req.body.room;
+    var days = req.body.days;
+    if (!room || !days) {
+        respond_error(req, res, "Invalid/missing parameters in request", 400);
+        return;
+    }
+
+    for (dayIdx in days) {
+        if (dayIdx && dayIdx != null){
+            let dayInt = days[dayIdx]
+            if (!dayDictionary[dayInt].includes(room)) {
+                console.log("hmm shouldn't really have a day selected for this room")
+            } else {
+                let roomArrForDay = dayDictionary[dayInt]
+                // safe because room is in roomArrForDay so idx >= 0
+                roomArrForDay.splice(roomArrForDay.indexOf(room), 1)
+                dayDictionary[dayInt] = roomArrForDay
+            }
+        }
+    }
+
+    // REMOVE ROOM FROM -1!!
+    let emptyRoomArr = dayDictionary["-1"]
+    let idx = emptyRoomArr.indexOf(room)
+    if (idx >= 0) {
+        emptyRoomArr.splice(idx, 1)
+    }
+    dayDictionary["-1"] = emptyRoomArr
+
+    respond(req, res, null, {dayDictionary: dayDictionary}, 200);
 }
