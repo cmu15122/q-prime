@@ -591,6 +591,29 @@ let dayDictionary = {}
 // when removing a room, need to remove it from -1 as well
 // mapping is 1-to-1 where Sunday = 0... Saturday = 6
 
+const dayToRoomDictionary = (obj) => {
+    return Object.entries(obj).reduce((ret, entry) => {
+        const [ key, rooms ] = entry;
+        for (let roomIdx in rooms) {
+            let room = rooms[roomIdx]
+            if (ret[room]) {
+                // seen before
+                let keyInt = parseInt(key)
+                if (keyInt != null){
+                    ret[room].push(keyInt)
+                }
+            } else {
+                let keyInt = parseInt(key)
+                if (keyInt != null){
+                    ret[room] = [keyInt]
+                }
+            }
+        }
+        
+        return ret;
+      }, {})
+}
+
 exports.add_location = function(req, res) {
     if (!req.user || !req.user.isAdmin) {
         message = "You don't have permissions to perform this operation";
@@ -610,7 +633,9 @@ exports.add_location = function(req, res) {
         dayDictionary["-1"] = [room]
     }
 
-    respond(req, res, `Location added successfully`, { dayDictionary: dayDictionary }, 200);
+    var roomDictionary = dayToRoomDictionary(dayDictionary)
+
+    respond(req, res, `Location added successfully`, { dayDictionary: dayDictionary, roomDictionary: roomDictionary }, 200);
 }
 
 exports.post_update_locations = function(req, res) {
@@ -653,13 +678,15 @@ exports.post_update_locations = function(req, res) {
         }
     }
     dayDictionary = newDayDictionary
-    respond(req, res, `Location changed successfully`, { dayDictionary: dayDictionary }, 200);
+
+    var roomDictionary = dayToRoomDictionary(dayDictionary)
+    console.log(roomDictionary)
+    respond(req, res, `Location changed successfully`, { dayDictionary: dayDictionary, roomDictionary: roomDictionary }, 200);
 }
 
 exports.get_locations = function (req, res) {
-    // console.log(req, res)
-    // res.data = {dayDictionary: dayDictionary}
-    respond(req, res, null, {dayDictionary: dayDictionary}, 200);
+    var roomDictionary = dayToRoomDictionary(dayDictionary)
+    respond(req, res, null, {dayDictionary: dayDictionary, roomDictionary: roomDictionary }, 200);
     return dayDictionary
 }
 
@@ -699,5 +726,7 @@ exports.remove_location = function (req, res) {
     }
     dayDictionary["-1"] = emptyRoomArr
 
-    respond(req, res, null, {dayDictionary: dayDictionary}, 200);
+    var roomDictionary = dayToRoomDictionary(dayDictionary)
+
+    respond(req, res, null, {dayDictionary: dayDictionary, roomDictionary: roomDictionary }, 200);
 }

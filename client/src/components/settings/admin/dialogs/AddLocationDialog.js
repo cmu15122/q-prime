@@ -10,7 +10,7 @@ import { DateTime } from 'luxon';
 import SettingsService from '../../../../services/SettingsService';
 
 export default function AddLocationDialog(props) {
-    const { isOpen, onClose, setRoomDictionary, dayToRoomDictionary } = props
+    const { isOpen, onClose, setRoomDictionary } = props
 
     const [room, setRoom] = React.useState("");
 
@@ -21,7 +21,7 @@ export default function AddLocationDialog(props) {
             })
         ).then(res => {
             onClose();
-            setRoomDictionary(dayToRoomDictionary(res.data.dayDictionary))
+            setRoomDictionary(res.data.roomDictionary)
         });
     };
 

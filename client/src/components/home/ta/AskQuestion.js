@@ -24,15 +24,6 @@ export default function AskQuestion(props) {
     const [location, setLocation] = useState('')
     const [topic, setTopic] = useState('')
 
-    // useEffect(() => {
-    //     SettingsService.getLocations().then(res => {
-    //         let day = date.getDay()
-    //         console.log(day)
-    //         let roomsForDay = res.data[day]
-    //         console.log(roomsForDay)
-    //     })
-    // }, []);
-
     useEffect(() => {
         if (queueData != null) {
             updateTopics(queueData.topics);
@@ -56,16 +47,10 @@ export default function AskQuestion(props) {
         let day = date.getDay()
         let newLocations = {}
         SettingsService.getLocations().then(res => {
-            console.log(res)
-            console.log(res.data)
             let dayDict = res.data.dayDictionary
-            console.log(dayDict)
             newLocations = dayDict
         }).then((res) => {
-            console.log('after')
-            console.log(res)
             let roomsForDay = newLocations ? newLocations[day] : []
-            console.log(roomsForDay)
             setLocations(roomsForDay)
         })
     }

@@ -34,8 +34,8 @@ export default function Locations(props) {
     const handleClick = () => {
         setOpen(!open);
         SettingsService.getLocations().then(res => {
-            let dayDict = res.data.dayDictionary
-            updateRoomDictionary(dayDict)
+            let roomDict = res.data.roomDictionary
+            updateRoomDictionary(roomDict)
         })
     };
 
@@ -52,7 +52,7 @@ export default function Locations(props) {
 
     useEffect(() => {
         SettingsService.getLocations().then(res => {
-            updateRoomDictionary(res.data.dayDictionary)
+            updateRoomDictionary(res.data.roomDictionary)
         })
     }, []);
 
@@ -62,33 +62,9 @@ export default function Locations(props) {
         }
     }, [queueData]);
 
-    const dayToRoomDictionary = (obj) => {
-        return Object.entries(obj).reduce((ret, entry) => {
-            const [ key, rooms ] = entry;
-            for (let roomIdx in rooms) {
-                let room = rooms[roomIdx]
-                if (ret[room]) {
-                    // seen before
-                    let keyInt = parseInt(key)
-                    if (keyInt != null){
-                        ret[room].push(keyInt)
-                    }
-                } else {
-                    let keyInt = parseInt(key)
-                    if (keyInt != null){
-                        ret[room] = [keyInt]
-                    }
-                }
-            }
-            
-            return ret;
-          }, {})
-    }
-
-    const updateRoomDictionary = (newDayDictionary) => {
-        if (!newDayDictionary) return
-        let newRoomDictionary = dayToRoomDictionary(newDayDictionary)
-        setRoomDictionary(newRoomDictionary)
+    const updateRoomDictionary = (newRoomDict) => {
+        if (!newRoomDict) return
+        setRoomDictionary(newRoomDict)
     }
 
     const convertIdxToDays = (idxArr) => {
@@ -133,7 +109,6 @@ export default function Locations(props) {
                                             setRoomDictionary={setRoomDictionary}
                                             dayDictionary={dayDictionary}
                                             setDayDictionary={setDayDictionary}
-                                            dayToRoomDictionary={dayToRoomDictionary}
                                         />
                                     </TableCell>
                                 </TableRow>
@@ -156,7 +131,6 @@ export default function Locations(props) {
                 isOpen={openAdd}
                 onClose={handleClose}
                 setRoomDictionary={setRoomDictionary}
-                dayToRoomDictionary={dayToRoomDictionary}
             />
         </div>
     );

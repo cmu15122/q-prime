@@ -8,7 +8,7 @@ import SettingsService from '../../../services/SettingsService';
 const _ = require("underscore")
 
 export default function DayPicker(props) {
-    const { convertIdxToDays, daysOfWeek, room, roomDictionary, setRoomDictionary, dayToRoomDictionary } = props
+    const { convertIdxToDays, daysOfWeek, room, roomDictionary, setRoomDictionary } = props
     const [newDays, setNewDays] = useState(convertIdxToDays(roomDictionary[room]))
     
     const convertDaysToIdx = (daysArr) => {
@@ -37,7 +37,7 @@ export default function DayPicker(props) {
             })
         )
         .then(res => {
-            setRoomDictionary(dayToRoomDictionary(res.data.dayDictionary))
+            setRoomDictionary(res.data.roomDictionary)
         });
     }
 
@@ -52,7 +52,6 @@ export default function DayPicker(props) {
                 {daysOfWeek.map((day) => (
                     <ToggleButton color='primary' sx={{m: 0, p: 0}} value={day} key={day} aria-label={day}>
                         <Button variant={(roomDictionary[room].includes(day)) ? 'outlined' : 'text'} size='small' sx={{m: 0, p: 0}}>{day.charAt(0)}</Button>
-                        {/* <Button size='small' variant={(roomDictionary[room].includes(day)) ? 'contained' : 'outlined'} sx={{m: 0, pl: 0, pr: 0}} value={day}>{day.charAt(0)}</Button> */}
                     </ToggleButton>
                 ))}
             </ToggleButtonGroup>
