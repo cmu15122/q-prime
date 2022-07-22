@@ -8,7 +8,7 @@ import StudentEntry from './StudentEntry';
 import HomeService from '../../../services/HomeService';
 
 export default function StudentEntries(props) {
-    const { theme } = props
+    const { theme, queueData } = props
     const [students, setStudents] = React.useState([]);
     const [isHelping, setIsHelping] = React.useState(false);
     const [helpIdx, setHelpIdx] = React.useState(-1); // idx of student that you are helping, only valid when isHelping is true
@@ -22,16 +22,54 @@ export default function StudentEntries(props) {
         handleGetStudents();
     }, []);
 
+    // stay helping even on page reload
+    React.useEffect(() => {
+        for (let [index, student] of students.entries()) {
+
+            if (student['status'] === 0 && student['taAndrewID'] === queueData.andrewID) {
+                setHelpIdx(index);
+                setIsHelping(true);
+            }
+        }
+    }, [students, queueData])
+
     const handleClickHelp = (index) => {
-        setHelpIdx(index);
-        setIsHelping(true);
-        students[index]['status'] = 0; // Switch student status
+        HomeService.helpStudent(JSON.stringify({
+            andrewID: students[index]['andrewID']
+        })).then(res => {
+            if (res.status === 200) {
+                setHelpIdx(index);
+                setIsHelping(true);
+                students[index]['status'] = 0; // Switch student status
+            }
+        })
     }
 
     const handleCancel = (index) => {
-        setIsHelping(false);
-        setHelpIdx(-1);
-        students[index]['status'] = 1;
+        HomeService.unhelpStudent(JSON.stringify({
+            andrewID: students[index]['andrewID']
+        })).then(res => {
+            if (res.status === 200) {
+                setIsHelping(false);
+                setHelpIdx(-1);
+                students[index]['status'] = 1;
+            }
+        })
+    }
+
+    const removeStudent = (index) => {
+        HomeService.removeStudent(JSON.stringify({
+            andrewID: students[index]['andrewID']
+        })).then(res => {
+            if (res.status === 200) {
+                setStudents(students.filter((student, tempIndex) => {
+                    return tempIndex !== index
+                }))
+
+                setIsHelping(false)
+                setHelpIdx(-1)
+            }
+        })
     }
 
     const handleClickUnfreeze = (index) => {
@@ -42,12 +80,8 @@ export default function StudentEntries(props) {
         students[index]['status'] = 1;
     }
 
-    const addStudent = (index) => {
-        console.log('add student!!');
-    }
-
     return (
-        <div className='card' style={{ display:'flex' }}>
+        <div className='card' style={{ display: 'flex' }}>
             <Card sx={{ minWidth: '100%' }}>
                 <CardActions disableSpacing>
                     <Typography sx={{ fontSize: 20, fontWeight: 'bold', ml: 2, mt: 1 }} variant="h5" gutterBottom>
@@ -55,25 +89,25 @@ export default function StudentEntries(props) {
                     </Typography>
                 </CardActions>
                 <Divider></Divider>
-                    <Table aria-label="topicsTable">
-                        <TableBody>
-                            {students.map((student, index) => (
-                                <StudentEntry
-                                    key={student.andrewID}
-                                    theme={theme}
-                                    student={student}
-                                    index={index}
-                                    isHelping={isHelping}
-                                    helpIdx={helpIdx}
-                                    handleClickHelp={handleClickHelp}
-                                    handleCancel={handleCancel}
-                                    handleClickUnfreeze={handleClickUnfreeze}
-                                    addStudent={addStudent}
-                                ></StudentEntry>
-                            ))}
+                <Table aria-label="topicsTable">
+                    <TableBody>
+                        {students.map((student, index) => (
+                            <StudentEntry
+                                key={student.andrewID}
+                                theme={theme}
+                                student={student}
+                                index={index}
+                                isHelping={isHelping}
+                                helpIdx={helpIdx}
+                                handleClickHelp={handleClickHelp}
+                                handleCancel={handleCancel}
+                                removeStudent={removeStudent}
+                                handleClickUnfreeze={handleClickUnfreeze}
+                            ></StudentEntry>
+                        ))}
 
-                        </TableBody>
-                    </Table>
+                    </TableBody>
+                </Table>
             </Card>
         </div>
     );

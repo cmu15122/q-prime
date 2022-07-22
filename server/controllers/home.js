@@ -21,7 +21,7 @@ let waitTime = 20;
 /** Helper Functions **/
 function respond_error(req, res, message, status) {
     res.status(status);
-    res.json({message: message});
+    res.json({ message: message });
 }
 
 function respond(req, res, message, data, status) {
@@ -59,8 +59,8 @@ exports.get = function (req, res) {
     models.assignment_semester.findAll({
         where: {
             sem_id: settings.get_admin_settings().currSem,
-            start_date: {[Sequelize.Op.lt]: new Date()},
-            end_date: {[Sequelize.Op.gt]: new Date()}
+            start_date: { [Sequelize.Op.lt]: new Date() },
+            end_date: { [Sequelize.Op.gt]: new Date() }
         },
         order: [['end_date', 'ASC']],
         include: models.assignment
@@ -114,7 +114,7 @@ exports.post_unfreeze_queue = function (req, res) {
 }
 
 /** Announcements */
-/** 
+/**
  * {
  *     id: int,
  *     header: string,
@@ -175,7 +175,7 @@ exports.post_update_announcement = function (req, res) {
         content: content
     }
     // TODO: clear all read cookies once updated, will eventually be handled by sockets
-    
+
     respond(req, res, `Announcement updated successfully`, { announcements: announcements }, 200);
 }
 
@@ -194,7 +194,7 @@ exports.post_delete_announcement = function (req, res) {
     }
 
     announcements.splice(index, 1);
-    
+
     respond(req, res, `Announcement deleted successfully`, { announcements: announcements }, 200);
 }
 
@@ -202,33 +202,22 @@ exports.post_delete_announcement = function (req, res) {
 exports.post_add_question = function (req, res) {
     if (!req.user || !req.user.isAuthenticated) {
         res.status(403)
-        res.json({message: 'Invalid permissions to perform this action'})
+        res.json({ message: 'Invalid permissions to perform this action' })
         return
     }
 
-    let id = req.user.student?.student_id;
-    
-    if (req.user.isTA) {
-        id = req.body.andrewID;
-    }
-
-    if (!id) {
-        res.status(400);
-        res.json({message: 'Invalid student ID'});
-        return;
-    }
+    let id = req.body.andrewID
 
     if (ohq.getPosition(id) != -1) {
         res.status(400);
-        res.json({message: 'Student already on the queue'});
+        res.json({ message: 'Student already on the queue' });
         return;
     }
-    
+
     ohq.enqueue(
         id,
-        req.body.andrewID,
-        req.body.question, 
-        req.body.location, 
+        req.body.question,
+        req.body.location,
         req.body.topic,
         moment.tz(new Date(), "America/New_York").toDate()
     )
@@ -238,58 +227,162 @@ exports.post_add_question = function (req, res) {
         position: ohq.getPosition(id)
     }
 
-    if(data.status != null && data.position != null) {
+    if (data.status != null && data.position != null) {
         res.status(200)
         data['message'] = "Successfully added to queue";
         res.json(data)
     } else if (data.status == 5 || data.position == -1) {
         res.status(400)
-        res.json({message: 'The server was unable to find you on the queue after adding you'})
+        res.json({ message: 'The server was unable to find you on the queue after adding you' })
     } else {
         res.status(500)
-        res.json({message: 'The server was unable to add you to the queue'})
+        res.json({ message: 'The server was unable to add you to the queue' })
     }
 
     ohq.print()
 }
 
-exports.post_remove_student = function(req, res) {
-    if (!req.user) {
+exports.post_remove_student = function (req, res) {
+
+    if (!req.user || !req.user.isAuthenticated) {
         res.status(400)
-        res.json({message: 'user data not passed to server'})
-        return
-    } 
-    
-    if (ohq.getPosition(req.user.student.student_id) === -1) {
-        res.status(400)
-        res.json({message: 'student not on the queue'})
+        res.json({ message: 'user data not passed to server' })
         return
     }
 
-    let id = req.user.student.student_id
+    let id = req.body.andrewID
 
-    ohq.remove(id)
+    let taID = req.user.isTA ? req.user.ta.ta_id : null
 
-    if(ohq.getPosition(id) != -1) {
+    if (ohq.getPosition(id) === -1) {
+        res.status(400)
+        res.json({ message: 'student not on the queue' })
+        return
+    }
+
+    let returnedData = ohq.remove(id)
+
+    if (ohq.getPosition(id) != -1) {
         res.status(500)
-        res.json({message: "the server was unable to remove you from the queue"})
+        res.json({ message: "the server was unable to remove you from the queue" })
+        return
     }
 
-    let data = {
-        'message': "successfully removed from the queue"
-    }
-    
-    res.status(200)
-    res.json(data)
+    // TODO, FIXME: Don't write TA added questions to the database or TA manually removed questions
+    models.account.findOrCreate({
+        where: {
+            email: {
+                [Sequelize.Op.like]: returnedData.andrewID + '@%'
+            }
+        },
+        defaults: {
+            email: returnedData.andrewID + '@andrew.cmu.edu'
+        }
+    }).then(([account, created]) => {
+        return Promise.props({
+            account: account,
+            student: models.student.findOrCreate({
+                where: {
+                    student_id: account.user_id
+                }
+            })
+        })
+    }).then((results) => {
+        return Promise.props({
+            account: results.account,
+            student: results.student[0],
+            question: models.question.create({
+                ta_id: taID,
+                student_id: results.student[0].student_id,
+                sem_id: settings.get_admin_settings().currSem,
+                question: returnedData.question,
+                location: returnedData.location,
+                assignment: returnedData.topic.topic_id,
+                entry_time: returnedData.entryTime,
+                help_time: returnedData.helpTime,
+                exit_time: moment.tz(new Date(), "America/New_York").toDate(),
+                num_asked_to_fix: returnedData.numAskedToFix
+            })
+        })
+    }).then((results) => {
+        res.status(200)
+        res.json({
+            message: 'The student was successfully removed form the queue and a question record was added to the database',
+            question_id: results.question.question_id,
+        })
+    }).catch((err) => {
+        console.log(err)
+        res.status(500)
+        res.json({
+            message: 'The student was removed from the queue but an error occurred adding the question to the database'
+        })
+    })
 }
 
-exports.get_display_students = function(req, res) {
+exports.post_help_student = function (req, res) {
+
+    if (!req.user || !req.user.isAuthenticated) {
+        res.status(400)
+        res.json({ message: 'user data not passed to server' })
+        return
+    }
+    else if (!req.user.isTA) {
+        console.log(req.user)
+        res.status(400)
+        res.json({ message: 'this request was not made by a TA' })
+        return
+    }
+
+    let id = req.body.andrewID
+
+    if (ohq.getPosition(id) === -1) {
+        res.status(400)
+        res.json({ message: 'student not on the queue' })
+        return
+    }
+
+    ohq.help(id, req.user.ta.ta_id, req.user.andrewID, moment.tz(new Date(), "America/New_York").toDate())
+
+    res.status(200)
+    res.json({ message: 'The student was helped' })
+}
+
+exports.post_unhelp_student = function (req, res) {
+
+    if (!req.user || !req.user.isAuthenticated) {
+        res.status(400)
+        res.json({ message: 'user data not passed to server' })
+        return
+    }
+    else if (!req.user.isTA) {
+        console.log(req.user)
+        res.status(400)
+        res.json({ message: 'this request was not made by a TA' })
+        return
+    }
+
+    let id = req.body.andrewID
+
+    if (ohq.getPosition(id) === -1) {
+        res.status(400)
+        res.json({ message: 'student not on the queue' })
+        return
+    }
+
+    ohq.unhelp(id)
+
+    res.status(200)
+    res.json({ message: 'The student was unhelped' })
+}
+
+exports.get_display_students = async function (req, res) {
     // assuming that students at front of queue go first
     var allStudents = ohq.getAllStudentData();
     allStudents = allStudents.map((student) => {
         let studentEntryData = {
             name: "who are you :(", // TODO: update queue to store actual name of student
-            andrewID: student.andrewID, 
+            andrewID: student.andrewID,
+            taAndrewID: student.taAndrewID,
             topic: student.topic.name,
             question: student.question,
             status: student.status
@@ -297,8 +390,8 @@ exports.get_display_students = function(req, res) {
 
         return studentEntryData;
 
-        })
-        
+    })
+
     res.status(200);
     res.send(allStudents);
 }
