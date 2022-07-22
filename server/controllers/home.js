@@ -40,7 +40,6 @@ exports.get = function (req, res) {
         res.send(data);
         return;
     }
-
     let data = {
         queueData: {
             title: "15-122 Office Hours Queue",

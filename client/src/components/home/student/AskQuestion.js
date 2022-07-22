@@ -4,13 +4,16 @@ import {
     FormControl, InputLabel, MenuItem, Box, Select, Input, Button
 } from '@mui/material';
 import HomeService from '../../../services/HomeService';
+import SettingsService from '../../../services/SettingsService';
 
 function createData(topic_id, name) {
     return { topic_id, name };
 }
 
+let date = new Date();
+
 export default function AskQuestion(props) {
-    const locations = ['Remote', 'GHC 4211', 'Honk\'s Closet'];
+    const [locations, setLocations] = useState([])
     const [topics, setTopics] = useState([]);
 
     const { 
@@ -29,6 +32,7 @@ export default function AskQuestion(props) {
     useEffect(() => {
         if (queueData != null) {
             updateTopics(queueData.topics);
+            updateLocations()
         }
     }, [queueData]);
 
@@ -42,6 +46,18 @@ export default function AskQuestion(props) {
         });
         newRows.push(createData(-1, "Other"));
         setTopics(newRows);
+    }
+
+    function updateLocations() {
+        let day = date.getDay()
+        let newLocations = {}
+        SettingsService.getLocations().then(res => {
+            let dayDict = res.data.dayDictionary
+            newLocations = dayDict
+        }).then((res) => {
+            let roomsForDay = newLocations ? newLocations[day] : []
+            setLocations(roomsForDay)
+        })
     }
 
     function handleSubmit(event) {

@@ -5,13 +5,16 @@ import {
 } from '@mui/material'
 
 import HomeService from '../../../services/HomeService';
+import SettingsService from '../../../services/SettingsService';
 
 function createData(topic_id, name) {
     return { topic_id, name };
 }
 
+let date = new Date();
+
 export default function AskQuestion(props) {
-    const locations = ['Remote', 'GHC 4211', 'Honk\'s Closet'];
+    const [locations, setLocations] = useState([])
     const [topics, setTopics] = useState([]);
 
     const { questionValue, setQuestionValue, queueData, theme } = props
@@ -24,6 +27,7 @@ export default function AskQuestion(props) {
     useEffect(() => {
         if (queueData != null) {
             updateTopics(queueData.topics);
+            updateLocations()
         }
     }, [queueData]);
 
@@ -37,6 +41,18 @@ export default function AskQuestion(props) {
         });
         newRows.push(createData(-1, "Other"));
         setTopics(newRows);
+    }
+
+    function updateLocations() {
+        let day = date.getDay()
+        let newLocations = {}
+        SettingsService.getLocations().then(res => {
+            let dayDict = res.data.dayDictionary
+            newLocations = dayDict
+        }).then((res) => {
+            let roomsForDay = newLocations ? newLocations[day] : []
+            setLocations(roomsForDay)
+        })
     }
     
     function callAddQuestionAPI() {
@@ -111,7 +127,7 @@ export default function AskQuestion(props) {
                                         label="Location"
                                         onChange={(e)=>setLocation(e.target.value)}
                                     >
-                                        {locations.map((loc) => <MenuItem value={loc} key={loc}>{loc}</MenuItem>)}
+                                        {(locations || []).map((loc) => <MenuItem value={loc} key={loc}>{loc}</MenuItem>)}
                                     </Select>
                                 </FormControl>
                             </Box>
