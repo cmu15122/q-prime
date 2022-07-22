@@ -274,6 +274,9 @@ exports.post_remove_student = function (req, res) {
             email: {
                 [Sequelize.Op.like]: returnedData.andrewID + '@%'
             }
+        },
+        defaults: {
+            email: returnedData.andrewID + '@andrew.cmu.edu'
         }
     }).then(([account, created]) => {
         return Promise.props({
