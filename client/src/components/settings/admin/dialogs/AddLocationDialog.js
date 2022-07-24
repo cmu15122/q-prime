@@ -34,21 +34,23 @@ export default function AddLocationDialog(props) {
                 <Typography sx={{ pb: 2, fontWeight: 'bold', fontSize: '22px', textAlign: 'center' }}>
                     Add New Location
                 </Typography>
-                <Grid container spacing={3} >
-                        <TextField
-                            label="Location: Building + Room Name"
-                            variant="standard"
-                            required
-                            fullWidth
-                            value={room}
-                            onChange={(e) => {
-                                setRoom(e.target.value)
-                            }}
-                        />
-                </Grid>
-                <Box textAlign='center' sx={{pt: 6}}>
-                    <Button onClick={handleCreate} variant="contained" sx={{ alignSelf: 'center' }}>Add</Button>
-                </Box>
+                <form onSubmit={handleCreate}>
+                    <Grid container spacing={3} >
+                            <TextField
+                                label="Location: Building + Room Name"
+                                variant="standard"
+                                required
+                                fullWidth
+                                value={room}
+                                onChange={(e) => {
+                                    setRoom(e.target.value)
+                                }}
+                            />
+                    </Grid>
+                    <Box textAlign='center' sx={{pt: 6}}>
+                        <Button variant="contained" sx={{ alignSelf: 'center' }} type="submit" >Add</Button>
+                    </Box>
+                </form>
             </DialogContent>
         </Dialog>
     );
