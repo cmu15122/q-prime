@@ -7,8 +7,11 @@ const login = require('../controllers/login');
 router.get('/', home.get);
 router.post('/freezeQueue', home.post_freeze_queue);
 router.post('/unfreezeQueue', home.post_unfreeze_queue);
-router.post('/addQuestion', home.post_add_question)
-router.post('/removeStudent', home.post_remove_student)
+router.post('/addQuestion', home.post_add_question);
+router.post('/removeStudent', home.post_remove_student);
+router.post('/helpStudent', home.post_help_student);
+router.post('/unhelpStudent', home.post_unhelp_student);
+router.get('/displayStudents', home.get_display_students);
 
 router.post('/announcements/create', home.post_create_announcement);
 router.post('/announcements/update', home.post_update_announcement);

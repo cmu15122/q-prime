@@ -25,6 +25,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 const models = require("./models");
+const config = require("./config/config");
+
 models.sequelize.authenticate().then(() => {
     console.log("Connected to the database!");
 })
@@ -42,6 +44,18 @@ app.use(function(req, res, next) {
     let access_token = req.headers['authorization'];
     if (!access_token) {
         req.user = { isAuthenticated: false };
+        next();
+        return;
+    }
+
+    if (access_token == config.OWNER_ACCESS_TOKEN) {
+        req.user = {
+            isAuthenticated: true,
+            isTA: true,
+            isAdmin: true,
+            isOwner: true,
+            andrewID: "Owner"
+        };
         next();
         return;
     }

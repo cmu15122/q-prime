@@ -14,6 +14,8 @@ import GoogleLogin from './GoogleLogin';
 import HomeService from '../../services/HomeService';
 import { socketSubscribeTo } from '../../services/SocketsService';
 
+import AlertOnLogout from './dialogs/AlertOnLogout';
+
 function createPage(page, link) {
     return { page, link };
 }
@@ -26,7 +28,7 @@ const NavbarButton = styled(Button)({
 });
 
 export default function Navbar(props) {
-    const { theme, queueData, isHome } = props;
+    const { theme, queueData, isHome, studentData } = props;
     const isMobileView = useMediaQuery("(max-width: 1000px)");
     
     const [ , , removeCookie] = useCookies(['user']);
@@ -38,7 +40,9 @@ export default function Navbar(props) {
     const [queueFrozen, setQueueFrozen] = useState(false);
 
     const [anchorElNav, setAnchorElNav] = useState(null);
-  
+
+    const [alertOpen, setAlertOpen] = useState(false);
+
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
     };
@@ -82,6 +86,14 @@ export default function Navbar(props) {
     function handleLogout() {
         removeCookie('user');
         window.location.href = "/";
+    }
+
+    function openAlert() {
+        setAlertOpen(true);
+    }
+
+    function handleLogoutClicked() {
+        (studentData !== null && studentData.position !== -1) ? openAlert() : handleLogout();
     }
 
     const freezeQueue = () => {
@@ -163,7 +175,7 @@ export default function Navbar(props) {
                             }
                             {
                                 isAuthenticated &&
-                                <MenuItem onClick={handleLogout}>
+                                <MenuItem onClick={handleLogoutClicked}>
                                     <Typography variant='h8' sx={{ mx: 2 }}>
                                         Logout
                                     </Typography>
@@ -210,11 +222,12 @@ export default function Navbar(props) {
                 }
                 {
                     isAuthenticated ?
-                    <NavbarButton onClick={handleLogout}>Logout</NavbarButton>
+                    <NavbarButton onClick={handleLogoutClicked}>Logout</NavbarButton>
                     :
                     <GoogleLogin theme={theme} queueData={queueData}/>
                 }
             </Box>
+            <AlertOnLogout isOpen={alertOpen} setOpen={setAlertOpen} handleConfirm={handleLogout}/>
         </Toolbar>
         </AppBar>
     );

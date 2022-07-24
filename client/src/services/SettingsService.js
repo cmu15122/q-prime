@@ -40,6 +40,18 @@ class SettingsDataService {
   updateRejoinTime(data) {
     return http.post("/settings/config/rejoin/update", data);
   }
+  updateLocations(data) {
+    return http.post("/settings/locations/update", data);
+  }
+  getLocations() {
+    return http.get("/settings/locations/get");
+  }
+  addLocation(data) {
+    return http.post("/settings/locations/add", data);
+  }
+  removeLocation(data) {
+    return http.post("/settings/locations/remove", data);
+  }
 }
 
 export default new SettingsDataService();

@@ -33,7 +33,7 @@ function createData(id, header, content, markedRead) {
 }
 
 export default function Announcements(props) {
-    const { theme, queueData } = props
+    const { theme, queueData, setAllRead } = props
 
     const [open, setOpen] = useState(false);
 
