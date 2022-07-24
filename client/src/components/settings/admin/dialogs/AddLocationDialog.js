@@ -29,12 +29,15 @@ export default function AddLocationDialog(props) {
         <Dialog
             open={isOpen}
             onClose={onClose}
+            maxWidth="sm"
+            fullWidth
         >
             <DialogContent>
                 <Typography sx={{ pb: 2, fontWeight: 'bold', fontSize: '22px', textAlign: 'center' }}>
                     Add New Location
                 </Typography>
-                <Grid container spacing={3} >
+                <Grid container spacing={3}>
+                    <Grid className="d-flex" item xs={12}>
                         <TextField
                             label="Location: Building + Room Name"
                             variant="standard"
@@ -45,8 +48,9 @@ export default function AddLocationDialog(props) {
                                 setRoom(e.target.value)
                             }}
                         />
+                    </Grid>
                 </Grid>
-                <Box textAlign='center' sx={{pt: 6}}>
+                <Box textAlign='center' sx={{pt: 5}}>
                     <Button onClick={handleCreate} variant="contained" sx={{ alignSelf: 'center' }}>Add</Button>
                 </Box>
             </DialogContent>

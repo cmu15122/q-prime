@@ -52,11 +52,11 @@ export default function AskQuestion(props) {
         let day = date.getDay()
         let newLocations = {}
         SettingsService.getLocations().then(res => {
-            let dayDict = res.data.dayDictionary
-            newLocations = dayDict
-        }).then((res) => {
-            let roomsForDay = newLocations ? newLocations[day] : []
-            setLocations(roomsForDay)
+            let dayDict = res.data.dayDictionary;
+            newLocations = dayDict;
+
+            let roomsForDay = (newLocations && newLocations[day]) ? newLocations[day] : [];
+            setLocations(roomsForDay);
         })
     }
 
