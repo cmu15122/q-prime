@@ -23,7 +23,7 @@ class Metrics extends Component {
   render() {
     return (
       <div className="Metrics">
-          <Navbar theme={this.props.theme} queueData={this.state.queueData}/>
+          <Navbar theme={this.props.theme} queueData={this.state.queueData} askQuestionOrYourEntry={true}/>
           <MetricsMain theme={this.props.theme} queueData={this.state.queueData}/>
       </div>
     );

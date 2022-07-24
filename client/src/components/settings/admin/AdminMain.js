@@ -4,6 +4,7 @@ import {
 } from '@mui/material';
 
 import ConfigSettings from './ConfigSettings'
+import Locations from './Locations';
 import QueueRejoinSettings from './QueueRejoinSettings'
 import QueueTopicSettings from './QueueTopicSettings'
 import TASettings from './TASettings'
@@ -20,6 +21,7 @@ function AdminMain (props) {
       <ConfigSettings theme={theme} queueData={queueData}></ConfigSettings>
       <QueueRejoinSettings theme={theme} queueData={queueData}></QueueRejoinSettings>
       { queueData.adminSettings.currSem && <QueueTopicSettings theme={theme} queueData={queueData}></QueueTopicSettings> }
+      { queueData.adminSettings.currSem && <Locations theme={theme} queueData={queueData}></Locations> }
       { queueData.adminSettings.currSem && <TASettings theme={theme} queueData={queueData}></TASettings> }
     </div>
   );

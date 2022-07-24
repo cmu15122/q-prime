@@ -1,24 +1,21 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-    Typography,
-    Divider,
-    Card,
-    CardContent,
-    Stack,
-    FormControl,
-    InputLabel,
-    MenuItem,
-    Box,
-    Select,
-    Input,
-    Button
-} from '@mui/material'
+    Typography, Divider, Card, CardContent, Stack,
+    FormControl, InputLabel, MenuItem, Box, Select, Input, Button
+} from '@mui/material';
 import HomeService from '../../../services/HomeService';
+import SettingsService from '../../../services/SettingsService';
+
+function createData(topic_id, name) {
+    return { topic_id, name };
+}
+
+let date = new Date();
 
 export default function AskQuestion(props) {
-    const locations = ['Remote', 'GHC 4211', 'Honk\'s Closet'];
-    const topics = ['Knock knock', 'Who\'s there?', 'Honk', 'Honk Who?', 'Honk you!'];
-    
+    const [locations, setLocations] = useState([])
+    const [topics, setTopics] = useState([]);
+
     const { 
         questionValue, 
         setQuestionValue, 
@@ -26,25 +23,55 @@ export default function AskQuestion(props) {
         setLocationValue,
         topicValue,
         setTopicValue,
-        theme, 
         setPosition, 
-        setAskQuestionOrYourEntry 
+        setAskQuestionOrYourEntry,
+        queueData,
+        theme
     } = props
+
+    useEffect(() => {
+        if (queueData != null) {
+            updateTopics(queueData.topics);
+            updateLocations()
+        }
+    }, [queueData]);
+
+    function updateTopics(newTopics) {
+        let newRows = [];
+        newTopics.forEach (topic => {
+            newRows.push(createData(
+                topic.assignment_id, 
+                topic.name,
+            ));
+        });
+        newRows.push(createData(-1, "Other"));
+        setTopics(newRows);
+    }
+
+    function updateLocations() {
+        let day = date.getDay()
+        let newLocations = {}
+        SettingsService.getLocations().then(res => {
+            let dayDict = res.data.dayDictionary
+            newLocations = dayDict
+        }).then((res) => {
+            let roomsForDay = newLocations ? newLocations[day] : []
+            setLocations(roomsForDay)
+        })
+    }
 
     function handleSubmit(event) {
         event.preventDefault();
-
         callAddQuestionAPI()
     }
     
     function callAddQuestionAPI() {
-
         HomeService.addQuestion(
             JSON.stringify({
-                // TODO: unclear if this is entirely safe
                 question: questionValue,
                 location: locationValue,
-                topic: topicValue
+                topic: topicValue,
+                andrewID: queueData.andrewID
             })
         ).then(res => {
             if(res.status === 200) {
@@ -59,16 +86,15 @@ export default function AskQuestion(props) {
     return (
         <div className='card' style={{display:'flex'}}>
             <Card sx={{ minWidth : '100%', background: theme.palette.background.paper}}>
-                <CardContent>
+                <CardContent sx={{ m: 1.5 }}>
                     <Typography variant='h5' sx={{fontWeight: 'bold', textAlign: 'left'}}>Ask A Question</Typography>
-                    
-                    <Divider sx={{marginTop: ".5em", marginBottom:"1em"}}/>
+                    <Divider sx={{mt: 1, mb: 2}}/>
 
                     <form onSubmit={handleSubmit}>
                         <Stack direction="row" justifyContent="left">
                             <Box sx={{ minWidth: 120, width: "47%"}}>
                                 <FormControl required fullWidth>
-                                    <InputLabel id="demo-simple-select-label">Location</InputLabel>
+                                    <InputLabel id="location-select">Location</InputLabel>
                                     <Select
                                         labelId="location-select-label"
                                         id="location-select"
@@ -80,9 +106,9 @@ export default function AskQuestion(props) {
                                     </Select>
                                 </FormControl>
                             </Box>
-                            <Box sx={{ minWidth: 120, width: "47%", margin: "auto", marginRight: ".5em" }}>
+                            <Box sx={{ minWidth: 120, width: "47%", margin: "auto", mr: 1 }}>
                                 <FormControl required fullWidth>
-                                    <InputLabel id="demo-simple-select-label">Topic</InputLabel>
+                                    <InputLabel id="topic-select">Topic</InputLabel>
                                     <Select
                                         labelId="topic-select-label"
                                         id="topic-select"
@@ -90,13 +116,13 @@ export default function AskQuestion(props) {
                                         label="Topic"
                                         onChange={(e)=>setTopicValue(e.target.value)}
                                     >
-                                        {topics.map((top) => <MenuItem value={top} key={top}>{top}</MenuItem>)}
+                                        {topics.map((top) => <MenuItem value={top} key={top.topic_id}>{top.name}</MenuItem>)}
                                     </Select>
                                 </FormControl>
                             </Box>
                         </Stack>
-                        <Typography variant='h5' sx={{fontWeight: 'bold', textAlign: 'left', marginTop: "2em"}}>Question:</Typography>
-                        <FormControl required fullWidth>
+                        <Typography variant='h6' sx={{fontWeight: 'bold', textAlign: 'left', mt: 2}}>Question:</Typography>
+                        <FormControl required fullWidth sx={{ mt: 0.5 }}>
                             <Input 
                                 placeholder='Question (max 256 characters)'
                                 onChange={(event)=>setQuestionValue(event.target.value)}
@@ -106,11 +132,9 @@ export default function AskQuestion(props) {
                                 type="text"
                             />
                         </FormControl>
-                        <Button fullWidth variant="contained" sx={{marginTop: "1em", alignContent: "center"}} type="submit">
+                        <Button fullWidth variant="contained" sx={{fontSize: "16px", mt: 3, alignContent: "center"}} type="submit">
                             Ask
                         </Button>
-
-                        <Divider sx={{marginTop: ".5em", marginBottom:"1em"}}/>
                     </form>
                 </CardContent>
             </Card>

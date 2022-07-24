@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     styled, Button, Badge, Box, Card, CardActions, IconButton, Collapse, Divider, Stack,
     Typography, Table, TableRow, TableCell, TableBody
@@ -6,51 +6,51 @@ import {
 import {
     Edit, Delete, ExpandMore, FindInPage
 } from '@mui/icons-material';
+import Cookies from 'universal-cookie';
 
 import OpenAnnouncement from './dialogs/OpenAnnouncement';
 import AddAnnouncement from './dialogs/AddAnnouncement';
 import EditAnnouncement from './dialogs/EditAnnouncement';
 import DeleteAnnouncement from './dialogs/DeleteAnnouncement';
 
+const cookies = new Cookies();
+
 const Expand = styled((props) => {
-        const { expand, ...other } = props;
-        return <IconButton {...other} />;
-    })(({ theme, expand }) => ({
-        transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
-        marginLeft: 'auto',
-        transition: theme.transitions.create('transform', {
+    const { expand, ...other } = props;
+    return <IconButton {...other} />;
+})(({ theme, expand }) => ({
+    transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
+    marginLeft: 'auto',
+    transition: theme.transitions.create('transform', {
         duration: theme.transitions.duration.shortest,
-    }),
+    })
 }));
 
-function createData(header, content, markedRead) {
-    return { header, content, markedRead };
+function createData(id, header, content, markedRead) {
+    return { id, header, content, markedRead };
 }
-  
-const rows = [
-    createData('Please pay attention!', 'Please pay attention to when are you helped. We will have to remove you if you\'re not here!', false),
-    createData('Browser Notifications', 'Allow browser notifications to get notified of when it\'s your turn to be helped! (See settings for more options)',  false),
-    createData('Ask specific questions', 'Please ask a specific question, or else you will be asked to update your question.', false),
-    createData('Respecting the Queue', 'We can only answer the question you specified in your entry. If you have a new question, remove your entry and ask a TA to approve skipping the cooldown.', false),
-];
 
 export default function Announcements(props) {
-    const { theme, queueData } = props
+    const { theme, queueData, setAllRead } = props
 
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
 
     const handleClick = () => {
         setOpen(!open);
     };
 
-    const [openAnnouncement, setOpenAnnouncement] = React.useState(false);
-    const [openAdd, setOpenAdd] = React.useState(false);
-    const [openEdit, setOpenEdit] = React.useState(false);
-    const [openDelete, setOpenDelete] = React.useState(false);
-    const [selectedRow, setSelectedRow] = React.useState();
+    const [openAnnouncement, setOpenAnnouncement] = useState(false);
+    const [openAdd, setOpenAdd] = useState(false);
+    const [openEdit, setOpenEdit] = useState(false);
+    const [openDelete, setOpenDelete] = useState(false);
+    const [selectedRow, setSelectedRow] = useState();
+    const [rows, setRows] = useState([]);
 
-    const [newHeader, setQuestionHeader] = React.useState('')
-    const [newContent, setQuestionContent] = React.useState('')
+    useEffect(() => {
+        if (queueData != null) {
+            updateAnnouncements(queueData.announcements);
+        }
+    }, [queueData]);
 
     const handleOpenAnnouncement = (row) => {
         setOpenAnnouncement(true);
@@ -79,16 +79,31 @@ export default function Announcements(props) {
     };
 
     const handleMarkRead = () => {
+        let readCookies = cookies.get('announcements');
+        if (!readCookies) {
+            readCookies = {};
+        }
+
+        readCookies[selectedRow['id']] = true;
+        cookies.set('announcements', readCookies);
+
         selectedRow['markedRead'] = true;
-        console.log(selectedRow.markedRead);
         setOpenAnnouncement(false);
     };
 
-    const handleSave = () => {
-        selectedRow['header'] = newHeader == '' ? selectedRow?.header : newHeader;
-        selectedRow['content'] = newContent == '' ? selectedRow?.content : newContent;
-        selectedRow['markedRead'] = false;
-        setOpenEdit(false);
+    const updateAnnouncements = (newAnnouncements) => {
+        const readCookies = cookies.get('announcements');
+
+        let newRows = [];
+        newAnnouncements.forEach (announcement => {
+            newRows.push(createData(
+                announcement.id, 
+                announcement.header, 
+                announcement.content,
+                readCookies && readCookies[announcement.id]
+            ));
+        });
+        setRows(newRows);
     }
 
     return (
@@ -119,32 +134,35 @@ export default function Announcements(props) {
                                     <TableCell component="th" scope="row" sx={{ fontSize: '16px', fontWeight: 'bold', pl: 3.25 }}>
                                         {row.header}
                                     </TableCell>
-                                    <Stack sx={{ mr: 2 }}direction='row' margin='auto' justifyContent='flex-end'>
-                                        {row.markedRead
-                                         ?
-                                            <IconButton color="primary" variant='contained' sx={{ mr: 1 }} onClick={() => handleOpenAnnouncement(row)}>
-                                                <FindInPage />
-                                            </IconButton>
-                                         : 
-                                            <IconButton color="primary" variant='contained' sx={{ mr: 1 }} onClick={() => handleOpenAnnouncement(row)}>
-                                                <Badge badgeContent="new" color="success" anchorOrigin={{ vertical: 'top', horizontal: 'left' }} overlap="rectangular" variant='standard'>
+                                    <TableCell scope="row">
+                                        <Stack sx={{ mr: 2 }}direction='row' margin='auto' justifyContent='flex-end'>
+                                            {
+                                                row.markedRead
+                                                ?
+                                                <IconButton color="primary" variant='contained' sx={{ mr: 1 }} onClick={() => handleOpenAnnouncement(row)}>
                                                     <FindInPage />
-                                                </Badge>
-                                            </IconButton>
-                                        }
-                                        {
-                                            queueData?.isTA && 
-                                            <Box>
-                                                <IconButton sx={{ mr: 1 }} color="info" onClick={() => handleEdit(row)}>
-                                                    <Edit />
                                                 </IconButton>
+                                                : 
+                                                <IconButton color="primary" variant='contained' sx={{ mr: 1 }} onClick={() => handleOpenAnnouncement(row)}>
+                                                    <Badge badgeContent="new" color="success" anchorOrigin={{ vertical: 'top', horizontal: 'left' }} overlap="rectangular" variant='standard'>
+                                                        <FindInPage />
+                                                    </Badge>
+                                                </IconButton>
+                                            }
+                                            {
+                                                queueData?.isTA && 
+                                                <Box>
+                                                    <IconButton sx={{ mr: 1 }} color="info" onClick={() => handleEdit(row)}>
+                                                        <Edit />
+                                                    </IconButton>
 
-                                                <IconButton color="error" onClick={() => handleDelete(row)}>
-                                                    <Delete />
-                                                </IconButton>
-                                            </Box>
-                                        }
-                                    </Stack>
+                                                    <IconButton color="error" onClick={() => handleDelete(row)}>
+                                                        <Delete />
+                                                    </IconButton>
+                                                </Box>
+                                            }
+                                        </Stack>
+                                    </TableCell>
                                 </TableRow>
                             ))}
                             {
@@ -175,21 +193,21 @@ export default function Announcements(props) {
             <AddAnnouncement
                 isOpen={openAdd}
                 onClose={handleClose}
+                updateAnnouncements={updateAnnouncements}
             />
 
             <EditAnnouncement
                 isOpen={openEdit}
                 onClose={handleClose}
                 announcementInfo={selectedRow}
-                onSave={handleSave}
-                setHeader={setQuestionHeader}
-                setContent={setQuestionContent}
+                updateAnnouncements={updateAnnouncements}
             />
 
             <DeleteAnnouncement
                 isOpen={openDelete}
                 onClose={handleClose}
                 announcementInfo={selectedRow}
+                updateAnnouncements={updateAnnouncements}
             />
         </div>
     );

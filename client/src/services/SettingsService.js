@@ -4,6 +4,12 @@ class SettingsDataService {
   getAll() {
     return http.get("/settings");
   }
+  updateVideoChatSettings(data) {
+    return http.post("/settings/videoChat/update", data);
+  }
+  updateNotifSettings(data) {
+    return http.post("/settings/notifs/update", data);
+  }
   createTopic(data) {
     return http.post("/settings/topics/create", data);
   }
@@ -33,6 +39,18 @@ class SettingsDataService {
   }
   updateRejoinTime(data) {
     return http.post("/settings/config/rejoin/update", data);
+  }
+  updateLocations(data) {
+    return http.post("/settings/locations/update", data);
+  }
+  getLocations() {
+    return http.get("/settings/locations/get");
+  }
+  addLocation(data) {
+    return http.post("/settings/locations/add", data);
+  }
+  removeLocation(data) {
+    return http.post("/settings/locations/remove", data);
   }
 }
 

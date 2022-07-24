@@ -24,7 +24,7 @@ function StudentMain(props) {
 
     const [askQuestionOrYourEntry, setAskQuestionOrYourEntry] = useState(false)
 
-    const { theme, studentData } = props
+    const { theme, queueData, studentData } = props
 
     // check if student on queue on page load
     useEffect(() => {
@@ -57,8 +57,11 @@ function StudentMain(props) {
     }, [studentData, updateQ])
 
     function removeFromQueue() {
-
-        HomeService.removeStudent().then(res => {
+        HomeService.removeStudent(
+            JSON.stringify({
+                andrewID: queueData.andrewID
+            })
+        ).then(res => {
             if (res.status === 200) {
                 setRemoveConfirm(false)
                 setAskQuestionOrYourEntry(false)
@@ -78,7 +81,7 @@ function StudentMain(props) {
                             openRemoveOverlay={() => setRemoveConfirm(true)}
                             position={position}
                             location={locationValue}
-                            topic={topicValue}
+                            topic={topicValue?.name ?? ''}
                             question={questionValue}
                             setAskQuestionOrYourEntry={setAskQuestionOrYourEntry}
                             theme={theme}
@@ -99,6 +102,7 @@ function StudentMain(props) {
                         setTopicValue={setTopicValue}
                         setPosition={setPosition}
                         setAskQuestionOrYourEntry={setAskQuestionOrYourEntry}
+                        queueData={queueData}
                         theme={theme}
                     />
             }

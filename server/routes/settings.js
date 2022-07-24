@@ -4,6 +4,8 @@ const router = express.Router();
 const settings = require('../controllers/settings');
 
 router.get('/', settings.get);
+router.post('/videoChat/update', settings.post_update_video_chat);
+router.post('/notifs/update', settings.post_update_notifs);
 router.post('/topics/create', settings.post_create_topic);
 router.post('/topics/update', settings.post_update_topic);
 router.post('/topics/delete', settings.post_delete_topic);
@@ -14,5 +16,9 @@ router.post('/config/sem/update', settings.post_update_semester);
 router.post('/config/slack/update', settings.post_update_slack_url);
 router.post('/config/questions/update', settings.post_update_questions_url);
 router.post('/config/rejoin/update', settings.post_update_rejoin_time);
+router.post('/locations/update', settings.post_update_locations);
+router.get('/locations/get', settings.get_locations);
+router.post('/locations/add', settings.add_location);
+router.post('/locations/remove', settings.remove_location);
 
 module.exports = router;

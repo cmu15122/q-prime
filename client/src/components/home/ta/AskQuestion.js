@@ -1,112 +1,167 @@
-import * as React from 'react';
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-    Typography,
-    Divider,
-    Card,
-    CardContent,
-    Stack,
-    FormControl,
-    InputLabel,
-    MenuItem,
-    Box,
-    Select,
-    Input,
-    TextField,
-    Button
+    Typography, Divider, Card, CardContent, Stack, FormControl, InputLabel,
+    MenuItem, Box, Select, Input, Button
 } from '@mui/material'
 
+import HomeService from '../../../services/HomeService';
+import SettingsService from '../../../services/SettingsService';
+
+function createData(topic_id, name) {
+    return { topic_id, name };
+}
+
+let date = new Date();
+
 export default function AskQuestion(props) {
-    const locations = ['Remote', 'GHC 4211', 'Honk\'s Closet'];
-    const topics = ['Knock knock', 'Who\'s there?', 'Honk', 'Honk Who?', 'Honk you!'];
-    
-    const { questionValue, setQuestionValue, theme } = props
+    const [locations, setLocations] = useState([])
+    const [topics, setTopics] = useState([]);
+
+    const { questionValue, setQuestionValue, queueData, theme } = props
 
     const [name, setName] = useState('')
     const [id, setID] = useState('')
     const [location, setLocation] = useState('')
     const [topic, setTopic] = useState('')
 
-    const handleAsk = () => {
-        console.log(name + " " + id)
-        console.log(location)
-        console.log(topic)
-        console.log(questionValue)
+    useEffect(() => {
+        if (queueData != null) {
+            updateTopics(queueData.topics);
+            updateLocations()
+        }
+    }, [queueData]);
+
+    function updateTopics(newTopics) {
+        let newRows = [];
+        newTopics.forEach (topic => {
+            newRows.push(createData(
+                topic.assignment_id, 
+                topic.name,
+            ));
+        });
+        newRows.push(createData(-1, "Other"));
+        setTopics(newRows);
     }
+
+    function updateLocations() {
+        let day = date.getDay()
+        let newLocations = {}
+        SettingsService.getLocations().then(res => {
+            let dayDict = res.data.dayDictionary
+            newLocations = dayDict
+        }).then((res) => {
+            let roomsForDay = newLocations ? newLocations[day] : []
+            setLocations(roomsForDay)
+        })
+    }
+    
+    function callAddQuestionAPI() {
+        HomeService.addQuestion(
+            JSON.stringify({
+                name: name,
+                andrewID: id,
+                question: questionValue,
+                location: location,
+                topic: topic
+            })
+        ).then((res) => {
+            if (res.status === 200) {
+                clearValues();
+            }
+        });
+    }
+
+    function clearValues() {
+        setName('');
+        setID('');
+        setLocation('');
+        setTopic('');
+        setQuestionValue('');
+    }
+
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        callAddQuestionAPI();
+    }
+
     return (
         <div className='card' style={{display:'flex'}}>
             <Card sx={{ minWidth : '100%', background: theme.palette.background.paper}}>
-                <CardContent>
-                    <Typography fontSize={20} sx={{fontWeight: 'bold', textAlign: 'left'}}>Ask A Question</Typography>
-                    
-                    <Divider sx={{marginTop: ".5em", marginBottom:"1em"}}/>
-                    <Stack direction="row" justifyContent="left">
-                        <Box sx={{ minWidth: 120, width: "47%"}}>
-                            <FormControl fullWidth>
-                                <Input 
-                                    placeholder='Student Name'
-                                    onChange={(event)=>setName(event.target.value)}
-                                    fullWidth
-                                    multiline
-                                    inputProps={{ maxLength: 256 }}
-                                />
-                            </FormControl>
-                        </Box>
-                        <Box sx={{ minWidth: 120, width: "47%", margin: "auto", marginRight: ".5em" }}>
-                            <FormControl fullWidth>
-                                <Input 
-                                    placeholder='Student Andrew ID'
-                                    onChange={(event)=>setID(event.target.value)}
-                                    fullWidth
-                                    multiline
-                                    inputProps={{ maxLength: 256 }}
-                                />
-                            </FormControl>
-                        </Box>
-                    </Stack>
-                    <Stack direction="row" justifyContent="left" sx={{marginTop: '1em'}}>
-                        <Box sx={{ minWidth: 120, width: "47%"}}>
-                            <FormControl fullWidth>
-                                <InputLabel id="demo-simple-select-label">Location</InputLabel>
-                                <Select
-                                    labelId="location-select-label"
-                                    id="location-select"
-                                    value={location}
-                                    label="Location"
-                                    onChange={(e)=>setLocation(e.target.value)}
-                                >
-                                    {locations.map((loc) => <MenuItem value={loc} key={loc}>{loc}</MenuItem>)}
-                                </Select>
-                            </FormControl>
-                        </Box>
-                        <Box sx={{ minWidth: 120, width: "47%", margin: "auto", marginRight: ".5em" }}>
-                            <FormControl fullWidth>
-                                <InputLabel id="demo-simple-select-label">Topic</InputLabel>
-                                <Select
-                                    labelId="topic-select-label"
-                                    id="topic-select"
-                                    value={topic}
-                                    label="Topic"
-                                    onChange={(e)=>setTopic(e.target.value)}
-                                >
-                                    {topics.map((top) => <MenuItem value={top} key={top}>{top}</MenuItem>)}
-                                </Select>
-                            </FormControl>
-                        </Box>
-                    </Stack>
-                    <Typography fontSize={16} sx={{fontWeight: 'bold', textAlign: 'left', marginTop: "2em"}}>Question:</Typography>
-                    <Input 
-                        placeholder='Question (max 256 characters)'
-                        onChange={(event)=>setQuestionValue(event.target.value)}
-                        fullWidth
-                        multiline
-                        inputProps={{ maxLength: 256 }}
-                    />
-                    <Button fullWidth variant="contained" sx={{marginTop: "1em", alignContent: "center"}} 
-                        onClick={()=>handleAsk()}
-                    >
-                        Ask
-                    </Button>
+                <CardContent sx={{ m: 1.5 }}>
+                    <Typography variant='h5' sx={{fontWeight: 'bold', textAlign: 'left'}}>Ask A Question</Typography>
+                    <Divider sx={{mt: 1, mb: 2}}/>
+
+                    <form onSubmit={handleSubmit}>
+                        <Stack direction="row" justifyContent="left">
+                            <Box sx={{ minWidth: 120, width: "47%"}}>
+                                <FormControl required fullWidth>
+                                    <Input 
+                                        placeholder='Student Name'
+                                        onChange={(event)=>setName(event.target.value)}
+                                        value={name}
+                                        fullWidth
+                                        inputProps={{ maxLength: 30 }}
+                                    />
+                                </FormControl>
+                            </Box>
+                            <Box sx={{ minWidth: 120, width: "47%", margin: "auto", mr: 1 }}>
+                                <FormControl required fullWidth>
+                                    <Input 
+                                        placeholder='Student Andrew ID'
+                                        onChange={(event)=>setID(event.target.value)}
+                                        value={id}
+                                        fullWidth
+                                        inputProps={{ maxLength: 20 }}
+                                    />
+                                </FormControl>
+                            </Box>
+                        </Stack>
+                        <Stack direction="row" justifyContent="left" sx={{mt: 2}}>
+                            <Box sx={{ minWidth: 120, width: "47%"}}>
+                                <FormControl required fullWidth>
+                                    <InputLabel id="location-select">Location</InputLabel>
+                                    <Select
+                                        labelId="location-select-label"
+                                        id="location-select"
+                                        value={location}
+                                        label="Location"
+                                        onChange={(e)=>setLocation(e.target.value)}
+                                    >
+                                        {(locations || []).map((loc) => <MenuItem value={loc} key={loc}>{loc}</MenuItem>)}
+                                    </Select>
+                                </FormControl>
+                            </Box>
+                            <Box sx={{ minWidth: 120, width: "47%", margin: "auto", mr: 1 }}>
+                                <FormControl required fullWidth>
+                                    <InputLabel id="topic-select">Topic</InputLabel>
+                                    <Select
+                                        labelId="topic-select-label"
+                                        id="topic-select"
+                                        value={topic}
+                                        label="Topic"
+                                        onChange={(e)=>setTopic(e.target.value)}
+                                    >
+                                        {topics.map((top) => <MenuItem value={top} key={top.topic_id}>{top.name}</MenuItem>)}
+                                    </Select>
+                                </FormControl>
+                            </Box>
+                        </Stack>
+                        <Typography variant='h6' sx={{fontWeight: 'bold', textAlign: 'left', mt: 2}}>Question:</Typography>
+                        <FormControl required fullWidth sx={{ mt: 0.5 }}>
+                            <Input 
+                                placeholder='Question (max 256 characters)'
+                                value={questionValue}
+                                onChange={(event)=>setQuestionValue(event.target.value)}
+                                fullWidth
+                                multiline
+                                inputProps={{ maxLength: 256 }}
+                                type="text"
+                            />
+                        </FormControl>
+                        <Button fullWidth variant="contained" sx={{fontSize: "16px", mt: 3, alignContent: "center"}} type="submit">
+                            Ask
+                        </Button>
+                    </form>
                 </CardContent>
             </Card>
         </div>
