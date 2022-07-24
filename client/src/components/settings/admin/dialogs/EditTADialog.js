@@ -10,13 +10,11 @@ export default function EditTADialog(props) {
     const { isOpen, onClose, taInfo, updateTAs } = props
 
     const [name, setName] = React.useState("");
-    const [email, setEmail] = React.useState("");
     const [isAdmin, setIsAdmin] = React.useState(false);
 
     React.useEffect(() => {
         if (taInfo != null) {
             setName(taInfo.name);
-            setEmail(taInfo.email);
             setIsAdmin(taInfo.isAdmin);
         }
     }, [taInfo]);
@@ -38,24 +36,16 @@ export default function EditTADialog(props) {
         <Dialog
             open={isOpen}
             onClose={onClose}
+            maxWidth="sm"
+            fullWidth
         >
             <DialogContent>
                 <Typography sx={{ pb: 2, fontWeight: 'bold', fontSize: '22px', textAlign: 'center' }}>
-                    Edit TA Info
+                    Edit Info for TA "{name}"
                 </Typography>
                 <form onSubmit={onSubmit}>
 
                     <Grid container spacing={3} >
-                        <Grid className="d-flex" item xs={8}>
-                            <TextField
-                                label="TA Name"
-                                variant="standard"
-                                required
-                                fullWidth
-                                value={name}
-                                disabled
-                            />
-                        </Grid>
                         <Grid className="d-flex" align="left" item xs={4}>
                             <FormControlLabel label="Is Admin?" labelPlacement="start" control={
                                 <Checkbox 
@@ -64,20 +54,10 @@ export default function EditTADialog(props) {
                                         setIsAdmin(e.target.checked);
                                     }}
                                 />
-                            } sx={{ pt: 1 }} />
-                        </Grid>
-                        <Grid className="d-flex" item xs={12}>
-                            <TextField
-                                label="TA Email"
-                                variant="standard"
-                                required
-                                fullWidth
-                                value={email}
-                                disabled
-                            />
+                            }/>
                         </Grid>
                     </Grid>
-                    <Box textAlign='center' sx={{pt: 6}}>
+                    <Box textAlign='center' sx={{pt: 4}}>
                         <Button type="submit" variant="contained" color="info" sx={{ alignSelf: 'center' }} >Save</Button>
                     </Box>
                 </form>
