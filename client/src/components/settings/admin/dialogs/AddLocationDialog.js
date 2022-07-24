@@ -2,10 +2,7 @@
 import React from 'react';
 import {
     Box, Button, Dialog, DialogContent, Typography, TextField, Grid, 
-    Select, MenuItem, InputLabel, FormControl
-} from '@mui/material'
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import { DateTime } from 'luxon';
+} from '@mui/material';
 
 import SettingsService from '../../../../services/SettingsService';
 

@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import {
-    styled, Button, Badge, Box, Card, CardActions, IconButton, Collapse, Divider, Stack,
-    Typography, Table, TableRow, TableCell, TableBody, ToggleButton, ToggleButtonGroup
+    styled, Button, Card, CardActions, IconButton, Collapse, Divider,
+    Typography, Table, TableRow, TableCell, TableBody
 } from '@mui/material';
 import {
-    Edit, Delete, ExpandMore, FindInPage, DataObjectSharp
+    ExpandMore
 } from '@mui/icons-material';
 import DayPicker from './DayPicker';
 import AddLocationDialog from './dialogs/AddLocationDialog';
-import Cookies from 'universal-cookie';
 import SettingsService from '../../../services/SettingsService';
-
-const cookies = new Cookies();
 
 const Expand = styled((props) => {
     const { expand, ...other } = props;
