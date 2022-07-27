@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     styled, Button, Badge, Box, Card, CardActions, IconButton, Collapse, Divider, Stack,
-    Typography, Table, TableRow, TableCell, TableBody, TableContainer
+    Typography, Table, TableRow, TableCell, TableBody, TableContainer, TableHead
 } from '@mui/material';
 import {
     Edit, Delete, ExpandMore, FindInPage
@@ -113,19 +113,11 @@ export default function Announcements(props) {
                     <Typography sx={{ fontSize: 20, fontWeight: 'bold', ml: 2, mt: 1 }} variant="h5" gutterBottom>
                         Announcements
                     </Typography>
-                    <Expand
-                        expand={open}
-                        aria-expanded={open}
-                        aria-label="show more"
-                        sx={{ mr: 1 }}
-                    >
-                        <ExpandMore />
-                    </Expand>
                 </CardActions>
                 {/* <Collapse in={open} timeout="auto" unmountOnExit> */}
                     <Divider></Divider>
-                        <TableContainer sx={{ height: "100px"}}>
-                            <Table aria-label="topicsTxable" sx={{overflow: "scroll" }}>
+                        <TableContainer sx={{ maxHeight: "200px"}}>
+                            <Table aria-label="topicsTxable" sx={{overflow: "scroll" }} stickyHeader>
                                 <TableBody>
                                 {rows.map((row, index) => (
                                     <TableRow
@@ -133,23 +125,10 @@ export default function Announcements(props) {
                                         style={ index % 2 ? { background : theme?.palette?.background.paper }:{ background : theme?.palette?.background.default }}
                                     >
                                         <TableCell component="th" scope="row" sx={{ fontSize: '16px', fontWeight: 'bold', pl: 3.25 }}>
-                                            {row.header}
+                                            {row.content}
                                         </TableCell>
-                                        {/* <TableCell scope="row">
+                                        <TableCell scope="row">
                                             <Stack sx={{ mr: 2 }}direction='row' margin='auto' justifyContent='flex-end'>
-                                                {
-                                                    row.markedRead
-                                                    ?
-                                                    <IconButton color="primary" variant='contained' sx={{ mr: 1 }} onClick={() => handleOpenAnnouncement(row)}>
-                                                        <FindInPage />
-                                                    </IconButton>
-                                                    : 
-                                                    <IconButton color="primary" variant='contained' sx={{ mr: 1 }} onClick={() => handleOpenAnnouncement(row)}>
-                                                        <Badge badgeContent="new" color="success" anchorOrigin={{ vertical: 'top', horizontal: 'left' }} overlap="rectangular" variant='standard'>
-                                                            <FindInPage />
-                                                        </Badge>
-                                                    </IconButton>
-                                                }
                                                 {
                                                     queueData?.isTA && 
                                                     <Box>
@@ -163,27 +142,24 @@ export default function Announcements(props) {
                                                     </Box>
                                                 }
                                             </Stack>
-                                        </TableCell> */}
-                                    </TableRow>
-                                ))}
-                                {
-                                    queueData?.isTA &&
-                                    <TableRow
-                                        key='add'
-                                        style={{ background : theme?.palette?.background.default }}
-                                    >
-                                        <TableCell align="center" colSpan={4}>
-                                            <Button sx={{ mr: 1, fontWeight: 'bold', fontSize: '18px' }} color="primary" variant="contained" onClick={() => handleAdd()}>
-                                                + Create
-                                            </Button>
                                         </TableCell>
                                     </TableRow>
-                                }
+                                ))}
                                 </TableBody>
                             </Table>
                         </TableContainer>
                 {/* </Collapse> */}
             </Card>
+            {
+                queueData?.isTA &&
+                <Card
+                    sx={{ background : theme?.palette?.background.default }}
+                >
+                    <Button sx={{ mr: 1, fontWeight: 'bold', fontSize: '18px' }} color="primary" variant="contained" onClick={() => handleAdd()}>
+                        + Create
+                    </Button>
+                </Card>
+            }
             
             <OpenAnnouncement 
                 isOpen={openAnnouncement}
