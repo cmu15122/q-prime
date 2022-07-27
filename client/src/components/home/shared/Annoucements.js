@@ -109,10 +109,13 @@ export default function Announcements(props) {
     return (
         <div className='card' style={{ display:'flex' }}>
             <Card sx={{ minWidth: '100%' }}>
-                <CardActions disableSpacing onClick={handleClick} style={{ cursor: 'pointer' }}>
+                <CardActions onClick={handleClick} style={{ cursor: 'pointer', justifyContent: "space-between" }}>
                     <Typography sx={{ fontSize: 20, fontWeight: 'bold', ml: 2, mt: 1 }} variant="h5" gutterBottom>
                         Announcements
                     </Typography>
+                    <Button sx={{ mr: 1, fontWeight: 'bold', fontSize: '15px' }} color="primary" variant="contained" onClick={() => handleAdd()}>
+                        + Create
+                    </Button>
                 </CardActions>
                 {/* <Collapse in={open} timeout="auto" unmountOnExit> */}
                     <Divider></Divider>
@@ -148,18 +151,19 @@ export default function Announcements(props) {
                                 </TableBody>
                             </Table>
                         </TableContainer>
+                        {queueData?.isTa &&
+                        (<TableContainer sx={{ maxHeight: "200px"}}>
+                            <Table aria-label="topicsTxable" sx={{overflow: "scroll" }} stickyHeader>
+                                <TableBody>
+                                    <TableRow>
+                                        
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </TableContainer>)
+                        }
                 {/* </Collapse> */}
             </Card>
-            {
-                queueData?.isTA &&
-                <Card
-                    sx={{ background : theme?.palette?.background.default }}
-                >
-                    <Button sx={{ mr: 1, fontWeight: 'bold', fontSize: '18px' }} color="primary" variant="contained" onClick={() => handleAdd()}>
-                        + Create
-                    </Button>
-                </Card>
-            }
             
             <OpenAnnouncement 
                 isOpen={openAnnouncement}
