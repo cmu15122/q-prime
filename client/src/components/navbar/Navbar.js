@@ -10,11 +10,10 @@ import { styled } from '@mui/material/styles';
 import OHQueueHeader from './OHQueueHeader';
 import LoggedInAs from './LoggedInAs';
 import GoogleLogin from './GoogleLogin';
+import AlertOnLogout from './dialogs/AlertOnLogout';
 
 import HomeService from '../../services/HomeService';
 import { socketSubscribeTo } from '../../services/SocketsService';
-
-import AlertOnLogout from './dialogs/AlertOnLogout';
 
 function createPage(page, link) {
     return { page, link };
@@ -93,7 +92,11 @@ export default function Navbar(props) {
     }
 
     function handleLogoutClicked() {
-        (studentData !== null && studentData.position !== -1) ? openAlert() : handleLogout();
+        if (studentData?.position != null && studentData.position !== -1) {
+            openAlert();
+        } else {
+            handleLogout();
+        }
     }
 
     const freezeQueue = () => {
@@ -193,6 +196,7 @@ export default function Navbar(props) {
                         !isAuthenticated && <GoogleLogin theme={theme} queueData={queueData}/>
                     }
                 </Box>
+                <AlertOnLogout isOpen={alertOpen} setOpen={setAlertOpen} handleConfirm={handleLogout}/>
             </Toolbar>
             </AppBar>
         );
