@@ -11,44 +11,75 @@ import MessageRespond from './MessageRespond'
 import AskQuestion from './AskQuestion';
 import HomeService from '../../../services/HomeService';
 
+import { socketSubscribeTo } from '../../../services/SocketsService';
+
 function StudentMain(props) {
-    const [questionValue, setQuestionValue] = useState('')
-    const [locationValue, setLocationValue] = useState('')
-    const [topicValue, setTopicValue] = useState('')
+    const [questionValue, setQuestionValue] = useState('');
+    const [locationValue, setLocationValue] = useState('');
+    const [topicValue, setTopicValue] = useState('');
 
     const [removeConfirm, setRemoveConfirm] = useState(false);
     const [frozen, setFrozen] = useState(false);
     const [taHelping, setTAHelping] = useState(false);
     const [updateQ, setUpdateQ] = useState(false);
-    const [position, setPosition] = useState(0)
+    const [position, setPosition] = useState(0);
+
+    const [helpingTAInfo, setHelpingTAInfo] = useState(null);
 
     const [askQuestionOrYourEntry, setAskQuestionOrYourEntry] = useState(false)
 
     const { theme, queueData, studentData } = props
 
+    useEffect(() => {
+        socketSubscribeTo("help", (res) => {
+            if (res.andrewID === queueData.andrewID) {
+                setTAHelping(true);
+                setHelpingTAInfo(res.data.taData);
+            }
+        });
+
+        socketSubscribeTo("unhelp", (res) => {
+            if (res.andrewID === queueData.andrewID) {
+                setTAHelping(false);
+                setHelpingTAInfo(null);
+            }
+        });
+
+        socketSubscribeTo("remove", (res) => {
+            if (res.andrewID === queueData.andrewID) {
+                setTAHelping(false);
+                setUpdateQ(false);
+                setFrozen(false);
+                setRemoveConfirm(false);
+                setAskQuestionOrYourEntry(false);
+            }
+        });
+    }, []);
+
     // check if student on queue on page load
     useEffect(() => {
         if (studentData.position !== -1) {
-            setAskQuestionOrYourEntry(true)
+            setAskQuestionOrYourEntry(true);
 
-            setPosition(studentData.position)
-            setLocationValue(studentData.location)
-            setTopicValue(studentData.topic)
-            setQuestionValue(studentData.question)
-            setFrozen(studentData.isFrozen)
+            setPosition(studentData.position);
+            setLocationValue(studentData.location);
+            setTopicValue(studentData.topic);
+            setQuestionValue(studentData.question);
+            setFrozen(studentData.isFrozen);
+            setHelpingTAInfo(studentData.helpingTA);
 
-            let status = studentData.status
+            let status = studentData.status;
             if (status === 0) {
-                setTAHelping(true)
+                setTAHelping(true);
             } else if (status === 1) {
-                setTAHelping(false)
+                setTAHelping(false);
             } else if (status === 2) {
-                setUpdateQ(true)
+                setUpdateQ(true);
                 console.log(updateQ)
             } else if (status === 3) {
-                setFrozen(true)
+                setFrozen(true);
             } else if (status === 4) {
-                setFrozen(true)
+                setFrozen(true);
                 // cooldown violation
             } else {
                 console.log("error in status")
@@ -63,13 +94,12 @@ function StudentMain(props) {
             })
         ).then(res => {
             if (res.status === 200) {
-                setRemoveConfirm(false)
-                setAskQuestionOrYourEntry(false)
+                setRemoveConfirm(false);
+                setAskQuestionOrYourEntry(false);
             } else {
-                console.log("error in remove from queue")
+                console.log("Error in remove from queue");
             }
         })
-
     }
 
     return (
@@ -112,14 +142,13 @@ function StudentMain(props) {
                 open={frozen}
                 handleClose={() => setFrozen(false)}
             />
-            <Button variant="contained" onClick={() => setTAHelping(true)} sx={{ m: 0.5 }}>Open TA Helping Overlay</Button>
 
             <TAHelpingOverlay
                 open={taHelping}
-                handleClose={() => setTAHelping(false)}
+                helpingTAInfo={helpingTAInfo}
             />
-            <Button variant="contained" onClick={() => setUpdateQ(true)} sx={{ m: 0.5 }}>Open Update Question Overlay</Button>
 
+            <Button variant="contained" onClick={() => setUpdateQ(true)} sx={{ m: 0.5 }}>Open Update Question Overlay</Button>
             <UpdateQuestionOverlay
                 open={updateQ}
                 handleClose={() => setUpdateQ(false)}
