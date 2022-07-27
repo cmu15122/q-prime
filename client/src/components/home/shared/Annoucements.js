@@ -13,6 +13,8 @@ import AddAnnouncement from './dialogs/AddAnnouncement';
 import EditAnnouncement from './dialogs/EditAnnouncement';
 import DeleteAnnouncement from './dialogs/DeleteAnnouncement';
 
+import { socketSubscribeTo } from '../../../services/SocketsService';
+
 const cookies = new Cookies();
 
 const Expand = styled((props) => {
@@ -45,6 +47,54 @@ export default function Announcements(props) {
     const [openDelete, setOpenDelete] = useState(false);
     const [selectedRow, setSelectedRow] = useState();
     const [rows, setRows] = useState([]);
+
+    useEffect(() => {
+        socketSubscribeTo("addAnnouncement", (data) => {
+            let announcement = data.announcement;
+            let readCookies = cookies.get('announcements');
+
+            let newAnnouncement = createData(
+                announcement.id, 
+                announcement.header, 
+                announcement.content,
+                readCookies && readCookies[announcement.id]
+            );
+
+            setRows(rows => [...rows, newAnnouncement]);
+        });
+
+        socketSubscribeTo("updateAnnouncement", (data) => {
+            let id = data.updatedId;
+            let announcement = data.announcement;
+            
+            let readCookies = cookies.get('announcements');
+            if (readCookies && readCookies.hasOwn(id)) {
+                readCookies[id] = false;
+                cookies.set('announcements', readCookies);
+            }
+
+            let newAnnouncement = createData(
+                announcement.id, 
+                announcement.header, 
+                announcement.content,
+                readCookies && readCookies[announcement.id]
+            );
+
+            setRows(rows => [...rows.filter(p => p.id !== id), newAnnouncement]);
+        });
+
+        socketSubscribeTo("deleteAnnouncement", (data) => {
+            let id = data.deletedId;
+            
+            let readCookies = cookies.get('announcements');
+            if (readCookies && readCookies.hasOwn(id)) {
+                readCookies[id] = false;
+                cookies.set('announcements', readCookies);
+            }
+
+            setRows(rows => [...rows.filter(p => p.id !== id)]);
+        });
+    }, []);
 
     useEffect(() => {
         if (queueData != null) {
@@ -193,21 +243,18 @@ export default function Announcements(props) {
             <AddAnnouncement
                 isOpen={openAdd}
                 onClose={handleClose}
-                updateAnnouncements={updateAnnouncements}
             />
 
             <EditAnnouncement
                 isOpen={openEdit}
                 onClose={handleClose}
                 announcementInfo={selectedRow}
-                updateAnnouncements={updateAnnouncements}
             />
 
             <DeleteAnnouncement
                 isOpen={openDelete}
                 onClose={handleClose}
                 announcementInfo={selectedRow}
-                updateAnnouncements={updateAnnouncements}
             />
         </div>
     );

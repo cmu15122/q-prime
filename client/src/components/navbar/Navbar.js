@@ -12,6 +12,7 @@ import LoggedInAs from './LoggedInAs';
 import GoogleLogin from './GoogleLogin';
 
 import HomeService from '../../services/HomeService';
+import { socketSubscribeTo } from '../../services/SocketsService';
 
 import AlertOnLogout from './dialogs/AlertOnLogout';
 
@@ -55,6 +56,14 @@ export default function Navbar(props) {
     };
 
     useEffect(() => {
+        if (isHome) {
+            socketSubscribeTo("queueFrozen", (data) => {
+                setQueueFrozen(data.isFrozen);
+            });
+        }
+    }, []);
+
+    useEffect(() => {
         if (queueData != null) {
             setQueueFrozen(queueData.queueFrozen);
             setIsAuthenticated(queueData.isAuthenticated);
@@ -88,17 +97,11 @@ export default function Navbar(props) {
     }
 
     const freezeQueue = () => {
-        HomeService.freezeQueue()
-            .then((res) => {
-                setQueueFrozen(res.data.queueFrozen);
-            });
+        HomeService.freezeQueue();
     };
 
     const unfreezeQueue = () => {
-        HomeService.unfreezeQueue()
-            .then((res) => {
-                setQueueFrozen(res.data.queueFrozen);
-            });
+        HomeService.unfreezeQueue();
     };
 
     const unfreezeButton = <Button color="secondary" variant="contained" sx={{ mx: 2 }} onClick={unfreezeQueue}>Unfreeze</Button>;
