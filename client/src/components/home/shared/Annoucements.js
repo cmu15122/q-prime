@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
     styled, Button, Badge, Box, Card, CardActions, IconButton, Collapse, Divider, Stack,
-    Typography, Table, TableRow, TableCell, TableBody
+    Typography, Table, TableRow, TableCell, TableBody, TableContainer
 } from '@mui/material';
 import {
     Edit, Delete, ExpandMore, FindInPage
@@ -122,65 +122,67 @@ export default function Announcements(props) {
                         <ExpandMore />
                     </Expand>
                 </CardActions>
-                <Collapse in={open} timeout="auto" unmountOnExit>
+                {/* <Collapse in={open} timeout="auto" unmountOnExit> */}
                     <Divider></Divider>
-                        <Table aria-label="topicsTxable">
-                            <TableBody>
-                            {rows.map((row, index) => (
-                                <TableRow
-                                    key={row.header}
-                                    style={ index % 2 ? { background : theme?.palette?.background.paper }:{ background : theme?.palette?.background.default }}
-                                >
-                                    <TableCell component="th" scope="row" sx={{ fontSize: '16px', fontWeight: 'bold', pl: 3.25 }}>
-                                        {row.header}
-                                    </TableCell>
-                                    <TableCell scope="row">
-                                        <Stack sx={{ mr: 2 }}direction='row' margin='auto' justifyContent='flex-end'>
-                                            {
-                                                row.markedRead
-                                                ?
-                                                <IconButton color="primary" variant='contained' sx={{ mr: 1 }} onClick={() => handleOpenAnnouncement(row)}>
-                                                    <FindInPage />
-                                                </IconButton>
-                                                : 
-                                                <IconButton color="primary" variant='contained' sx={{ mr: 1 }} onClick={() => handleOpenAnnouncement(row)}>
-                                                    <Badge badgeContent="new" color="success" anchorOrigin={{ vertical: 'top', horizontal: 'left' }} overlap="rectangular" variant='standard'>
+                        <TableContainer sx={{ height: "100px"}}>
+                            <Table aria-label="topicsTxable" sx={{overflow: "scroll" }}>
+                                <TableBody>
+                                {rows.map((row, index) => (
+                                    <TableRow
+                                        key={row.header}
+                                        style={ index % 2 ? { background : theme?.palette?.background.paper }:{ background : theme?.palette?.background.default }}
+                                    >
+                                        <TableCell component="th" scope="row" sx={{ fontSize: '16px', fontWeight: 'bold', pl: 3.25 }}>
+                                            {row.header}
+                                        </TableCell>
+                                        {/* <TableCell scope="row">
+                                            <Stack sx={{ mr: 2 }}direction='row' margin='auto' justifyContent='flex-end'>
+                                                {
+                                                    row.markedRead
+                                                    ?
+                                                    <IconButton color="primary" variant='contained' sx={{ mr: 1 }} onClick={() => handleOpenAnnouncement(row)}>
                                                         <FindInPage />
-                                                    </Badge>
-                                                </IconButton>
-                                            }
-                                            {
-                                                queueData?.isTA && 
-                                                <Box>
-                                                    <IconButton sx={{ mr: 1 }} color="info" onClick={() => handleEdit(row)}>
-                                                        <Edit />
                                                     </IconButton>
+                                                    : 
+                                                    <IconButton color="primary" variant='contained' sx={{ mr: 1 }} onClick={() => handleOpenAnnouncement(row)}>
+                                                        <Badge badgeContent="new" color="success" anchorOrigin={{ vertical: 'top', horizontal: 'left' }} overlap="rectangular" variant='standard'>
+                                                            <FindInPage />
+                                                        </Badge>
+                                                    </IconButton>
+                                                }
+                                                {
+                                                    queueData?.isTA && 
+                                                    <Box>
+                                                        <IconButton sx={{ mr: 1 }} color="info" onClick={() => handleEdit(row)}>
+                                                            <Edit />
+                                                        </IconButton>
 
-                                                    <IconButton color="error" onClick={() => handleDelete(row)}>
-                                                        <Delete />
-                                                    </IconButton>
-                                                </Box>
-                                            }
-                                        </Stack>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                            {
-                                queueData?.isTA &&
-                                <TableRow
-                                    key='add'
-                                    style={{ background : theme?.palette?.background.default }}
-                                >
-                                    <TableCell align="center" colSpan={4}>
-                                        <Button sx={{ mr: 1, fontWeight: 'bold', fontSize: '18px' }} color="primary" variant="contained" onClick={() => handleAdd()}>
-                                            + Create
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            }
-                            </TableBody>
-                        </Table>
-                </Collapse>
+                                                        <IconButton color="error" onClick={() => handleDelete(row)}>
+                                                            <Delete />
+                                                        </IconButton>
+                                                    </Box>
+                                                }
+                                            </Stack>
+                                        </TableCell> */}
+                                    </TableRow>
+                                ))}
+                                {
+                                    queueData?.isTA &&
+                                    <TableRow
+                                        key='add'
+                                        style={{ background : theme?.palette?.background.default }}
+                                    >
+                                        <TableCell align="center" colSpan={4}>
+                                            <Button sx={{ mr: 1, fontWeight: 'bold', fontSize: '18px' }} color="primary" variant="contained" onClick={() => handleAdd()}>
+                                                + Create
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                }
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                {/* </Collapse> */}
             </Card>
             
             <OpenAnnouncement 
