@@ -201,25 +201,42 @@ exports.post_delete_announcement = function (req, res) {
 exports.post_add_question = function (req, res) {
     if (!req.user || !req.user.isAuthenticated) {
         res.status(403)
-        res.json({ message: 'Invalid permissions to perform this action' })
-        return
+        res.json({ message: 'Invalid permissions to perform this action' });
+        return;
     }
 
-    let id = req.body.andrewID
+    let id = req.body.andrewID;
 
     if (ohq.getPosition(id) != -1) {
         res.status(400);
         res.json({ message: 'Student already on the queue' });
         return;
     }
-
-    ohq.enqueue(
-        id,
-        req.body.question,
-        req.body.location,
-        req.body.topic,
-        moment.tz(new Date(), "America/New_York").toDate()
-    )
+    models.account.findOrCreate({ // TODO: change to findOne after adding permanent students to database
+        where: {
+            email: {
+                [Sequelize.Op.like]: id + '@%'
+            }
+        },
+        defaults: {
+            name: req.body.name ? req.body.name : 'No Name',
+            email: id + '@andrew.cmu.edu'
+        }
+    }).then(([account, created]) => {
+        if (!account) {
+            res.status(400);
+            res.json({message: 'No existing account with provided andrew ID.'});
+            return;
+        }
+        ohq.enqueue(
+            id,
+            account.preferred_name != "false" ? account.preferred_name : account.name,
+            req.body.question,
+            req.body.location,
+            req.body.topic,
+            moment.tz(new Date(), "America/New_York").toDate()
+        );
+    })
 
     let data = {
         status: ohq.getStatus(id),
@@ -379,7 +396,7 @@ exports.get_display_students = async function (req, res) {
     var allStudents = ohq.getAllStudentData();
     allStudents = allStudents.map((student) => {
         let studentEntryData = {
-            name: "who are you :(", // TODO: update queue to store actual name of student
+            name: student.preferredName,
             andrewID: student.andrewID,
             taAndrewID: student.taAndrewID,
             topic: student.topic.name,
