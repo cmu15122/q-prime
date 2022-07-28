@@ -34,7 +34,7 @@ function respond(req, res, message, data, status) {
     res.json(data);
 }
 
-function buildStudentEntryData(studentData) {
+function buildStudentEntryData(student) {
     let studentEntryData = {
         name: "who are you :(", // TODO: update queue to store actual name of student
         andrewID: student.andrewID,
@@ -398,7 +398,7 @@ exports.post_help_student = function (req, res) {
 
     ohq.help(id, req.user.ta.ta_id, req.user.andrewID, moment.tz(new Date(), "America/New_York").toDate());
     let student = ohq.getData(id);
-    
+    let studentEntryData = buildStudentEntryData(student);
 
     sockets.help(studentEntryData, req.user.account);
 

@@ -31,10 +31,20 @@ function StudentMain(props) {
     const { theme, queueData, studentData } = props
 
     useEffect(() => {
+        if (!("Notification" in window)) {
+            console.log("This browser does not support desktop notification");
+        } else {
+            Notification.requestPermission();
+        }
+
         socketSubscribeTo("help", (res) => {
             if (res.andrewID === queueData.andrewID) {
                 setTAHelping(true);
                 setHelpingTAInfo(res.data.taData);
+                new Notification("It's your turn to get help!", {
+                    "body": `${res.data.taData.taName} is ready to help you.`,
+                    "requireInteraction": true
+                });
             }
         });
 

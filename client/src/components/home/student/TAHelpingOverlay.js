@@ -7,7 +7,7 @@ export default function TAHelpingOverlay(props) {
     const { open, helpingTAInfo } = props
 
     function addhttp(url) {
-        if (!/^(?:f|ht)tps?\:\/\//.test(url)) {
+        if (!/^(?:f|ht)tps?:\/\//.test(url)) {
             url = "http://" + url;
         }
         return url;

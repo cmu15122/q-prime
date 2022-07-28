@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-    Card, CardActions, Divider, Typography, Table, TableBody, Button
+    Card, CardActions, Divider, Typography, Table, TableBody
 } from '@mui/material';
 
 import StudentEntry from './StudentEntry';
@@ -22,6 +22,12 @@ export default function StudentEntries(props) {
     };
 
     useEffect(() => {
+        if (!("Notification" in window)) {
+            console.log("This browser does not support desktop notification");
+        } else {
+            Notification.requestPermission();
+        }
+
         handleGetStudents();
 
         socketSubscribeTo("help", (res) => {
@@ -44,6 +50,11 @@ export default function StudentEntries(props) {
             setStudents(students => 
                 [...students.filter(p => p.andrewID !== res.studentData.andrewID), res.studentData]
             );
+            new Notification("New Queue Entry", {
+                "body": "Name: " + res.studentData.name + "\n" +
+                        "Andrew ID: " + res.studentData.andrewID + "\n" +
+                        "Topic: " + res.studentData.topic
+            });
         });
 
         socketSubscribeTo("remove", (res) => {
