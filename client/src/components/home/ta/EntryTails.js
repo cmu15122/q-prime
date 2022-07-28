@@ -85,7 +85,7 @@ export default function EntryTails(props) {
   }
 
   return (
-    <TableCell align="justify" sx={{ mr: 1 }} alignSelf='flex-end'>
+    <TableCell align="justify" sx={{ mr: 1, alignSelf: 'flex-end' }}>
       {getCorrectTail(status)}
     </TableCell>
   )

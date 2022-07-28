@@ -78,7 +78,7 @@ exports.get = function (req, res) {
 
         // Handle when logged-in user is a student
         if (req.user.isAuthenticated && !req.user.isTA) {
-            data.studentData["position"] = ohq.getPosition(req.user.student.student_id);
+            data.studentData["position"] = ohq.getPosition(req.user.andrewID);
 
             if (data.studentData.position !== -1) {
                 // doesn't include question ID because it doesn't need to be passed to client
