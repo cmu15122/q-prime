@@ -52,11 +52,11 @@ export default function AskQuestion(props) {
         let day = date.getDay()
         let newLocations = {}
         SettingsService.getLocations().then(res => {
-            let dayDict = res.data.dayDictionary
-            newLocations = dayDict
-        }).then((res) => {
-            let roomsForDay = newLocations ? newLocations[day] : []
-            setLocations(roomsForDay)
+            let dayDict = res.data.dayDictionary;
+            newLocations = dayDict;
+
+            let roomsForDay = (newLocations && newLocations[day]) ? newLocations[day] : [];
+            setLocations(roomsForDay);
         })
     }
 
@@ -96,13 +96,18 @@ export default function AskQuestion(props) {
                                 <FormControl required fullWidth>
                                     <InputLabel id="location-select">Location</InputLabel>
                                     <Select
-                                        labelId="location-select-label"
-                                        id="location-select"
-                                        value={locationValue}
-                                        label="Location"
-                                        onChange={(e)=>setLocationValue(e.target.value)}
+                                            labelId="location-select-label"
+                                            id="location-select"
+                                            value={locationValue}
+                                            label="Location"
+                                            onChange={(e)=>setLocationValue(e.target.value)}
                                     >
-                                        {locations.map((loc) => <MenuItem value={loc} key={loc}>{loc}</MenuItem>)}
+                                        {
+                                            locations.length == 0 ?
+                                            <MenuItem value="122 Office Hours" key="122 Office Hours">122 Office Hours</MenuItem>
+                                            : 
+                                            locations.map((loc) => <MenuItem value={loc} key={loc}>{loc}</MenuItem>)
+                                        }
                                     </Select>
                                 </FormControl>
                             </Box>
