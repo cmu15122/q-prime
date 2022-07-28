@@ -62,6 +62,10 @@ function StudentMain(props) {
                 setFrozen(false);
                 setRemoveConfirm(false);
                 setAskQuestionOrYourEntry(false);
+
+                new Notification("You've been removed from the queue", {
+                    "requireInteraction": true
+                });
             }
         });
     }, []);
