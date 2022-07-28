@@ -113,11 +113,12 @@ export default function Announcements(props) {
                     <Typography sx={{ fontSize: 20, fontWeight: 'bold', ml: 2, mt: 1 }} variant="h5" gutterBottom>
                         Announcements
                     </Typography>
+                    {queueData?.isTA &&
                     <Button sx={{ mr: 1, fontWeight: 'bold', fontSize: '15px' }} color="primary" variant="contained" onClick={() => handleAdd()}>
                         + Create
                     </Button>
+                    }
                 </CardActions>
-                {/* <Collapse in={open} timeout="auto" unmountOnExit> */}
                     <Divider></Divider>
                         <TableContainer sx={{ maxHeight: "200px"}}>
                             <Table aria-label="topicsTxable" sx={{overflow: "scroll" }} stickyHeader>
@@ -151,18 +152,6 @@ export default function Announcements(props) {
                                 </TableBody>
                             </Table>
                         </TableContainer>
-                        {queueData?.isTa &&
-                        (<TableContainer sx={{ maxHeight: "200px"}}>
-                            <Table aria-label="topicsTxable" sx={{overflow: "scroll" }} stickyHeader>
-                                <TableBody>
-                                    <TableRow>
-                                        
-                                    </TableRow>
-                                </TableBody>
-                            </Table>
-                        </TableContainer>)
-                        }
-                {/* </Collapse> */}
             </Card>
             
             <OpenAnnouncement 
