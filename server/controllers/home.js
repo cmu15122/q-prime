@@ -40,7 +40,7 @@ exports.getOHQ = function() {
 
 function buildStudentEntryData(student) {
     let studentEntryData = {
-        name: "who are you :(", // TODO: update queue to store actual name of student
+        name: student.preferredName,
         andrewID: student.andrewID,
         taAndrewID: student.taAndrewID,
         topic: student.topic.name,
@@ -254,7 +254,6 @@ exports.post_delete_announcement = function (req, res) {
 /** Questions */
 exports.post_add_question = function (req, res) {
     if (!req.user || !req.user.isAuthenticated) {
-
         res.status(403);
         res.json({ message: 'Invalid permissions to perform this action' });
         return;
@@ -267,6 +266,7 @@ exports.post_add_question = function (req, res) {
         res.json({ message: 'Student already on the queue' });
         return;
     }
+
     models.account.findOrCreate({ // TODO: change to findOne after adding permanent students to database
         where: {
             email: {
@@ -275,29 +275,29 @@ exports.post_add_question = function (req, res) {
         },
         defaults: {
             name: req.body.name ? req.body.name : 'No Name',
+            preferred_name: req.body.name ? req.body.name : 'No Name',
             email: id + '@andrew.cmu.edu'
         }
     }).then(([account, created]) => {
         if (!account) {
-            res.status(400);
-            res.json({message: 'No existing account with provided andrew ID.'});
-            return;
+            throw new Error('No existing account with provided andrew ID.');
         }
 
-        models.student.findOrCreate({ // TODO: change to findOne after adding permanent students to database
-            where: {
-                student_id: account.user_id,
-                //user_id: account.user_id
-            },
-        }).then(([account, created]) => {
-            console.log("done");
-            if (!account) {
-                console.log("L taken");
-                res.status(400);
-                res.json({message: 'No existing account with provided andrew ID.'});
-                return;
-            }
-        })
+        return Promise.props({
+            student: models.student.findOrCreate({ // TODO: change to findOne after adding permanent students to database
+                where: {
+                    student_id: account.user_id
+                }
+            }),
+            account: account
+        });
+    }).then((result) => {
+        let [student, created] = result.student;
+        let account = result.account;
+
+        if (!student) {
+            throw new Error('No existing student account with provided andrew ID.');
+        }
 
         ohq.enqueue(
             id,
@@ -307,30 +307,29 @@ exports.post_add_question = function (req, res) {
             req.body.topic,
             moment.tz(new Date(), "America/New_York").toDate()
         );
-    })
 
-    let data = {
-        status: ohq.getStatus(id),
-        position: ohq.getPosition(id)
-    };
-
-    if (data.status == null || data.position == null) {
+        let data = {
+            status: ohq.getStatus(id),
+            position: ohq.getPosition(id)
+        };
+    
+        if (data.status == null || data.position == null) {
+            throw new Error('The server was unable to add you to the queue');
+        } else if (data.status == 5 || data.position == -1) {
+            throw new Error('The server was unable to find you on the queue after adding you');
+        }
+    
+        res.status(200);
+        data['message'] = "Successfully added to queue";
+        res.json(data);
+    
+        let studentEntryData = buildStudentEntryData(ohq.getData(id));
+        sockets.add(studentEntryData);
+    }).catch((err) => {
+        console.log(err);
         res.status(500);
-        res.json({ message: 'The server was unable to add you to the queue' });
-        return;
-    } else if (data.status == 5 || data.position == -1) {
-        res.status(400);
-        res.json({ message: 'The server was unable to find you on the queue after adding you' });
-        return;
-    }
-
-    res.status(200);
-    data['message'] = "Successfully added to queue";
-    res.json(data);
-
-    let student = ohq.getData(id);
-    let studentEntryData = buildStudentEntryData(student);
-    sockets.add(studentEntryData);
+        res.json({ message: err.message });
+    });
 }
 
 exports.post_remove_student = function (req, res) {
