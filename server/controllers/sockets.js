@@ -35,7 +35,7 @@ exports.init = function(server) {
                 if (!result) return;
 
                 socket.session = result;
-                if (result.semester_users[0].isTA) {
+                if (result.semester_users[0].is_ta) {
                     socket.leave(student_room);
                     socket.join(ta_room);
                 }
@@ -101,6 +101,59 @@ exports.deleteAnnouncement = function(announcementId) {
     }
     sio.emit("deleteAnnouncement", {
         deletedId: announcementId
+    });
+}
+
+exports.help = function(studentData, taAccount) {
+    if (!sio) {
+        console.log("ERROR: Socket.io is not initialized yet");
+        return;
+    }
+
+    sio.emit("help", {
+        andrewID: studentData.andrewID,
+        data: {
+            studentData: studentData,
+            taData: {
+                taId: taAccount.ta.ta_id,
+                taName: taAccount.name,
+                taZoomUrl: taAccount.ta.zoom_url
+            }
+        }
+    });
+}
+
+exports.unhelp = function(studentData, taAndrewID) {
+    if (!sio) {
+        console.log("ERROR: Socket.io is not initialized yet");
+        return;
+    }
+
+    sio.emit("unhelp", {
+        andrewID: studentData.andrewID,
+        data: {
+            studentData: studentData,
+            taData: {
+                taAndrewID: taAndrewID
+            }
+        }
+    });
+}
+
+exports.add = function(studentData) {
+    sio.to(ta_room).emit("add", {
+        studentData: studentData
+    });
+}
+
+exports.remove = function(studentAndrewID) {
+    if (!sio) {
+        console.log("ERROR: Socket.io is not initialized yet");
+        return;
+    }
+
+    sio.emit("remove", {
+        andrewID: studentAndrewID
     });
 }
 
