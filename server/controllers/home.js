@@ -45,7 +45,7 @@ exports.get = function (req, res) {
         res.send(data);
         return;
     }
-
+    
     let data = {
         queueData: {
             title: "15-122 Office Hours Queue",
@@ -56,11 +56,12 @@ exports.get = function (req, res) {
             isAuthenticated: req.user?.isAuthenticated,
             isTA: req.user?.isTA,
             isAdmin: req.user?.isAdmin,
-            andrewID: req.user?.andrewID
+            andrewID: req.user?.andrewID,
+            preferred_name: req.user?.account.preferred_name
         },
         studentData: {}
     };
-
+   
     models.assignment_semester.findAll({
         where: {
             sem_id: settings.get_admin_settings().currSem,

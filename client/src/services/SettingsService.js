@@ -40,6 +40,9 @@ class SettingsDataService {
   updateRejoinTime(data) {
     return http.post("/settings/config/rejoin/update", data);
   }
+  updatePreferredName(data) {
+    return http.post("/settings/preferredname/update", data);
+  }
 }
 
 export default new SettingsDataService();

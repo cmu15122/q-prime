@@ -16,5 +16,5 @@ router.post('/config/sem/update', settings.post_update_semester);
 router.post('/config/slack/update', settings.post_update_slack_url);
 router.post('/config/questions/update', settings.post_update_questions_url);
 router.post('/config/rejoin/update', settings.post_update_rejoin_time);
-
+router.post('/preferredname/update', settings.post_update_preferredname);
 module.exports = router;
