@@ -79,6 +79,7 @@ export default function EntryTails(props) {
           </Stack>
         )
       }
+
       default:
         return
     }

@@ -5,7 +5,6 @@ import {
 import * as React from 'react';
 
 export default function StudentStatus(props) {
-
   const {
     student, theme
   } = props
@@ -14,7 +13,7 @@ export default function StudentStatus(props) {
 
   const chooseText = (status) => {
       switch (status) {
-          case 0: return 'TA is Helping'
+          case 0: return `${student.taAndrewID} is Helping`
           case 2: return 'Updating Question'
           case 3: return 'Frozen'
           case 4: return 'Joined Before Cooldown'

@@ -128,7 +128,7 @@ export default function AskQuestion(props) {
                                             onChange={(e)=>setLocation(e.target.value)}
                                     >
                                         {
-                                            locations.length == 0 ?
+                                            locations.length === 0 ?
                                             <MenuItem value="122 Office Hours" key="122 Office Hours">122 Office Hours</MenuItem>
                                             : 
                                             locations.map((loc) => <MenuItem value={loc} key={loc}>{loc}</MenuItem>)
