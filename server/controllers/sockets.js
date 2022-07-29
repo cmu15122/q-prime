@@ -1,4 +1,6 @@
 let crypto = require('crypto');
+let models = require('../models');
+let settings = require('./settings');
 
 let sio;
 
@@ -14,19 +16,95 @@ exports.init = function(server) {
     });
 
     sio.on("connection", (socket) => {
-        // TODO: join student or TA room based on OAuth
         console.log("New client connected");
+        socket.join(student_room); // By default, join the student room
+
+        socket.on("authenticate", function (auth) {
+            if (!auth) return;
+
+            models.account.findOne({
+                where: { access_token: auth }, 
+                include: [
+                    { 
+                        model: models.semester_user,  
+                        where: { sem_id: settings.get_admin_settings().currSem }, 
+                        as: "semester_users"
+                    }
+                ]
+            }).then(function (result) {
+                if (!result) return;
+
+                socket.session = result;
+                if (result.semester_users[0].isTA) {
+                    socket.leave(student_room);
+                    socket.join(ta_room);
+                }
+            });
+
+        });
 
         socket.on("disconnect", () => {
-          console.log("Client disconnected");
+          console.log(`Client disconnected (${socket.session?.fname} ${socket.session?.lname})`);
+          socket.leave(student_room);
+          socket.leave(ta_room);
         });
     });
-
-    // We can have sockets ping things on an interval (like wait times), i.e.
-    // exports.update();
-    // setInterval(() => exports.update(), 5000);
 };
 
+exports.queueFrozen = function(isFrozen) {
+    if (!sio) {
+        console.log("ERROR: Socket.io is not initialized yet");
+        return;
+    }
+
+    sio.emit("queueFrozen", {
+        isFrozen: isFrozen
+    });
+}
+
+exports.waittimes = function(times) {
+    if (!sio) {
+        console.log("ERROR: Socket.io is not initialized yet");
+        return;
+    }
+
+    sio.emit("waittimes", {
+        times: times
+    });
+}
+
+exports.addAnnouncement = function(announcement) {
+    if (!sio) {
+        console.log("ERROR: Socket.io is not initialized yet");
+        return;
+    }
+    sio.emit("addAnnouncement", {
+        announcement: announcement
+    });
+}
+
+exports.updateAnnouncement = function(id, announcement) {
+    if (!sio) {
+        console.log("ERROR: Socket.io is not initialized yet");
+        return;
+    }
+    sio.emit("updateAnnouncement", {
+        updatedId: id,
+        announcement: announcement
+    });
+}
+
+exports.deleteAnnouncement = function(announcementId) {
+    if (!sio) {
+        console.log("ERROR: Socket.io is not initialized yet");
+        return;
+    }
+    sio.emit("deleteAnnouncement", {
+        deletedId: announcementId
+    });
+}
+
+// Example function, delete when done
 exports.update = function() {
     // Emitting a new message. Will be consumed by the client
     const response = new Date();

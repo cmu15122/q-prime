@@ -10,8 +10,10 @@ import { styled } from '@mui/material/styles';
 import OHQueueHeader from './OHQueueHeader';
 import LoggedInAs from './LoggedInAs';
 import GoogleLogin from './GoogleLogin';
+import AlertOnLogout from './dialogs/AlertOnLogout';
 
 import HomeService from '../../services/HomeService';
+import { socketSubscribeTo } from '../../services/SocketsService';
 
 function createPage(page, link) {
     return { page, link };
@@ -25,7 +27,7 @@ const NavbarButton = styled(Button)({
 });
 
 export default function Navbar(props) {
-    const { theme, queueData, isHome } = props;
+    const { theme, queueData, isHome, studentData } = props;
     const isMobileView = useMediaQuery("(max-width: 1000px)");
     
     const [ , , removeCookie] = useCookies(['user']);
@@ -37,7 +39,9 @@ export default function Navbar(props) {
     const [queueFrozen, setQueueFrozen] = useState(false);
 
     const [anchorElNav, setAnchorElNav] = useState(null);
-  
+
+    const [alertOpen, setAlertOpen] = useState(false);
+
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
     };
@@ -49,6 +53,14 @@ export default function Navbar(props) {
     const goToPage = (pageLink) => () => { 
         window.location.href = pageLink;
     };
+
+    useEffect(() => {
+        if (isHome) {
+            socketSubscribeTo("queueFrozen", (data) => {
+                setQueueFrozen(data.isFrozen);
+            });
+        }
+    }, []);
 
     useEffect(() => {
         if (queueData != null) {
@@ -75,18 +87,24 @@ export default function Navbar(props) {
         window.location.href = "/";
     }
 
+    function openAlert() {
+        setAlertOpen(true);
+    }
+
+    function handleLogoutClicked() {
+        if (studentData?.position != null && studentData.position !== -1) {
+            openAlert();
+        } else {
+            handleLogout();
+        }
+    }
+
     const freezeQueue = () => {
-        HomeService.freezeQueue()
-            .then((res) => {
-                setQueueFrozen(res.data.queueFrozen);
-            });
+        HomeService.freezeQueue();
     };
 
     const unfreezeQueue = () => {
-        HomeService.unfreezeQueue()
-            .then((res) => {
-                setQueueFrozen(res.data.queueFrozen);
-            });
+        HomeService.unfreezeQueue();
     };
 
     const unfreezeButton = <Button color="secondary" variant="contained" sx={{ mx: 2 }} onClick={unfreezeQueue}>Unfreeze</Button>;
@@ -160,7 +178,7 @@ export default function Navbar(props) {
                             }
                             {
                                 isAuthenticated &&
-                                <MenuItem onClick={handleLogout}>
+                                <MenuItem onClick={handleLogoutClicked}>
                                     <Typography variant='h8' sx={{ mx: 2 }}>
                                         Logout
                                     </Typography>
@@ -178,6 +196,7 @@ export default function Navbar(props) {
                         !isAuthenticated && <GoogleLogin theme={theme} queueData={queueData}/>
                     }
                 </Box>
+                <AlertOnLogout isOpen={alertOpen} setOpen={setAlertOpen} handleConfirm={handleLogout}/>
             </Toolbar>
             </AppBar>
         );
@@ -207,11 +226,12 @@ export default function Navbar(props) {
                 }
                 {
                     isAuthenticated ?
-                    <NavbarButton onClick={handleLogout}>Logout</NavbarButton>
+                    <NavbarButton onClick={handleLogoutClicked}>Logout</NavbarButton>
                     :
                     <GoogleLogin theme={theme} queueData={queueData}/>
                 }
             </Box>
+            <AlertOnLogout isOpen={alertOpen} setOpen={setAlertOpen} handleConfirm={handleLogout}/>
         </Toolbar>
         </AppBar>
     );

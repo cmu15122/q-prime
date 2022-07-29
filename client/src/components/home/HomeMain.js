@@ -4,6 +4,8 @@ import StudentMain from './student/StudentMain';
 import TAMain from './ta/TAMain';
 import Footer from './Footer';
 
+import { socketSubscribeTo } from '../../services/SocketsService';
+
 function HomeMain (props) {
     const { theme, queueData, studentData } = props;
 
@@ -14,6 +16,12 @@ function HomeMain (props) {
     const [isAdmin, setIsAdmin] = useState(false);
     const [queueFrozen, setQueueFrozen] = useState(true);
     const [mainPage, setMainPage] = useState();
+
+    useEffect(() => {
+        socketSubscribeTo("queueFrozen", (data) => {
+            setQueueFrozen(data.isFrozen);
+        });
+    }, []);
 
     useEffect(() => {
         if (queueData != null) {

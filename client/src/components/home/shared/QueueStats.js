@@ -7,20 +7,24 @@ import {
     Button
 } from '@mui/material';
 
-import HomeService from '../../../services/HomeService';
+import { socketSubscribeTo } from '../../../services/SocketsService';
 
 export default function QueueStats(props) {
-    const { theme, queueData } = props;
+    const { queueData, queueFrozen } = props;
 
     const [numStudents, setNumStudents] = useState();
     const [waitTime, setWaitTime] = useState();
-    const [queueFrozen, setQueueFrozen] = useState();
+
+    useEffect(() => {
+        socketSubscribeTo("waittimes", (data) => {
+            setWaitTime(data.times);
+        });
+    }, []);
 
     useEffect(() => {
         if (queueData != null) {
             setNumStudents(queueData.numStudents);
             setWaitTime(queueData.waitTime);
-            setQueueFrozen(queueData.queueFrozen);
         }
     }, [queueData]);
 

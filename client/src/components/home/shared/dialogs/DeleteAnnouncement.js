@@ -7,15 +7,14 @@ import {
 import HomeService from '../../../../services/HomeService';
 
 export default function DeleteAnnouncement(props) {
-    const { isOpen, onClose, announcementInfo, updateAnnouncements } = props
+    const { isOpen, onClose, announcementInfo } = props
 
     const handleDelete = () => {
         HomeService.deleteAnnouncement(
             JSON.stringify({
                 id: announcementInfo.id,
             })
-        ).then(res => {
-            updateAnnouncements(res.data.announcements);
+        ).then(() => {
             onClose();
         });
     };
@@ -29,7 +28,7 @@ export default function DeleteAnnouncement(props) {
         >
             <DialogContent>
                 <Typography sx={{ pb: 3, fontWeight: 'bold', fontSize: '22px', textAlign: 'center' }}>
-                    Delete Topic
+                    Delete Announcement
                 </Typography>
                 <Typography sx={{ textAlign: 'center' }}>
                     Are you sure you want to remove announcement <strong>{" " + announcementInfo?.header}</strong>? 

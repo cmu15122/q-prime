@@ -4,13 +4,16 @@ import {
     FormControl, InputLabel, MenuItem, Box, Select, Input, Button
 } from '@mui/material';
 import HomeService from '../../../services/HomeService';
+import SettingsService from '../../../services/SettingsService';
 
 function createData(topic_id, name) {
     return { topic_id, name };
 }
 
+let date = new Date();
+
 export default function AskQuestion(props) {
-    const locations = ['Remote', 'GHC 4211', 'Honk\'s Closet'];
+    const [locations, setLocations] = useState([])
     const [topics, setTopics] = useState([]);
 
     const { 
@@ -29,6 +32,7 @@ export default function AskQuestion(props) {
     useEffect(() => {
         if (queueData != null) {
             updateTopics(queueData.topics);
+            updateLocations()
         }
     }, [queueData]);
 
@@ -44,6 +48,18 @@ export default function AskQuestion(props) {
         setTopics(newRows);
     }
 
+    function updateLocations() {
+        let day = date.getDay()
+        let newLocations = {}
+        SettingsService.getLocations().then(res => {
+            let dayDict = res.data.dayDictionary;
+            newLocations = dayDict;
+
+            let roomsForDay = (newLocations && newLocations[day]) ? newLocations[day] : [];
+            setLocations(roomsForDay);
+        })
+    }
+
     function handleSubmit(event) {
         event.preventDefault();
         callAddQuestionAPI()
@@ -54,7 +70,8 @@ export default function AskQuestion(props) {
             JSON.stringify({
                 question: questionValue,
                 location: locationValue,
-                topic: topicValue
+                topic: topicValue,
+                andrewID: queueData.andrewID
             })
         ).then(res => {
             if(res.status === 200) {
@@ -79,13 +96,18 @@ export default function AskQuestion(props) {
                                 <FormControl required fullWidth>
                                     <InputLabel id="location-select">Location</InputLabel>
                                     <Select
-                                        labelId="location-select-label"
-                                        id="location-select"
-                                        value={locationValue}
-                                        label="Location"
-                                        onChange={(e)=>setLocationValue(e.target.value)}
+                                            labelId="location-select-label"
+                                            id="location-select"
+                                            value={locationValue}
+                                            label="Location"
+                                            onChange={(e)=>setLocationValue(e.target.value)}
                                     >
-                                        {locations.map((loc) => <MenuItem value={loc} key={loc}>{loc}</MenuItem>)}
+                                        {
+                                            locations.length == 0 ?
+                                            <MenuItem value="122 Office Hours" key="122 Office Hours">122 Office Hours</MenuItem>
+                                            : 
+                                            locations.map((loc) => <MenuItem value={loc} key={loc}>{loc}</MenuItem>)
+                                        }
                                     </Select>
                                 </FormControl>
                             </Box>

@@ -42,6 +42,18 @@ class SettingsDataService {
   }
   updatePreferredName(data) {
     return http.post("/settings/preferredname/update", data);
+
+  updateLocations(data) {
+    return http.post("/settings/locations/update", data);
+  }
+  getLocations() {
+    return http.get("/settings/locations/get");
+  }
+  addLocation(data) {
+    return http.post("/settings/locations/add", data);
+  }
+  removeLocation(data) {
+    return http.post("/settings/locations/remove", data);
   }
 }
 

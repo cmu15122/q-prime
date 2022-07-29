@@ -27,7 +27,7 @@ export default function YourEntry(props) {
                         </IconButton>
                     </Stack>
                     <CustomDivider/>
-                    <Typography variant='h6'>You are <strong>{converter.toOrdinal(position)} in line</strong>.</Typography>
+                    <Typography variant='h6'>You are <strong>{converter.toOrdinal(position+1)} in line</strong>.</Typography>
                     <Typography variant='h6'>The estimated wait time is <strong>{waitTime} minutes</strong> from your position.</Typography>
                     <CustomDivider/>
                     <Typography variant='h5' sx={{fontWeight: 'bold'}}>Location:</Typography>

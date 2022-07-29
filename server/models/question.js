@@ -18,19 +18,19 @@ module.exports = (sequelize, DataTypes) => {
     question_id: {
       type: DataTypes.INTEGER,
       unique: true,
-      primaryKey: true
+      primaryKey: true,
+      autoIncrement: true
     },
-    student_id:{
+    student_id: {
       type: DataTypes.INTEGER,
     },
-    ta_id:{
+    ta_id: {
       type: DataTypes.INTEGER,
     },
-    sem_id:{
+    sem_id: {
       type: DataTypes.STRING(3),
     },
     question: DataTypes.TEXT,
-    tried_so_far: DataTypes.TEXT,
     location: DataTypes.STRING,
     assignment: DataTypes.STRING,
     entry_time: DataTypes.DATE,
@@ -39,6 +39,7 @@ module.exports = (sequelize, DataTypes) => {
     num_asked_to_fix: DataTypes.BIGINT
   }, {
     sequelize,
+    initialAutoIncrement: 1,
     modelName: 'question',
     tableName: 'question'
   });
