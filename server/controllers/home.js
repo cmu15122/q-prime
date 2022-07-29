@@ -234,6 +234,22 @@ exports.post_add_question = function (req, res) {
             res.json({message: 'No existing account with provided andrew ID.'});
             return;
         }
+
+        models.student.findOrCreate({ // TODO: change to findOne after adding permanent students to database
+            where: {
+                student_id: account.user_id,
+                //user_id: account.user_id
+            },
+        }).then(([account, created]) => {
+            console.log("done");
+            if (!account) {
+                console.log("L taken");
+                res.status(400);
+                res.json({message: 'No existing account with provided andrew ID.'});
+                return;
+            }
+        })
+
         ohq.enqueue(
             id,
             account.preferred_name != "false" ? account.preferred_name : account.name,
@@ -243,6 +259,8 @@ exports.post_add_question = function (req, res) {
             moment.tz(new Date(), "America/New_York").toDate()
         );
     })
+
+   
 
     let data = {
         status: ohq.getStatus(id),
