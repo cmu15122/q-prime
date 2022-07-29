@@ -31,6 +31,10 @@ function respond(req, res, message, data, status) {
     res.json(data);
 }
 
+exports.getOHQ = function() {
+    return ohq;
+};
+
 exports.get = function (req, res) {
     res.status(200);
 
@@ -54,7 +58,7 @@ exports.get = function (req, res) {
         },
         studentData: {}
     };
-   
+
     models.assignment_semester.findAll({
         where: {
             sem_id: settings.get_admin_settings().currSem,

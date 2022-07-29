@@ -42,7 +42,7 @@ class SettingsDataService {
   }
   updatePreferredName(data) {
     return http.post("/settings/preferredname/update", data);
-
+  }
   updateLocations(data) {
     return http.post("/settings/locations/update", data);
   }
