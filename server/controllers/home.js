@@ -6,6 +6,7 @@ const Sequelize = require('sequelize');
 const queue = require('./queue');
 const models = require('../models');
 const sockets = require('./sockets');
+const waittime = require('./waittimes')
 const settings = require('./settings');
 
 const OHQueue = queue.OHQueue;
@@ -15,8 +16,6 @@ const StudentStatus = queue.StudentStatus;
 let queueFrozen = false;
 
 const ohq = new queue.OHQueue();
-
-let waitTime = 20;
 
 /** Helper Functions **/
 function respond_error(req, res, message, status) {
@@ -32,6 +31,10 @@ function respond(req, res, message, data, status) {
     res.json(data);
 }
 
+exports.getOHQ = function() {
+    return ohq;
+};
+
 exports.get = function (req, res) {
     res.status(200);
 
@@ -46,7 +49,7 @@ exports.get = function (req, res) {
             announcements: announcements,
             queueFrozen: queueFrozen,
             numStudents: ohq.size(),
-            waitTime: waitTime,
+            waitTime: waittime.get(),
             isAuthenticated: req.user?.isAuthenticated,
             isTA: req.user?.isTA,
             isAdmin: req.user?.isAdmin,
@@ -100,7 +103,7 @@ exports.post_freeze_queue = function (req, res) {
     }
 
     queueFrozen = true;
-    res.redirect("/");
+    sockets.queueFrozen(queueFrozen);
 }
 
 exports.post_unfreeze_queue = function (req, res) {
@@ -109,7 +112,7 @@ exports.post_unfreeze_queue = function (req, res) {
     }
 
     queueFrozen = false;
-    res.redirect("/");
+    sockets.queueFrozen(queueFrozen);
 }
 
 /** Announcements */
@@ -137,13 +140,16 @@ exports.post_create_announcement = function (req, res) {
         return;
     }
 
-    announcements.push({
+    let announcement = {
         id: announcementId,
         header: header,
         content: content
-    });
+    };
+
+    announcements.push(announcement);
     announcementId++;
 
+    sockets.addAnnouncement(announcement);
     respond(req, res, `Announcement created successfully`, { announcements: announcements }, 200);
 }
 
@@ -173,8 +179,7 @@ exports.post_update_announcement = function (req, res) {
         header: header,
         content: content
     }
-    // TODO: clear all read cookies once updated, will eventually be handled by sockets
-
+    sockets.updateAnnouncement(id, announcements[index]);
     respond(req, res, `Announcement updated successfully`, { announcements: announcements }, 200);
 }
 
@@ -193,7 +198,7 @@ exports.post_delete_announcement = function (req, res) {
     }
 
     announcements.splice(index, 1);
-
+    sockets.deleteAnnouncement(id);
     respond(req, res, `Announcement deleted successfully`, { announcements: announcements }, 200);
 }
 

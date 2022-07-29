@@ -4,7 +4,7 @@ import Navbar from '../components/navbar/Navbar';
 import HomeMain from '../components/home/HomeMain';
 
 import HomeService from "../services/HomeService";
-import { initiateSocket, socketSubscribeTo } from '../services/SocketsService';
+import { initiateSocket } from '../services/SocketsService';
 
 function Home(props) {
   const { theme } = props;
@@ -21,9 +21,6 @@ function Home(props) {
       });
     
     initiateSocket();
-    socketSubscribeTo("update", (data) => {
-      console.log(data);
-    })
   }, []);
 
   return (
