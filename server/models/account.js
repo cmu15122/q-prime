@@ -43,7 +43,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     preferred_name: {
       type: DataTypes.STRING,
-      defaultValue: ''
+      defaultValue: false
     },
     access_token: {
       type: DataTypes.STRING,

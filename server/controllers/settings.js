@@ -56,7 +56,8 @@ function get_response(req, res, message = null) {
             isTA: req.user.isTA,
             isAdmin: req.user.isAdmin,
             isOwner: req.user.isOwner,
-            andrewID: req.user.andrewID
+            andrewID: req.user.andrewID,
+            preferred_name: req.user?.account?.preferred_name
         };
         respond(req, res, message, data, 200);
     }
@@ -122,7 +123,9 @@ function get_response(req, res, message = null) {
             isTA: req.user.isTA,
             isAdmin: req.user.isAdmin,
             isOwner: req.user.isOwner,
-            andrewID: req.user.andrewID
+            andrewID: req.user.andrewID,
+            preferred_name: req.user?.account.preferred_name
+
         };
         respond(req, res, message, data, 200);
     }).catch(err => {

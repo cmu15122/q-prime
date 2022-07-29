@@ -54,7 +54,7 @@ exports.get = function (req, res) {
             isTA: req.user?.isTA,
             isAdmin: req.user?.isAdmin,
             andrewID: req.user?.andrewID,
-            preferred_name: req.user?.account.preferred_name
+            preferred_name: req.user?.account?.preferred_name
         },
         studentData: {}
     };
