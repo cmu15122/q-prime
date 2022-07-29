@@ -31,6 +31,10 @@ function respond(req, res, message, data, status) {
     res.json(data);
 }
 
+exports.getOHQ = function() {
+    return ohq;
+};
+
 exports.get = function (req, res) {
     res.status(200);
 
