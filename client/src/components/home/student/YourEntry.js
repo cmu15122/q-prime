@@ -1,7 +1,7 @@
 import * as React from 'react';
 import {
     Typography, Divider, Card, CardContent, Stack, IconButton,
-} from '@mui/material'
+} from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { styled } from '@mui/material/styles';
 
@@ -13,9 +13,9 @@ const CustomDivider = styled(Divider)({
 });
 
 export default function YourEntry(props) {
-    const waitTime = 20
-    
-    const { openRemoveOverlay, position, location, topic, question } = props
+    const waitTime = 20;
+    const { openRemoveOverlay, position, location, topic, question } = props;
+
     return (
         <div className='card' style={{ display:'flex' }}>
             <Card sx={{ minWidth : '100%'}}>
@@ -30,13 +30,10 @@ export default function YourEntry(props) {
                     <Typography variant='h6'>You are <strong>{converter.toOrdinal(position+1)} in line</strong>.</Typography>
                     <Typography variant='h6'>The estimated wait time is <strong>{waitTime} minutes</strong> from your position.</Typography>
                     <CustomDivider/>
-                    <Typography variant='h5' sx={{fontWeight: 'bold'}}>Location:</Typography>
-                    <Typography variant='h6'>{location}</Typography>
+                    <Typography variant='h6'><strong>Location:</strong> {location}</Typography>
+                    <Typography variant='h6'><strong>Topic:</strong> {topic}</Typography>
                     <CustomDivider/>
-                    <Typography variant='h5' sx={{fontWeight: 'bold'}}>Topic:</Typography>
-                    <Typography variant='h6'>{topic}</Typography>
-                    <CustomDivider/>
-                    <Typography variant='h5' sx={{fontWeight: 'bold'}}>Question:</Typography>
+                    <Typography variant='h6' sx={{fontWeight: 'bold'}}>Question:</Typography>
                     <Typography variant='h6'>{question}</Typography>
                 </CardContent>
             </Card>

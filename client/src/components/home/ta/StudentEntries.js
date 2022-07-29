@@ -1,37 +1,32 @@
-
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-    Card, CardActions, Divider, Typography, Table, TableBody, Button
+    Card, CardActions, Divider, Typography, Table, TableBody
 } from '@mui/material';
 
 import StudentEntry from './StudentEntry';
 import HomeService from '../../../services/HomeService';
 
 export default function StudentEntries(props) {
-    const { theme, queueData } = props
-    const [students, setStudents] = React.useState([]);
-    const [isHelping, setIsHelping] = React.useState(false);
-    const [helpIdx, setHelpIdx] = React.useState(-1); // idx of student that you are helping, only valid when isHelping is true
+    const { theme, queueData } = props;
+    const [students, setStudents] = useState([]);
+    const [isHelping, setIsHelping] = useState(false);
+    const [helpIdx, setHelpIdx] = useState(-1); // idx of student that you are helping, only valid when isHelping is true
 
-    React.useEffect(() => {
-        const handleGetStudents = () => {
-            HomeService.displayStudents().then(res => {
-                setStudents(res.data);
-            })
-        }
-        handleGetStudents();
+    useEffect(() => {
+        HomeService.displayStudents().then(res => {
+            setStudents(res.data);
+        });
     }, []);
 
     // stay helping even on page reload
-    React.useEffect(() => {
+    useEffect(() => {
         for (let [index, student] of students.entries()) {
-
             if (student['status'] === 0 && student['taAndrewID'] === queueData.andrewID) {
                 setHelpIdx(index);
                 setIsHelping(true);
             }
         }
-    }, [students, queueData])
+    }, [students, queueData]);
 
     const handleClickHelp = (index) => {
         HomeService.helpStudent(JSON.stringify({
@@ -42,7 +37,7 @@ export default function StudentEntries(props) {
                 setIsHelping(true);
                 students[index]['status'] = 0; // Switch student status
             }
-        })
+        });
     }
 
     const handleCancel = (index) => {
@@ -54,7 +49,7 @@ export default function StudentEntries(props) {
                 setHelpIdx(-1);
                 students[index]['status'] = 1;
             }
-        })
+        });
     }
 
     const removeStudent = (index) => {
@@ -63,20 +58,19 @@ export default function StudentEntries(props) {
         })).then(res => {
             if (res.status === 200) {
                 setStudents(students.filter((student, tempIndex) => {
-                    return tempIndex !== index
-                }))
-
-                setIsHelping(false)
-                setHelpIdx(-1)
+                    return tempIndex !== index;
+                }));
+                setIsHelping(false);
+                setHelpIdx(-1);
             }
-        })
+        });
     }
 
     const handleClickUnfreeze = (index) => {
         setIsHelping(false);
         setHelpIdx(-1);
-        console.log("unfreeeze studenttt");
-        console.log(index)
+        console.log("unfreeeze student");
+        console.log(index);
         students[index]['status'] = 1;
     }
 
@@ -84,28 +78,29 @@ export default function StudentEntries(props) {
         <div className='card' style={{ display: 'flex' }}>
             <Card sx={{ minWidth: '100%' }}>
                 <CardActions disableSpacing>
-                    <Typography sx={{ fontSize: 20, fontWeight: 'bold', ml: 2, mt: 1 }} variant="h5" gutterBottom>
+                    <Typography sx={{ fontWeight: 'bold', ml: 2, mt: 1 }} variant="h6" gutterBottom>
                         Students
                     </Typography>
                 </CardActions>
                 <Divider></Divider>
                 <Table aria-label="topicsTable">
                     <TableBody>
-                        {students.map((student, index) => (
-                            <StudentEntry
-                                key={student.andrewID}
-                                theme={theme}
-                                student={student}
-                                index={index}
-                                isHelping={isHelping}
-                                helpIdx={helpIdx}
-                                handleClickHelp={handleClickHelp}
-                                handleCancel={handleCancel}
-                                removeStudent={removeStudent}
-                                handleClickUnfreeze={handleClickUnfreeze}
-                            ></StudentEntry>
-                        ))}
-
+                        {
+                            students.map((student, index) => (
+                                <StudentEntry
+                                    key={student.andrewID}
+                                    theme={theme}
+                                    student={student}
+                                    index={index}
+                                    isHelping={isHelping}
+                                    helpIdx={helpIdx}
+                                    handleClickHelp={handleClickHelp}
+                                    handleCancel={handleCancel}
+                                    removeStudent={removeStudent}
+                                    handleClickUnfreeze={handleClickUnfreeze}
+                                />
+                            ))
+                        }
                     </TableBody>
                 </Table>
             </Card>

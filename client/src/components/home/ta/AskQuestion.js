@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
     Typography, Divider, Card, CardContent, Stack, FormControl, InputLabel,
     MenuItem, Box, Select, Input, Button
-} from '@mui/material'
+} from '@mui/material';
 
 import HomeService from '../../../services/HomeService';
 import SettingsService from '../../../services/SettingsService';
@@ -14,15 +14,16 @@ function createData(topic_id, name) {
 let date = new Date();
 
 export default function AskQuestion(props) {
-    const [locations, setLocations] = useState([])
+    const [locations, setLocations] = useState([]);
     const [topics, setTopics] = useState([]);
 
-    const { questionValue, setQuestionValue, queueData, theme } = props
+    const { queueData, theme } = props;
 
-    const [name, setName] = useState('')
-    const [id, setID] = useState('')
-    const [location, setLocation] = useState('')
-    const [topic, setTopic] = useState('')
+    const [name, setName] = useState('');
+    const [id, setID] = useState('');
+    const [location, setLocation] = useState('');
+    const [topic, setTopic] = useState('');
+    const [question, setQuestion] = useState('');
 
     useEffect(() => {
         if (queueData != null) {
@@ -41,6 +42,10 @@ export default function AskQuestion(props) {
         });
         newRows.push(createData(-1, "Other"));
         setTopics(newRows);
+
+        if (newRows.length === 1) {
+            setTopic(newRows[0]);
+        }
     }
 
     function updateLocations() {
@@ -50,8 +55,12 @@ export default function AskQuestion(props) {
             let dayDict = res.data.dayDictionary;
             newLocations = dayDict;
 
-            let roomsForDay = (newLocations && newLocations[day]) ? newLocations[day] : [];
+            let roomsForDay = (newLocations && newLocations[day]) ? newLocations[day] : ["122 Office Hours"];
             setLocations(roomsForDay);
+
+            if (roomsForDay.length === 1) {
+                setLocation(roomsForDay[0]);
+            }
         })
     }
     
@@ -60,7 +69,7 @@ export default function AskQuestion(props) {
             JSON.stringify({
                 name: name,
                 andrewID: id,
-                question: questionValue,
+                question: question,
                 location: location,
                 topic: topic
             })
@@ -76,7 +85,7 @@ export default function AskQuestion(props) {
         setID('');
         setLocation('');
         setTopic('');
-        setQuestionValue('');
+        setQuestion('');
     }
 
     const handleSubmit = (event) => {
@@ -118,26 +127,22 @@ export default function AskQuestion(props) {
                         </Stack>
                         <Stack direction="row" justifyContent="left" sx={{mt: 2}}>
                             <Box sx={{ minWidth: 120, width: "47%"}}>
-                                <FormControl required fullWidth>
+                                <FormControl variant="standard" required fullWidth>
                                     <InputLabel id="location-select">Location</InputLabel>
                                     <Select
-                                            labelId="location-select-label"
-                                            id="location-select"
-                                            value={location}
-                                            label="Location"
-                                            onChange={(e)=>setLocation(e.target.value)}
+                                        labelId="location-select-label"
+                                        id="location-select"
+                                        value={location}
+                                        label="Location"
+                                        onChange={(e)=>setLocation(e.target.value)}
+                                        style={{textAlign: "left"}}
                                     >
-                                        {
-                                            locations.length == 0 ?
-                                            <MenuItem value="122 Office Hours" key="122 Office Hours">122 Office Hours</MenuItem>
-                                            : 
-                                            locations.map((loc) => <MenuItem value={loc} key={loc}>{loc}</MenuItem>)
-                                        }
+                                        {locations.map((loc) => <MenuItem value={loc} key={loc}>{loc}</MenuItem>)}
                                     </Select>
                                 </FormControl>
                             </Box>
                             <Box sx={{ minWidth: 120, width: "47%", margin: "auto", mr: 1 }}>
-                                <FormControl required fullWidth>
+                                <FormControl variant="standard" required fullWidth>
                                     <InputLabel id="topic-select">Topic</InputLabel>
                                     <Select
                                         labelId="topic-select-label"
@@ -145,6 +150,7 @@ export default function AskQuestion(props) {
                                         value={topic}
                                         label="Topic"
                                         onChange={(e)=>setTopic(e.target.value)}
+                                        style={{textAlign: "left"}}
                                     >
                                         {topics.map((top) => <MenuItem value={top} key={top.topic_id}>{top.name}</MenuItem>)}
                                     </Select>
@@ -155,8 +161,8 @@ export default function AskQuestion(props) {
                         <FormControl required fullWidth sx={{ mt: 0.5 }}>
                             <Input 
                                 placeholder='Question (max 256 characters)'
-                                value={questionValue}
-                                onChange={(event)=>setQuestionValue(event.target.value)}
+                                value={question}
+                                onChange={(event)=>setQuestion(event.target.value)}
                                 fullWidth
                                 multiline
                                 inputProps={{ maxLength: 256 }}

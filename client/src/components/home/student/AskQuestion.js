@@ -46,6 +46,10 @@ export default function AskQuestion(props) {
         });
         newRows.push(createData(-1, "Other"));
         setTopics(newRows);
+
+        if (newRows.length === 1) {
+            setTopicValue(newRows[0]);
+        }
     }
 
     function updateLocations() {
@@ -55,8 +59,12 @@ export default function AskQuestion(props) {
             let dayDict = res.data.dayDictionary;
             newLocations = dayDict;
 
-            let roomsForDay = (newLocations && newLocations[day]) ? newLocations[day] : [];
+            let roomsForDay = (newLocations && newLocations[day]) ? newLocations[day] : ["122 Office Hours"];
             setLocations(roomsForDay);
+
+            if (roomsForDay.length === 1) {
+                setLocationValue(roomsForDay[0]);
+            }
         })
     }
 
@@ -93,26 +101,22 @@ export default function AskQuestion(props) {
                     <form onSubmit={handleSubmit}>
                         <Stack direction="row" justifyContent="left">
                             <Box sx={{ minWidth: 120, width: "47%"}}>
-                                <FormControl required fullWidth>
+                                <FormControl variant="standard" required fullWidth>
                                     <InputLabel id="location-select">Location</InputLabel>
                                     <Select
-                                            labelId="location-select-label"
-                                            id="location-select"
-                                            value={locationValue}
-                                            label="Location"
-                                            onChange={(e)=>setLocationValue(e.target.value)}
+                                        labelId="location-select-label"
+                                        id="location-select"
+                                        value={locationValue}
+                                        label="Location"
+                                        onChange={(e)=>setLocationValue(e.target.value)}
+                                        style={{textAlign: "left"}}
                                     >
-                                        {
-                                            locations.length == 0 ?
-                                            <MenuItem value="122 Office Hours" key="122 Office Hours">122 Office Hours</MenuItem>
-                                            : 
-                                            locations.map((loc) => <MenuItem value={loc} key={loc}>{loc}</MenuItem>)
-                                        }
+                                        {locations.map((loc) => <MenuItem value={loc} key={loc}>{loc}</MenuItem>)}
                                     </Select>
                                 </FormControl>
                             </Box>
                             <Box sx={{ minWidth: 120, width: "47%", margin: "auto", mr: 1 }}>
-                                <FormControl required fullWidth>
+                                <FormControl variant="standard" required fullWidth>
                                     <InputLabel id="topic-select">Topic</InputLabel>
                                     <Select
                                         labelId="topic-select-label"
@@ -120,6 +124,7 @@ export default function AskQuestion(props) {
                                         value={topicValue}
                                         label="Topic"
                                         onChange={(e)=>setTopicValue(e.target.value)}
+                                        style={{textAlign: "left"}}
                                     >
                                         {topics.map((top) => <MenuItem value={top} key={top.topic_id}>{top.name}</MenuItem>)}
                                     </Select>
