@@ -7,8 +7,9 @@ import DateTimeSelector from './DateTimeSelector';
 import PersonalStats from './PersonalStats';
 import OverallStats from './OverallStats';
 import CumulativeStats from './CumulativeStats';
+import Graph from './Graph';
 
-function MetricsMain (props) {
+export default function MetricsMain(props) {
     const { theme, queueData } = props;
 
     return (
@@ -20,8 +21,7 @@ function MetricsMain (props) {
             <PersonalStats theme={props.theme}/>
             <OverallStats theme={props.theme}/>
             <CumulativeStats theme={props.theme}/>
+            <Graph theme={props.theme}/>
         </div>
     );
 }
-
-export default MetricsMain
