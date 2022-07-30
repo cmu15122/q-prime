@@ -1,62 +1,70 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
     Button, Grid, ToggleButton, ToggleButtonGroup
-} from '@mui/material';
-import { Delete as DeleteIcon } from '@mui/icons-material'
-import SettingsService from '../../../services/SettingsService';
+} from "@mui/material";
 
-const _ = require("underscore")
+import { Delete as DeleteIcon } from "@mui/icons-material";
+
+import SettingsService from "../../../services/SettingsService";
 
 export default function DayPicker(props) {
-    const { convertIdxToDays, daysOfWeek, room, roomDictionary, setRoomDictionary } = props
-    const [newDays, setNewDays] = useState(convertIdxToDays(roomDictionary[room]))
+    const { convertIdxToDays, daysOfWeek, room, roomDictionary, setRoomDictionary } = props;
+    const [newDays, setNewDays] = useState(convertIdxToDays(roomDictionary[room]));
     
     const convertDaysToIdx = (daysArr) => {
-        return daysArr.map((day) => daysOfWeek.indexOf(day))
-    }
+        return daysArr.map((day) => daysOfWeek.indexOf(day));
+    };
 
     const handleDayClick = (event, newArr) => {
-        setNewDays(newArr)
-        let newRoomDictionary = roomDictionary
-        newRoomDictionary[room] = convertDaysToIdx(newArr)
-        setRoomDictionary(newRoomDictionary)
+        setNewDays(newArr);
+
+        let newRoomDictionary = roomDictionary;
+        newRoomDictionary[room] = convertDaysToIdx(newArr);
+        setRoomDictionary(newRoomDictionary);
+
         SettingsService.updateLocations(
             JSON.stringify({
                 room: room,
                 days: newArr,
                 daysOfWeek: daysOfWeek
             })
-        )
-    }
+        );
+    };
 
-    const handleRemove = (event) => {
+    const handleRemove = () => {
         SettingsService.removeLocation(
             JSON.stringify({
                 room: room,
                 days: roomDictionary[room],
             })
-        )
-        .then(res => {
-            setRoomDictionary(res.data.roomDictionary)
+        ).then(res => {
+            setRoomDictionary(res.data.roomDictionary);
         });
-    }
+    };
 
     return (
         <Grid>
             <ToggleButtonGroup
                 value={newDays}
                 onChange={handleDayClick}
-                aria-label="text formatting"
-                size='small'
+                size="small"
             >
-                {daysOfWeek.map((day) => (
-                    <ToggleButton color='primary' sx={{m: 0, p: 0}} value={day} key={day} aria-label={day}>
-                        <Button variant={(roomDictionary[room].includes(day)) ? 'outlined' : 'text'} size='small' sx={{m: 0, p: 0}}>{day.charAt(0)}</Button>
-                    </ToggleButton>
-                ))}
+                {
+                    daysOfWeek.map((day) => (
+                        <ToggleButton 
+                            color="primary" 
+                            sx={{ m: 0, px: 2 }}
+                            value={day} 
+                            key={day} 
+                            aria-label={day}
+                        >
+                            {day.charAt(0)}
+                        </ToggleButton>
+                    ))
+                }
             </ToggleButtonGroup>
             <Button onClick={() => handleRemove()}>
-                <DeleteIcon color='error'/>
+                <DeleteIcon color="error"/>
             </Button>
         </Grid>
     )

@@ -1,40 +1,52 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
-    styled, Button, Card, CardActions, IconButton, Collapse, Divider,
-    Typography, Table, TableRow, TableCell, TableBody
-} from '@mui/material';
-import {
-    ExpandMore
-} from '@mui/icons-material';
-import DayPicker from './DayPicker';
-import AddLocationDialog from './dialogs/AddLocationDialog';
-import SettingsService from '../../../services/SettingsService';
+    TableCell
+} from "@mui/material";
 
-const Expand = styled((props) => {
-    const { expand, ...other } = props;
-    return <IconButton {...other} />;
-})(({ theme, expand }) => ({
-    transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
-    marginLeft: 'auto',
-    transition: theme.transitions.create('transform', {
-        duration: theme.transitions.duration.shortest,
-    })
-}));
+import DayPicker from "./DayPicker";
+
+import AddDialog from "../../common/dialogs/AddDialog";
+import LocationDialogBody from "./dialogs/LocationDialogBody";
+
+import AddRow from "../../common/table/AddRow";
+import CollapsedTable from "../../common/table/CollapsedTable";
+
+import SettingsService from "../../../services/SettingsService";
+import ItemRow from "../../common/table/ItemRow";
 
 export default function Locations(props) {
-    const { theme, queueData } = props
+    const { theme, queueData } = props;
 
-    const [open, setOpen] = useState(false);
-    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const [openAdd, setOpenAdd] = React.useState(false);
-
-    const handleClick = () => {
-        setOpen(!open);
-        SettingsService.getLocations().then(res => {
-            let roomDict = res.data.roomDictionary
-            updateRoomDictionary(roomDict)
-        })
-    };
+    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    
+    const [roomDictionary, setRoomDictionary] = useState({}); // dict of location: [days]
+    const [dayDictionary, setDayDictionary] = useState({});
+    
+    useEffect(() => {
+        SettingsService.getLocations()
+            .then(res => {
+                updateRoomDictionary(res.data.roomDictionary);
+            });
+    }, []);
+    
+    useEffect(() => {
+        if (queueData != null) {
+            setDayDictionary(queueData.locations);
+        }
+    }, [queueData]);
+    
+    const updateRoomDictionary = (newRoomDict) => {
+        if (!newRoomDict) return;
+        setRoomDictionary(newRoomDict);
+    }
+    
+    const convertIdxToDays = (idxArr) => {
+        return idxArr.map((idx) => daysOfWeek[idx]);
+    }
+    
+    /** Add Dialog Functions */
+    const [openAdd, setOpenAdd] = useState(false);
+    const [room, setRoom] = useState("");
 
     const handleAdd = () => {
         setOpenAdd(true);
@@ -44,91 +56,66 @@ export default function Locations(props) {
         setOpenAdd(false);
     };
 
-    const [roomDictionary, setRoomDictionary] = useState({}) // dict of location: [days]
-    const [dayDictionary, setDayDictionary] = useState({})
-
-    useEffect(() => {
-        SettingsService.getLocations().then(res => {
-            updateRoomDictionary(res.data.roomDictionary)
-        })
-    }, []);
-
-    useEffect(() => {
-        if (queueData != null) {
-            setDayDictionary(queueData.locations)
-        }
-    }, [queueData]);
-
-    const updateRoomDictionary = (newRoomDict) => {
-        if (!newRoomDict) return
-        setRoomDictionary(newRoomDict)
-    }
-
-    const convertIdxToDays = (idxArr) => {
-        return idxArr.map((idx) => daysOfWeek[idx])
-    }
+    const handleCreate = () => {
+        SettingsService.addLocation(
+            JSON.stringify({
+                room: room,
+            })
+        ).then(res => {
+            handleClose();
+            setRoomDictionary(res.data.roomDictionary);
+        });
+    };
 
     return (
-        <div className='card' style={{ display:'flex' }}>
-            <Card sx={{ minWidth: '100%' }}>
-                <CardActions disableSpacing style={{ cursor: 'pointer' }} onClick={handleClick}>
-                    <Typography sx={{ fontSize: 16, fontWeight: 'bold', ml: 2, mt: 1 }} variant="h5" gutterBottom>
-                        Location Settings
-                    </Typography>
-                    <Expand
-                        expand={open}
-                        aria-expanded={open}
-                        aria-label="show more"
-                        sx={{ mr: 1 }}
-                    >
-                        <ExpandMore />
-                    </Expand>
-                </CardActions>
-                <Collapse in={open} timeout="auto" unmountOnExit>
-                    <Divider></Divider>
-                        <Table aria-label="topicsTable">
-                            <TableBody>
-                            {Object.keys(roomDictionary).map((room, index) => (
-                                <TableRow
-                                    key={room}
-                                    style={ index % 2 ? { background : theme.palette.background.paper }:{ background : theme.palette.background.default } }
-                                >
-                                    <TableCell component="th" scope="row" sx={{ fontSize: '16px', fontWeight: 'bold', pl: 3.25 }}>
-                                        {room}
-                                    </TableCell>
-                                    <TableCell component="th" align='right' sx={{ fontSize: '16px', fontStyle: 'italic', pr: 3.25 }}>
-                                        <DayPicker
-                                            convertIdxToDays={convertIdxToDays}
-                                            room={room}
-                                            days={roomDictionary[room]}
-                                            daysOfWeek={daysOfWeek}
-                                            roomDictionary={roomDictionary}
-                                            setRoomDictionary={setRoomDictionary}
-                                            dayDictionary={dayDictionary}
-                                            setDayDictionary={setDayDictionary}
-                                        />
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                                <TableRow
-                                    key='add'
-                                    style={{ background : theme.palette.background.default }}
-                                >
-                                    <TableCell align="center" colSpan={5}>
-                                        <Button sx={{ mr: 1, fontWeight: 'bold', fontSize: '18px' }} color="primary" variant="contained" onClick={() => handleAdd()}>
-                                            + Add Location
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </Table>
-                </Collapse>
-            </Card>
-            <AddLocationDialog
+        <div>
+            <CollapsedTable
+                theme={theme}
+                title="Location Settings"
+            >
+                {
+                    Object.keys(roomDictionary).map((room, index) => (
+                        <ItemRow
+                            theme={theme}
+                            index={index}
+                            rowKey={room}
+                        >
+                            <TableCell component="th" scope="row" sx={{ fontSize: "16px", fontWeight: "bold", pl: 3.25 }}>
+                                {room}
+                            </TableCell>
+                            <TableCell component="th" align="right" sx={{ fontSize: "16px", fontStyle: "italic", pr: 3.25 }}>
+                                <DayPicker
+                                    convertIdxToDays={convertIdxToDays}
+                                    room={room}
+                                    days={roomDictionary[room]}
+                                    daysOfWeek={daysOfWeek}
+                                    roomDictionary={roomDictionary}
+                                    setRoomDictionary={setRoomDictionary}
+                                    dayDictionary={dayDictionary}
+                                    setDayDictionary={setDayDictionary}
+                                />
+                            </TableCell>
+                        </ItemRow>
+                    ))
+                }
+                <AddRow
+                    theme={theme}
+                    addButtonLabel="+ Add Location"
+                    handleAdd={handleAdd}
+                />
+            </CollapsedTable>
+
+            <AddDialog
                 isOpen={openAdd}
                 onClose={handleClose}
-                setRoomDictionary={setRoomDictionary}
-            />
+                handleCreate={handleCreate}
+                title="Add New Location"
+            >
+                <LocationDialogBody
+                    room={room}
+                    setRoom={setRoom}
+                />
+            </AddDialog>
         </div>
     );
 }

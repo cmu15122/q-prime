@@ -487,36 +487,35 @@ exports.post_create_ta = function (req, res) {
         return Promise.props({
             account: function () {
                 if (accountCreated) {
-                    account.set({
-                        name: name
-                    });
+                    account.set({ name: name });
                 }
                 return account.save();
             }(),
-            semester_user: function () {
-                return models.semester_user.findOrCreate({
-                    where: {
-                        user_id: account.user_id,
-                        sem_id: adminSettings.currSem
-                    }
-                });
-            }(),
-            ta: function () {
-                return models.ta.findOrCreate({
-                    where: {
-                        ta_id: account.user_id,
-                        is_admin: isAdmin ? 1 : 0
-                    }
-                });
-            }()
+            semester_user: models.semester_user.findOrCreate({
+                where: {
+                    user_id: account.user_id,
+                    sem_id: adminSettings.currSem
+                }
+            }),
+            ta: models.ta.findOrCreate({
+                where: {
+                    ta_id: account.user_id
+                }
+            })
         })
     }).then(function (results) {
-        return results.semester_user[0].update({
-            is_ta: 1
+        return Promise.props({
+            semester_user: results.semester_user[0].update({
+                is_ta: 1
+            }),
+            ta: results.ta[0].update({
+                is_admin: isAdmin ? 1 : 0
+            })
         });
     }).then(function () {
         get_response(req, res, `TA ${name} created successfully`);
     }).catch(err => {
+        console.log(err);
         message = err.message || "An error occurred while creating topic";
         respond_error(req, res, message, 500);
     });
