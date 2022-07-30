@@ -322,8 +322,8 @@ const StudentStatus = Object.freeze({
 /**
  * Student data structure
  * {
- *      id: string,
  *      andrewID: string,
+ *      preferredName: string,
  *      status: StudentStatus,
  *      question: string,
  *      location: string,
@@ -353,9 +353,10 @@ class OHQueue {
     }
 
     /** Enqueues student to the queue */
-    enqueue(andrewID, question, location, topic, entryTime) {
-        this.queue.addLast({
+    enqueue(andrewID, preferredName, question, location, topic, entryTime) {
+        var data = {
             andrewID: andrewID,
+            preferredName: preferredName,
             status: StudentStatus.WAITING,
             question: question,
             location: location,
@@ -366,7 +367,8 @@ class OHQueue {
             helpTime: null,
             isFrozen: false,
             numAskedToFix: 0
-        });
+        }
+        this.queue.addLast(data);
     }
 
     getData(andrewID) {

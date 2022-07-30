@@ -56,7 +56,8 @@ function get_response(req, res, message = null) {
             isTA: req.user.isTA,
             isAdmin: req.user.isAdmin,
             isOwner: req.user.isOwner,
-            andrewID: req.user.andrewID
+            andrewID: req.user.andrewID,
+            preferred_name: req.user?.account?.preferred_name
         };
         respond(req, res, message, data, 200);
     }
@@ -122,7 +123,8 @@ function get_response(req, res, message = null) {
             isTA: req.user.isTA,
             isAdmin: req.user.isAdmin,
             isOwner: req.user.isOwner,
-            andrewID: req.user.andrewID
+            andrewID: req.user.andrewID,
+            preferred_name: req.user?.account.preferred_name
         };
         respond(req, res, message, data, 200);
     }).catch(err => {
@@ -176,6 +178,29 @@ exports.post_update_video_chat = function (req, res) {
     });
 }
 
+exports.post_update_preferredname = function (req, res) {
+    if (!req.user) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+    var pname = req.body.preferred_name;
+
+    let account = req.user.account;
+    account.preferred_name = pname;
+    
+    Promise.props({
+        account: account.save()
+    }).then(function(results) {
+        req.user.account = results.account;
+        get_response(req, res, `Settings updated successfully`);
+    }).catch(err => {
+        console.log(err);
+        message = err.message || "An error occurred while updating settings";
+        respond_error(req, res, message, 500);
+    });
+}
+
 exports.post_update_notifs = function (req, res) {
     if (!req.user || !req.user.isTA) {
         message = "You don't have permissions to perform this operation";
@@ -216,6 +241,8 @@ exports.post_update_notifs = function (req, res) {
         respond_error(req, res, message, 500);
     });
 }
+
+
 
 /** ADMIN FUNCTIONS **/
 /** Config Settings **/

@@ -12,7 +12,7 @@ export default function StudentStatus(props) {
                 if (isHelping && (index === helpIdx)) {
                     return 'You are helping';
                 } else {
-                    return 'TA is Helping';
+                    return `${student.taAndrewID} is Helping`;
                 }
             }
             case 2: return 'Updating Question';

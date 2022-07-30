@@ -47,7 +47,7 @@ exports.post_login = async (req, res) => {
 
             account.set({
                 name: name,
-                preferred_name: "",
+                preferred_name: name,
                 access_token: access_token
             });
         }
