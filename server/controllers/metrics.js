@@ -14,7 +14,8 @@ const metricsView = (req, res) => {
         isAuthenticated: req.user.isAuthenticated,
         isTA: req.user.isTA,
         isAdmin: req.user.isAdmin,
-        andrewID: req.user?.andrewID
+        andrewID: req.user?.andrewID,
+        preferred_name: req.user?.account?.preferred_name
     });
 };
 
