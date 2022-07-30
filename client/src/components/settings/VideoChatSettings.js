@@ -19,23 +19,21 @@ export default function VideoChatSettings(props) {
         }
     }, [queueData]);
 
-    useEffect(() => {
-        if (queueData != null) {
-            updateVideoChatSettings();
-        }
-     }, [isVideoChatEnabled]);
+    const updateVideoChatEnabled = (chatEnabled) => {
+        setVideoChatEnabled(chatEnabled);
+        SettingsService.updateVideoChatSettings({
+            enabled: chatEnabled,
+            url: videoChatURL
+        });
+    };
 
     const updateVideoChatURL = (event) => {
         event.preventDefault();
-        updateVideoChatSettings();
-    }
-    
-    const updateVideoChatSettings = () => {
         SettingsService.updateVideoChatSettings({
             enabled: isVideoChatEnabled,
             url: videoChatURL
         });
-    }
+    };
 
     return (
         <div className='card' style={{ display: 'flex' }}>
@@ -52,7 +50,8 @@ export default function VideoChatSettings(props) {
                                     sx={{ ml: 1 }}
                                     checked={isVideoChatEnabled ?? false}
                                     onChange={(e) => {
-                                        setVideoChatEnabled(e.target.checked);
+                                        let chatEnabled = e.target.checked;
+                                        updateVideoChatEnabled(chatEnabled);
                                     }}
                                 />
                             } 
@@ -69,9 +68,7 @@ export default function VideoChatSettings(props) {
                                         variant="standard" 
                                         fullWidth
                                         value={videoChatURL ?? ""}
-                                        onChange={(e) => {
-                                            setVideoChatURL(e.target.value)
-                                        }}
+                                        onChange={(e) => setVideoChatURL(e.target.value)}
                                     />
                                 </Grid>
                                 <Grid className="d-flex" item sx={{ mt: 1, mx: 1 }} xs={2}>

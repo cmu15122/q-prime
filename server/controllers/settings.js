@@ -81,9 +81,10 @@ function get_response(req, res, message = null) {
                 include: [
                     {
                         model: models.account,
-                        include: [{ model: models.ta, as: "ta" }]
+                        include: [{ model: models.ta, as: "ta" }],
                     }
                 ],
+                order: [['account', 'preferred_name', 'ASC']]
             })
         }()
     }).then(function (results) {
