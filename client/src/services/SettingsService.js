@@ -19,6 +19,16 @@ class SettingsDataService {
   deleteTopic(data) {
     return http.post("/settings/topics/delete", data);
   }
+  downloadTopicCSV() {
+    return http.post("/settings/topics/downloadCSV");
+  }
+  uploadTopicCSV(data) {
+    return http.post("/settings/topics/uploadCSV", data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      }
+    });
+  }
   createTA(data) {
     return http.post("/settings/tas/create", data);
   }
@@ -27,6 +37,16 @@ class SettingsDataService {
   }
   deleteTA(data) {
     return http.post("/settings/tas/delete", data);
+  }
+  downloadTACSV() {
+    return http.post("/settings/tas/downloadCSV");
+  }
+  uploadTACSV(data) {
+    return http.post("/settings/tas/uploadCSV", data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      }
+    });
   }
   updateSemester(data) {
     return http.post("/settings/config/sem/update", data);

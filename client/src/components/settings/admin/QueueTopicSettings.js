@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
-    TableCell
+    Button, TableCell, TableRow
 } from "@mui/material";
 
 import TopicDialogBody from "./dialogs/TopicDialogBody";
@@ -8,14 +8,15 @@ import TopicDialogBody from "./dialogs/TopicDialogBody";
 import AddDialog from "../../common/dialogs/AddDialog";
 import EditDialog from "../../common/dialogs/EditDialog";
 import DeleteDialog from "../../common/dialogs/DeleteDialog";
+import UploadDialog from "../../common/dialogs/UploadDialog";
 
-import AddRow from "../../common/table/AddRow";
 import CollapsedTable from "../../common/table/CollapsedTable";
 import EditDeleteRow from "../../common/table/EditDeleteRow";
 
 import SettingsService from "../../../services/SettingsService";
 
 import { DateTime } from "luxon";
+import download from 'downloadjs';
 
 function createData(assignment_id, name, category, startDate, endDate) {
     startDate = DateTime.fromISO(startDate);
@@ -49,15 +50,26 @@ export default function QueueTopicSettings(props) {
         setRows(newRows);
     };
 
+    const handleDownload = () => {
+        SettingsService.downloadTopicCSV()
+            .then((result) => {
+                download(result.data, 'topics_example.csv');
+            });
+    };
+
     /** Dialog Functions */
     const [name, setName] = useState("");
     const [category, setCategory] = useState("");
     const [startDate, setStartDate] = useState(DateTime.now());
     const [endDate, setEndDate] = useState(DateTime.now());
 
+    const [file, setFile] = useState();
+    const [fileName, setFileName] = useState("");
+
     const [openAdd, setOpenAdd] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
     const [openDelete, setOpenDelete] = useState(false);
+    const [openUpload, setOpenUpload] = useState(false);
 
     const handleAddDialog = () => {
         setOpenAdd(true);
@@ -83,10 +95,18 @@ export default function QueueTopicSettings(props) {
         setSelectedRow(row);
     };
 
+    const handleUploadDialog = () => {
+        setOpenUpload(true);
+
+        setFile();
+        setFileName("");
+    };
+
     const handleClose = () => {
         setOpenAdd(false);
         setOpenEdit(false);
         setOpenDelete(false);
+        setOpenUpload(false);
     };
 
     const updateStartDate = (newStartDate) => {
@@ -138,6 +158,21 @@ export default function QueueTopicSettings(props) {
         });
     };
 
+    const handleUpload = (event) => {
+        event.preventDefault();
+        if (file == null) {
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+        SettingsService.uploadTopicCSV(formData)
+            .then(res => {
+                updateTopics(res.data.topics);
+                handleClose();
+            });
+    };
+
     return (
         <div>
             <CollapsedTable 
@@ -165,11 +200,22 @@ export default function QueueTopicSettings(props) {
                         </EditDeleteRow>
                     ))
                 }
-                <AddRow
-                    theme={theme}
-                    addButtonLabel="+ Add Topic"
-                    handleAdd={handleAddDialog}
-                />
+                <TableRow
+                    key="actions"
+                    style={{ background : theme.palette.background.default }}
+                >
+                    <TableCell align="center" colSpan={5}>
+                        <Button sx={{ mr: 1, fontWeight: "bold", fontSize: "18px" }} color="primary" variant="contained" onClick={() => handleAddDialog()}>
+                            + Add Topic
+                        </Button>
+                        <Button sx={{ mr: 1, fontWeight: "bold", fontSize: "18px" }} color="info" variant="contained" onClick={() => handleDownload()}>
+                            Download CSV Template
+                        </Button>
+                        <Button sx={{ mr: 1, fontWeight: "bold", fontSize: "18px" }} color="info" variant="contained" onClick={() => handleUploadDialog()}>
+                            Upload CSV
+                        </Button>
+                    </TableCell>
+                </TableRow>
             </CollapsedTable>
 
             <AddDialog
@@ -214,6 +260,16 @@ export default function QueueTopicSettings(props) {
                 onClose={handleClose}
                 handleDelete={handleDelete}
                 itemName={" " + selectedRow?.name}
+            />
+
+            <UploadDialog
+                isOpen={openUpload}
+                onClose={handleClose}
+                handleUpload={handleUpload}
+                file={file}
+                setFile={setFile}
+                fileName={fileName}
+                setFileName={setFileName}
             />
         </div>
     );

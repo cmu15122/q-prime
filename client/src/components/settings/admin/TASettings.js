@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
-    Checkbox, FormControlLabel, Grid, TableCell
+    Button, Checkbox, FormControlLabel, Grid, TableCell, TableRow
 } from "@mui/material";
 
 import TADialogBody from "./dialogs/TADialogBody";
@@ -8,12 +8,13 @@ import TADialogBody from "./dialogs/TADialogBody";
 import AddDialog from "../../common/dialogs/AddDialog";
 import EditDialog from "../../common/dialogs/EditDialog";
 import DeleteDialog from "../../common/dialogs/DeleteDialog";
+import UploadDialog from "../../common/dialogs/UploadDialog";
 
 import CollapsedTable from "../../common/table/CollapsedTable";
 import EditDeleteRow from "../../common/table/EditDeleteRow";
-import AddRow from "../../common/table/AddRow";
 
 import SettingsService from "../../../services/SettingsService";
+import download from 'downloadjs';
 
 function createData(user_id, name, email, isAdmin) {
     return { user_id, name, email, isAdmin };
@@ -44,14 +45,25 @@ export default function TASettings(props) {
         setRows(newRows);
     };
 
+    const handleDownload = () => {
+        SettingsService.downloadTACSV()
+            .then((result) => {
+                download(result.data, 'ta_example.csv');
+            });
+    };
+
     /** Dialog Functions */
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [isAdmin, setIsAdmin] = useState(false);
 
+    const [file, setFile] = useState();
+    const [fileName, setFileName] = useState("");
+
     const [openAdd, setOpenAdd] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
     const [openDelete, setOpenDelete] = useState(false);
+    const [openUpload, setOpenUpload] = useState(false);
 
     const handleAddDialog = () => {
         setOpenAdd(true);
@@ -75,10 +87,18 @@ export default function TASettings(props) {
         setSelectedRow(row);
     };
 
+    const handleUploadDialog = () => {
+        setOpenUpload(true);
+
+        setFile();
+        setFileName("");
+    };
+
     const handleClose = () => {
         setOpenAdd(false);
         setOpenEdit(false);
         setOpenDelete(false);
+        setOpenUpload(false);
     };
 
     const handleAdd = event => {
@@ -119,6 +139,21 @@ export default function TASettings(props) {
         });
     };
 
+    const handleUpload = (event) => {
+        event.preventDefault();
+        if (file == null) {
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+        SettingsService.uploadTACSV(formData)
+            .then(res => {
+                updateTAs(res.data.tas);
+                handleClose();
+            });
+    };
+
     return (
         <div>
             <CollapsedTable 
@@ -144,11 +179,22 @@ export default function TASettings(props) {
                         </EditDeleteRow>
                     ))
                 }
-                <AddRow
-                    theme={theme}
-                    addButtonLabel="+ Add TA"
-                    handleAdd={handleAddDialog}
-                />
+                <TableRow
+                    key="actions"
+                    style={{ background : theme.palette.background.default }}
+                >
+                    <TableCell align="center" colSpan={5}>
+                        <Button sx={{ mr: 1, fontWeight: "bold", fontSize: "18px" }} color="primary" variant="contained" onClick={() => handleAddDialog()}>
+                            + Add TA
+                        </Button>
+                        <Button sx={{ mr: 1, fontWeight: "bold", fontSize: "18px" }} color="info" variant="contained" onClick={() => handleDownload()}>
+                            Download CSV Template
+                        </Button>
+                        <Button sx={{ mr: 1, fontWeight: "bold", fontSize: "18px" }} color="info" variant="contained" onClick={() => handleUploadDialog()}>
+                            Upload CSV
+                        </Button>
+                    </TableCell>
+                </TableRow>
             </CollapsedTable>
 
             <AddDialog
@@ -196,6 +242,16 @@ export default function TASettings(props) {
                 onClose={handleClose}
                 handleDelete={handleDelete}
                 itemName={" " + selectedRow?.name}
+            />
+
+            <UploadDialog
+                isOpen={openUpload}
+                onClose={handleClose}
+                handleUpload={handleUpload}
+                file={file}
+                setFile={setFile}
+                fileName={fileName}
+                setFileName={setFileName}
             />
         </div>
     );
