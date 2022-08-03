@@ -50,13 +50,15 @@ export default function Locations(props) {
 
     const handleAdd = () => {
         setOpenAdd(true);
+        setRoom("");
     };
 
     const handleClose = () => {
         setOpenAdd(false);
     };
 
-    const handleCreate = () => {
+    const handleCreate = event => {
+        event.preventDefault();
         SettingsService.addLocation(
             JSON.stringify({
                 room: room,
