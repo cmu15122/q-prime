@@ -1,6 +1,7 @@
 // For settings page
 const moment = require("moment-timezone");
 const Promise = require("bluebird");
+const csvtojson = require("csvtojson");
 
 const models = require('../models');
 const sockets = require('./sockets')
@@ -62,7 +63,6 @@ function get_response(req, res, message = null) {
         respond(req, res, message, data, 200);
     }
 
-    // TODO: there's no need to fetch everything for non-admin TAs
     Promise.props({
         assignment_semesters: function () {
             if (!adminSettings.currSem) return [];
@@ -464,6 +464,99 @@ exports.post_delete_topic = function (req, res) {
     });
 }
 
+exports.post_download_topic_csv = function (req, res) {
+    if (!req.user || !req.user.isAdmin) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    try {
+        const file = `${__dirname}/../public/files/topics_example.csv`;
+        res.download(file);
+    } catch (err) {
+        console.log(err);
+        message = err.message || "An error occurred while downloading CSV";
+        respond_error(req, res, message, 500);
+    }
+}
+
+exports.post_upload_topic_csv = function (req, res) {
+    if (!req.user || !req.user.isAdmin) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    const file = req.file;
+    if (!file) {
+        respond_error(req, res, "No CSV file was uploaded", 400);
+        return;
+    }
+
+    let csvData = file.buffer.toString('utf8');
+    csvtojson().fromString(csvData).then((data) => {
+        var assignments = [];
+        for (var i = 0; i < data.length; ++i) {
+            var name = data[i].name;
+            var category = data[i].category;
+            var start_date = moment.tz(new Date(data[i].start_date), "America/New_York").toDate(); // TODO: get timezone (get from client? global config?)
+            var end_date = moment.tz(new Date(data[i].end_date), "America/New_York").toDate();
+
+            if (!start_date.getTime() || !end_date.getTime() || !name || !category) {
+                throw new Error("Invalid fields in CSV file");
+            }
+
+            assignments.push(
+                models.assignment.findOrCreate({
+                    where: {
+                        name: name,
+                        category: category
+                    }
+                }).then(([assignment, ]) => {
+                    return Promise.props({
+                        assignment_semester: 
+                            models.assignment_semester.findOne({
+                                where: {
+                                    assignment_id: assignment.assignment_id,
+                                    sem_id: adminSettings.currSem
+                                }
+                            }),
+                        assignment: assignment
+                    });
+                }).then((result) => {
+                    let assignment_semester = result.assignment_semester;
+                    let assignment = result.assignment;
+
+                    if (!assignment_semester) {
+                        return models.assignment_semester.create({
+                            assignment_id: assignment.assignment_id,
+                            sem_id: adminSettings.currSem,
+                            start_date: start_date,
+                            end_date: end_date
+                        });
+                    }
+
+                    return assignment_semester.update({
+                        start_date: start_date,
+                        end_date: end_date
+                    });
+                })
+            );
+        }
+
+        return Promise.props({
+            assignments: Promise.all(assignments)
+        });
+    }).then(() => {
+        get_response(req, res, `Assignments created successfully`);
+    }).catch(err => {
+        console.log(err);
+        message = err.message || "An error occurred while creating uploaded topics";
+        respond_error(req, res, message, 500);
+    });
+}
+
 /** TA Functions **/
 exports.post_create_ta = function (req, res) {
     if (!req.user || !req.user.isAdmin) {
@@ -488,7 +581,7 @@ exports.post_create_ta = function (req, res) {
         return Promise.props({
             account: function () {
                 if (accountCreated) {
-                    account.set({ name: name });
+                    account.set({ name: name, preferred_name: name });
                 }
                 return account.save();
             }(),
@@ -608,6 +701,98 @@ exports.post_delete_ta = function (req, res) {
         get_response(req, res, `TA deleted successfully`);
     }).catch(err => {
         message = err.message || "An error occurred while deleting TA";
+        respond_error(req, res, message, 500);
+    });
+}
+
+exports.post_download_ta_csv = function (req, res) {
+    if (!req.user || !req.user.isAdmin) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    try {
+        const file = `${__dirname}/../public/files/tas_example.csv`;
+        res.download(file);
+    } catch (err) {
+        console.log(err);
+        message = err.message || "An error occurred while downloading CSV";
+        respond_error(req, res, message, 500);
+    }
+}
+
+exports.post_upload_ta_csv = function (req, res) {
+    if (!req.user || !req.user.isAdmin) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    const file = req.file;
+    if (!file) {
+        respond_error(req, res, "No CSV file was uploaded", 400);
+        return;
+    }
+
+    let csvData = file.buffer.toString('utf8');
+    csvtojson().fromString(csvData).then((data) => {
+        var tas = [];
+        for (var i = 0; i < data.length; ++i) {
+            var name = data[i].name;
+            var email = data[i].email;
+            var is_admin = data[i].is_admin;
+
+            if (!name || !email) {
+                throw new Error("Invalid fields in CSV file");
+            }
+
+            tas.push(
+                models.account.findOrCreate({
+                    where: {
+                        email: email
+                    }
+                }).then(([account, accountCreated]) => {
+                    return Promise.props({
+                        account: function () {
+                            if (accountCreated) {
+                                account.set({ name: name, preferred_name: name });
+                            }
+                            return account.save();
+                        }(),
+                        semester_user: models.semester_user.findOrCreate({
+                            where: {
+                                user_id: account.user_id,
+                                sem_id: adminSettings.currSem
+                            }
+                        }),
+                        ta: models.ta.findOrCreate({
+                            where: {
+                                ta_id: account.user_id
+                            }
+                        })
+                    });
+                }).then((results) => {
+                    return Promise.props({
+                        semester_user: results.semester_user[0].update({
+                            is_ta: 1
+                        }),
+                        ta: results.ta[0].update({
+                            is_admin: is_admin ? 1 : 0
+                        })
+                    });
+                })
+            );
+        }
+
+        return Promise.props({
+            tas: Promise.all(tas)
+        });
+    }).then(() => {
+        get_response(req, res, `TAs created successfully`);
+    }).catch(err => {
+        console.log(err);
+        message = err.message || "An error occurred while creating uploaded tas";
         respond_error(req, res, message, 500);
     });
 }

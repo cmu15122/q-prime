@@ -1,6 +1,7 @@
 const bodyParser = require('body-parser');
 const express = require('express');
 const logger = require('morgan');
+const multer = require('multer');
 
 const http = require('http');
 const cors = require("cors");
@@ -21,6 +22,10 @@ const metrics = require("./routes/metrics");
 app.use(logger('dev'));
 app.use(cors());
 
+app.use(express.static('public'));
+
+const upload = multer();
+app.use(upload.single('file'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
