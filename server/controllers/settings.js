@@ -743,9 +743,11 @@ exports.post_upload_ta_csv = function (req, res) {
             var email = data[i].email;
             var is_admin = data[i].is_admin;
 
-            if (!name || !email) {
+            if (!name || !email || !is_admin) {
                 throw new Error("Invalid fields in CSV file");
             }
+
+            is_admin = is_admin.toLowerCase() == "true";
 
             tas.push(
                 models.account.findOrCreate({
