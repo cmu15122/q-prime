@@ -1,49 +1,31 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
-    styled, Button, Card, CardActions, IconButton, Collapse, Divider,
-    Typography, Table, TableRow, TableCell, TableBody
-} from '@mui/material';
-import {
-    Edit, Delete, ExpandMore
-} from '@mui/icons-material';
+    TableCell
+} from "@mui/material";
 
-import AddTopicDialog from './dialogs/AddTopicDialog';
-import EditTopicDialog from './dialogs/EditTopicDialog';
-import DeleteTopicDialog from './dialogs/DeleteTopicDialog';
+import TopicDialogBody from "./dialogs/TopicDialogBody";
 
-import { DateTime } from 'luxon';
+import AddDialog from "../../common/dialogs/AddDialog";
+import EditDialog from "../../common/dialogs/EditDialog";
+import DeleteDialog from "../../common/dialogs/DeleteDialog";
 
-const Expand = styled((props) => {
-        const { expand, ...other } = props;
-        return <IconButton {...other} />;
-    })(({ theme, expand }) => ({
-        transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
-        marginLeft: 'auto',
-        transition: theme.transitions.create('transform', {
-            duration: theme.transitions.duration.shortest,  
-        }),
-    })
-);
+import AddRow from "../../common/table/AddRow";
+import CollapsedTable from "../../common/table/CollapsedTable";
+import EditDeleteRow from "../../common/table/EditDeleteRow";
 
-function createData(assignment_id, name, category, dateIn, dateOut) {
-    dateIn = DateTime.fromISO(dateIn);
-    dateOut = DateTime.fromISO(dateOut);
-    return { assignment_id, name, category, dateIn, dateOut };
+import SettingsService from "../../../services/SettingsService";
+
+import { DateTime } from "luxon";
+
+function createData(assignment_id, name, category, startDate, endDate) {
+    startDate = DateTime.fromISO(startDate);
+    endDate = DateTime.fromISO(endDate);
+    return { assignment_id, name, category, startDate, endDate };
 }
 
 export default function QueueTopicSettings(props) {
     const { theme, queueData } = props
 
-    const [open, setOpen] = useState(false);
-
-    const handleClick = () => {
-        setOpen(!open);
-    };
-
-    const [openAdd, setOpenAdd] = useState(false);
-    const [openEdit, setOpenEdit] = useState(false);
-    const [openDelete, setOpenDelete] = useState(false);
     const [selectedRow, setSelectedRow] = useState();
     const [rows, setRows] = useState([]);
 
@@ -52,26 +34,6 @@ export default function QueueTopicSettings(props) {
             updateTopics(queueData.topics);
         }
     }, [queueData]);
-
-    const handleAdd = () => {
-        setOpenAdd(true);
-    };
-
-    const handleEdit = (row) => {
-        setOpenEdit(true);
-        setSelectedRow(row);
-    };
-
-    const handleDelete = (row) => {
-        setOpenDelete(true);
-        setSelectedRow(row);
-    };
-
-    const handleClose = () => {
-        setOpenAdd(false);
-        setOpenEdit(false);
-        setOpenDelete(false);
-    };
 
     const updateTopics = (newTopics) => {
         let newRows = [];
@@ -85,84 +47,173 @@ export default function QueueTopicSettings(props) {
             ));
         });
         setRows(newRows);
-    }
+    };
+
+    /** Dialog Functions */
+    const [name, setName] = useState("");
+    const [category, setCategory] = useState("");
+    const [startDate, setStartDate] = useState(DateTime.now());
+    const [endDate, setEndDate] = useState(DateTime.now());
+
+    const [openAdd, setOpenAdd] = useState(false);
+    const [openEdit, setOpenEdit] = useState(false);
+    const [openDelete, setOpenDelete] = useState(false);
+
+    const handleAddDialog = () => {
+        setOpenAdd(true);
+
+        setName("");
+        setCategory("");
+        setStartDate(DateTime.now());
+        setEndDate(DateTime.now());
+    };
+
+    const handleEditDialog = (row) => {
+        setOpenEdit(true);
+        setSelectedRow(row);
+
+        setName(row.name);
+        setCategory(row.category);
+        setStartDate(row.startDate);
+        setEndDate(row.endDate);
+    };
+
+    const handleDeleteDialog = (row) => {
+        setOpenDelete(true);
+        setSelectedRow(row);
+    };
+
+    const handleClose = () => {
+        setOpenAdd(false);
+        setOpenEdit(false);
+        setOpenDelete(false);
+    };
+
+    const updateStartDate = (newStartDate) => {
+        setStartDate(newStartDate);
+        if (newStartDate > endDate) {
+            setEndDate(newStartDate);
+        }
+    };
+
+    const handleAdd = event => {
+        event.preventDefault();
+        SettingsService.createTopic(
+            JSON.stringify({
+                name: name,
+                category: category,
+                start_date: startDate.toString(),
+                end_date: endDate.toString()
+            })
+        ).then(res => {
+            updateTopics(res.data.topics);
+            handleClose();
+        });
+    };
+
+    const handleEdit = event => {
+        event.preventDefault();
+        SettingsService.updateTopic(
+            JSON.stringify({
+                assignment_id: selectedRow?.assignment_id,
+                name: name,
+                category: category,
+                start_date: startDate.toString(),
+                end_date: endDate.toString()
+            })
+        ).then(res => {
+            updateTopics(res.data.topics);
+            handleClose();
+        });
+    };
+
+    const handleDelete = () => {
+        SettingsService.deleteTopic(
+            JSON.stringify({
+                assignment_id: selectedRow?.assignment_id
+            })
+        ).then(res => {
+            updateTopics(res.data.topics);
+            handleClose();
+        });
+    };
 
     return (
-        <div className='card' style={{ display:'flex' }}>
-            <Card sx={{ minWidth: '100%' }}>
-                <CardActions disableSpacing style={{ cursor: 'pointer' }} onClick={handleClick}>
-                    <Typography sx={{ fontSize: 16, fontWeight: 'bold', ml: 2, mt: 1 }} variant="h5" gutterBottom>
-                        Queue Topic Settings
-                    </Typography>
-                    <Expand
-                        expand={open}
-                        aria-expanded={open}
-                        aria-label="show more"
-                        sx={{ mr: 1 }}
-                    >
-                        <ExpandMore />
-                    </Expand>
-                </CardActions>
-                <Collapse in={open} timeout="auto" unmountOnExit>
-                    <Divider></Divider>
-                        <Table aria-label="topicsTable">
-                            <TableBody>
-                            {rows.map((row, index) => (
-                                <TableRow
-                                    key={row.name}
-                                    style={ index % 2 ? { background : theme.palette.background.paper }:{ background : theme.palette.background.default }}
-                                >
-                                    <TableCell component="th" scope="row" sx={{ fontSize: '16px', fontWeight: 'bold', pl: 3.25 }}>
-                                        {row.name}
-                                    </TableCell>
-                                    <TableCell component="th" scope="row" sx={{ fontSize: '16px', fontStyle: 'italic', pl: 3.25 }}>
-                                        {row.category}
-                                    </TableCell>
-                                    <TableCell align="left" sx={{ fontSize: '16px' }}>{row.dateIn.toLocaleString(DateTime.DATETIME_SHORT)}</TableCell>
-                                    <TableCell align="left" sx={{ fontSize: '16px' }}>{row.dateOut.toLocaleString(DateTime.DATETIME_SHORT)}</TableCell>
-                                    <TableCell align="right" sx={{ pr: 3 }}>
-                                        <IconButton sx={{ mr: 1 }} color="info" onClick={() => handleEdit(row)}>
-                                            <Edit />
-                                        </IconButton>
+        <div>
+            <CollapsedTable 
+                theme={theme}
+                title="Queue Topic Settings"
+            >
+                {
+                    rows.map((row, index) => (
+                        <EditDeleteRow
+                            theme={theme}
+                            index={index}
+                            row={row}
+                            rowKey={row.name} 
+                            handleEdit={handleEditDialog} 
+                            handleDelete={handleDeleteDialog}
+                        >
+                            <TableCell component="th" scope="row" sx={{ fontSize: "16px", fontWeight: "bold", pl: 3.25 }}>
+                                {row.name}
+                            </TableCell>
+                            <TableCell component="th" scope="row" sx={{ fontSize: "16px", fontStyle: "italic", pl: 3.25 }}>
+                                {row.category}
+                            </TableCell>
+                            <TableCell align="left" sx={{ fontSize: "16px" }}>{row.startDate.toLocaleString(DateTime.DATETIME_SHORT)}</TableCell>
+                            <TableCell align="left" sx={{ fontSize: "16px" }}>{row.endDate.toLocaleString(DateTime.DATETIME_SHORT)}</TableCell>
+                        </EditDeleteRow>
+                    ))
+                }
+                <AddRow
+                    theme={theme}
+                    addButtonLabel="+ Add Topic"
+                    handleAdd={handleAddDialog}
+                />
+            </CollapsedTable>
 
-                                        <IconButton color="error" onClick={() => handleDelete(row)}>
-                                            <Delete />
-                                        </IconButton>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                                <TableRow
-                                    key='add'
-                                    style={{ background : theme.palette.background.default }}
-                                >
-                                    <TableCell align="center" colSpan={5}>
-                                        <Button sx={{ mr: 1, fontWeight: 'bold', fontSize: '18px' }} color="primary" variant="contained" onClick={() => handleAdd()}>
-                                            + Add Topic
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </Table>
-                </Collapse>
-            </Card>
-            <AddTopicDialog
+            <AddDialog
+                title="Add New Topic"
                 isOpen={openAdd}
                 onClose={handleClose}
-                updateTopics={updateTopics}
-            />
+                handleCreate={handleAdd}
+            >
+                <TopicDialogBody
+                    name={name}
+                    setName={setName}
+                    category={category}
+                    setCategory={setCategory}
+                    startDate={startDate}
+                    setStartDate={updateStartDate}
+                    endDate={endDate}
+                    setEndDate={setEndDate}
+                />
+            </AddDialog>
 
-            <EditTopicDialog
+            <EditDialog
+                title={"Edit Topic Info"}
                 isOpen={openEdit}
                 onClose={handleClose}
-                topicInfo={selectedRow}
-                updateTopics={updateTopics}
-            />
+                handleEdit={handleEdit}
+            >
+                <TopicDialogBody
+                    name={name}
+                    setName={setName}
+                    category={category}
+                    setCategory={setCategory}
+                    startDate={startDate}
+                    setStartDate={updateStartDate}
+                    endDate={endDate}
+                    setEndDate={setEndDate}
+                />
+            </EditDialog>
 
-            <DeleteTopicDialog
+            <DeleteDialog
+                title="Delete Topic"
                 isOpen={openDelete}
                 onClose={handleClose}
-                topicInfo={selectedRow}
-                updateTopics={updateTopics}
+                handleDelete={handleDelete}
+                itemName={" " + selectedRow?.name}
             />
         </div>
     );
