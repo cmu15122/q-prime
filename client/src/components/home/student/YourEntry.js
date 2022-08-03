@@ -13,22 +13,19 @@ const CustomDivider = styled(Divider)({
 });
 
 export default function YourEntry(props) {
-    const waitTime = 20;
     const { openRemoveOverlay, position, location, topic, question } = props;
 
     return (
         <div className='card' style={{ display:'flex' }}>
             <Card sx={{ minWidth : '100%'}}>
                 <CardContent sx={{ m: 1, textAlign: 'left' }}>
-                    <Stack direction="row" display="flex">
-                        <Typography variant='h5' sx={{ fontWeight: 'bold' }}>Your Entry:</Typography>
+                    <Stack direction="row" display="flex" alignItems="center">
+                        <Typography variant='h5' sx={{ fontWeight: 'bold', pr: 1 }}>Your Entry:</Typography>
+                        <Typography variant='h5'>You are <strong>{converter.toOrdinal(position+1)} in line</strong></Typography>
                         <IconButton color="error" sx={{ marginLeft: "auto", marginRight:".5em" }} onClick={openRemoveOverlay}>
                             <DeleteIcon />
                         </IconButton>
                     </Stack>
-                    <CustomDivider/>
-                    <Typography variant='h6'>You are <strong>{converter.toOrdinal(position+1)} in line</strong>.</Typography>
-                    <Typography variant='h6'>The estimated wait time is <strong>{waitTime} minutes</strong> from your position.</Typography>
                     <CustomDivider/>
                     <Typography variant='h6'><strong>Location:</strong> {location}</Typography>
                     <Typography variant='h6'><strong>Topic:</strong> {topic}</Typography>

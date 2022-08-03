@@ -151,7 +151,6 @@ function StudentMain(props) {
                     />
             }
 
-            <Button variant="contained" onClick={() => setFrozen(true)} sx={{ m: 0.5 }}>Open Frozen Overlay</Button>
             <FrozenOverlay
                 open={frozen}
                 handleClose={() => setFrozen(false)}
