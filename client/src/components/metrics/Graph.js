@@ -6,8 +6,8 @@ import {
 import { DateTime } from 'luxon';
 import { ResponsiveContainer, LineChart, Line, Label, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 
-function createData(date, no_students) {
-    return { "date": date, "noStudents": no_students };
+function createData(time, no_students) {
+    return { "time": time, "students": no_students };
 }
 
 const data = [
