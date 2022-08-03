@@ -29,7 +29,7 @@ export default function Graph(props) {
             </Typography>
             <ResponsiveContainer width={"92%"} height={400}>
                 <LineChart data={data} margin={{ top: 40, right: 0, bottom: 40, left: 50 }}>
-                    <Line type="monotone" dataKey="students" strokeWidth={3}/>
+                    <Line type="monotone" dataKey="students" strokeWidth={3} stroke={theme.palette.primary.main}/>
                     <CartesianGrid stroke="#ccc" />
                     <XAxis type="number" tickFormatter={dateFormatter} dataKey="time" domain={["dataMin", "dataMax"]}>
                         <Label
