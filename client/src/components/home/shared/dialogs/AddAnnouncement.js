@@ -9,14 +9,12 @@ import HomeService from '../../../../services/HomeService';
 export default function AddAnnouncement(props) {
     const { isOpen, onClose } = props
 
-    const [header, setHeader] = useState("");
     const [content, setContent] = useState("");
 
     const onSubmit = event => {
         event.preventDefault();
         HomeService.createAnnouncement(
             JSON.stringify({
-                header: header,
                 content: content
             })
         ).then(() => {
@@ -37,15 +35,6 @@ export default function AddAnnouncement(props) {
                 </Typography>
                 <form onSubmit={onSubmit}>
                     <Grid container spacing={3}>
-                        <Grid className="d-flex" item xs={12}>
-                            <TextField
-                                label="Header"
-                                variant="standard"
-                                required
-                                fullWidth
-                                onChange={(event) => setHeader(event.target.value)}
-                            />
-                        </Grid>
                         <Grid className="d-flex" item xs={12}>
                             <TextField 
                                 label="Content"

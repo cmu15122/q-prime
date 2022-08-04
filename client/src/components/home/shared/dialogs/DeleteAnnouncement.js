@@ -31,7 +31,7 @@ export default function DeleteAnnouncement(props) {
                     Delete Announcement
                 </Typography>
                 <Typography sx={{ textAlign: 'center' }}>
-                    Are you sure you want to remove announcement <strong>{" " + announcementInfo?.header}</strong>? 
+                    Are you sure you want to remove this announcement? 
                     <br/>
                     This action cannot be undone.
                 </Typography>
