@@ -11,6 +11,9 @@ router.post('/addQuestion', home.post_add_question);
 router.post('/removeStudent', home.post_remove_student);
 router.post('/helpStudent', home.post_help_student);
 router.post('/unhelpStudent', home.post_unhelp_student);
+router.post('/messageStudent', home.post_message_student);
+router.post('/dismissMessage', home.post_dismiss_message);
+
 router.get('/displayStudents', home.get_display_students);
 
 router.post('/announcements/create', home.post_create_announcement);

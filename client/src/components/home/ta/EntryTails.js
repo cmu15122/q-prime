@@ -28,6 +28,7 @@ export default function EntryTails(props) {
             case 2: return (ActionsHelp(props));    
             case 3: return (ActionsFreeze(props));        
             case 4: return (LeapStudentActions(props));
+            case 5: return (ActionsHelp(props));
             default: return;
         }
     }

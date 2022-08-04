@@ -16,15 +16,16 @@ export default function AskQuestion(props) {
     const [locations, setLocations] = useState([])
     const [topics, setTopics] = useState([]);
 
+    const [selectedTopic, setSelectedTopic] = useState();
+
     const { 
         questionValue, 
         setQuestionValue, 
         locationValue,
         setLocationValue,
-        topicValue,
         setTopicValue,
         setPosition, 
-        setAskQuestionOrYourEntry,
+        setStatus,
         queueData,
         theme
     } = props
@@ -48,7 +49,7 @@ export default function AskQuestion(props) {
         setTopics(newRows);
 
         if (newRows.length === 1) {
-            setTopicValue(newRows[0]);
+            setSelectedTopic(newRows[0]);
         }
     }
 
@@ -78,15 +79,16 @@ export default function AskQuestion(props) {
             JSON.stringify({
                 question: questionValue,
                 location: locationValue,
-                topic: topicValue,
+                topic: selectedTopic,
                 andrewID: queueData.andrewID
             })
         ).then(res => {
             if(res.status === 200) {
-                setPosition(res.data.position)
-                setAskQuestionOrYourEntry(true)
+                setPosition(res.data.position);
+                setTopicValue(selectedTopic.name);
+                setStatus(res.data.status);
             } else {
-                console.log('error with adding to queue')
+                console.log('error with adding to queue');
             }
         })
     }
@@ -106,7 +108,7 @@ export default function AskQuestion(props) {
                                     <Select
                                         labelId="location-select-label"
                                         id="location-select"
-                                        value={locationValue}
+                                        value={locationValue ?? ""}
                                         label="Location"
                                         onChange={(e)=>setLocationValue(e.target.value)}
                                         style={{textAlign: "left"}}
@@ -121,9 +123,9 @@ export default function AskQuestion(props) {
                                     <Select
                                         labelId="topic-select-label"
                                         id="topic-select"
-                                        value={topicValue}
+                                        value={selectedTopic ?? ""}
                                         label="Topic"
-                                        onChange={(e)=>setTopicValue(e.target.value)}
+                                        onChange={(e)=>setSelectedTopic(e.target.value)}
                                         style={{textAlign: "left"}}
                                     >
                                         {topics.map((top) => <MenuItem value={top} key={top.topic_id}>{top.name}</MenuItem>)}

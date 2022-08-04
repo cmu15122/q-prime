@@ -18,6 +18,7 @@ export default function StudentStatus(props) {
             case 2: return 'Updating Question';
             case 3: return 'Frozen';
             case 4: return 'Joined Before Cooldown';
+            case 5: return 'Received Message';
             default: return '';
         }
     }

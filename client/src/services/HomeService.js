@@ -31,6 +31,12 @@ class HomeDataService {
   unhelpStudent(data) {
     return http.post("/unhelpStudent", data)
   }
+  messageStudent(data) {
+    return http.post("/messageStudent", data)
+  }
+  dismissMessage(data) {
+    return http.post("/dismissMessage", data)
+  }
   displayStudents() {
     return http.get("/displayStudents");
   }

@@ -4,15 +4,20 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import { Help } from '@mui/icons-material';
 import ChatIcon from '@mui/icons-material/Chat';
 
+import MessageDialog from '../dialogs/MessageDialog';
+
 export default function ExtraStudentOptions(props) {
     const { student } = props
 
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
 
+    const [openMessage, setOpenMessage] = useState(false);
+
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
+
     const handleClose = () => {
         setAnchorEl(null);
     };
@@ -22,10 +27,13 @@ export default function ExtraStudentOptions(props) {
         console.log(`${student.name} is fixing`);
     }
 
-    function handleMessage() {
-        //TODO: TIE INTO SERVER
-        console.log(`messaging ${student.name}`);
-    }
+    const handleMessage = () => {
+        setOpenMessage(true);
+    };
+
+    const handleCloseDialog = () => {
+        setOpenMessage(false);
+    };
 
     return (
         <div>
@@ -85,6 +93,12 @@ export default function ExtraStudentOptions(props) {
                     </div>
                 </MenuItem>
             </Menu>
+
+            <MessageDialog
+                isOpen={openMessage}
+                onClose={handleCloseDialog}
+                student={student}
+            />
         </div>
     );
 }

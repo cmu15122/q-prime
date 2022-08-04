@@ -56,6 +56,18 @@ export default function StudentEntries(props) {
             });
         });
 
+        socketSubscribeTo("message", (res) => {
+            setStudents(students => 
+                [...students.filter(p => p.andrewID !== res.andrewID), res.data.studentData]
+            );
+        });
+
+        socketSubscribeTo("dismissMessage", (res) => {
+            setStudents(students => 
+                [...students.filter(p => p.andrewID !== res.andrewID), res.data.studentData]
+            );
+        });
+
         socketSubscribeTo("remove", (res) => {
             setStudents(students => 
                 [...students.filter(p => p.andrewID !== res.andrewID)]
