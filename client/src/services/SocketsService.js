@@ -7,12 +7,12 @@ let socket;
 const SOCKET_URL = "http://localhost:8000";
 
 export const initiateSocket = () => {
-  socket = io(SOCKET_URL);
-  console.log("Connecting to socket");
-
-  if (!socket) {
+  if (socket) {
     return;
   }
+
+  socket = io(SOCKET_URL);
+  console.log("Connecting to socket");
  
   const userCookies = cookies.get('user');
   if (userCookies != null) {
@@ -22,7 +22,7 @@ export const initiateSocket = () => {
 
 export const socketSubscribeTo = (emission, callback) => {
   if (!socket) {
-    return;
+    initiateSocket();
   }
  
   socket.on(emission, (data) => {

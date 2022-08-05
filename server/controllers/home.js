@@ -166,7 +166,6 @@ exports.post_unfreeze_queue = function (req, res) {
 /**
  * {
  *     id: int,
- *     header: string,
  *     content: string
  * }
  */
@@ -180,16 +179,14 @@ exports.post_create_announcement = function (req, res) {
         return;
     }
 
-    var header = req.body.header;
     var content = req.body.content;
-    if (!header || !content) {
+    if (!content) {
         respond_error(req, res, "Invalid/missing parameters in request", 400);
         return;
     }
 
     let announcement = {
         id: announcementId,
-        header: header,
         content: content
     };
 
@@ -208,9 +205,8 @@ exports.post_update_announcement = function (req, res) {
     }
 
     var id = req.body.id;
-    var header = req.body.header;
     var content = req.body.content;
-    if (!header || !content) {
+    if (!content) {
         respond_error(req, res, "Invalid/missing parameters in request", 400);
         return;
     }
@@ -223,7 +219,6 @@ exports.post_update_announcement = function (req, res) {
 
     announcements[index] = {
         id: id,
-        header: header,
         content: content
     }
     sockets.updateAnnouncement(id, announcements[index]);

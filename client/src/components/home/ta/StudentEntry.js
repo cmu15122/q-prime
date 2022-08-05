@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  TableRow, TableCell
+    TableCell
 } from '@mui/material';
 
+import ItemRow from '../../common/table/ItemRow';
 import EntryTails from './EntryTails';
 
 export default function StudentEntry(props) {
@@ -34,19 +35,20 @@ export default function StudentEntry(props) {
     }
 
     return (
-        <TableRow
-            key={student.andrewID}
-            style={index % 2 ? { background: theme.palette.background.paper } : { background: theme.palette.background.default }}
+        <ItemRow
+            theme={theme}
+            index={index}
+            rowKey={student.andrewID}
         >
-            <TableCell padding='none' component="th" scope="row" sx={{ px: {xs: 2, sm: 3}, fontSize: '15px', width: '15%' }}>
+            <TableCell padding='none' component="th" scope="row" sx={{ fontSize: '16px', pl: 3.25, pr: 2, width: '20%' }}>
                 {student.name} ({student.andrewID})
             </TableCell>
-            <TableCell padding='none' align="left" sx={{ pt: 2, pb: 2, fontSize: '15px', width: "100%" }} style={{ wordBreak: "break-all" }}>
+            <TableCell padding='none' align="left" sx={{ pt: 2, pb: 2, fontSize: '16px', width: '60%', pr: 2 }}>
                 {`[${student.topic}] ${student.question}`}
             </TableCell>
-            <TableCell padding='none' sx={{ pt: 1, pb: 1 }}>
-                {
-                    EntryTails({
+            {
+                EntryTails(
+                    {
                         ...props,
                         removeRef: removeRef,
                         confirmRemove: confirmRemove,
@@ -54,9 +56,9 @@ export default function StudentEntry(props) {
                         removeStudent: removeStudent,
                         handleClickHelp: handleClickHelp,
                         handleClickUnfreeze: handleClickUnfreeze
-                    })
-                }
-            </TableCell>
-        </TableRow>
-    );
+                    }
+                )
+            }
+        </ItemRow>
+    )
 }
