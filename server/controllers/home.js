@@ -343,7 +343,7 @@ exports.post_add_question = function (req, res) {
                 throw new Error('The server was unable to find you on the queue after adding you');
             }
 
-            if (overrideCooldown) {
+            if (overrideCooldown && !req.user.isTA) {
                 ohq.setCooldownViolation(id)
             }
 
