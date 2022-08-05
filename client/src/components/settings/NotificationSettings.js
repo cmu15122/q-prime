@@ -21,17 +21,11 @@ export default function NotificationSettings(props) {
         }
     }, [queueData]);
 
-    useEffect(() => {
-        if (queueData != null) {
-            updateNotifSettings();
-        }
-     }, [joinNotifsEnabled, remindNotifsEnabled, remindTime]);
-
-    const updateNotifSettings = () => {
+    const updateNotifSettings = (joinEnabled, remindEnabled, time) => {
         SettingsService.updateNotifSettings({
-            joinEnabled: joinNotifsEnabled,
-            remindEnabled: remindNotifsEnabled,
-            remindTime: remindTime
+            joinEnabled: joinEnabled,
+            remindEnabled: remindEnabled,
+            remindTime: time
         });
     };
 
@@ -50,7 +44,9 @@ export default function NotificationSettings(props) {
                                     sx={{ ml: 1 }}
                                     checked={joinNotifsEnabled ?? false}
                                     onChange={(e) => {
-                                        setJoinNotifsEnabled(e.target.checked);
+                                        let isJoinNotifsEnabled = e.target.checked;
+                                        setJoinNotifsEnabled(isJoinNotifsEnabled);
+                                        updateNotifSettings(isJoinNotifsEnabled, remindNotifsEnabled, remindTime);
                                     }}
                                 />
                             } 
@@ -65,7 +61,9 @@ export default function NotificationSettings(props) {
                                         sx={{ ml: 1 }}
                                         checked={remindNotifsEnabled ?? false}
                                         onChange={(e) => {
-                                            setRemindNotifsEnabled(e.target.checked);
+                                            let isRemindNotifsEnabled = e.target.checked;
+                                            setRemindNotifsEnabled(isRemindNotifsEnabled);
+                                            updateNotifSettings(joinNotifsEnabled, isRemindNotifsEnabled, remindTime);
                                         }}
                                     />
                                 } 
@@ -82,7 +80,9 @@ export default function NotificationSettings(props) {
                                             inputProps={{ style: { textAlign: 'center', min: 0 } }}
                                             value={remindTime ?? 15}
                                             onChange={(e) => {
-                                                setRemindTime(e.target.value);
+                                                let newRemindTime = e.target.value;
+                                                setRemindTime(newRemindTime);
+                                                updateNotifSettings(joinNotifsEnabled, remindNotifsEnabled, newRemindTime);
                                             }}
                                         /> 
                                         minutes

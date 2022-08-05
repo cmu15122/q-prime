@@ -1,24 +1,11 @@
-
-import React from 'react';
+import React from "react";
+import PropTypes from "prop-types";
 import {
     Box, Button, Dialog, DialogContent, Typography
-} from '@mui/material'
+} from "@mui/material";
 
-import SettingsService from '../../../../services/SettingsService';
-
-export default function DeleteTopicDialog(props) {
-    const { isOpen, onClose, taInfo, updateTAs } = props
-
-    const handleDelete = () => {
-        SettingsService.deleteTA(
-            JSON.stringify({
-                user_id: taInfo.user_id
-            })
-        ).then(res => {
-            updateTAs(res.data.tas);
-            onClose();
-        });
-    };
+export default function DeleteDialog(props) {
+    const { isOpen, onClose, handleDelete, title, itemName } = props
 
     return (
         <Dialog
@@ -27,17 +14,23 @@ export default function DeleteTopicDialog(props) {
         >
             <DialogContent>
                 <Typography sx={{ pb: 3, fontWeight: 'bold', fontSize: '22px', textAlign: 'center' }}>
-                    Delete TA
+                    {title}
                 </Typography>
                 <Typography sx={{ textAlign: 'center' }}>
-                    Are you sure you want to remove <strong>{" " + taInfo?.name}</strong>? 
+                    Are you sure you want to remove <strong>{itemName}</strong>? 
                     <br/>
                     This action cannot be undone.
                 </Typography>
-                <Box textAlign='center' sx={{pt: 5}}>
+                <Box textAlign='center' sx={{ pt: 5 }}>
                     <Button onClick={handleDelete} variant="contained" color="error" sx={{ alignSelf: 'center' }}>Delete</Button>
                 </Box>
             </DialogContent>
         </Dialog>
     );
 }
+
+DeleteDialog.propTypes = {
+    isOpen: PropTypes.bool,
+    onClose: PropTypes.func.isRequired,
+    handleDelete: PropTypes.func.isRequired
+};

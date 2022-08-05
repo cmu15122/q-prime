@@ -1,12 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import {
-    Card, CardActions, Divider, Typography, Table, TableBody
-} from '@mui/material';
 
+import BaseTable from '../../common/table/BaseTable';
 import StudentEntry from './StudentEntry';
-import HomeService from '../../../services/HomeService';
 
+import HomeService from '../../../services/HomeService';
 import { socketSubscribeTo } from '../../../services/SocketsService';
 
 export default function StudentEntries(props) {
@@ -122,34 +120,23 @@ export default function StudentEntries(props) {
     }
 
     return (
-        <div className='card' style={{ display: 'flex' }}>
-            <Card sx={{ minWidth: '100%' }}>
-                <CardActions disableSpacing>
-                    <Typography sx={{ fontSize: 20, fontWeight: 'bold', ml: 2, mt: 1 }} variant="h5" gutterBottom>
-                        Students
-                    </Typography>
-                </CardActions>
-                <Divider></Divider>
-                <Table aria-label="topicsTable">
-                    <TableBody>
-                        {students.map((student, index) => (
-                            <StudentEntry
-                                key={student.andrewID}
-                                theme={theme}
-                                student={student}
-                                index={index}
-                                isHelping={isHelping}
-                                helpIdx={helpIdx}
-                                handleClickHelp={handleClickHelp}
-                                handleCancel={handleCancel}
-                                removeStudent={removeStudent}
-                                handleClickUnfreeze={handleClickUnfreeze}
-                            ></StudentEntry>
-                        ))}
-
-                    </TableBody>
-                </Table>
-            </Card>
-        </div>
+        <BaseTable title="Students">
+            {
+                students.map((student, index) => (
+                    <StudentEntry
+                        key={student.andrewID}
+                        theme={theme}
+                        student={student}
+                        index={index}
+                        isHelping={isHelping}
+                        helpIdx={helpIdx}
+                        handleClickHelp={handleClickHelp}
+                        handleCancel={handleCancel}
+                        removeStudent={removeStudent}
+                        handleClickUnfreeze={handleClickUnfreeze}
+                    />
+                ))
+            }
+        </BaseTable>
     );
 }
