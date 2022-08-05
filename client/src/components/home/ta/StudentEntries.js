@@ -28,15 +28,19 @@ export default function StudentEntries(props) {
         handleGetStudents();
 
         socketSubscribeTo("help", (res) => {
-            setStudents(students => 
-                [...students.filter(p => p.andrewID !== res.andrewID), res.data.studentData]
-            );
+            setStudents(students => {
+                let ind = students.findIndex(p => (p.andrewID === res.andrewID));
+                students[ind] = res.data.studentData;
+                return [...students];
+            });
         });
 
         socketSubscribeTo("unhelp", (res) => {
-            setStudents(students => 
-                [...students.filter(p => p.andrewID !== res.andrewID), res.data.studentData]
-            );
+            setStudents(students => {
+                let ind = students.findIndex(p => (p.andrewID === res.andrewID));
+                students[ind] = res.data.studentData;
+                return [...students];
+            });
 
             if (res.data.taData.taAndrewID === queueData.andrewID) {
                 setIsHelping(false);
@@ -47,6 +51,7 @@ export default function StudentEntries(props) {
             setStudents(students => 
                 [...students.filter(p => p.andrewID !== res.studentData.andrewID), res.studentData]
             );
+
             new Notification("New Queue Entry", {
                 "body": "Name: " + res.studentData.name + "\n" +
                         "Andrew ID: " + res.studentData.andrewID + "\n" +
@@ -55,15 +60,19 @@ export default function StudentEntries(props) {
         });
 
         socketSubscribeTo("message", (res) => {
-            setStudents(students => 
-                [...students.filter(p => p.andrewID !== res.andrewID), res.data.studentData]
-            );
+            setStudents(students => {
+                let ind = students.findIndex(p => (p.andrewID === res.andrewID));
+                students[ind] = res.data.studentData;
+                return [...students];
+            });
         });
 
         socketSubscribeTo("dismissMessage", (res) => {
-            setStudents(students => 
-                [...students.filter(p => p.andrewID !== res.andrewID), res.data.studentData]
-            );
+            setStudents(students => {
+                let ind = students.findIndex(p => (p.andrewID === res.andrewID));
+                students[ind] = res.data.studentData;
+                return [...students];
+            });
         });
 
         socketSubscribeTo("remove", (res) => {
