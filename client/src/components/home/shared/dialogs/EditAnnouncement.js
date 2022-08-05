@@ -9,12 +9,10 @@ import HomeService from '../../../../services/HomeService';
 export default function EditAnnouncement(props) {
     const { isOpen, onClose, announcementInfo } = props
 
-    const [header, setHeader] = useState("");
     const [content, setContent] = useState("");
 
     useEffect(() => {
         if (announcementInfo != null) {
-            setHeader(announcementInfo.header);
             setContent(announcementInfo.content);
         }
     }, [announcementInfo]);
@@ -24,7 +22,6 @@ export default function EditAnnouncement(props) {
         HomeService.updateAnnouncement(
             JSON.stringify({
                 id: announcementInfo.id,
-                header: header,
                 content: content
             })
         ).then(() => {
@@ -45,16 +42,6 @@ export default function EditAnnouncement(props) {
                 </Typography>
                 <form onSubmit={onSubmit}>
                     <Grid container spacing={3}>
-                        <Grid className="d-flex" item xs={12}>
-                            <TextField
-                                label="Header"
-                                defaultValue={announcementInfo?.header}
-                                variant="standard"
-                                required
-                                fullWidth
-                                onChange={(event) => setHeader(event.target.value)}
-                            />
-                        </Grid>
                         <Grid className="d-flex" item xs={12}>
                             <TextField 
                                 label="Content"
