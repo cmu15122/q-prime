@@ -23,6 +23,7 @@ function StudentMain(props) {
     const [frozen, setFrozen] = useState(false);
     const [taHelping, setTAHelping] = useState(false);
     const [showCooldownOverlay, setShowCooldownOverlay] = useState(false)
+    const [timePassed, setTimePassed] = useState(0)
     const [updateQ, setUpdateQ] = useState(false);
     const [position, setPosition] = useState(0);
 
@@ -149,6 +150,7 @@ function StudentMain(props) {
                         setPosition={setPosition}
                         setAskQuestionOrYourEntry={setAskQuestionOrYourEntry}
                         setShowCooldownOverlay={setShowCooldownOverlay}
+                        setTimePassed={setTimePassed}
                         queueData={queueData}
                         theme={theme}
                     />
@@ -169,6 +171,7 @@ function StudentMain(props) {
             <CooldownViolationOverlay
                 open={showCooldownOverlay}
                 setOpen={setShowCooldownOverlay}
+                timePassed={timePassed}
                 questionValue={questionValue}
                 locationValue={locationValue}
                 topicValue={topicValue}

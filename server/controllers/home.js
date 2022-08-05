@@ -315,13 +315,20 @@ exports.post_add_question = function (req, res) {
             account: account
         })
     }).then((result) => {
-        let questions = result.questions
+
+        let questions = result.questions.sort((firstQ, secondQ) => {
+            return moment.tz(firstQ.exit_time, "America/New_York").diff(secondQ.exit_time)
+        })
+
         let account = result.account
 
         // fail if cooldown violated
         if (!overrideCooldown && questions.length > 0) {
             res.status(400)
-            res.json({ message: "cooldown_violation" })
+            res.json({
+                message: "cooldown_violation",
+                timePassed: `${moment.tz(new Date(), "America/New_York").diff(questions[questions.length - 1].exit_time, 'minutes')}`
+            })
         } else {
             ohq.enqueue(
                 id,

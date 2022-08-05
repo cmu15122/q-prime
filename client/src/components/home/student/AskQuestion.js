@@ -26,6 +26,7 @@ export default function AskQuestion(props) {
         setPosition,
         setAskQuestionOrYourEntry,
         setShowCooldownOverlay,
+        setTimePassed,
         queueData,
         theme
     } = props
@@ -86,6 +87,7 @@ export default function AskQuestion(props) {
             if (res.status === 400 && res.data.message === "cooldown_violation") {
 
                 setShowCooldownOverlay(true)
+                setTimePassed(Math.round(res.data.timePassed))
             }
             else {
                 console.log('error with adding to queue')

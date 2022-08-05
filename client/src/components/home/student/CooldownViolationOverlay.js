@@ -5,7 +5,7 @@ import {
 import HomeService from '../../../services/HomeService';
 
 export default function TAHelpingOverlay(props) {
-    const { open, setOpen, questionValue, locationValue, topicValue, setPosition, queueData, setAskQuestionOrYourEntry } = props
+    const { open, setOpen, questionValue, locationValue, topicValue, setPosition, queueData, setAskQuestionOrYourEntry, timePassed } = props
 
 
     function callAddQuestionAPIOverrideCooldown() {
@@ -29,7 +29,7 @@ export default function TAHelpingOverlay(props) {
     return (
         <Dialog open={open} maxWidth="sm" fullWidth>
             <DialogContent sx={{ p: 5, textAlign: 'center' }} >
-                <Typography variant='h6' textAlign='center'>You rejoined the queue too quickly!  Please wait for {queueData.rejoinTime} minutes after finishing your last question.</Typography>
+                <Typography variant='h6' textAlign='center'>You rejoined the queue too quickly!  Please wait for {queueData.rejoinTime} minutes after finishing your last question, which will be in {queueData.rejoinTime - timePassed} minutes.</Typography>
 
                 <Stack alignItems="baseline" justifyContent="space-around" direction="row" spacing={3}>
                     <Button onClick={() => callAddQuestionAPIOverrideCooldown()} color='error' fullWidth variant="contained" sx={{ maxHeight: "50px", fontSize: "16px", mt: 3, alignContent: "center" }} type="submit">
