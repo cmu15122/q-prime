@@ -78,7 +78,9 @@ function StudentMain(props) {
             setPosition(studentData.position);
             setLocationValue(studentData.location);
             setTopicValue(studentData.topic);
-            setQuestionValue(studentData.question);
+            if(questionValue === '') {          // TODO: ?
+                setQuestionValue(studentData.question);
+            }
             setFrozen(studentData.isFrozen);
             setHelpingTAInfo(studentData.helpingTA);
 
@@ -166,9 +168,10 @@ function StudentMain(props) {
             <UpdateQuestionOverlay
                 open={updateQ}
                 handleClose={() => setUpdateQ(false)}
+                questionValue = {questionValue}
                 setQuestionValue={setQuestionValue}
+                studentId = {studentData.andrewID}
             />
-
             <MessageRespond theme={theme} />
         </div>
     );

@@ -208,7 +208,7 @@ exports.post_update_announcement = function (req, res) {
         respond_error(req, res, message, 403);
         return;
     }
-
+ 
     var id = req.body.id;
     var header = req.body.header;
     var content = req.body.content;
@@ -330,6 +330,38 @@ exports.post_add_question = function (req, res) {
         res.status(500);
         res.json({ message: err.message });
     });
+}
+
+exports.post_update_question = function (req, res) {
+    if (!req.user || !req.user.isAuthenticated) {
+        res.status(400);
+        res.json({ message: 'User data not passed to server' });
+        return;
+    }
+    // console.log(req.body);
+    let id = req.user.andrewID;
+    let newQuestion = req.body.content;
+    let pos = ohq.getPosition(id);
+
+    if(!newQuestion) {
+        respond_error(req, res, "Invalid/missing parameters in request", 400);
+        return;
+    }
+
+    console.log(pos);
+    console.log(req.user.andrewID);
+    if (pos === -1) {
+        res.status(400);
+        res.json({ message: 'Student not yet on the queue' });
+        return;
+    }
+    ohq.print();
+
+    let studentData = ohq.getData(id);
+    studentData.question = newQuestion
+
+    sockets.updateQuestion(id, req.body.content);
+    respond(req, res, 'Question updated successfully', studentData, 200);
 }
 
 exports.post_remove_student = function (req, res) {

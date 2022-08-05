@@ -104,6 +104,18 @@ exports.deleteAnnouncement = function(announcementId) {
     });
 }
 
+exports.updateQuestion = function(id, question) {
+    if (!sio) {
+        console.log("ERROR: Socket.io is not initialized yet");
+        return;
+    }
+    console.log('emitting: ');
+    sio.to(ta_room).emit("updateQuestion", {
+        studentId: id, 
+        content: question
+    });
+}
+
 exports.help = function(studentData, taAccount) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");

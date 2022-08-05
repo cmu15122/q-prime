@@ -62,8 +62,17 @@ export default function StudentEntries(props) {
                 [...students.filter(p => p.andrewID !== res.andrewID)]
             );
         });
+
+        socketSubscribeTo("updateQuestion", (res) => {
+            setStudents(students => {
+                let ind = students.findIndex(p => (p.andrewID === res.studentId));
+                students[ind].question = res.content;
+                return [...students];
+            });
+        })
     }, []);
 
+    // console.log(students);
     // stay helping even on page reload
     useEffect(() => {
         for (let [index, student] of students.entries()) {

@@ -22,6 +22,9 @@ class HomeDataService {
   addQuestion(data) {
     return http.post("/addQuestion", data);
   }
+  updateQuestion(data) {
+    return http.post("/updateQuestion", data);
+  }
   removeStudent(data) {
     return http.post("/removeStudent", data);
   }
