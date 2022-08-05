@@ -509,6 +509,37 @@ exports.post_unhelp_student = function (req, res) {
     res.json({ message: 'The student was unhelped' });
 }
 
+exports.post_approve_cooldown_override = function (req, res) {
+    if (!req.user || !req.user.isAuthenticated) {
+        res.status(400)
+        res.json({ message: 'User data not passed to server' })
+        return
+    }
+    else if (!req.user.isTA) {
+        console.log(req.user)
+        res.status(400)
+        res.json({ message: 'This request was not made by a TA' })
+        return
+    }
+
+    let id = req.body.andrewID
+    if (ohq.getPosition(id) === -1) {
+        res.status(400)
+        res.json({ message: 'Student not on the queue' })
+        return
+    }
+    if (ohq.getStatus(id) != StudentStatus.COOLDOWN_VIOLATION) {
+        res.status(400)
+        res.json({ message: 'Student was not on cooldown violation' })
+        return
+    }
+
+    ohq.unsetCooldownViolation(id)
+
+    res.status(200)
+    res.json({ message: "approved cooldown violation" })
+}
+
 exports.get_display_students = async function (req, res) {
     // assuming that students at front of queue go first
     var allStudents = ohq.getAllStudentData();

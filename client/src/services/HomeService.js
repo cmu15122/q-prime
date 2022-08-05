@@ -31,6 +31,9 @@ class HomeDataService {
   unhelpStudent(data) {
     return http.post("/unhelpStudent", data)
   }
+  approveCooldownOverride(data) {
+    return http.post("/approveCooldownOverride", data)
+  }
   displayStudents() {
     return http.get("/displayStudents");
   }

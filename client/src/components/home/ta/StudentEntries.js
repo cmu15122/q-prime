@@ -29,13 +29,13 @@ export default function StudentEntries(props) {
         handleGetStudents();
 
         socketSubscribeTo("help", (res) => {
-            setStudents(students => 
+            setStudents(students =>
                 [...students.filter(p => p.andrewID !== res.andrewID), res.data.studentData]
             );
         });
 
         socketSubscribeTo("unhelp", (res) => {
-            setStudents(students => 
+            setStudents(students =>
                 [...students.filter(p => p.andrewID !== res.andrewID), res.data.studentData]
             );
 
@@ -45,18 +45,18 @@ export default function StudentEntries(props) {
         });
 
         socketSubscribeTo("add", (res) => {
-            setStudents(students => 
+            setStudents(students =>
                 [...students.filter(p => p.andrewID !== res.studentData.andrewID), res.studentData]
             );
             new Notification("New Queue Entry", {
                 "body": "Name: " + res.studentData.name + "\n" +
-                        "Andrew ID: " + res.studentData.andrewID + "\n" +
-                        "Topic: " + res.studentData.topic
+                    "Andrew ID: " + res.studentData.andrewID + "\n" +
+                    "Topic: " + res.studentData.topic
             });
         });
 
         socketSubscribeTo("remove", (res) => {
-            setStudents(students => 
+            setStudents(students =>
                 [...students.filter(p => p.andrewID !== res.andrewID)]
             );
         });
