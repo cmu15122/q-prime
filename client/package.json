@@ -16,6 +16,7 @@
     "@testing-library/react": "^13.2.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^0.27.2",
+    "downloadjs": "^1.4.7",
     "luxon": "^2.4.0",
     "material-react-toastify": "^1.0.1",
     "number-to-words": "^1.2.4",
