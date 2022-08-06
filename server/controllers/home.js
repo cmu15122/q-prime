@@ -324,7 +324,7 @@ exports.post_add_question = function (req, res) {
 
         // fail if cooldown violated
         if (!overrideCooldown && questions.length > 0) {
-            res.status(400)
+            res.status(200)
             res.json({
                 message: "cooldown_violation",
                 timePassed: `${moment.tz(new Date(), "America/New_York").diff(questions[questions.length - 1].exit_time, 'minutes')}`

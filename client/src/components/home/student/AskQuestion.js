@@ -78,19 +78,13 @@ export default function AskQuestion(props) {
                 overrideCooldown: false
             })
         ).then(res => {
-            if (res.status === 200) {
-                setPosition(res.data.position)
-                setAskQuestionOrYourEntry(true)
-            }
-        }).catch((err) => {
-            let res = err.response
-            if (res.status === 400 && res.data.message === "cooldown_violation") {
-
+            if (res.status === 200 && res.data.message === "cooldown_violation") {
                 setShowCooldownOverlay(true)
                 setTimePassed(Math.round(res.data.timePassed))
             }
-            else {
-                console.log('error with adding to queue')
+            else if (res.status === 200) {
+                setPosition(res.data.position)
+                setAskQuestionOrYourEntry(true)
             }
         })
     }
