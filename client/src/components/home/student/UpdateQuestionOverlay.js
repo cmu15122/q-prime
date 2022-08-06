@@ -1,13 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
-    Typography,
-    Button,
-    Dialog,
-    Input,
-} from '@mui/material'
+    Button, Dialog, Input, Typography
+} from '@mui/material';
 
 export default function UpdateQuestionOverlay(props) {
-    const { open, questionValue, setQuestionValue } = props
+    const { open, questionValue, setQuestionValue } = props;
     
     const printAndClose = () => {
         console.log(questionValue);
