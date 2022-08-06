@@ -6,7 +6,7 @@ import PersistentOptions from './PersistentOptions';
 
 export default function LeapStudentActions(props) {
     const {
-        index, addStudent
+        approveCooldownOverride
     } = props;
     
     return (
@@ -14,7 +14,7 @@ export default function LeapStudentActions(props) {
             direction={{ xs: "column", sm: "row" }}
             sx={{ mt: { xs: 1, sm: 0 }, alignItems: 'center', justifyContent: 'flex-end' }}
         >
-            <Button color="success" variant="contained" onClick={() => addStudent(index)} sx={{ m: 0.5 }}>
+            <Button color="success" variant="contained" onClick={() => approveCooldownOverride()} sx={{ m: 0.5 }}>
                 Approve
             </Button>
             {PersistentOptions(props)}
