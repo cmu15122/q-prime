@@ -6,9 +6,10 @@ import {
 export default function MessageOverlay(props) {
     const { open, message, handleClose, helpingTAInfo, removeFromQueue, dismissMessage } = props
 
-    const printStay = () => {
-        console.log('this didn\'t answer my question');
-    }
+    const leaveQueue = () => {
+        removeFromQueue(); 
+        handleClose();
+    };
 
     return (
         <Dialog open={open} maxWidth="sm" fullWidth>
@@ -27,7 +28,7 @@ export default function MessageOverlay(props) {
                 />
 
                 <Stack direction="row" justifyContent="center" alignItems="center" spacing={5}>
-                    <Button variant="contained" color="error" onClick={() => {removeFromQueue(); handleClose();}} sx={{ m: 0.5 }}>
+                    <Button variant="contained" color="error" onClick={leaveQueue} sx={{ m: 0.5 }}>
                         This answered my question<br/>(leave queue)
                     </Button>
                     <Button variant="contained" color="info" onClick={dismissMessage} sx={{ m: 0.5 }}>
