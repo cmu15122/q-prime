@@ -33,9 +33,9 @@ export default function AskQuestion(props) {
 
     function updateTopics(newTopics) {
         let newRows = [];
-        newTopics.forEach (topic => {
+        newTopics.forEach(topic => {
             newRows.push(createData(
-                topic.assignment_id, 
+                topic.assignment_id,
                 topic.name,
             ));
         });
@@ -54,7 +54,7 @@ export default function AskQuestion(props) {
             setLocations(roomsForDay);
         })
     }
-    
+
     function callAddQuestionAPI() {
         HomeService.addQuestion(
             JSON.stringify({
@@ -62,7 +62,8 @@ export default function AskQuestion(props) {
                 andrewID: id,
                 question: questionValue,
                 location: location,
-                topic: topic
+                topic: topic,
+                overrideCooldown: true,
             })
         ).then((res) => {
             if (res.status === 200) {
@@ -85,19 +86,19 @@ export default function AskQuestion(props) {
     }
 
     return (
-        <div className='card' style={{display:'flex'}}>
-            <Card sx={{ minWidth : '100%', background: theme.palette.background.paper}}>
+        <div className='card' style={{ display: 'flex' }}>
+            <Card sx={{ minWidth: '100%', background: theme.palette.background.paper }}>
                 <CardContent sx={{ m: 1.5 }}>
-                    <Typography variant='h5' sx={{fontWeight: 'bold', textAlign: 'left'}}>Ask A Question</Typography>
-                    <Divider sx={{mt: 1, mb: 2}}/>
+                    <Typography variant='h5' sx={{ fontWeight: 'bold', textAlign: 'left' }}>Ask A Question</Typography>
+                    <Divider sx={{ mt: 1, mb: 2 }} />
 
                     <form onSubmit={handleSubmit}>
                         <Stack direction="row" justifyContent="left">
-                            <Box sx={{ minWidth: 120, width: "47%"}}>
+                            <Box sx={{ minWidth: 120, width: "47%" }}>
                                 <FormControl required fullWidth>
-                                    <Input 
+                                    <Input
                                         placeholder='Student Name'
-                                        onChange={(event)=>setName(event.target.value)}
+                                        onChange={(event) => setName(event.target.value)}
                                         value={name}
                                         fullWidth
                                         inputProps={{ maxLength: 30 }}
@@ -106,9 +107,9 @@ export default function AskQuestion(props) {
                             </Box>
                             <Box sx={{ minWidth: 120, width: "47%", margin: "auto", mr: 1 }}>
                                 <FormControl required fullWidth>
-                                    <Input 
+                                    <Input
                                         placeholder='Student Andrew ID'
-                                        onChange={(event)=>setID(event.target.value)}
+                                        onChange={(event) => setID(event.target.value)}
                                         value={id}
                                         fullWidth
                                         inputProps={{ maxLength: 20 }}
@@ -116,22 +117,22 @@ export default function AskQuestion(props) {
                                 </FormControl>
                             </Box>
                         </Stack>
-                        <Stack direction="row" justifyContent="left" sx={{mt: 2}}>
-                            <Box sx={{ minWidth: 120, width: "47%"}}>
+                        <Stack direction="row" justifyContent="left" sx={{ mt: 2 }}>
+                            <Box sx={{ minWidth: 120, width: "47%" }}>
                                 <FormControl required fullWidth>
                                     <InputLabel id="location-select">Location</InputLabel>
                                     <Select
-                                            labelId="location-select-label"
-                                            id="location-select"
-                                            value={location}
-                                            label="Location"
-                                            onChange={(e)=>setLocation(e.target.value)}
+                                        labelId="location-select-label"
+                                        id="location-select"
+                                        value={location}
+                                        label="Location"
+                                        onChange={(e) => setLocation(e.target.value)}
                                     >
                                         {
                                             locations.length === 0 ?
-                                            <MenuItem value="122 Office Hours" key="122 Office Hours">122 Office Hours</MenuItem>
-                                            : 
-                                            locations.map((loc) => <MenuItem value={loc} key={loc}>{loc}</MenuItem>)
+                                                <MenuItem value="122 Office Hours" key="122 Office Hours">122 Office Hours</MenuItem>
+                                                :
+                                                locations.map((loc) => <MenuItem value={loc} key={loc}>{loc}</MenuItem>)
                                         }
                                     </Select>
                                 </FormControl>
@@ -144,26 +145,26 @@ export default function AskQuestion(props) {
                                         id="topic-select"
                                         value={topic}
                                         label="Topic"
-                                        onChange={(e)=>setTopic(e.target.value)}
+                                        onChange={(e) => setTopic(e.target.value)}
                                     >
                                         {topics.map((top) => <MenuItem value={top} key={top.topic_id}>{top.name}</MenuItem>)}
                                     </Select>
                                 </FormControl>
                             </Box>
                         </Stack>
-                        <Typography variant='h6' sx={{fontWeight: 'bold', textAlign: 'left', mt: 2}}>Question:</Typography>
+                        <Typography variant='h6' sx={{ fontWeight: 'bold', textAlign: 'left', mt: 2 }}>Question:</Typography>
                         <FormControl required fullWidth sx={{ mt: 0.5 }}>
-                            <Input 
+                            <Input
                                 placeholder='Question (max 256 characters)'
                                 value={questionValue}
-                                onChange={(event)=>setQuestionValue(event.target.value)}
+                                onChange={(event) => setQuestionValue(event.target.value)}
                                 fullWidth
                                 multiline
                                 inputProps={{ maxLength: 256 }}
                                 type="text"
                             />
                         </FormControl>
-                        <Button fullWidth variant="contained" sx={{fontSize: "16px", mt: 3, alignContent: "center"}} type="submit">
+                        <Button fullWidth variant="contained" sx={{ fontSize: "16px", mt: 3, alignContent: "center" }} type="submit">
                             Ask
                         </Button>
                     </form>

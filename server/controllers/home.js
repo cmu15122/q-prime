@@ -34,7 +34,7 @@ function respond(req, res, message, data, status) {
     res.json(data);
 }
 
-exports.getOHQ = function() {
+exports.getOHQ = function () {
     return ohq;
 };
 
@@ -66,6 +66,7 @@ exports.get = function (req, res) {
             queueFrozen: queueFrozen,
             numStudents: ohq.size(),
             waitTime: waittime.get(),
+            rejoinTime: settings.get_admin_settings().rejoinTime,
             isAuthenticated: req.user?.isAuthenticated,
             isTA: req.user?.isTA,
             isAdmin: req.user?.isAdmin,
@@ -126,12 +127,12 @@ exports.get = function (req, res) {
 
         if (entry.status === StudentStatus.BEING_HELPED) {
             models.account.findOne({
-                where: {user_id: entry.taID},
-                include: { 
+                where: { user_id: entry.taID },
+                include: {
                     model: models.ta,
                     as: 'ta'
                 }
-            }).then(function(account) {
+            }).then(function (account) {
                 data.studentData.helpingTA = {
                     taId: account.ta.ta_id,
                     taName: account.name,
@@ -139,7 +140,7 @@ exports.get = function (req, res) {
                 }
                 res.send(data);
             });
-        } 
+        }
         else {
             res.send(data);
         }
@@ -255,7 +256,8 @@ exports.post_add_question = function (req, res) {
     }
 
     let id = req.body.andrewID;
-  
+    let overrideCooldown = req.body.overrideCooldown
+
     if (ohq.getPosition(id) != -1) {
         res.status(400);
         res.json({ message: 'Student already on the queue' });
@@ -294,32 +296,66 @@ exports.post_add_question = function (req, res) {
             throw new Error('No existing student account with provided andrew ID.');
         }
 
-        ohq.enqueue(
-            id,
-            account.preferred_name,
-            req.body.question,
-            req.body.location,
-            req.body.topic,
-            moment.tz(new Date(), "America/New_York").toDate()
-        );
+        // check for cooldown violation
+        let rejoinTime = settings.get_admin_settings().rejoinTime
+        return Promise.props({
+            questions: models.question.findAll({
+                where: {
+                    exit_time: {
+                        [Sequelize.Op.gte]: moment.tz(new Date(), "America/New_York").subtract(rejoinTime, 'minutes').toDate(),
+                    },
+                    student_id: student.student_id
+                }
+            }),
+            account: account
+        })
+    }).then((result) => {
 
-        let data = {
-            status: ohq.getStatus(id),
-            position: ohq.getPosition(id)
-        };
-    
-        if (data.status == null || data.position == null) {
-            throw new Error('The server was unable to add you to the queue');
-        } else if (data.status == 5 || data.position == -1) {
-            throw new Error('The server was unable to find you on the queue after adding you');
+        let questions = result.questions.sort((firstQ, secondQ) => {
+            return moment.tz(firstQ.exit_time, "America/New_York").diff(secondQ.exit_time)
+        })
+
+        let account = result.account
+
+        // fail if cooldown violated
+        if (!overrideCooldown && questions.length > 0) {
+            res.status(200)
+            res.json({
+                message: "cooldown_violation",
+                timePassed: `${moment.tz(new Date(), "America/New_York").diff(questions[questions.length - 1].exit_time, 'minutes')}`
+            })
+        } else {
+            ohq.enqueue(
+                id,
+                account.preferred_name,
+                req.body.question,
+                req.body.location,
+                req.body.topic,
+                moment.tz(new Date(), "America/New_York").toDate()
+            );
+
+            let data = {
+                status: ohq.getStatus(id),
+                position: ohq.getPosition(id)
+            };
+
+            if (data.status == null || data.position == null) {
+                throw new Error('The server was unable to add you to the queue');
+            } else if (data.status == 5 || data.position == -1) {
+                throw new Error('The server was unable to find you on the queue after adding you');
+            }
+
+            if (overrideCooldown && !req.user.isTA) {
+                ohq.setCooldownViolation(id)
+            }
+
+            res.status(200);
+            data['message'] = "Successfully added to queue";
+            res.json(data);
+
+            let studentEntryData = buildStudentEntryData(ohq.getData(id));
+            sockets.add(studentEntryData);
         }
-    
-        res.status(200);
-        data['message'] = "Successfully added to queue";
-        res.json(data);
-    
-        let studentEntryData = buildStudentEntryData(ohq.getData(id));
-        sockets.add(studentEntryData);
     }).catch((err) => {
         console.log(err);
         res.status(500);
@@ -363,7 +399,7 @@ exports.post_remove_student = function (req, res) {
         defaults: {
             email: returnedData.andrewID + '@andrew.cmu.edu'
         }
-    }).then(([account, ]) => {
+    }).then(([account,]) => {
         return Promise.props({
             account: account,
             student: models.student.findOrCreate({
@@ -473,6 +509,37 @@ exports.post_unhelp_student = function (req, res) {
 
     res.status(200);
     res.json({ message: 'The student was unhelped' });
+}
+
+exports.post_approve_cooldown_override = function (req, res) {
+    if (!req.user || !req.user.isAuthenticated) {
+        res.status(400)
+        res.json({ message: 'User data not passed to server' })
+        return
+    }
+    else if (!req.user.isTA) {
+        console.log(req.user)
+        res.status(400)
+        res.json({ message: 'This request was not made by a TA' })
+        return
+    }
+
+    let id = req.body.andrewID
+    if (ohq.getPosition(id) === -1) {
+        res.status(400)
+        res.json({ message: 'Student not on the queue' })
+        return
+    }
+    if (ohq.getStatus(id) != StudentStatus.COOLDOWN_VIOLATION) {
+        res.status(400)
+        res.json({ message: 'Student was not on cooldown violation' })
+        return
+    }
+
+    ohq.unsetCooldownViolation(id)
+
+    res.status(200)
+    res.json({ message: "approved cooldown violation" })
 }
 
 exports.get_display_students = async function (req, res) {

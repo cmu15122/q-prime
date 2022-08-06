@@ -5,6 +5,7 @@ import {
 
 import ItemRow from '../../common/table/ItemRow';
 import EntryTails from './EntryTails';
+import HomeService from '../../../services/HomeService';
 
 export default function StudentEntry(props) {
     const { theme, student, index, handleClickHelp, removeStudent, handleClickUnfreeze } = props
@@ -12,8 +13,10 @@ export default function StudentEntry(props) {
     const [confirmRemove, setConfirmRemove] = useState(false);
     const removeRef = useRef();
 
+    const [showCooldownApproval, setShowCooldownApproval] = useState(student['status'] === 4)
+
     useEffect(() => {
-        const closeExpanded = e => { 
+        const closeExpanded = e => {
             if (!e.path.includes(removeRef.current)) {
                 setConfirmRemove(false);
             }
@@ -33,6 +36,19 @@ export default function StudentEntry(props) {
         else {
             setConfirmRemove(true);
         }
+    }
+
+    const approveCooldownOverride = () => {
+        console.log("APPROVE COOLDOWN")
+        HomeService.approveCooldownOverride(JSON.stringify({
+            andrewID: student['andrewID']
+        })).then(res => {
+            console.log(res)
+            if (res.status === 200) {
+                setShowCooldownApproval(false)
+                student['status'] = 1
+            }
+        })
     }
 
     return (
@@ -56,7 +72,9 @@ export default function StudentEntry(props) {
                         handleRemoveButton: handleRemoveButton,
                         removeStudent: removeStudent,
                         handleClickHelp: handleClickHelp,
-                        handleClickUnfreeze: handleClickUnfreeze
+                        handleClickUnfreeze: handleClickUnfreeze,
+                        showCooldownApproval: showCooldownApproval,
+                        approveCooldownOverride: approveCooldownOverride
                     }
                 )
             }

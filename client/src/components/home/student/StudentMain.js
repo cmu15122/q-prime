@@ -9,6 +9,7 @@ import TAHelpingOverlay from './TAHelpingOverlay';
 import UpdateQuestionOverlay from './UpdateQuestionOverlay';
 import MessageRespond from './MessageRespond'
 import AskQuestion from './AskQuestion';
+import CooldownViolationOverlay from './CooldownViolationOverlay';
 import HomeService from '../../../services/HomeService';
 
 import { socketSubscribeTo } from '../../../services/SocketsService';
@@ -21,6 +22,8 @@ function StudentMain(props) {
     const [removeConfirm, setRemoveConfirm] = useState(false);
     const [frozen, setFrozen] = useState(false);
     const [taHelping, setTAHelping] = useState(false);
+    const [showCooldownOverlay, setShowCooldownOverlay] = useState(false)
+    const [timePassed, setTimePassed] = useState(0)
     const [updateQ, setUpdateQ] = useState(false);
     const [position, setPosition] = useState(0);
 
@@ -146,6 +149,8 @@ function StudentMain(props) {
                         setTopicValue={setTopicValue}
                         setPosition={setPosition}
                         setAskQuestionOrYourEntry={setAskQuestionOrYourEntry}
+                        setShowCooldownOverlay={setShowCooldownOverlay}
+                        setTimePassed={setTimePassed}
                         queueData={queueData}
                         theme={theme}
                     />
@@ -161,6 +166,20 @@ function StudentMain(props) {
                 open={taHelping}
                 helpingTAInfo={helpingTAInfo}
             />
+
+            <Button variant="contained" onClick={() => setShowCooldownOverlay(true)} sx={{ m: 0.5 }}>Open Cooldown Violation Overlay</Button>
+            <CooldownViolationOverlay
+                open={showCooldownOverlay}
+                setOpen={setShowCooldownOverlay}
+                timePassed={timePassed}
+                questionValue={questionValue}
+                locationValue={locationValue}
+                topicValue={topicValue}
+                setPosition={setPosition}
+                setAskQuestionOrYourEntry={setAskQuestionOrYourEntry}
+                queueData={queueData}
+            />
+
 
             <Button variant="contained" onClick={() => setUpdateQ(true)} sx={{ m: 0.5 }}>Open Update Question Overlay</Button>
             <UpdateQuestionOverlay
