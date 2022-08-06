@@ -10,7 +10,7 @@ import AskQuestion from './AskQuestion';
 import CooldownViolationOverlay from './CooldownViolationOverlay';
 
 import HomeService from '../../../services/HomeService';
-import { StudentStatus } from '../../../services/StudentStatus';
+import { StudentStatusValues } from '../../../services/StudentStatus';
 import { socketSubscribeTo } from '../../../services/SocketsService';
 
 function StudentMain(props) {
@@ -25,7 +25,7 @@ function StudentMain(props) {
     const [showCooldownOverlay, setShowCooldownOverlay] = useState(false);
 
     const [frozen, setFrozen] = useState(false);
-    const [status, setStatus] = useState(StudentStatus.OFF_QUEUE);
+    const [status, setStatus] = useState(StudentStatusValues.OFF_QUEUE);
     const [timePassed, setTimePassed] = useState(0)
     const [position, setPosition] = useState(0);
 
@@ -40,7 +40,7 @@ function StudentMain(props) {
 
         socketSubscribeTo("help", (res) => {
             if (res.andrewID === queueData.andrewID) {
-                setStatus(StudentStatus.BEING_HELPED);
+                setStatus(StudentStatusValues.BEING_HELPED);
                 setHelpingTAInfo(res.data.taData);
                 new Notification("It's your turn to get help!", {
                     "body": `${res.data.taData.taName} is ready to help you.`,
@@ -51,14 +51,14 @@ function StudentMain(props) {
 
         socketSubscribeTo("unhelp", (res) => {
             if (res.andrewID === queueData.andrewID) {
-                setStatus(StudentStatus.WAITING);
+                setStatus(StudentStatusValues.WAITING);
                 setHelpingTAInfo(null);
             }
         });
 
         socketSubscribeTo("message", (res) => {
             if (res.andrewID === queueData.andrewID) {
-                setStatus(StudentStatus.RECEIVED_MESSAGE);
+                setStatus(StudentStatusValues.RECEIVED_MESSAGE);
                 setMessageValue(res.data.studentData.message);
                 setHelpingTAInfo(res.data.taData);
             }
@@ -66,7 +66,7 @@ function StudentMain(props) {
 
         socketSubscribeTo("remove", (res) => {
             if (res.andrewID === queueData.andrewID) {
-                setStatus(StudentStatus.OFF_QUEUE);
+                setStatus(StudentStatusValues.OFF_QUEUE);
 
                 setQuestionValue("");
                 setTopicValue("");
@@ -103,7 +103,7 @@ function StudentMain(props) {
         ).then(res => {
             if (res.status === 200) {
                 setRemoveConfirm(false);
-                setStatus(StudentStatus.OFF_QUEUE);
+                setStatus(StudentStatusValues.OFF_QUEUE);
             }
         });
     };
@@ -115,19 +115,19 @@ function StudentMain(props) {
             })
         ).then(res => {
             if (res.status === 200) {
-                setStatus(StudentStatus.WAITING);
+                setStatus(StudentStatusValues.WAITING);
             }
         });
     };
 
     const cancelCooldownJoin = () => {
-        setStatus(StudentStatus.OFF_QUEUE);
+        setStatus(StudentStatusValues.OFF_QUEUE);
     };
 
     return (
         <div>
             {
-                (status !== StudentStatus.OFF_QUEUE) ?
+                (status !== StudentStatusValues.OFF_QUEUE) ?
                     <div>
                         <YourEntry
                             openRemoveOverlay={() => setRemoveConfirm(true)}
@@ -160,7 +160,7 @@ function StudentMain(props) {
             }
 
             <TAHelpingOverlay
-                open={status === StudentStatus.BEING_HELPED}
+                open={status === StudentStatusValues.BEING_HELPED}
                 helpingTAInfo={helpingTAInfo}
             />
 
@@ -178,12 +178,12 @@ function StudentMain(props) {
             />
 
             <UpdateQuestionOverlay
-                open={status === StudentStatus.FIXING_QUESTION}
+                open={status === StudentStatusValues.FIXING_QUESTION}
                 setQuestionValue={setQuestionValue}
             />
 
             <MessageRespond 
-                open={status === StudentStatus.RECEIVED_MESSAGE} 
+                open={status === StudentStatusValues.RECEIVED_MESSAGE} 
                 message={messageValue}
                 helpingTAInfo={helpingTAInfo}
                 removeFromQueue={removeFromQueue}

@@ -1,4 +1,4 @@
-export const StudentStatus = Object.freeze({
+export const StudentStatusValues = Object.freeze({
     OFF_QUEUE: -1,
     BEING_HELPED: 0,
     WAITING: 1,

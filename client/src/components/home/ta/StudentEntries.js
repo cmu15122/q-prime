@@ -5,6 +5,7 @@ import StudentEntry from './StudentEntry';
 
 import HomeService from '../../../services/HomeService';
 import { socketSubscribeTo } from '../../../services/SocketsService';
+import { StudentStatusValues } from '../../../services/StudentStatus';
 
 export default function StudentEntries(props) {
     const { theme, queueData } = props;
@@ -85,7 +86,7 @@ export default function StudentEntries(props) {
     // stay helping even on page reload
     useEffect(() => {
         for (let [index, student] of students.entries()) {
-            if (student['status'] === 0 && student['taAndrewID'] === queueData.andrewID) {
+            if (student['status'] === StudentStatusValues.BEING_HELPED && student['taAndrewID'] === queueData.andrewID) {
                 setHelpIdx(index);
                 setIsHelping(true);
             }
@@ -99,7 +100,7 @@ export default function StudentEntries(props) {
             if (res.status === 200) {
                 setHelpIdx(index);
                 setIsHelping(true);
-                students[index]['status'] = 0; // Switch student status
+                students[index]['status'] = StudentStatusValues.BEING_HELPED; // Switch student status
             }
         });
     }
@@ -111,7 +112,7 @@ export default function StudentEntries(props) {
             if (res.status === 200) {
                 setIsHelping(false);
                 setHelpIdx(-1);
-                students[index]['status'] = 1;
+                students[index]['status'] = StudentStatusValues.WAITING;
             }
         });
     }
@@ -135,7 +136,7 @@ export default function StudentEntries(props) {
         setHelpIdx(-1);
         console.log("unfreeeze student");
         console.log(index);
-        students[index]['status'] = 1;
+        students[index]['status'] = StudentStatusValues.WAITING;
     }
 
     return (

@@ -8,6 +8,8 @@ import ActionsFreeze from './TailOptions/ActionsFreeze';
 import StudentStatus from './TailOptions/StudentStatus';
 import LeapStudentActions from './TailOptions/LeapStudentActions';
 
+import { StudentStatusValues } from '../../../services/StudentStatus';
+
 export default function EntryTails(props) {
     const {
         theme, student, index, isHelping, helpIdx
@@ -17,18 +19,18 @@ export default function EntryTails(props) {
 
     const getCorrectTail = (status) => {
         switch (status) {
-            case 0: {
+            case StudentStatusValues.BEING_HELPED: {
                 if (isHelping && (index === helpIdx)) {
                     return (YouAreHelping(props));
                 } else {
                     return (ActionsHelp(props));
                 }
             }
-            case 1: return (ActionsHelp(props));
-            case 2: return (ActionsHelp(props));    
-            case 3: return (ActionsFreeze(props));        
-            case 4: return (LeapStudentActions(props));
-            case 5: return (ActionsHelp(props));
+            case StudentStatusValues.WAITING: return (ActionsHelp(props));
+            case StudentStatusValues.FIXING_QUESTION: return (ActionsHelp(props));    
+            case StudentStatusValues.FROZEN: return (ActionsFreeze(props));        
+            case StudentStatusValues.COOLDOWN_VIOLATION: return (LeapStudentActions(props));
+            case StudentStatusValues.RECEIVED_MESSAGE: return (ActionsHelp(props));
             default: return;
         }
     }

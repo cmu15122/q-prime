@@ -4,6 +4,7 @@ import {
 } from "@mui/material";
 
 import HomeService from '../../../../services/HomeService';
+import { StudentStatusValues } from "../../../../services/StudentStatus";
 
 export default function MessageDialog(props) {
     const { isOpen, onClose, student } = props
@@ -32,7 +33,10 @@ export default function MessageDialog(props) {
                     Messaging Student "{student.name}"
                 </Typography>
                 <Typography sx={{ pb: 2, fontSize: '15px', textAlign: 'center', fontStyle: 'italic' }}>
-                    {(student.status === 5) && "Note: Student has already been messaged. Sending a message here will overwrite the existing message"}
+                    {
+                        (student.status === StudentStatusValues.RECEIVED_MESSAGE) && 
+                        "Note: Student has already been messaged. Sending a message here will overwrite the existing message"
+                    }
                 </Typography>
                 <form onSubmit={onSubmit}>
                     <TextField

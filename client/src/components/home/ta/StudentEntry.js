@@ -5,7 +5,9 @@ import {
 
 import ItemRow from '../../common/table/ItemRow';
 import EntryTails from './EntryTails';
+
 import HomeService from '../../../services/HomeService';
+import { StudentStatusValues } from '../../../services/StudentStatus';
 
 export default function StudentEntry(props) {
     const { theme, student, index, handleClickHelp, removeStudent, handleClickUnfreeze } = props;
@@ -13,7 +15,7 @@ export default function StudentEntry(props) {
     const [confirmRemove, setConfirmRemove] = useState(false);
     const removeRef = useRef();
 
-    const [showCooldownApproval, setShowCooldownApproval] = useState(student['status'] === 4)
+    const [showCooldownApproval, setShowCooldownApproval] = useState(student['status'] === StudentStatusValues.COOLDOWN_VIOLATION)
 
     useEffect(() => {
         const closeExpanded = e => {
@@ -45,7 +47,7 @@ export default function StudentEntry(props) {
         )).then(res => {
             if (res.status === 200) {
                 setShowCooldownApproval(false);
-                student['status'] = 1;
+                student['status'] = StudentStatusValues.WAITING;
             }
         })
     }

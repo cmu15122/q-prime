@@ -2,23 +2,25 @@ import {
     Typography
 } from '@mui/material';
 
+import { StudentStatusValues } from '../../../../services/StudentStatus';
+
 export default function StudentStatus(props) {
     const { student, theme, index, isHelping, helpIdx } = props;
     const status = student.status;
 
     const chooseText = (status) => {
         switch (status) {
-            case 0: {
+            case StudentStatusValues.BEING_HELPED: {
                 if (isHelping && (index === helpIdx)) {
                     return 'You are helping';
                 } else {
                     return `${student.taAndrewID} is Helping`;
                 }
             }
-            case 2: return 'Updating Question';
-            case 3: return 'Frozen';
-            case 4: return 'Joined Before Cooldown';
-            case 5: return 'Received Message';
+            case StudentStatusValues.FIXING_QUESTION: return 'Updating Question';
+            case StudentStatusValues.FROZEN: return 'Frozen';
+            case StudentStatusValues.COOLDOWN_VIOLATION: return 'Joined Before Cooldown';
+            case StudentStatusValues.RECEIVED_MESSAGE: return 'Received Message';
             default: return '';
         }
     }
