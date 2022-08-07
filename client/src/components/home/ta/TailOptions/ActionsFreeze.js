@@ -12,7 +12,7 @@ export default function ActionsFreeze(props) {
     return (
         <Stack
             direction={{ xs: "column", sm: "row" }}
-            sx={{ mt: { xs: 1, sm: 0 }, alignItems: 'center', justifyContent: 'flex-end' }}
+            sx={{ alignItems: 'center', justifyContent: 'flex-end' }}
         >
             <Button color="unfreeze" variant="contained" onClick={() => handleClickUnfreeze(index)} sx={{ m: 0.5 }}>
                 Unfreeze

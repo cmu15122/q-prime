@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import {
-    styled, Card, CardActions, Collapse, Divider, IconButton, 
+    styled, CardActions, Collapse, Divider, IconButton, 
     Table, TableBody, Typography, 
 } from "@mui/material";
 
 import {
     ExpandMore
 } from "@mui/icons-material";
+
+import BaseCard from "../cards/BaseCard";
 
 const Expand = styled((props) => {
     const { expand, ...other } = props;
@@ -29,31 +31,29 @@ export default function CollapsedTable(props) {
     };
 
     return (
-        <div className="card" style={{ display:"flex" }}>
-            <Card sx={{ minWidth: "100%" }}>
-                <CardActions disableSpacing style={{ cursor: "pointer" }} onClick={handleClick}>
-                    <Typography sx={{ fontSize: 16, fontWeight: "bold", ml: 2, mt: 1 }} variant="h5" gutterBottom>
-                        {title}
-                    </Typography>
-                    <Expand
-                        expand={open}
-                        aria-expanded={open}
-                        aria-label="show more"
-                        sx={{ mr: 1 }}
-                    >
-                        <ExpandMore />
-                    </Expand>
-                </CardActions>
-                <Collapse in={open} timeout="auto" unmountOnExit>
-                    <Divider></Divider>
-                    <Table>
-                        <TableBody>
-                            {children}
-                        </TableBody>
-                    </Table>
-                </Collapse>
-            </Card>
-        </div>
+        <BaseCard>
+            <CardActions disableSpacing style={{ cursor: "pointer" }} onClick={handleClick}>
+                <Typography sx={{ fontWeight: "bold", ml: 2, mt: 1 }} variant="body1" gutterBottom>
+                    {title}
+                </Typography>
+                <Expand
+                    expand={open}
+                    aria-expanded={open}
+                    aria-label="show more"
+                    sx={{ mr: 1 }}
+                >
+                    <ExpandMore />
+                </Expand>
+            </CardActions>
+            <Collapse in={open} timeout="auto" unmountOnExit>
+                <Divider></Divider>
+                <Table>
+                    <TableBody>
+                        {children}
+                    </TableBody>
+                </Table>
+            </Collapse>
+        </BaseCard>
     );
 }
 

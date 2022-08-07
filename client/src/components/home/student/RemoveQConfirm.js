@@ -9,7 +9,7 @@ export default function RemoveQOverlay(props) {
     return (
         <Dialog open={open} onClose={handleClose}>
             <DialogContent>
-                <Typography sx={{ pb: 3, fontWeight: 'bold', fontSize: '22px', textAlign: 'center' }}>
+                <Typography variant="h5" sx={{ pb: 3, fontWeight: 'bold', textAlign: 'center' }}>
                     Remove your question from the queue?
                 </Typography>
                 <Typography sx={{ textAlign: 'center' }}>

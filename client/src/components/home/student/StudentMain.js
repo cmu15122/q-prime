@@ -2,12 +2,10 @@ import React, { useEffect, useState } from 'react';
 
 import YourEntry from './YourEntry';
 import RemoveQOverlay from './RemoveQConfirm';
-import FrozenOverlay from './FrozenOverlay';
 import TAHelpingOverlay from './TAHelpingOverlay';
 import UpdateQuestionOverlay from './UpdateQuestionOverlay';
 import MessageRespond from './MessageOverlay'
-import AskQuestion from './AskQuestion';
-import CooldownViolationOverlay from './CooldownViolationOverlay';
+import AskQuestion from '../shared/AskQuestion';
 
 import HomeService from '../../../services/HomeService';
 import { StudentStatusValues } from '../../../services/StudentStatus';
@@ -22,11 +20,9 @@ function StudentMain(props) {
     const [messageValue, setMessageValue] = useState('');
 
     const [removeConfirm, setRemoveConfirm] = useState(false);
-    const [showCooldownOverlay, setShowCooldownOverlay] = useState(false);
 
     const [frozen, setFrozen] = useState(false);
     const [status, setStatus] = useState(StudentStatusValues.OFF_QUEUE);
-    const [timePassed, setTimePassed] = useState(0)
     const [position, setPosition] = useState(0);
 
     const [helpingTAInfo, setHelpingTAInfo] = useState(null);
@@ -34,9 +30,16 @@ function StudentMain(props) {
     useEffect(() => {
         if (!("Notification" in window)) {
             console.log("This browser does not support desktop notification");
-        } else {
+        } else if (Notification.permission !== "granted") {
             Notification.requestPermission();
         }
+
+        socketSubscribeTo("add", (res) => {
+            let studentData = res.studentData;
+            if (studentData.andrewID === queueData.andrewID) {
+                setStudentValues(studentData);
+            }
+        });
 
         socketSubscribeTo("help", (res) => {
             if (res.andrewID === queueData.andrewID) {
@@ -79,21 +82,23 @@ function StudentMain(props) {
         });
     }, []);
 
-    // check if student on queue on page load
     useEffect(() => {
+        // Check if student is on queue
         if (studentData.position !== -1) {
-            setPosition(studentData.position);
-            setLocationValue(studentData.location);
-            setTopicValue(studentData.topic);
-            setQuestionValue(studentData.question);
-            setMessageValue(studentData.message);
-            setFrozen(studentData.isFrozen);
-            setHelpingTAInfo(studentData.helpingTA);
-
-            let status = studentData.status;
-            setStatus(status);
+            setStudentValues(studentData);
         }
     }, [studentData]);
+
+    const setStudentValues = (studentData) => {
+        setPosition(studentData.position);
+        setLocationValue(studentData.location);
+        setTopicValue(studentData.topic);
+        setQuestionValue(studentData.question);
+        setMessageValue(studentData.message);
+        setFrozen(studentData.isFrozen);
+        setHelpingTAInfo(studentData.helpingTA);
+        setStatus(studentData.status);
+    };
 
     const removeFromQueue = () => {
         HomeService.removeStudent(
@@ -120,10 +125,6 @@ function StudentMain(props) {
         });
     };
 
-    const cancelCooldownJoin = () => {
-        setStatus(StudentStatusValues.OFF_QUEUE);
-    };
-
     return (
         <div>
             {
@@ -135,6 +136,7 @@ function StudentMain(props) {
                             location={locationValue}
                             topic={topicValue.name}
                             question={questionValue}
+                            frozen={frozen}
                             theme={theme}
                         />
                         <RemoveQOverlay
@@ -152,8 +154,6 @@ function StudentMain(props) {
                         setTopicValue={setTopicValue}
                         setPosition={setPosition}
                         setStatus={setStatus}
-                        setTimePassed={setTimePassed}
-                        setShowCooldownOverlay={setShowCooldownOverlay}
                         queueData={queueData}
                         theme={theme}
                     />
@@ -162,19 +162,6 @@ function StudentMain(props) {
             <TAHelpingOverlay
                 open={status === StudentStatusValues.BEING_HELPED}
                 helpingTAInfo={helpingTAInfo}
-            />
-
-            <CooldownViolationOverlay
-                open={showCooldownOverlay}
-                setOpen={setShowCooldownOverlay}
-                setStatus={setStatus}
-                timePassed={timePassed}
-                questionValue={questionValue}
-                locationValue={locationValue}
-                topicValue={topicValue}
-                setPosition={setPosition}
-                cancelCooldownJoin={cancelCooldownJoin}
-                queueData={queueData}
             />
 
             <UpdateQuestionOverlay

@@ -22,7 +22,7 @@ export default function StudentEntries(props) {
     useEffect(() => {
         if (!("Notification" in window)) {
             console.log("This browser does not support desktop notification");
-        } else {
+        } else if (Notification.permission !== "granted") {
             Notification.requestPermission();
         }
 
@@ -56,7 +56,7 @@ export default function StudentEntries(props) {
             new Notification("New Queue Entry", {
                 "body": "Name: " + res.studentData.name + "\n" +
                     "Andrew ID: " + res.studentData.andrewID + "\n" +
-                    "Topic: " + res.studentData.topic
+                    "Topic: " + res.studentData.topic.name
             });
         });
 

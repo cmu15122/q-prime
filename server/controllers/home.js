@@ -39,15 +39,19 @@ exports.getOHQ = function () {
 };
 
 function buildStudentEntryData(student) {
+    let studentPos = ohq.getPosition(student.andrewID); // Should grab this for cheaper
     let studentEntryData = {
         name: student.preferredName,
         andrewID: student.andrewID,
         taID: student.taID,
         taAndrewID: student.taAndrewID,
+        location: student.location,
         topic: student.topic,
         question: student.question,
         status: student.status,
-        message: student.message
+        isFrozen: student.isFrozen,
+        message: student.message,
+        position: studentPos,
     }
 
     return studentEntryData;
@@ -121,7 +125,6 @@ exports.get = function (req, res) {
 
         let entry = buildStudentEntryData(ohq.queue.get(studentPos));
         data.studentData = entry;
-        data.studentData["position"] = studentPos;
 
         if (entry.status === StudentStatus.BEING_HELPED || entry.status === StudentStatus.RECEIVED_MESSAGE) {
             models.account.findOne({
@@ -254,7 +257,7 @@ exports.post_add_question = function (req, res) {
     }
 
     let id = req.body.andrewID;
-    let overrideCooldown = req.body.overrideCooldown
+    let overrideCooldown = req.user.isTA || req.body.overrideCooldown;
 
     if (ohq.getPosition(id) != -1) {
         res.status(400);

@@ -1,7 +1,8 @@
+// See https://mui.com/material-ui/customization/default-theme for customization options
 import { createTheme } from '@mui/material'
 export const basicTheme = createTheme({
     palette: {
-        type: 'light',
+        mode: 'light',
         primary: {
             main: '#EF8EC3',
         },
@@ -40,12 +41,52 @@ export const basicTheme = createTheme({
         },
         MuiDialogContent: {
             styleOverrides: {
-                root: ({ ownerState }) => ({
+                root: () => ({
                     ...({
                         padding: "32px",
                     }),
                 }),
             },
+        },
+        MuiInputBase: {
+            styleOverrides: {
+                root: () => ({
+                    ...({
+                        fontSize: "15px",
+                    }),
+                }),
+            },
         }
-    }
+    },
+    typography: {
+        fontSize: 15,
+        htmlFontSize: 15,
+        h1: {
+            fontSize: 38,
+        },
+        h2: {
+            fontSize: 34,
+        },
+        h3: {
+            fontSize: 30,
+        },
+        h4: {
+            fontSize: 26,
+        },
+        h5: {
+            fontSize: 22,
+        },
+        h6: {
+            fontSize: 18,
+        },
+        body1: {
+            fontSize: 16,
+        },
+        body2: {
+            fontSize: 14,
+        },
+        button: {
+            fontSize: 14
+        }
+    },
 });

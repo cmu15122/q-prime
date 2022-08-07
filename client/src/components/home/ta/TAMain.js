@@ -1,4 +1,4 @@
-import AskQuestion from './AskQuestion';
+import AskQuestion from '../shared/AskQuestion';
 import StudentEntries from './StudentEntries';
 
 export default function TAMain(props) {

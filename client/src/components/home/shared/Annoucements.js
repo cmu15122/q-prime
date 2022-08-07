@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Box, Button, Card, CardActions, IconButton, Divider, Stack,
-    Typography, Table, TableRow, TableCell, TableBody, TableContainer
+    Box, Button, CardActions, IconButton, Divider, Stack,
+    Typography, Table, TableCell, TableBody, TableContainer
 } from '@mui/material';
 import {
     Edit, Delete
 } from '@mui/icons-material';
 import Cookies from 'universal-cookie';
 
-import OpenAnnouncement from './dialogs/OpenAnnouncement';
-import AddAnnouncement from './dialogs/AddAnnouncement';
-import EditAnnouncement from './dialogs/EditAnnouncement';
-import DeleteAnnouncement from './dialogs/DeleteAnnouncement';
+import AnnouncementDialogBody from './dialogs/AnnouncementDialogBody';
+import AddDialog from '../../common/dialogs/AddDialog';
+import EditDialog from '../../common/dialogs/EditDialog';
+import DeleteDialog from '../../common/dialogs/DeleteDialog';
 
+import BaseCard from '../../common/cards/BaseCard';
+import ItemRow from '../../common/table/ItemRow';
+
+import HomeService from '../../../services/HomeService';
 import { socketSubscribeTo } from '../../../services/SocketsService';
 
 const cookies = new Cookies();
@@ -22,18 +26,8 @@ function createData(id, content, markedRead) {
 }
 
 export default function Announcements(props) {
-    const { theme, queueData, setAllRead } = props
+    const { theme, queueData } = props
 
-    const [open, setOpen] = useState(false);
-
-    const handleClick = () => {
-        setOpen(!open);
-    };
-
-    const [openAnnouncement, setOpenAnnouncement] = useState(false);
-    const [openAdd, setOpenAdd] = useState(false);
-    const [openEdit, setOpenEdit] = useState(false);
-    const [openDelete, setOpenDelete] = useState(false);
     const [selectedRow, setSelectedRow] = useState();
     const [rows, setRows] = useState([]);
 
@@ -89,45 +83,6 @@ export default function Announcements(props) {
         }
     }, [queueData]);
 
-    const handleOpenAnnouncement = (row) => {
-        setOpenAnnouncement(true);
-        setSelectedRow(row);
-    }
-
-    const handleAdd = () => {
-        setOpenAdd(true);
-    };
-
-    const handleEdit = (row) => {
-        setOpenEdit(true);
-        setSelectedRow(row);
-    };
-
-    const handleDelete = (row) => {
-        setOpenDelete(true);
-        setSelectedRow(row);
-    };
-
-    const handleClose = () => {
-        setOpenAnnouncement(false);
-        setOpenAdd(false);
-        setOpenEdit(false);
-        setOpenDelete(false);
-    };
-
-    const handleMarkRead = () => {
-        let readCookies = cookies.get('announcements');
-        if (!readCookies) {
-            readCookies = {};
-        }
-
-        readCookies[selectedRow['id']] = true;
-        cookies.set('announcements', readCookies);
-
-        selectedRow['markedRead'] = true;
-        setOpenAnnouncement(false);
-    };
-
     const updateAnnouncements = (newAnnouncements) => {
         const readCookies = cookies.get('announcements');
 
@@ -142,16 +97,94 @@ export default function Announcements(props) {
         setRows(newRows);
     }
 
+    /** Dialog Functions */
+    const [openAdd, setOpenAdd] = useState(false);
+    const [openEdit, setOpenEdit] = useState(false);
+    const [openDelete, setOpenDelete] = useState(false);
+    const [content, setContent] = useState("");
+
+    const handleAddDialog = () => {
+        setOpenAdd(true);
+        setContent("");
+    };
+
+    const handleEditDialog = (row) => {
+        setOpenEdit(true);
+        setSelectedRow(row);
+
+        setContent(row.content);
+    };
+
+    const handleDeleteDialog = (row) => {
+        setOpenDelete(true);
+        setSelectedRow(row);
+    };
+
+    const handleClose = () => {
+        setOpenAdd(false);
+        setOpenEdit(false);
+        setOpenDelete(false);
+    };
+
+    const handleAdd = event => {
+        event.preventDefault();
+        HomeService.createAnnouncement(
+            JSON.stringify({
+                content: content
+            })
+        ).then(() => {
+            handleClose();
+        });
+    };
+
+    const handleEdit = event => {
+        event.preventDefault();
+        HomeService.updateAnnouncement(
+            JSON.stringify({
+                id: selectedRow.id,
+                content: content
+            })
+        ).then(() => {
+            handleClose();
+        });
+    };
+
+    const handleDelete = () => {
+        HomeService.deleteAnnouncement(
+            JSON.stringify({
+                id: selectedRow.id,
+            })
+        ).then(() => {
+            handleClose();
+        });
+    };
+
+    /** 
+     * Using cookies to mark an announcement as read
+     * FIXME: Unused for now
+     */
+    // const handleMarkRead = () => {
+    //     let readCookies = cookies.get('announcements');
+    //     if (!readCookies) {
+    //         readCookies = {};
+    //     }
+
+    //     readCookies[selectedRow['id']] = true;
+    //     cookies.set('announcements', readCookies);
+
+    //     selectedRow['markedRead'] = true;
+    // };
+
     return (
-        <div className='card' style={{ display:'flex' }}>
-            <Card sx={{ minWidth: '100%' }}>
-                <CardActions onClick={handleClick} style={{ justifyContent: "space-between" }}>
-                    <Typography sx={{ fontSize: 20, fontWeight: 'bold', ml: 2, mt: 1 }} variant="h5" gutterBottom>
+        <div>
+            <BaseCard>
+                <CardActions style={{ justifyContent: "space-between" }}>
+                    <Typography sx={{ fontWeight: 'bold', ml: 2, mt: 1 }} variant="h5" gutterBottom>
                         Announcements
                     </Typography>
                     {
                         queueData?.isTA &&
-                        <Button sx={{ mr: 1, fontWeight: 'bold', fontSize: '15px' }} variant="contained" onClick={() => handleAdd()}>
+                        <Button sx={{ fontWeight: 'bold', mr: 1 }} variant="contained" onClick={handleAddDialog}>
                             + Create
                         </Button>
                     }
@@ -161,58 +194,65 @@ export default function Announcements(props) {
                     <Table aria-label="topicsTable" sx={{overflow: "scroll" }} stickyHeader>
                         <TableBody>
                         {rows.map((row, index) => (
-                            <TableRow
-                                key={row.id}
-                                style={ index % 2 ? { background : theme?.palette?.background.paper }:{ background : theme?.palette?.background.default }}
-                            >
-                                <TableCell component="th" scope="row" sx={{ fontSize: '16px', fontWeight: 'bold', pl: 3.25}}>
-                                    {row.content}
+                            <ItemRow theme={theme} index={index} rowKey={row.id}>
+                                <TableCell component="th" scope="row" sx={{ pl: 3.25}}>
+                                    <Typography sx={{ fontWeight: 'bold' }}>
+                                        {row.content}
+                                    </Typography>
                                 </TableCell>
                                 <TableCell>
                                     <Stack sx={{ mr: 2 }} direction='row' margin='auto' justifyContent='flex-end'>
                                         {
                                             queueData?.isTA && 
                                             <Box>
-                                                <IconButton sx={{ mr: 1 }} color="info" onClick={() => handleEdit(row)}>
+                                                <IconButton sx={{ mr: 1 }} color="info" onClick={() => handleEditDialog(row)}>
                                                     <Edit />
                                                 </IconButton>
 
-                                                <IconButton color="error" onClick={() => handleDelete(row)}>
+                                                <IconButton color="error" onClick={() => handleDeleteDialog(row)}>
                                                     <Delete />
                                                 </IconButton>
                                             </Box>
                                         }
                                     </Stack>
                                 </TableCell>
-                            </TableRow>
+                            </ItemRow>
                         ))}
                         </TableBody>
                     </Table>
                 </TableContainer>
-            </Card>
-            
-            <OpenAnnouncement 
-                isOpen={openAnnouncement}
-                announcementInfo={selectedRow}
-                onClose={handleClose}
-                onMarkRead={handleMarkRead}
-            />
+            </BaseCard>
 
-            <AddAnnouncement
+            <AddDialog
+                title="Add New Announcement"
                 isOpen={openAdd}
                 onClose={handleClose}
-            />
+                handleCreate={handleAdd}
+            >
+                <AnnouncementDialogBody
+                    content={content}
+                    setContent={setContent}
+                />
+            </AddDialog>
 
-            <EditAnnouncement
+            <EditDialog
+                title={"Edit Announcement"}
                 isOpen={openEdit}
                 onClose={handleClose}
-                announcementInfo={selectedRow}
-            />
+                handleEdit={handleEdit}
+            >
+                <AnnouncementDialogBody
+                    content={content}
+                    setContent={setContent}
+                />
+            </EditDialog>
 
-            <DeleteAnnouncement
+            <DeleteDialog
+                title="Delete Announcement"
                 isOpen={openDelete}
                 onClose={handleClose}
-                announcementInfo={selectedRow}
+                handleDelete={handleDelete}
+                itemName={"this announcement"}
             />
         </div>
     );

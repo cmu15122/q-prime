@@ -30,7 +30,7 @@ export default function StudentStatus(props) {
             fontSize='13px'
             color={theme.palette.success.main}
             style={{ overflowWrap: "break-word" }}
-            sx={{ mt: 1 }}
+            sx={{ mb: { xs: 1, sm: 0.5 }, }}
         >
             {chooseText(status)}
         </Typography>

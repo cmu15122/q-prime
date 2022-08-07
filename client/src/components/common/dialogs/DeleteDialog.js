@@ -13,7 +13,7 @@ export default function DeleteDialog(props) {
             onClose={onClose}
         >
             <DialogContent>
-                <Typography sx={{ pb: 3, fontWeight: 'bold', fontSize: '22px', textAlign: 'center' }}>
+                <Typography variant="h5" sx={{ pb: 3, fontWeight: 'bold', textAlign: 'center' }}>
                     {title}
                 </Typography>
                 <Typography sx={{ textAlign: 'center' }}>

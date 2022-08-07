@@ -141,7 +141,7 @@ exports.unhelp = function(studentData, taAndrewID) {
 }
 
 exports.add = function(studentData) {
-    sio.to(ta_room).emit("add", {
+    sio.emit("add", {
         studentData: studentData
     });
 }

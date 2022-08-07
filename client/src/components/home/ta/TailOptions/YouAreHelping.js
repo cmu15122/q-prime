@@ -10,7 +10,7 @@ export default function YouAreHelping(props) {
     return (
         <Stack
             direction={{ xs: "column", sm: "row" }}
-            sx={{ my: 1, alignItems: 'center', justifyContent: 'flex-end' }}
+            sx={{ alignItems: 'center', justifyContent: 'flex-end' }}
         >
             <Button variant='contained' color='cancel' sx={{ m: 0.5 }} onClick={() => handleCancel(index)}>
                 Cancel

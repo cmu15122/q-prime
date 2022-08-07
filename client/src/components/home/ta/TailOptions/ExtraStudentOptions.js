@@ -69,7 +69,7 @@ export default function ExtraStudentOptions(props) {
                             </IconButton>
                         </div>
                         <div>
-                            <Typography sx={{fontSize: 16}}>
+                            <Typography variant="body1">
                                 Ask to Fix
                             </Typography>
                         </div>
@@ -86,7 +86,7 @@ export default function ExtraStudentOptions(props) {
                             </IconButton>
                         </div>
                         <div>
-                            <Typography sx={{fontSize: 16}}>
+                            <Typography variant="body1">
                                 Message
                             </Typography>
                         </div>
