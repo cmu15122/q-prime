@@ -387,7 +387,7 @@ exports.post_remove_student = function (req, res) {
         return;
     }
 
-    sockets.remove(id);
+    sockets.remove(id, returnedData);
 
     // TODO, FIXME: Don't write TA added questions to the database or TA manually removed questions
     models.account.findOrCreate({

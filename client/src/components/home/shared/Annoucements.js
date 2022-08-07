@@ -6,7 +6,6 @@ import {
 import {
     Edit, Delete
 } from '@mui/icons-material';
-import Cookies from 'universal-cookie';
 
 import AnnouncementDialogBody from './dialogs/AnnouncementDialogBody';
 import AddDialog from '../../common/dialogs/AddDialog';
@@ -19,14 +18,12 @@ import ItemRow from '../../common/table/ItemRow';
 import HomeService from '../../../services/HomeService';
 import { socketSubscribeTo } from '../../../services/SocketsService';
 
-const cookies = new Cookies();
-
-function createData(id, content, markedRead) {
-    return { id, content, markedRead };
+function createData(id, content) {
+    return { id, content };
 }
 
 export default function Announcements(props) {
-    const { theme, queueData } = props
+    const { theme, queueData } = props;
 
     const [selectedRow, setSelectedRow] = useState();
     const [rows, setRows] = useState([]);
@@ -34,12 +31,10 @@ export default function Announcements(props) {
     useEffect(() => {
         socketSubscribeTo("addAnnouncement", (data) => {
             let announcement = data.announcement;
-            let readCookies = cookies.get('announcements');
 
             let newAnnouncement = createData(
                 announcement.id,
-                announcement.content,
-                readCookies && readCookies[announcement.id]
+                announcement.content
             );
 
             setRows(rows => [...rows.filter(p => p.id !== announcement.id), newAnnouncement]);
@@ -48,17 +43,10 @@ export default function Announcements(props) {
         socketSubscribeTo("updateAnnouncement", (data) => {
             let id = data.updatedId;
             let announcement = data.announcement;
-            
-            let readCookies = cookies.get('announcements');
-            if (readCookies && (id in readCookies)) {
-                readCookies[id] = false;
-                cookies.set('announcements', readCookies);
-            }
 
             let newAnnouncement = createData(
                 announcement.id,
-                announcement.content,
-                readCookies && readCookies[announcement.id]
+                announcement.content
             );
 
             setRows(rows => [...rows.filter(p => p.id !== id), newAnnouncement]);
@@ -66,13 +54,6 @@ export default function Announcements(props) {
 
         socketSubscribeTo("deleteAnnouncement", (data) => {
             let id = data.deletedId;
-            
-            let readCookies = cookies.get('announcements');
-            if (readCookies && (id in readCookies)) {
-                readCookies[id] = false;
-                cookies.set('announcements', readCookies);
-            }
-
             setRows(rows => [...rows.filter(p => p.id !== id)]);
         });
     }, []);
@@ -84,14 +65,11 @@ export default function Announcements(props) {
     }, [queueData]);
 
     const updateAnnouncements = (newAnnouncements) => {
-        const readCookies = cookies.get('announcements');
-
         let newRows = [];
         newAnnouncements.forEach (announcement => {
             newRows.push(createData(
                 announcement.id, 
-                announcement.content,
-                readCookies && readCookies[announcement.id]
+                announcement.content
             ));
         });
         setRows(newRows);
@@ -159,24 +137,8 @@ export default function Announcements(props) {
         });
     };
 
-    /** 
-     * Using cookies to mark an announcement as read
-     * FIXME: Unused for now
-     */
-    // const handleMarkRead = () => {
-    //     let readCookies = cookies.get('announcements');
-    //     if (!readCookies) {
-    //         readCookies = {};
-    //     }
-
-    //     readCookies[selectedRow['id']] = true;
-    //     cookies.set('announcements', readCookies);
-
-    //     selectedRow['markedRead'] = true;
-    // };
-
     return (
-        <div>
+        <div style={{ paddingTop: "10px" }}>
             <BaseCard>
                 <CardActions style={{ justifyContent: "space-between" }}>
                     <Typography sx={{ fontWeight: 'bold', ml: 2, mt: 1 }} variant="h5" gutterBottom>

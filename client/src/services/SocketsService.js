@@ -24,8 +24,16 @@ export const socketSubscribeTo = (emission, callback) => {
     if (!socket) {
         initiateSocket();
     }
-    
+
     socket.on(emission, (data) => {
         callback(data);
     });
+};
+
+export const socketUnsubscribeFrom = (emission) => {
+    if (!socket) {
+        return;
+    }
+
+    socket.off(emission);
 };

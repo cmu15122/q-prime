@@ -37,7 +37,7 @@ export default function QueueStats(props) {
                     justifyContent="space-evenly"
                     sx={{ pt: 1 }}
                 >
-                    <div textAlign="center">
+                    <div>
                         <Typography variant="h5" fontWeight="bold" sx={{ mt: 2 }}>The queue is</Typography>
                         {
                             queueFrozen ? 

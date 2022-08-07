@@ -146,14 +146,15 @@ exports.add = function(studentData) {
     });
 }
 
-exports.remove = function(studentAndrewID) {
+exports.remove = function(studentAndrewID, studentData) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");
         return;
     }
 
     sio.emit("remove", {
-        andrewID: studentAndrewID
+        andrewID: studentAndrewID,
+        studentData: studentData
     });
 }
 
