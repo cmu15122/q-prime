@@ -1,23 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
-import YourEntry from './YourEntry';
-import RemoveQOverlay from './RemoveQConfirm';
-import TAHelpingOverlay from './TAHelpingOverlay';
-import UpdateQuestionOverlay from './UpdateQuestionOverlay';
-import MessageRespond from './MessageOverlay'
-import AskQuestion from '../shared/AskQuestion';
+import YourEntry from "./YourEntry";
+import RemoveQOverlay from "./RemoveQConfirm";
+import TAHelpingOverlay from "./TAHelpingOverlay";
+import UpdateQuestionOverlay from "./UpdateQuestionOverlay";
+import MessageRespond from "./MessageOverlay"
+import AskQuestion from "../shared/AskQuestion";
 
-import HomeService from '../../../services/HomeService';
-import { StudentStatusValues } from '../../../services/StudentStatus';
-import { socketSubscribeTo } from '../../../services/SocketsService';
+import HomeService from "../../../services/HomeService";
+import { StudentStatusValues } from "../../../services/StudentStatus";
+import { socketSubscribeTo, socketUnsubscribeFrom } from "../../../services/SocketsService";
 
 function StudentMain(props) {
     const { theme, queueData, studentData } = props;
 
-    const [questionValue, setQuestionValue] = useState('');
-    const [locationValue, setLocationValue] = useState('');
-    const [topicValue, setTopicValue] = useState('');
-    const [messageValue, setMessageValue] = useState('');
+    const [questionValue, setQuestionValue] = useState("");
+    const [locationValue, setLocationValue] = useState("");
+    const [topicValue, setTopicValue] = useState("");
+    const [messageValue, setMessageValue] = useState("");
 
     const [removeConfirm, setRemoveConfirm] = useState(false);
 
@@ -33,7 +33,9 @@ function StudentMain(props) {
         } else if (Notification.permission !== "granted") {
             Notification.requestPermission();
         }
+    }, []);
 
+    useEffect(() => {
         socketSubscribeTo("add", (res) => {
             let studentData = res.studentData;
             if (studentData.andrewID === queueData.andrewID) {
@@ -80,11 +82,19 @@ function StudentMain(props) {
                 });
             }
         });
-    }, []);
+
+        return () => {
+            socketUnsubscribeFrom("add");
+            socketUnsubscribeFrom("help");
+            socketUnsubscribeFrom("unhelp");
+            socketUnsubscribeFrom("message");
+            socketUnsubscribeFrom("remove");
+        };
+    }, [queueData.andrewID]);
 
     useEffect(() => {
         // Check if student is on queue
-        if (studentData.position !== -1) {
+        if (studentData && studentData.position !== -1) {
             setStudentValues(studentData);
         }
     }, [studentData]);
