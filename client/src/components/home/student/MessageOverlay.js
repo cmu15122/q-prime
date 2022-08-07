@@ -1,7 +1,7 @@
-import React from 'react';
+import React from "react";
 import {
     Button, Dialog, DialogContent, Stack, TextField, Typography, 
-} from '@mui/material'
+} from "@mui/material"
 
 export default function MessageOverlay(props) {
     const { open, message, handleClose, helpingTAInfo, removeFromQueue, dismissMessage } = props
@@ -14,7 +14,7 @@ export default function MessageOverlay(props) {
     return (
         <Dialog open={open} maxWidth="sm" fullWidth>
             <DialogContent>
-                <Typography variant='h5' sx={{fontWeight: 'bold'}}>
+                <Typography variant="h5" sx={{fontWeight: "bold"}}>
                     TA {helpingTAInfo?.taName} sent you a message
                 </Typography>
 
@@ -32,7 +32,7 @@ export default function MessageOverlay(props) {
                         This answered my question<br/>(leave queue)
                     </Button>
                     <Button variant="contained" color="info" onClick={dismissMessage} sx={{ m: 0.5 }}>
-                        This didn't answer my question<br/>(stay on the queue)
+                        This didn"t answer my question<br/>(stay on the queue)
                     </Button>
                 </Stack>
             </DialogContent>

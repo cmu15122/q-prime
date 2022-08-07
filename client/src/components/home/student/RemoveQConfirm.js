@@ -1,7 +1,7 @@
-import * as React from 'react';
+import * as React from "react";
 import {
     Button, Dialog, DialogContent, Stack, Typography,
-} from '@mui/material';
+} from "@mui/material";
 
 export default function RemoveQOverlay(props) {
     const { open, handleClose, removeFromQueue } = props;
@@ -9,10 +9,10 @@ export default function RemoveQOverlay(props) {
     return (
         <Dialog open={open} onClose={handleClose}>
             <DialogContent>
-                <Typography variant="h5" sx={{ pb: 3, fontWeight: 'bold', textAlign: 'center' }}>
+                <Typography variant="h5" sx={{ pb: 3, fontWeight: "bold", textAlign: "center" }}>
                     Remove your question from the queue?
                 </Typography>
-                <Typography sx={{ textAlign: 'center' }}>
+                <Typography sx={{ textAlign: "center" }}>
                     You will forfeit your position on the queue.
                 </Typography>
                 <Stack direction="row" spacing={4} sx={{pt: 4}} justifyContent="center">
