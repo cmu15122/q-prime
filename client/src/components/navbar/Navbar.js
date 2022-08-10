@@ -9,7 +9,7 @@ import { styled } from '@mui/material/styles';
 
 import OHQueueHeader from './OHQueueHeader';
 import LoggedInAs from './LoggedInAs';
-import GoogleLogin from './GoogleLogin';
+import GoogleLogin from '../common/GoogleLogin';
 import AlertOnLogout from './dialogs/AlertOnLogout';
 
 import HomeService from '../../services/HomeService';

@@ -84,7 +84,7 @@ export default function Announcements(props) {
     }, []);
 
     useEffect(() => {
-        if (queueData != null) {
+        if (queueData != null && queueData.announcements != null) {
             updateAnnouncements(queueData.announcements);
         }
     }, [queueData]);
