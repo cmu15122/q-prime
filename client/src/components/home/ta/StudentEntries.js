@@ -69,12 +69,21 @@ export default function StudentEntries(props) {
             });
         });
 
+        socketSubscribeTo("approveCooldown", (res) => {
+            setStudents(students => {
+                let ind = students.findIndex(p => (p.andrewID === res.andrewID));
+                students[ind] = res.data.studentData;
+                return [...students];
+            });
+        });
+
         return () => {
             socketUnsubscribeFrom("help");
             socketUnsubscribeFrom("unhelp");
             socketUnsubscribeFrom("add");
             socketUnsubscribeFrom("message");
             socketUnsubscribeFrom("dismissMessage");
+            socketUnsubscribeFrom("approveCooldown");
         };
     }, []);
 

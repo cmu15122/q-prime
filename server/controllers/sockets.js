@@ -188,3 +188,17 @@ exports.dismiss_message = function(studentData) {
         }
     });
 }
+
+exports.approveCooldown = function(studentData) {
+    if (!sio) {
+        console.log("ERROR: Socket.io is not initialized yet");
+        return;
+    }
+
+    sio.emit("approveCooldown", {
+        andrewID: studentData.andrewID,
+        data: {
+            studentData: studentData
+        }
+    });
+}

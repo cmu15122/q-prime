@@ -601,7 +601,11 @@ exports.post_approve_cooldown_override = function (req, res) {
         return
     }
 
-    ohq.unsetCooldownViolation(id)
+    ohq.unsetCooldownViolation(id);
+
+    let student = ohq.getData(id);
+    let studentEntryData = buildStudentEntryData(student);
+    sockets.approveCooldown(studentEntryData);
 
     res.status(200)
     res.json({ message: "approved cooldown violation" })

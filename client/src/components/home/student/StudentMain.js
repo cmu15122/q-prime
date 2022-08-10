@@ -66,6 +66,10 @@ function StudentMain(props) {
                 setStatus(StudentStatusValues.RECEIVED_MESSAGE);
                 setMessageValue(res.data.studentData.message);
                 setHelpingTAInfo(res.data.taData);
+
+                new Notification("You've been messaged by a TA", {
+                    "requireInteraction": true
+                });
             }
         });
 
@@ -83,12 +87,24 @@ function StudentMain(props) {
             }
         });
 
+        socketSubscribeTo("approveCooldown", (res) => {
+            if (res.andrewID === queueData.andrewID) {
+                setStatus(res.data.studentData.status);
+                setFrozen(res.data.studentData.isFrozen);
+
+                new Notification("Your entry been approved by a TA", {
+                    "requireInteraction": true
+                });
+            }
+        });
+
         return () => {
             socketUnsubscribeFrom("add");
             socketUnsubscribeFrom("help");
             socketUnsubscribeFrom("unhelp");
             socketUnsubscribeFrom("message");
             socketUnsubscribeFrom("remove");
+            socketUnsubscribeFrom("approveCooldown");
         };
     }, [queueData.andrewID]);
 
