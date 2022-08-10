@@ -26,8 +26,10 @@ function GoogleLogin(props) {
                     }
                 });
                 const body = await res.json();
-                setCookie('user', JSON.stringify(body));
-                window.location.reload();
+                if (res.status === 200) {
+                    setCookie('user', JSON.stringify(body));
+                    window.location.reload();
+                }
             }
         });
 

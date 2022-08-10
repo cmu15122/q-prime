@@ -33,6 +33,7 @@ exports.post_login = async (req, res) => {
     } else if (adminSettings.currSem == null) {
         res.status(500);
         res.json({ message: "Queue has not been initialized; must log in with owner email" });
+        return;
     }
 
     models.account.findOrCreate({ 
