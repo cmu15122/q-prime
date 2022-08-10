@@ -4,6 +4,9 @@ class HomeDataService {
   getAll() {
     return http.get("/");
   }
+  login(data) {
+    return http.post("/login", data);
+  }
   freezeQueue() {
     return http.post("/freezeQueue");
   }
