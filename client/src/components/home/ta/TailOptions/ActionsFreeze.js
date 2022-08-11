@@ -1,24 +1,23 @@
-import * as React from 'react';
 import {
-  Button, Toolbar
-} from '@mui/material'
+  Button, Stack
+} from '@mui/material';
 
 import PersistentOptions from './PersistentOptions';
 
 export default function ActionsFreeze(props) {
+    const {
+        index, handleClickUnfreeze
+    } = props;
 
-  const {
-    theme, student, index, isHelping, setIsHelping, helpIdx,
-    removeRef, confirmRemove, handleRemoveButton, handleClickHelp, handleClickUnfreeze
-  } = props
-
-  return (
-    <Toolbar sx={{justifyContent:'flex-end', justifySelf: 'flex-end'}}>
-        <div>
-            <Button color="unfreeze" variant="contained" onClick={() => handleClickUnfreeze(index)} sx={{m:0.5}}>Unfreeze</Button>
-        </div>
-        {PersistentOptions(props)}
-
-    </Toolbar>
-  )
+    return (
+        <Stack
+            direction={{ xs: "column", sm: "row" }}
+            sx={{ mt: { xs: 1, sm: 0 }, alignItems: 'center', justifyContent: 'flex-end' }}
+        >
+            <Button color="unfreeze" variant="contained" onClick={() => handleClickUnfreeze(index)} sx={{ m: 0.5 }}>
+                Unfreeze
+            </Button>
+            {PersistentOptions(props)}
+        </Stack>
+    );
 }

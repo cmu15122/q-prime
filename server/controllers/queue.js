@@ -316,7 +316,8 @@ const StudentStatus = Object.freeze({
     FIXING_QUESTION: 2,
     FROZEN: 3,
     COOLDOWN_VIOLATION: 4,
-    ERROR: 5
+    RECEIVED_MESSAGE: 5,
+    ERROR: -1
 });
 
 /**
@@ -333,7 +334,8 @@ const StudentStatus = Object.freeze({
  *      taAndrewID: string,
  *      helpTime: Moment object,
  *      isFrozen: bool,
- *      numAskedToFix: int
+ *      numAskedToFix: int,
+ *      message: string
  * }
  */
 
@@ -366,7 +368,8 @@ class OHQueue {
             taAndrewID: null,
             helpTime: null,
             isFrozen: false,
-            numAskedToFix: 0
+            numAskedToFix: 0,
+            message: ""
         }
         this.queue.addLast(data);
     }
@@ -513,6 +516,30 @@ class OHQueue {
         if (node != null) {
             node.data.status = StudentStatus.WAITING;
             node.data.isFrozen = false;
+        }
+    }
+
+    /** If found, gives the given student a message */
+    receiveMessage(andrewID, taID, taAndrewID, message) {
+        var node = this.queue.find(x => x.andrewID == andrewID);
+        if (node != null) {
+            node.data.status = StudentStatus.RECEIVED_MESSAGE;
+            node.data.message = message;
+            node.data.isFrozen = false;
+            node.data.taID = taID;
+            node.data.taAndrewID = taAndrewID;
+        }
+    }
+
+    /** If found, unsets the student with the given id from message reception */
+    dismissMessage(andrewID) {
+        var node = this.queue.find(x => x.andrewID == andrewID);
+        if (node != null) {
+            node.data.status = StudentStatus.WAITING;
+            node.data.isFrozen = false;
+            node.data.message = null;
+            node.data.taID = null;
+            node.data.taAndrewID = null;
         }
     }
 
