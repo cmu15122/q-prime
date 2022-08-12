@@ -302,6 +302,9 @@ exports.post_add_question = function (req, res) {
                     exit_time: {
                         [Sequelize.Op.gte]: moment.tz(new Date(), "America/New_York").subtract(rejoinTime, 'minutes').toDate(),
                     },
+                    help_time: {
+                        [Sequelize.Op.ne]: null,
+                    },
                     student_id: student.student_id
                 }
             }),
