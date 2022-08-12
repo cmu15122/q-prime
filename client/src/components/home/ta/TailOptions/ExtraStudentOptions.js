@@ -8,7 +8,7 @@ import HomeService from '../../../../services/HomeService';
 import MessageDialog from '../dialogs/MessageDialog';
 
 export default function ExtraStudentOptions(props) {
-    const { student } = props
+    const { student, handleClickUpdateQ, index } = props
 
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
@@ -24,11 +24,11 @@ export default function ExtraStudentOptions(props) {
     };
 
   function handleFix() {
-    console.log('handling fix')
     HomeService.taRequestUpdateQ(JSON.stringify({
         andrewID: student.andrewID
     }));
-    console.log(`${student.name} is fixing`);
+    handleClickUpdateQ(index);
+    console.log(student.status);
   }
 
     const handleMessage = () => {

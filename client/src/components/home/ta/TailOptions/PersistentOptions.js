@@ -10,7 +10,8 @@ import ExtraStudentOptions from './ExtraStudentOptions';
 
 export default function PersistentOptions(props) {
     const {
-        student, removeRef, confirmRemove, handleRemoveButton
+        student, removeRef, confirmRemove, handleRemoveButton,
+        handleClickUpdateQ, index
     } = props;
 
     return (
@@ -23,7 +24,7 @@ export default function PersistentOptions(props) {
                     (<IconButton color="error"><Delete/></IconButton>)
                 }
             </div>
-            <ExtraStudentOptions student={student} ></ExtraStudentOptions>
+            <ExtraStudentOptions student={student} handleClickUpdateQ={handleClickUpdateQ} index={index} ></ExtraStudentOptions>
         </Toolbar>
     );
 }

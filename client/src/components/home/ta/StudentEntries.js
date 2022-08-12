@@ -64,6 +64,16 @@ export default function StudentEntries(props) {
             setStudents(students => {
                 let ind = students.findIndex(p => (p.andrewID === res.studentId));
                 students[ind].question = res.content;
+                students[ind]['status'] = StudentStatusValues.WAITING
+                return [...students];
+            });
+        })
+
+        socketSubscribeTo("updateQRequest", (res) => {
+            setStudents(students => {
+                let ind = students.findIndex(p => (p.andrewID === res.andrewID));
+                console.log(ind)
+                students[ind]['status'] = StudentStatusValues.FIXING_QUESTION
                 return [...students];
             });
         })

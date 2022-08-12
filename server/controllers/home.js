@@ -512,7 +512,6 @@ exports.post_unhelp_student = function (req, res) {
 }
 
 exports.post_update_question = function (req, res) {
-    console.log('AA CLOSING updateQ reached');
     if (!req.user || !req.user.isAuthenticated) {
         res.status(400);
         res.json({ message: 'User data not passed to server' });

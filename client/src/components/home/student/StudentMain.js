@@ -89,7 +89,7 @@ function StudentMain(props) {
             }
         });
     }, []);
-
+    
     // check if student on queue on page load
     useEffect(() => {
         if (studentData.position !== -1) {
@@ -118,10 +118,6 @@ function StudentMain(props) {
             }
         });
     };
-
-    const handleCloseUpdateQOverlay = () => {
-        setStatus(StudentStatusValues.WAITING);
-    }
 
     const dismissMessage = () => {
         HomeService.dismissMessage(
@@ -194,7 +190,7 @@ function StudentMain(props) {
 
             <UpdateQuestionOverlay
                 open={status === StudentStatusValues.FIXING_QUESTION}
-                handleClose={handleCloseUpdateQOverlay}
+                handleClose={() => {setStatus(StudentStatusValues.WAITING);}}
                 questionValue = {questionValue}
                 setQuestionValue={setQuestionValue}
                 studentId = {studentData.andrewID}
