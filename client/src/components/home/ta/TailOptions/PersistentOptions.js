@@ -23,7 +23,7 @@ export default function PersistentOptions(props) {
                     (<IconButton color="error"><Delete/></IconButton>)
                 }
             </div>
-            <ExtraStudentOptions student={student}></ExtraStudentOptions>
+            <ExtraStudentOptions student={student} ></ExtraStudentOptions>
         </Toolbar>
     );
 }

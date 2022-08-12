@@ -60,6 +60,14 @@ export default function StudentEntries(props) {
             });
         });
 
+        socketSubscribeTo("updateQuestion", (res) => {
+            setStudents(students => {
+                let ind = students.findIndex(p => (p.andrewID === res.studentId));
+                students[ind].question = res.content;
+                return [...students];
+            });
+        })
+
         socketSubscribeTo("message", (res) => {
             setStudents(students => {
                 let ind = students.findIndex(p => (p.andrewID === res.andrewID));

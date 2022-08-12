@@ -49,12 +49,23 @@ function StudentMain(props) {
             }
         });
 
+        // console.log(studentData)
         socketSubscribeTo("unhelp", (res) => {
             if (res.andrewID === queueData.andrewID) {
                 setStatus(StudentStatusValues.WAITING);
                 setHelpingTAInfo(null);
             }
         });
+
+        socketSubscribeTo("updateQRequest", (res) => {
+            if (res.andrewID === queueData.andrewID) {
+                setFrozen(true);
+                setStatus(StudentStatusValues.FIXING_QUESTION)
+                new Notification("Please update your question", {
+                    "requireInteraction": true
+                });
+            }
+        })
 
         socketSubscribeTo("message", (res) => {
             if (res.andrewID === queueData.andrewID) {
@@ -107,6 +118,10 @@ function StudentMain(props) {
             }
         });
     };
+
+    const handleCloseUpdateQOverlay = () => {
+        setStatus(StudentStatusValues.WAITING);
+    }
 
     const dismissMessage = () => {
         HomeService.dismissMessage(
@@ -179,7 +194,10 @@ function StudentMain(props) {
 
             <UpdateQuestionOverlay
                 open={status === StudentStatusValues.FIXING_QUESTION}
+                handleClose={handleCloseUpdateQOverlay}
+                questionValue = {questionValue}
                 setQuestionValue={setQuestionValue}
+                studentId = {studentData.andrewID}
             />
 
             <MessageRespond 
