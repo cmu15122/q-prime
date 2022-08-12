@@ -5,7 +5,7 @@ import config from '../../config/config.json';
 
 function GoogleLogin(props) {
     const { queueData } = props
-    const [cookies, setCookie] = useCookies(['user']);
+    const [, setCookie] = useCookies(['user']);
     const divRef = useRef(null);
 
     useEffect(() => {
@@ -35,7 +35,7 @@ function GoogleLogin(props) {
             divRef.current,
             { theme: "outline", size: "large" }
         ); 
-    }, [queueData, setCookie, divRef.current]);
+    }, [queueData, setCookie]);
 
     return (
         <div ref={divRef} id="signInDiv"></div>

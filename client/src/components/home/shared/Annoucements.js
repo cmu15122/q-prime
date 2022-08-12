@@ -17,8 +17,8 @@ import { socketSubscribeTo } from '../../../services/SocketsService';
 
 const cookies = new Cookies();
 
-function createData(id, header, content, markedRead) {
-    return { id, header, content, markedRead };
+function createData(id, content, markedRead) {
+    return { id, content, markedRead };
 }
 
 export default function Announcements(props) {
@@ -43,13 +43,12 @@ export default function Announcements(props) {
             let readCookies = cookies.get('announcements');
 
             let newAnnouncement = createData(
-                announcement.id, 
-                announcement.header, 
+                announcement.id,
                 announcement.content,
                 readCookies && readCookies[announcement.id]
             );
 
-            setRows(rows => [...rows, newAnnouncement]);
+            setRows(rows => [...rows.filter(p => p.id !== announcement.id), newAnnouncement]);
         });
 
         socketSubscribeTo("updateAnnouncement", (data) => {
@@ -57,14 +56,13 @@ export default function Announcements(props) {
             let announcement = data.announcement;
             
             let readCookies = cookies.get('announcements');
-            if (readCookies && readCookies.hasOwn(id)) {
+            if (readCookies && (id in readCookies)) {
                 readCookies[id] = false;
                 cookies.set('announcements', readCookies);
             }
 
             let newAnnouncement = createData(
-                announcement.id, 
-                announcement.header, 
+                announcement.id,
                 announcement.content,
                 readCookies && readCookies[announcement.id]
             );
@@ -76,7 +74,7 @@ export default function Announcements(props) {
             let id = data.deletedId;
             
             let readCookies = cookies.get('announcements');
-            if (readCookies && readCookies.hasOwn(id)) {
+            if (readCookies && (id in readCookies)) {
                 readCookies[id] = false;
                 cookies.set('announcements', readCookies);
             }
@@ -137,7 +135,6 @@ export default function Announcements(props) {
         newAnnouncements.forEach (announcement => {
             newRows.push(createData(
                 announcement.id, 
-                announcement.header, 
                 announcement.content,
                 readCookies && readCookies[announcement.id]
             ));

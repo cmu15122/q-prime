@@ -15,9 +15,6 @@ export default function OpenAnnouncement(props) {
             fullWidth
         >
             <DialogContent>
-                <Typography sx={{ pb: 3, fontWeight: 'bold', fontSize: '22px', textAlign: 'center' }}>
-                    {announcementInfo?.header}
-                </Typography>
                 <Typography sx={{ textAlign: 'center' }}>
                     {announcementInfo?.content}
                 </Typography>

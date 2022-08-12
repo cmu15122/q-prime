@@ -55,11 +55,9 @@ export default function Navbar(props) {
     };
 
     useEffect(() => {
-        if (isHome) {
-            socketSubscribeTo("queueFrozen", (data) => {
-                setQueueFrozen(data.isFrozen);
-            });
-        }
+        socketSubscribeTo("queueFrozen", (data) => {
+            setQueueFrozen(data.isFrozen);
+        });
     }, []);
 
     useEffect(() => {

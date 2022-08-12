@@ -180,12 +180,33 @@ exports.remove = function(studentAndrewID) {
     });
 }
 
-// Example function, delete when done
-exports.update = function() {
-    // Emitting a new message. Will be consumed by the client
-    const response = new Date();
-    sio.emit("update", response);
+exports.message = function(studentData, taAccount) {
+    if (!sio) {
+        console.log("ERROR: Socket.io is not initialized yet");
+        return;
+    }
 
-    // We can emit things to certain rooms only, i.e.
-    // sio.to(student_room).emit("update", response);
-};
+    sio.emit("message", {
+        andrewID: studentData.andrewID,
+        data: {
+            studentData: studentData,
+            taData: {
+                taName: taAccount.name
+            }
+        }
+    });
+}
+
+exports.dismiss_message = function(studentData) {
+    if (!sio) {
+        console.log("ERROR: Socket.io is not initialized yet");
+        return;
+    }
+
+    sio.to(ta_room).emit("dismissMessage", {
+        andrewID: studentData.andrewID,
+        data: {
+            studentData: studentData
+        }
+    });
+}
