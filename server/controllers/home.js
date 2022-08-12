@@ -364,6 +364,37 @@ exports.post_update_question = function (req, res) {
     respond(req, res, 'Question updated successfully', studentData, 200);
 }
 
+exports.post_taRequestUpdateQ = function (req, res) {
+    console.log('post request updateQ reached')
+    if (!req.user || !req.user.isAuthenticated) {
+        res.status(400)
+        res.json({ message: 'User data not passed to server' })
+        return
+    }
+    else if (!req.user.isTA) {
+        console.log(req.user)
+        res.status(400)
+        res.json({ message: 'This request was not made by a TA' })
+        return
+    }
+
+    let id = req.body.andrewID
+
+    if (ohq.getPosition(id) === -1) {
+        res.status(400)
+        res.json({ message: 'Student not on the queue' })
+        return
+    }
+    if (ohq.getStatus(id) === StudentStatus.FIXING_QUESTION) {
+        res.status(400)
+        res.json({ message: 'Student is already fixing question' })
+        return
+    }
+
+    sockets.updateQRequest(id);
+    respond(req, res, 'Update question request sent successfully', req.body, 200);
+}
+
 exports.post_remove_student = function (req, res) {
     if (!req.user || !req.user.isAuthenticated) {
         res.status(400);

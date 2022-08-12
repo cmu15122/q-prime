@@ -109,10 +109,21 @@ exports.updateQuestion = function(id, question) {
         console.log("ERROR: Socket.io is not initialized yet");
         return;
     }
-    console.log('emitting: ');
+    
     sio.to(ta_room).emit("updateQuestion", {
         studentId: id, 
         content: question
+    });
+}
+
+exports.updateQRequest = function(id) {
+    if (!sio) {
+        console.log("ERROR: Socket.io is not initialized yet");
+        return;
+    }   
+    // console.log('!!! sending update req (sockets)');
+    sio.emit("updateQRequest", {
+        andrewID: id
     });
 }
 

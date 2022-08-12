@@ -9,6 +9,7 @@ router.post('/freezeQueue', home.post_freeze_queue);
 router.post('/unfreezeQueue', home.post_unfreeze_queue);
 router.post('/addQuestion', home.post_add_question);
 router.post('/updateQuestion', home.post_update_question);
+router.post('/taRequestUpdateQ', home.post_taRequestUpdateQ);
 router.post('/removeStudent', home.post_remove_student);
 router.post('/helpStudent', home.post_help_student);
 router.post('/unhelpStudent', home.post_unhelp_student);
