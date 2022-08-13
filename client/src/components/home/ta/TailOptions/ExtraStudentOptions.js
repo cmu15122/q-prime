@@ -23,13 +23,13 @@ export default function ExtraStudentOptions(props) {
         setAnchorEl(null);
     };
 
-  function handleFix() {
-    HomeService.taRequestUpdateQ(JSON.stringify({
-        andrewID: student.andrewID
-    }));
-    handleClickUpdateQ(index);
-    console.log(student.status);
-  }
+    function handleFix() {
+        HomeService.taRequestUpdateQ(JSON.stringify({
+            andrewID: student.andrewID
+        }));
+        handleClickUpdateQ(index);
+        console.log('Clicked update -- Status: ', student.status);
+    }
 
     const handleMessage = () => {
         setOpenMessage(true);

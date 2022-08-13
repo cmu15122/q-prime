@@ -62,7 +62,7 @@ export default function StudentEntries(props) {
 
         socketSubscribeTo("updateQuestion", (res) => {
             setStudents(students => {
-                let ind = students.findIndex(p => (p.andrewID === res.studentId));
+                let ind = students.findIndex(p => (p.andrewID === res.andrewID));
                 students[ind].question = res.content;
                 students[ind]['status'] = StudentStatusValues.WAITING
                 return [...students];

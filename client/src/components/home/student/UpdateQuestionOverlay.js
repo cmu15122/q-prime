@@ -8,7 +8,7 @@ import {
 import HomeService from '../../../services/HomeService';
 
 export default function UpdateQuestionOverlay(props) {
-    const { open, handleClose, questionValue, setQuestionValue, studentId } = props
+    const { open, handleClose, questionValue, setQuestionValue, andrewID } = props
 
     let question = questionValue;
 
@@ -17,7 +17,7 @@ export default function UpdateQuestionOverlay(props) {
         console.log('q: ', questionValue);
         HomeService.updateQuestion(
             JSON.stringify({
-                id: studentId, 
+                id: andrewID, 
                 content: questionValue
             })
         ).then(() => {

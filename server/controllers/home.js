@@ -517,7 +517,7 @@ exports.post_update_question = function (req, res) {
         res.json({ message: 'User data not passed to server' });
         return;
     }
-    // console.log(req.body);
+
     let id = req.user.andrewID;
     let newQuestion = req.body.content;
     let pos = ohq.getPosition(id);
@@ -539,7 +539,7 @@ exports.post_update_question = function (req, res) {
     studentData.question = newQuestion
 
     ohq.unsetFixQuestion(id);
-    sockets.updateQuestion(id, req.body.content);
+    sockets.updateQuestion(studentData, req.body.content);
     respond(req, res, 'Question updated successfully', studentData, 200);
 }
 
@@ -568,9 +568,11 @@ exports.post_taRequestUpdateQ = function (req, res) {
         res.json({ message: 'Student is already fixing question' })
         return
     }
-
+    
+    let studentData = ohq.getData(id);
+    
     ohq.setFixQuestion(id);
-    sockets.updateQRequest(id);
+    sockets.updateQRequest(studentData);
     respond(req, res, 'Update question request sent successfully', req.body, 200);
 }
 

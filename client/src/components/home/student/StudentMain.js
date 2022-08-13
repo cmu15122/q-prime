@@ -49,7 +49,6 @@ function StudentMain(props) {
             }
         });
 
-        // console.log(studentData)
         socketSubscribeTo("unhelp", (res) => {
             if (res.andrewID === queueData.andrewID) {
                 setStatus(StudentStatusValues.WAITING);
@@ -193,7 +192,7 @@ function StudentMain(props) {
                 handleClose={() => {setStatus(StudentStatusValues.WAITING);}}
                 questionValue = {questionValue}
                 setQuestionValue={setQuestionValue}
-                studentId = {studentData.andrewID}
+                andrewID = {studentData.andrewID}
             />
 
             <MessageRespond 
