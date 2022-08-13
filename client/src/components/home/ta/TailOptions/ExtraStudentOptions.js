@@ -3,11 +3,12 @@ import { Divider, Menu, MenuItem, IconButton, Typography } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { Help } from '@mui/icons-material';
 import ChatIcon from '@mui/icons-material/Chat';
+import HomeService from '../../../../services/HomeService';
 
 import MessageDialog from '../dialogs/MessageDialog';
 
 export default function ExtraStudentOptions(props) {
-    const { student } = props
+    const { student, handleClickUpdateQ, index } = props
 
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
@@ -23,8 +24,11 @@ export default function ExtraStudentOptions(props) {
     };
 
     function handleFix() {
-        //TODO: TIE INTO SERVER
-        console.log(`${student.name} is fixing`);
+        HomeService.taRequestUpdateQ(JSON.stringify({
+            andrewID: student.andrewID
+        }));
+        handleClickUpdateQ(index);
+        console.log('Clicked update -- Status: ', student.status);
     }
 
     const handleMessage = () => {

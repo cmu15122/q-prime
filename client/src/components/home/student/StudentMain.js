@@ -56,6 +56,16 @@ function StudentMain(props) {
             }
         });
 
+        socketSubscribeTo("updateQRequest", (res) => {
+            if (res.andrewID === queueData.andrewID) {
+                setFrozen(true);
+                setStatus(StudentStatusValues.FIXING_QUESTION)
+                new Notification("Please update your question", {
+                    "requireInteraction": true
+                });
+            }
+        })
+
         socketSubscribeTo("message", (res) => {
             if (res.andrewID === queueData.andrewID) {
                 setStatus(StudentStatusValues.RECEIVED_MESSAGE);
@@ -78,7 +88,7 @@ function StudentMain(props) {
             }
         });
     }, []);
-
+    
     // check if student on queue on page load
     useEffect(() => {
         if (studentData.position !== -1) {
@@ -179,7 +189,10 @@ function StudentMain(props) {
 
             <UpdateQuestionOverlay
                 open={status === StudentStatusValues.FIXING_QUESTION}
+                handleClose={() => {setStatus(StudentStatusValues.WAITING);}}
+                questionValue = {questionValue}
                 setQuestionValue={setQuestionValue}
+                andrewID = {studentData.andrewID}
             />
 
             <MessageRespond 
