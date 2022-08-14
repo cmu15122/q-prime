@@ -34,6 +34,12 @@ class HomeDataService {
   unhelpStudent(data) {
     return http.post("/unhelpStudent", data);
   }
+  updateQuestion(data) {
+    return http.post("/updateQuestion", data);
+  }
+  taRequestUpdateQ(data) {
+    return http.post("/taRequestUpdateQ", data);
+  }
   messageStudent(data) {
     return http.post("/messageStudent", data);
   }

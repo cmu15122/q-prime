@@ -34,7 +34,6 @@ export default function EntryTails(props) {
             default: return;
         }
     }
-
     return (
         <Stack 
             direction="column"

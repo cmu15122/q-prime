@@ -158,6 +158,28 @@ exports.remove = function(studentAndrewID, studentData) {
     });
 }
 
+exports.updateQuestion = function(studentData, question) {
+    if (!sio) {
+        console.log("ERROR: Socket.io is not initialized yet");
+        return;
+    }
+    
+    sio.to(ta_room).emit("updateQuestion", {
+        andrewID: studentData.andrewID, 
+        content: question
+    });
+}
+
+exports.updateQRequest = function(studentData) {
+    if (!sio) {
+        console.log("ERROR: Socket.io is not initialized yet");
+        return;
+    }   
+    sio.emit("updateQRequest", {
+        andrewID: studentData.andrewID
+    });
+}
+
 exports.message = function(studentData, taAccount) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");

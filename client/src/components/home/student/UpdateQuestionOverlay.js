@@ -1,13 +1,24 @@
 import React from "react";
 import {
-    Button, Dialog, Input, Typography
+    Button, Dialog, Input, Typography,
 } from "@mui/material";
 
+import HomeService from "../../../services/HomeService";
+
 export default function UpdateQuestionOverlay(props) {
-    const { open, questionValue, setQuestionValue } = props;
-    
-    const printAndClose = () => {
-        console.log(questionValue);
+    const { open, handleClose, questionValue, setQuestionValue, andrewID } = props;
+
+    const printAndClose = (event) => {
+        event.preventDefault();
+
+        HomeService.updateQuestion(
+            JSON.stringify({
+                id: andrewID, 
+                content: questionValue
+            })
+        ).then(() => {
+            handleClose();
+        });
     }
 
     return (

@@ -40,6 +40,12 @@ export default function StudentEntry(props) {
         }
     }
 
+    const handleClickUpdateQ = () => {
+        console.log('handleClickUpdateQ reached');
+        student['status'] = StudentStatusValues.FIXING_QUESTION
+        console.log('handleClickUpdateQ done');
+    }
+
     const approveCooldownOverride = () => {
         HomeService.approveCooldownOverride(
             JSON.stringify({
@@ -82,7 +88,8 @@ export default function StudentEntry(props) {
                             handleClickHelp: handleClickHelp,
                             handleClickUnfreeze: handleClickUnfreeze,
                             showCooldownApproval: showCooldownApproval,
-                            approveCooldownOverride: approveCooldownOverride
+                            approveCooldownOverride: approveCooldownOverride,
+                            handleClickUpdateQ: handleClickUpdateQ
                         }
                     )
                 }
