@@ -19,7 +19,7 @@ export default function TAHelpingOverlay(props) {
                 <Typography variant="h6" textAlign="center">You are being helped by {helpingTAInfo?.taName} (TA)!</Typography>
                 {
                     helpingTAInfo?.taZoomUrl && 
-                    <Button sx={{ mt: 3 }}variant="contained" target="_blank" href={addhttp(helpingTAInfo?.taZoomUrl)}>Join Zoom</Button>
+                    <Button sx={{ mt: 3 }} variant="contained" target="_blank" href={addhttp(helpingTAInfo?.taZoomUrl)}>Join Zoom</Button>
                 }
             </DialogContent>
         </Dialog>

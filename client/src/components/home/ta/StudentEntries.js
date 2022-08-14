@@ -14,6 +14,15 @@ export default function StudentEntries(props) {
     const [isHelping, setIsHelping] = useState(false);
     const [helpIdx, setHelpIdx] = useState(-1); // idx of student that you are helping, only valid when isHelping is true
 
+    function updateStudentFromSockets(res) {
+        console.log(res);
+        setStudents(students => {
+            let ind = students.findIndex(p => (p.andrewID === res.andrewID));
+            students[ind] = res.data.studentData;
+            return [...students];
+        });
+    }
+
     useEffect(() => {
         if (!("Notification" in window)) {
             console.log("This browser does not support desktop notification");
@@ -25,80 +34,32 @@ export default function StudentEntries(props) {
             setStudents(res.data);
         });
 
-        socketSubscribeTo("help", (res) => {
-            setStudents(students => {
-                let ind = students.findIndex(p => (p.andrewID === res.andrewID));
-                students[ind] = res.data.studentData;
-                return [...students];
-            });
-        });
-
-        socketSubscribeTo("unhelp", (res) => {
-            setStudents(students => {
-                let ind = students.findIndex(p => (p.andrewID === res.andrewID));
-                students[ind] = res.data.studentData;
-                return [...students];
-            });
-        });
-
         socketSubscribeTo("add", (res) => {
             setStudents(students =>
                 [...students.filter(p => p.andrewID !== res.studentData.andrewID), res.studentData]
             );
-
+                
             new Notification("New Queue Entry", {
                 "body": "Name: " + res.studentData.name + "\n" +
-                    "Andrew ID: " + res.studentData.andrewID + "\n" +
-                    "Topic: " + res.studentData.topic.name
+                "Andrew ID: " + res.studentData.andrewID + "\n" +
+                "Topic: " + res.studentData.topic.name
             });
         });
-
-        socketSubscribeTo("updateQuestion", (res) => {
-            setStudents(students => {
-                let ind = students.findIndex(p => (p.andrewID === res.andrewID));
-                students[ind].question = res.content;
-                students[ind]['status'] = StudentStatusValues.WAITING
-                return [...students];
-            });
-        })
-
-        socketSubscribeTo("updateQRequest", (res) => {
-            setStudents(students => {
-                let ind = students.findIndex(p => (p.andrewID === res.andrewID));
-                console.log(ind)
-                students[ind]['status'] = StudentStatusValues.FIXING_QUESTION
-                return [...students];
-            });
-        })
-
-        socketSubscribeTo("message", (res) => {
-            setStudents(students => {
-                let ind = students.findIndex(p => (p.andrewID === res.andrewID));
-                students[ind] = res.data.studentData;
-                return [...students];
-            });
-        });
-
-        socketSubscribeTo("dismissMessage", (res) => {
-            setStudents(students => {
-                let ind = students.findIndex(p => (p.andrewID === res.andrewID));
-                students[ind] = res.data.studentData;
-                return [...students];
-            });
-        });
-
-        socketSubscribeTo("approveCooldown", (res) => {
-            setStudents(students => {
-                let ind = students.findIndex(p => (p.andrewID === res.andrewID));
-                students[ind] = res.data.studentData;
-                return [...students];
-            });
-        });
+            
+        socketSubscribeTo("help", updateStudentFromSockets);
+        socketSubscribeTo("unhelp", updateStudentFromSockets);
+        socketSubscribeTo("updateQuestion", updateStudentFromSockets);
+        socketSubscribeTo("updateQRequest", updateStudentFromSockets);
+        socketSubscribeTo("message", updateStudentFromSockets);
+        socketSubscribeTo("dismissMessage", updateStudentFromSockets);
+        socketSubscribeTo("approveCooldown", updateStudentFromSockets);
 
         return () => {
+            socketUnsubscribeFrom("add");
             socketUnsubscribeFrom("help");
             socketUnsubscribeFrom("unhelp");
-            socketUnsubscribeFrom("add");
+            socketUnsubscribeFrom("updateQuestion");
+            socketUnsubscribeFrom("updateQRequest");
             socketUnsubscribeFrom("message");
             socketUnsubscribeFrom("dismissMessage");
             socketUnsubscribeFrom("approveCooldown");

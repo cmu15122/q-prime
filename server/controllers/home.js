@@ -523,31 +523,34 @@ exports.post_update_question = function (req, res) {
 
     let id = req.user.andrewID;
     let newQuestion = req.body.content;
-    let pos = ohq.getPosition(id);
-
-    if(!newQuestion) {
+    if (!newQuestion) {
         respond_error(req, res, "Invalid/missing parameters in request", 400);
         return;
     }
-
-    console.log(pos);
-    console.log(req.user.andrewID);
+    
+    let pos = ohq.getPosition(id);
     if (pos === -1) {
-        res.status(400);
-        res.json({ message: 'Student not yet on the queue' });
+        respond_error(req, res, "Student not yet on the queue", 400);
         return;
     }
 
     let studentData = ohq.getData(id);
-    studentData.question = newQuestion
 
+    if (newQuestion == studentData.question) {
+        respond_error(req, res, "Question was not updated! Please be sure you've entered a new question", 400);
+        return;
+    }
+
+    studentData.question = newQuestion;
     ohq.unsetFixQuestion(id);
-    sockets.updateQuestion(studentData, req.body.content);
+
+    let studentEntryData = buildStudentEntryData(studentData);
+    sockets.updateQuestion(studentEntryData);
+
     respond(req, res, 'Question updated successfully', studentData, 200);
 }
 
 exports.post_taRequestUpdateQ = function (req, res) {
-    console.log('post request updateQ reached')
     if (!req.user || !req.user.isAuthenticated) {
         res.status(400)
         res.json({ message: 'User data not passed to server' })
@@ -572,10 +575,12 @@ exports.post_taRequestUpdateQ = function (req, res) {
         return
     }
     
-    let studentData = ohq.getData(id);
-    
     ohq.setFixQuestion(id);
-    sockets.updateQRequest(studentData);
+
+    let studentData = ohq.getData(id);    
+    let studentEntryData = buildStudentEntryData(studentData);
+    sockets.updateQRequest(studentEntryData);
+
     respond(req, res, 'Update question request sent successfully', req.body, 200);
 }
 

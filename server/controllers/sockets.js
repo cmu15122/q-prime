@@ -40,13 +40,12 @@ exports.init = function(server) {
                     socket.join(ta_room);
                 }
             });
-
         });
 
         socket.on("disconnect", () => {
-          console.log(`Client disconnected (${socket.session?.fname} ${socket.session?.lname})`);
-          socket.leave(student_room);
-          socket.leave(ta_room);
+            console.log(`Client disconnected (${socket.session?.name})`);
+            socket.leave(student_room);
+            socket.leave(ta_room);
         });
     });
 };
@@ -158,15 +157,17 @@ exports.remove = function(studentAndrewID, studentData) {
     });
 }
 
-exports.updateQuestion = function(studentData, question) {
+exports.updateQuestion = function(studentData) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");
         return;
     }
     
     sio.to(ta_room).emit("updateQuestion", {
-        andrewID: studentData.andrewID, 
-        content: question
+        andrewID: studentData.andrewID,
+        data: {
+            studentData: studentData
+        }
     });
 }
 
@@ -174,9 +175,13 @@ exports.updateQRequest = function(studentData) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");
         return;
-    }   
+    }
+
     sio.emit("updateQRequest", {
-        andrewID: studentData.andrewID
+        andrewID: studentData.andrewID,
+        data: {
+            studentData: studentData
+        }
     });
 }
 
