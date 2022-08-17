@@ -155,7 +155,7 @@ export default function Announcements(props) {
                 <TableContainer sx={{ maxHeight: "200px"}}>
                     <Table aria-label="topicsTable" sx={{overflow: "scroll" }} stickyHeader>
                         <TableBody>
-                        {rows.map((row, index) => (
+                        {rows.slice().reverse().map((row, index) => (
                             <ItemRow theme={theme} index={index} rowKey={row.id}>
                                 <TableCell component="th" scope="row" sx={{ pl: 3.25}}>
                                     <Typography sx={{ fontWeight: 'bold' }}>
