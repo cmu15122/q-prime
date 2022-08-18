@@ -13,21 +13,37 @@ function createData(topic_id, name) {
 
 let date = new Date();
 
+const FilterGroup = {
+    Location: Symbol("location"),
+    Topic: Symbol("Topic")
+}
+
 export default function FilterOptions(props) {
     const { queueData } = props;
-    const [checked, setChecked] = React.useState([0]);
-    
-    const handleToggle = (value) => () => {
-      const currentIndex = checked.indexOf(value);
-      const newChecked = [...checked];
+    const [filteredLocations, setFilteredLocations] = React.useState([]);
+    const [filteredTopics, setFilteredTopics] = React.useState([]);
+
+    // group definition:
+    // 0 = locations, 1 = topics
+    const handleToggle = (group, value) => () => {
+      const array = group == FilterGroup.Location ? filteredLocations : filteredTopics;
+      const currentIndex = array.indexOf(value);
+      const newChecked = group == FilterGroup.Location ? [...filteredLocations] : [...filteredTopics];
   
       if (currentIndex === -1) {
+        // was unchecked previously
         newChecked.push(value);
       } else {
         newChecked.splice(currentIndex, 1);
       }
-  
-      setChecked(newChecked);
+      
+      if (group == FilterGroup.Location) {
+            setFilteredLocations(newChecked);
+            console.log(newChecked);
+      } else {
+          setFilteredTopics(newChecked);
+          console.log(newChecked);
+      }
     };
 
     const [locations, setLocations] = useState([]);
@@ -85,11 +101,11 @@ export default function FilterOptions(props) {
                     key={value}
                     disablePadding
                 >
-                    <ListItemButton role={undefined} onClick={handleToggle(value)} dense>
+                    <ListItemButton role={undefined} onClick={handleToggle(FilterGroup.Location, value)} dense>
                     <ListItemIcon>
                         <Checkbox
                         edge="start"
-                        checked={checked.indexOf(value) !== -1}
+                        checked={filteredLocations.indexOf(value) !== -1}
                         tabIndex={-1}
                         disableRipple
                         inputProps={{ 'aria-labelledby': labelId }}
@@ -119,11 +135,11 @@ export default function FilterOptions(props) {
                     key={value.id}
                     disablePadding
                 >
-                    <ListItemButton role={undefined} onClick={handleToggle(value.name)} dense>
+                    <ListItemButton role={undefined} onClick={handleToggle(FilterGroup.Topic, value.name)} dense>
                     <ListItemIcon>
                         <Checkbox
                         edge="start"
-                        checked={checked.indexOf(value) !== -1}
+                        checked={filteredTopics.indexOf(value.name) !== -1}
                         tabIndex={-1}
                         disableRipple
                         inputProps={{ 'aria-labelledby': labelId }}
