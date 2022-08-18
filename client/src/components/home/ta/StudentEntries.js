@@ -48,7 +48,7 @@ export default function StudentEntries(props) {
                         horizontal: 'left',
                     }}
                 >
-                    <FilterOptions />
+                    <FilterOptions queueData={queueData}/>
                 </Popover>
             </div>
         )
