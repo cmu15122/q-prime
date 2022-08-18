@@ -10,7 +10,7 @@ export default function ItemRow(props) {
     return (
         <TableRow
             key={rowKey}
-            style={ index % 2 ? { background : theme.palette.background.paper }:{ background : theme.palette.background.default }}
+            style={ index % 2 ? { background : theme.palette.background.paper }:{ background : theme.palette.background.alternatePaper }}
         >
             {children}
         </TableRow>

@@ -4,6 +4,7 @@ import SharedMain from './shared/SharedMain';
 import StudentMain from './student/StudentMain';
 import TAMain from './ta/TAMain';
 import Footer from './Footer';
+import { Container } from '@mui/material';
 
 import { socketSubscribeTo } from '../../services/SocketsService';
 
@@ -52,7 +53,7 @@ function HomeMain (props) {
     }, [isAuthenticated, isTA, isAdmin, queueFrozen, queueData, studentData, theme]);
 
     return (
-      <div style={{backgroundColor: theme.palette.background.default}}>
+      <Container sx={{ display: "flex", minHeight: "100vh", flexDirection: "column"}}>
           <SharedMain
             theme={theme}
             queueData={queueData}
@@ -61,7 +62,7 @@ function HomeMain (props) {
           />
           {mainPage}
           <Footer gitHubLink={gitHubLink} theme={theme}/>
-      </div>
+      </Container>
     );
 }
   

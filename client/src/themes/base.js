@@ -20,6 +20,7 @@ export const lightTheme = createTheme({
         },
         background: {
             paper: '#F0F0F0',
+            alternatePaper: '#fff',
         },
         cancel: {
             main: '#9e9e9e',
@@ -94,6 +95,8 @@ export const lightTheme = createTheme({
     },
 });
 
+const darkThemeTextColor = "#fff";
+
 export const darkTheme = createTheme({
     palette: {
         mode: 'dark',
@@ -115,6 +118,7 @@ export const darkTheme = createTheme({
         },
         background: {
             paper: '#444444',
+            alternatePaper: '#808080',
             default: '#1a1919',
         },
         cancel: {
@@ -162,30 +166,39 @@ export const darkTheme = createTheme({
         htmlFontSize: 15,
         h1: {
             fontSize: 38,
+            color: darkThemeTextColor,
         },
         h2: {
             fontSize: 34,
+            color: darkThemeTextColor,
         },
         h3: {
             fontSize: 30,
+            color: darkThemeTextColor,
         },
         h4: {
             fontSize: 26,
+            color: darkThemeTextColor,
         },
         h5: {
             fontSize: 22,
+            color: darkThemeTextColor,
         },
         h6: {
             fontSize: 18,
+            color: darkThemeTextColor,
         },
         body1: {
             fontSize: 16,
+            color: darkThemeTextColor,
         },
         body2: {
             fontSize: 14,
+            color: darkThemeTextColor,
         },
         button: {
-            fontSize: 14
+            fontSize: 14,
+            color: darkThemeTextColor,
         }
     },
 });
