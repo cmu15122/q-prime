@@ -6,21 +6,19 @@ import {
 import HomeService from '../../../services/HomeService';
 
 export default function CooldownViolationOverlay(props) {
-    const { open, setOpen, setStatus, questionValue, locationValue, topicValue, setPosition, queueData, timePassed } = props;
+    const { open, setOpen, andrewID, question, location, topic, queueData, timePassed } = props;
 
     function callAddQuestionAPIOverrideCooldown() {
         HomeService.addQuestion(
             JSON.stringify({
-                question: questionValue,
-                location: locationValue,
-                topic: topicValue,
-                andrewID: queueData.andrewID,
+                andrewID: andrewID,
+                question: question,
+                location: location,
+                topic: topic,
                 overrideCooldown: true
             })
         ).then(res => {
             if (res.status === 200) {
-                setPosition(res.data.position);
-                setStatus(res.data.status);
                 setOpen(false);
             }
         })
@@ -34,10 +32,10 @@ export default function CooldownViolationOverlay(props) {
                 </Typography>
 
                 <Stack alignItems="baseline" justifyContent="space-around" direction="row" spacing={3}>
-                    <Button onClick={() => callAddQuestionAPIOverrideCooldown()} color='error' fullWidth variant="contained" sx={{ maxHeight: "50px", fontSize: "16px", mt: 3, alignContent: "center" }} type="submit">
+                    <Button onClick={() => callAddQuestionAPIOverrideCooldown()} color='error' fullWidth variant="contained" sx={{ maxHeight: "50px", mt: 3, alignContent: "center" }} type="submit">
                         Override Cooldown
                     </Button>
-                    <Button onClick={() => setOpen(false)} color='cancel' fullWidth variant="contained" sx={{ maxHeight: "50px", fontSize: "16px", mt: 3, alignContent: "center" }} type="submit">
+                    <Button onClick={() => setOpen(false)} color='cancel' fullWidth variant="contained" sx={{ maxHeight: "50px", mt: 3, alignContent: "center" }} type="submit">
                         Close
                     </Button>
                 </Stack>

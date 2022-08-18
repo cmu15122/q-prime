@@ -29,10 +29,10 @@ export default function MessageDialog(props) {
             fullWidth
         >
             <DialogContent>
-                <Typography sx={{ pb: 1, fontWeight: 'bold', fontSize: '22px', textAlign: 'center' }}>
+                <Typography variant="h5" sx={{ pb: 1, fontWeight: 'bold', textAlign: 'center' }}>
                     Messaging Student "{student.name}"
                 </Typography>
-                <Typography sx={{ pb: 2, fontSize: '15px', textAlign: 'center', fontStyle: 'italic' }}>
+                <Typography variant="body2" sx={{ pb: 2, textAlign: 'center', fontStyle: 'italic' }}>
                     {
                         (student.status === StudentStatusValues.RECEIVED_MESSAGE) && 
                         "Note: Student has already been messaged. Sending a message here will overwrite the existing message"

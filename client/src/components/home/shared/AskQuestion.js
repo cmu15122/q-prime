@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {
-    Typography, Divider, Card, CardContent, Stack,
+    Typography, Divider, CardContent, Stack,
     FormControl, InputLabel, MenuItem, Box, Select, Input, Button
 } from '@mui/material';
+
+import CooldownViolationOverlay from "./CooldownViolationOverlay";
+import BaseCard from '../../common/cards/BaseCard';
 
 import HomeService from '../../../services/HomeService';
 import SettingsService from '../../../services/SettingsService';
@@ -14,30 +17,29 @@ function createData(topic_id, name) {
 let date = new Date();
 
 export default function AskQuestion(props) {
-    const [locations, setLocations] = useState([])
+    const { queueData } = props;
+
+    const [locations, setLocations] = useState([]);
     const [topics, setTopics] = useState([]);
 
-    const [selectedTopic, setSelectedTopic] = useState();
+    const [name, setName] = useState('');
+    const [andrewID, setAndrewID] = useState('');
+    const [location, setLocation] = useState('');
+    const [topic, setTopic] = useState('');
+    const [question, setQuestion] = useState('');
 
-    const { 
-        questionValue, 
-        setQuestionValue, 
-        locationValue,
-        setLocationValue,
-        setTopicValue,
-        setPosition, 
-        setStatus,
-        setTimePassed,
-        setShowCooldownOverlay,
-        queueData,
-        theme
-    } = props
-
+    const [showCooldownOverlay, setShowCooldownOverlay] = useState(false);
+    const [timePassed, setTimePassed] = useState(0);
 
     useEffect(() => {
         if (queueData != null) {
             updateTopics(queueData.topics);
-            updateLocations()
+            updateLocations();
+
+            if (!queueData.isTA) {
+                setName(queueData.name);
+                setAndrewID(queueData.andrewID);
+            }
         }
     }, [queueData]);
 
@@ -53,7 +55,7 @@ export default function AskQuestion(props) {
         setTopics(newRows);
 
         if (newRows.length === 1) {
-            setSelectedTopic(newRows[0]);
+            setTopic(newRows[0]);
         }
     }
 
@@ -64,11 +66,11 @@ export default function AskQuestion(props) {
             let dayDict = res.data.dayDictionary;
             newLocations = dayDict;
 
-            let roomsForDay = (newLocations && newLocations[day]) ? newLocations[day] : ["122 Office Hours"];
+            let roomsForDay = (newLocations && newLocations[day]) ? newLocations[day] : ["Office Hours"];
             setLocations(roomsForDay);
 
             if (roomsForDay.length === 1) {
-                setLocationValue(roomsForDay[0]);
+                setLocation(roomsForDay[0]);
             }
         })
     }
@@ -79,15 +81,13 @@ export default function AskQuestion(props) {
     }
 
     function callAddQuestionAPI() {
-        setTopicValue(selectedTopic);
-
         HomeService.addQuestion(
             JSON.stringify({
-                question: questionValue,
-                location: locationValue,
-                topic: selectedTopic,
-                andrewID: queueData.andrewID,
-                overrideCooldown: false
+                name: name,
+                andrewID: andrewID,
+                question: question,
+                location: location,
+                topic: topic
             })
         ).then(res => {
             if (res.status === 200 && res.data.message === "cooldown_violation") {
@@ -95,20 +95,54 @@ export default function AskQuestion(props) {
                 setShowCooldownOverlay(true);
             }
             else if (res.status === 200) {
-                setPosition(res.data.position);
-                setStatus(res.data.status);
+                clearValues();
             }
         })
     }
 
+    function clearValues() {
+        setName('');
+        setAndrewID('');
+        setLocation('');
+        setTopic('');
+        setQuestion('');
+    }
+
     return (
-        <div className='card' style={{ display: 'flex' }}>
-            <Card sx={{ minWidth: '100%', background: theme.palette.background.paper }}>
+        <div>
+            <BaseCard>
                 <CardContent sx={{ m: 1.5 }}>
                     <Typography variant='h5' sx={{ fontWeight: 'bold', textAlign: 'left' }}>Ask A Question</Typography>
                     <Divider sx={{ mt: 1, mb: 2 }} />
 
                     <form onSubmit={handleSubmit}>
+                        {
+                            queueData?.isTA && 
+                            <Stack direction="row" justifyContent="left" sx={{ mb: 2 }}>
+                                <Box sx={{ minWidth: 120, width: "47%" }}>
+                                    <FormControl required fullWidth>
+                                        <Input
+                                            placeholder='Student Name'
+                                            onChange={(event) => setName(event.target.value)}
+                                            value={name}
+                                            fullWidth
+                                            inputProps={{ maxLength: 30 }}
+                                        />
+                                    </FormControl>
+                                </Box>
+                                <Box sx={{ minWidth: 120, width: "47%", margin: "auto", mr: 1 }}>
+                                    <FormControl required fullWidth>
+                                        <Input
+                                            placeholder='Student Andrew ID'
+                                            onChange={(event) => setAndrewID(event.target.value)}
+                                            value={andrewID}
+                                            fullWidth
+                                            inputProps={{ maxLength: 20 }}
+                                        />
+                                    </FormControl>
+                                </Box>
+                            </Stack>
+                        }
                         <Stack direction="row" justifyContent="left">
                             <Box sx={{ minWidth: 120, width: "47%" }}>
                                 <FormControl variant="standard" required fullWidth>
@@ -116,9 +150,9 @@ export default function AskQuestion(props) {
                                     <Select
                                         labelId="location-select-label"
                                         id="location-select"
-                                        value={locationValue ?? ""}
+                                        value={location ?? ""}
                                         label="Location"
-                                        onChange={(e)=>setLocationValue(e.target.value)}
+                                        onChange={(e)=>setLocation(e.target.value)}
                                         style={{textAlign: "left"}}
                                     >
                                         {locations.map((loc) => <MenuItem value={loc} key={loc}>{loc}</MenuItem>)}
@@ -131,9 +165,9 @@ export default function AskQuestion(props) {
                                     <Select
                                         labelId="topic-select-label"
                                         id="topic-select"
-                                        value={selectedTopic ?? ""}
+                                        value={topic ?? ""}
                                         label="Topic"
-                                        onChange={(e)=>setSelectedTopic(e.target.value)}
+                                        onChange={(e)=>setTopic(e.target.value)}
                                         style={{ textAlign: "left" }}
                                     >
                                         {topics.map((top) => <MenuItem value={top} key={top.topic_id}>{top.name}</MenuItem>)}
@@ -145,19 +179,31 @@ export default function AskQuestion(props) {
                         <FormControl required fullWidth sx={{ mt: 0.5 }}>
                             <Input
                                 placeholder='Question (max 256 characters)'
-                                onChange={(event) => setQuestionValue(event.target.value)}
+                                onChange={(event) => setQuestion(event.target.value)}
+                                value={question ?? ""}
                                 fullWidth
                                 multiline
                                 inputProps={{ maxLength: 256 }}
                                 type="text"
                             />
                         </FormControl>
-                        <Button fullWidth variant="contained" sx={{ fontSize: "16px", mt: 3, alignContent: "center" }} type="submit">
+                        <Button fullWidth variant="contained" sx={{ mt: 3, py: 1, fontSize: "16px", fontWeight: "bold", alignContent: "center" }} type="submit">
                             Ask
                         </Button>
                     </form>
                 </CardContent>
-            </Card>
+            </BaseCard>
+
+            <CooldownViolationOverlay
+                open={showCooldownOverlay}
+                setOpen={setShowCooldownOverlay}
+                timePassed={timePassed}
+                andrewID={andrewID}
+                question={question}
+                location={location}
+                topic={topic}
+                queueData={queueData}
+            />
         </div>
     );
 }

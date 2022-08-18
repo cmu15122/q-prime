@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
-    TableCell
+    TableCell, Typography
 } from "@mui/material";
 
 import DayPicker from "./DayPicker";
@@ -82,10 +82,12 @@ export default function Locations(props) {
                             index={index}
                             rowKey={room}
                         >
-                            <TableCell component="th" scope="row" sx={{ fontSize: "16px", fontWeight: "bold", pl: 3.25 }}>
-                                {room}
+                            <TableCell component="th" scope="row" sx={{ pl: 3.25 }}>
+                                <Typography sx={{ fontWeight: "bold" }}>
+                                    {room}
+                                </Typography>
                             </TableCell>
-                            <TableCell component="th" align="right" sx={{ fontSize: "16px", fontStyle: "italic", pr: 3.25 }}>
+                            <TableCell component="th" align="right" sx={{ pr: 3.25 }}>
                                 <DayPicker
                                     convertIdxToDays={convertIdxToDays}
                                     room={room}

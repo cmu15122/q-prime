@@ -12,7 +12,7 @@ export default function LeapStudentActions(props) {
     return (
         <Stack
             direction={{ xs: "column", sm: "row" }}
-            sx={{ mt: { xs: 1, sm: 0 }, alignItems: 'center', justifyContent: 'flex-end' }}
+            sx={{ alignItems: 'center', justifyContent: 'flex-end' }}
         >
             <Button color="success" variant="contained" onClick={() => approveCooldownOverride()} sx={{ m: 0.5 }}>
                 Approve

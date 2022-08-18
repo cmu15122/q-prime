@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
-    Button, Checkbox, FormControlLabel, Grid, TableCell, TableRow
+    Button, Checkbox, FormControlLabel, Grid, TableCell, TableRow, Typography
 } from "@mui/material";
 
 import TADialogBody from "./dialogs/TADialogBody";
@@ -163,6 +163,7 @@ export default function TASettings(props) {
                 {
                     rows.map((row, index) => (
                         <EditDeleteRow
+                            key={row.name}
                             theme={theme}
                             index={index}
                             row={row}
@@ -170,11 +171,15 @@ export default function TASettings(props) {
                             handleEdit={handleEditDialog} 
                             handleDelete={handleDeleteDialog}
                         >
-                            <TableCell component="th" scope="row" sx={{ fontSize: "16px", fontWeight: "bold", pl: 3.25 }}>
-                                {row.name} {row.isAdmin ? " (Admin)" : ""}
+                            <TableCell component="th" scope="row" sx={{ pl: 3.25 }}>
+                                <Typography sx={{ fontWeight: "bold" }}>
+                                    {row.name} {row.isAdmin ? " (Admin)" : ""}
+                                </Typography>
                             </TableCell>
-                            <TableCell align="left" sx={{ fontSize: "16px", fontStyle: "italic" }}>
-                                {row.email}
+                            <TableCell align="left">
+                                <Typography sx={{ fontStyle: "italic" }}>
+                                    {row.email}
+                                </Typography>
                             </TableCell>
                         </EditDeleteRow>
                     ))
@@ -184,13 +189,13 @@ export default function TASettings(props) {
                     style={{ background : theme.palette.background.default }}
                 >
                     <TableCell align="center" colSpan={5}>
-                        <Button sx={{ mr: 1, fontWeight: "bold", fontSize: "18px" }} color="primary" variant="contained" onClick={() => handleAddDialog()}>
+                        <Button sx={{ mr: 1, fontWeight: "bold" }} color="primary" variant="contained" onClick={() => handleAddDialog()}>
                             + Add TA
                         </Button>
-                        <Button sx={{ mr: 1, fontWeight: "bold", fontSize: "18px" }} color="info" variant="contained" onClick={() => handleDownload()}>
+                        <Button sx={{ mr: 1, fontWeight: "bold" }} color="info" variant="contained" onClick={() => handleDownload()}>
                             Download CSV Template
                         </Button>
-                        <Button sx={{ mr: 1, fontWeight: "bold", fontSize: "18px" }} color="info" variant="contained" onClick={() => handleUploadDialog()}>
+                        <Button sx={{ mr: 1, fontWeight: "bold" }} color="info" variant="contained" onClick={() => handleUploadDialog()}>
                             Upload CSV
                         </Button>
                     </TableCell>

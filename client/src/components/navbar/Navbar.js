@@ -117,7 +117,7 @@ export default function Navbar(props) {
                     <OHQueueHeader theme={theme}/>
                 </Box>
             </Toolbar>
-          </AppBar>
+            </AppBar>
         );
     }
     else if (isMobileView) {

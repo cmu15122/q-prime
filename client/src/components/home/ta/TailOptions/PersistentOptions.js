@@ -1,5 +1,5 @@
 import {
-    IconButton, Button, Toolbar
+    IconButton, Button, Stack
 } from '@mui/material';
 
 import {
@@ -15,7 +15,7 @@ export default function PersistentOptions(props) {
     } = props;
 
     return (
-        <Toolbar sx={{alignItems: 'center', justifyContent:'flex-end', justifySelf: 'flex-end'}} disableGutters>
+        <Stack direction="row" sx={{alignItems: 'center', justifyContent:'flex-end', justifySelf: 'flex-end'}}>
             <div ref={removeRef} onClick={() => handleRemoveButton()}>
                 {
                     confirmRemove ?
@@ -24,7 +24,7 @@ export default function PersistentOptions(props) {
                     (<IconButton color="error"><Delete/></IconButton>)
                 }
             </div>
-            <ExtraStudentOptions student={student} handleClickUpdateQ={handleClickUpdateQ} index={index} ></ExtraStudentOptions>
-        </Toolbar>
+            <ExtraStudentOptions student={student} handleClickUpdateQ={handleClickUpdateQ} index={index}/>
+        </Stack>
     );
 }

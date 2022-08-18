@@ -1,10 +1,8 @@
 import {
-    Typography,
-    Stack,
-    AppBar,
     Divider,
     Link,
-    Box
+    Stack,
+    Typography,
 } from '@mui/material';
 
 export default function Footer(props) {

@@ -22,7 +22,7 @@ export default function UploadDialog(props) {
             fullWidth
         >
             <DialogContent>
-                <Typography sx={{ pb: 3, fontWeight: 'bold', fontSize: '22px', textAlign: 'center' }}>
+                <Typography variant="h5" sx={{ pb: 3, fontWeight: 'bold', textAlign: 'center' }}>
                     Upload File
                 </Typography>
                 <form onSubmit={handleUpload}>

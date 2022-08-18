@@ -39,15 +39,19 @@ exports.getOHQ = function () {
 };
 
 function buildStudentEntryData(student) {
+    let studentPos = ohq.getPosition(student.andrewID); // Should grab this for cheaper
     let studentEntryData = {
         name: student.preferredName,
         andrewID: student.andrewID,
         taID: student.taID,
         taAndrewID: student.taAndrewID,
+        location: student.location,
         topic: student.topic,
         question: student.question,
         status: student.status,
-        message: student.message
+        isFrozen: student.isFrozen,
+        message: student.message,
+        position: studentPos,
     }
 
     return studentEntryData;
@@ -121,7 +125,6 @@ exports.get = function (req, res) {
 
         let entry = buildStudentEntryData(ohq.queue.get(studentPos));
         data.studentData = entry;
-        data.studentData["position"] = studentPos;
 
         if (entry.status === StudentStatus.BEING_HELPED || entry.status === StudentStatus.RECEIVED_MESSAGE) {
             models.account.findOne({
@@ -254,7 +257,7 @@ exports.post_add_question = function (req, res) {
     }
 
     let id = req.body.andrewID;
-    let overrideCooldown = req.body.overrideCooldown
+    let overrideCooldown = req.user.isTA || req.body.overrideCooldown;
 
     if (ohq.getPosition(id) != -1) {
         res.status(400);
@@ -387,7 +390,7 @@ exports.post_remove_student = function (req, res) {
         return;
     }
 
-    sockets.remove(id);
+    sockets.remove(id, returnedData);
 
     // TODO, FIXME: Don't write TA added questions to the database or TA manually removed questions
     models.account.findOrCreate({
@@ -520,31 +523,34 @@ exports.post_update_question = function (req, res) {
 
     let id = req.user.andrewID;
     let newQuestion = req.body.content;
-    let pos = ohq.getPosition(id);
-
-    if(!newQuestion) {
+    if (!newQuestion) {
         respond_error(req, res, "Invalid/missing parameters in request", 400);
         return;
     }
-
-    console.log(pos);
-    console.log(req.user.andrewID);
+    
+    let pos = ohq.getPosition(id);
     if (pos === -1) {
-        res.status(400);
-        res.json({ message: 'Student not yet on the queue' });
+        respond_error(req, res, "Student not yet on the queue", 400);
         return;
     }
 
     let studentData = ohq.getData(id);
-    studentData.question = newQuestion
 
+    if (newQuestion == studentData.question) {
+        respond_error(req, res, "Question was not updated! Please be sure you've entered a new question", 400);
+        return;
+    }
+
+    studentData.question = newQuestion;
     ohq.unsetFixQuestion(id);
-    sockets.updateQuestion(studentData, req.body.content);
+
+    let studentEntryData = buildStudentEntryData(studentData);
+    sockets.updateQuestion(studentEntryData);
+
     respond(req, res, 'Question updated successfully', studentData, 200);
 }
 
 exports.post_taRequestUpdateQ = function (req, res) {
-    console.log('post request updateQ reached')
     if (!req.user || !req.user.isAuthenticated) {
         res.status(400)
         res.json({ message: 'User data not passed to server' })
@@ -569,10 +575,12 @@ exports.post_taRequestUpdateQ = function (req, res) {
         return
     }
     
-    let studentData = ohq.getData(id);
-    
     ohq.setFixQuestion(id);
-    sockets.updateQRequest(studentData);
+
+    let studentData = ohq.getData(id);    
+    let studentEntryData = buildStudentEntryData(studentData);
+    sockets.updateQRequest(studentEntryData);
+
     respond(req, res, 'Update question request sent successfully', req.body, 200);
 }
 
@@ -666,7 +674,11 @@ exports.post_approve_cooldown_override = function (req, res) {
         return
     }
 
-    ohq.unsetCooldownViolation(id)
+    ohq.unsetCooldownViolation(id);
+
+    let student = ohq.getData(id);
+    let studentEntryData = buildStudentEntryData(student);
+    sockets.approveCooldown(studentEntryData);
 
     res.status(200)
     res.json({ message: "approved cooldown violation" })
