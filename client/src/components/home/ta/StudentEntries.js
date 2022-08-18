@@ -2,10 +2,24 @@ import React, { useState, useEffect } from "react";
 
 import BaseTable from "../../common/table/BaseTable";
 import StudentEntry from "./StudentEntry";
+import { Button } from '@mui/material';
+import FilterListIcon from '@mui/icons-material/FilterList';
 
 import HomeService from "../../../services/HomeService";
 import { socketSubscribeTo, socketUnsubscribeFrom } from "../../../services/SocketsService";
 import { StudentStatusValues } from "../../../services/StudentStatus";
+
+const FilterButton = () => {
+    return (
+        <Button
+            variant="outlined"
+            startIcon={<FilterListIcon />}
+            sx={{ mr: 1 }}
+        >
+            Filter
+        </Button>
+    )
+};
 
 export default function StudentEntries(props) {
     const { theme, queueData } = props;
@@ -22,6 +36,8 @@ export default function StudentEntries(props) {
         });
         console.log(res.data.studentData);
     }
+
+
 
     useEffect(() => {
         if (!("Notification" in window)) {
@@ -127,7 +143,7 @@ export default function StudentEntries(props) {
     }
 
     return (
-        <BaseTable title="Students">
+        <BaseTable title="Students" HeaderTailComp={FilterButton}>
             {
                 students.map((student, index) => (
                     <StudentEntry

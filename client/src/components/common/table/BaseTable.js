@@ -8,14 +8,15 @@ import {
 import BaseCard from "../cards/BaseCard";
 
 export default function BaseTable(props) {
-    const { title, children } = props;
+    const { title, children, HeaderTailComp } = props;
 
     return (
         <BaseCard>
-            <CardActions disableSpacing>
+            <CardActions style={{ justifyContent: "space-between" }}>
                 <Typography sx={{ fontWeight: 'bold', ml: 2, mt: 1 }} variant="h5" gutterBottom>
                     {title}
                 </Typography>
+                <HeaderTailComp />
             </CardActions>
             <Divider></Divider>
             <Table>
