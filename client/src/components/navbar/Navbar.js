@@ -202,7 +202,7 @@ export default function Navbar(props) {
 
     // Desktop view
     return (
-        <AppBar position="static" enableColorOnDark color="navbar">
+        <AppBar position="sticky" enableColorOnDark color="navbar">
         <Toolbar sx={{ display: "flex space-between" }}>  
             <Box sx={{ flexGrow: 1, display: "flex" }}>
                 <OHQueueHeader/>
