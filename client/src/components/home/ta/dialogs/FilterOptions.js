@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 import { List, ListSubheader, ListItem,
-    ListItemButton, ListItemIcon, ListItemText, 
-    Checkbox, IconButton , Popover,
+    ListItemButton, ListItemIcon, ListItemText, Checkbox,
 } from '@mui/material';
 
 import SettingsService from "../../../../services/SettingsService";
@@ -19,16 +18,14 @@ const FilterGroup = {
 }
 
 export default function FilterOptions(props) {
-    const { queueData } = props;
-    const [filteredLocations, setFilteredLocations] = React.useState([]);
-    const [filteredTopics, setFilteredTopics] = React.useState([]);
+    const { queueData, filteredLocations, filteredTopics, setFilteredLocations, setFilteredTopics } = props;
 
     // group definition:
     // 0 = locations, 1 = topics
     const handleToggle = (group, value) => () => {
-      const array = group == FilterGroup.Location ? filteredLocations : filteredTopics;
+      const array = group === FilterGroup.Location ? filteredLocations : filteredTopics;
       const currentIndex = array.indexOf(value);
-      const newChecked = group == FilterGroup.Location ? [...filteredLocations] : [...filteredTopics];
+      const newChecked = group === FilterGroup.Location ? [...filteredLocations] : [...filteredTopics];
   
       if (currentIndex === -1) {
         // was unchecked previously
@@ -37,12 +34,10 @@ export default function FilterOptions(props) {
         newChecked.splice(currentIndex, 1);
       }
       
-      if (group == FilterGroup.Location) {
+      if (group === FilterGroup.Location) {
             setFilteredLocations(newChecked);
-            console.log(newChecked);
       } else {
           setFilteredTopics(newChecked);
-          console.log(newChecked);
       }
     };
 
