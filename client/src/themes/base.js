@@ -1,6 +1,6 @@
 // See https://mui.com/material-ui/customization/default-theme for customization options
 import { createTheme } from '@mui/material'
-export const lightTheme = createTheme({
+const lightTheme = createTheme({
     palette: {
         mode: 'light',
         primary: {
@@ -97,7 +97,7 @@ export const lightTheme = createTheme({
 
 const darkThemeTextColor = "#fff";
 
-export const darkTheme = createTheme({
+const darkTheme = createTheme({
     palette: {
         mode: 'dark',
         primary: {
@@ -202,3 +202,5 @@ export const darkTheme = createTheme({
         }
     },
 });
+
+export {lightTheme, darkTheme};

@@ -24,7 +24,7 @@ function Home(props) {
   }, []);
 
   return (
-    <div className="Settings" style={{backgroundColor: theme.palette.background.default}}>
+    <div className="App" style={{backgroundColor: theme.palette.background.default}}>
         <Navbar theme={theme} queueData={queueData} isHome={true} studentData={studentData} />
         <HomeMain 
           theme={theme}
