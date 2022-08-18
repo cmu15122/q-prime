@@ -111,7 +111,7 @@ export default function Navbar(props) {
     if (!queueData) {
         // No queue data received, nothing to render
         return (
-            <AppBar position="static">
+            <AppBar position="static" color="navbar" enableColorOnDark>
             <Toolbar sx={{ display: "flex space-between" }}>  
                 <Box sx={{ flexGrow: 1, display: "flex" }}>
                     <OHQueueHeader theme={theme}/>
@@ -122,7 +122,7 @@ export default function Navbar(props) {
     }
     else if (isMobileView) {
         return (
-            <AppBar position="static">
+            <AppBar position="static" color="navbar" enableColorOnDark>
             <Toolbar sx={{ display: "flex space-between" }}>
                 {
                     ((pages && pages.length > 0) || isAuthenticated)  && 
@@ -202,7 +202,7 @@ export default function Navbar(props) {
 
     // Desktop view
     return (
-        <AppBar position="static">
+        <AppBar position="static" enableColorOnDark color="navbar">
         <Toolbar sx={{ display: "flex space-between" }}>  
             <Box sx={{ flexGrow: 1, display: "flex" }}>
                 <OHQueueHeader/>

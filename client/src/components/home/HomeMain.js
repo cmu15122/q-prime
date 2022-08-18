@@ -52,7 +52,7 @@ function HomeMain (props) {
     }, [isAuthenticated, isTA, isAdmin, queueFrozen, queueData, studentData, theme]);
 
     return (
-      <div>
+      <div style={{backgroundColor: theme.palette.background.default}}>
           <SharedMain
             theme={theme}
             queueData={queueData}
@@ -60,7 +60,7 @@ function HomeMain (props) {
             setQueueFrozen={setQueueFrozen}
           />
           {mainPage}
-          <Footer gitHubLink={gitHubLink} />
+          <Footer gitHubLink={gitHubLink} theme={theme}/>
       </div>
     );
 }

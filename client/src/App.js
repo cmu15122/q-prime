@@ -5,9 +5,10 @@ import { BrowserRouter as Router, Routes, Route}
 import Home from './pages/home';
 import Settings from './pages/settings';
 import Metrics from './pages/metrics';
-import { basicTheme } from './themes/base.js';
+import { theme, darkTheme, lightTheme } from './themes/base.js';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { createTheme, ThemeProvider } from '@mui/material'
 
-import { ThemeProvider } from '@mui/material'
 import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { ToastContainer } from 'material-react-toastify';
@@ -16,14 +17,21 @@ import 'material-react-toastify/dist/ReactToastify.css';
 import './App.css';
 
 function App() {
+    const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+    const theme = React.useMemo(
+        () =>
+            prefersDarkMode ? darkTheme : lightTheme
+        [prefersDarkMode],
+    );
+
     return (
-        <ThemeProvider theme={basicTheme}>
+        <ThemeProvider theme={theme}>
             <LocalizationProvider dateAdapter={AdapterLuxon}>
                 <Router>
                 <Routes>
-                    <Route path='/' element={<Home theme={basicTheme}/>} />
-                    <Route path='/settings' element={<Settings theme={basicTheme}/>} />
-                    <Route path='/metrics' element={<Metrics theme={basicTheme}/>} />
+                    <Route path='/' element={<Home theme={theme}/>} />
+                    <Route path='/settings' element={<Settings theme={theme}/>} />
+                    <Route path='/metrics' element={<Metrics theme={theme}/>} />
                 </Routes>
                 </Router>
                 <ToastContainer
