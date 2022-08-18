@@ -37,8 +37,8 @@ export default function NotificationSettings(props) {
                 <Typography sx={{ fontWeight: 'bold', ml: 1, mt: 1}} variant="body1" gutterBottom>
                     Notification Settings
                 </Typography>
-                <Grid container spacing={2}>
-                    <Grid className="d-flex" item xs={12}>
+                <Grid container spacing={1}>
+                    <Grid className="d-flex" item sx={{ mb: -1 }} xs={12}>
                     <FormControlLabel control={
                             <Checkbox 
                                 size="small" 
@@ -51,10 +51,14 @@ export default function NotificationSettings(props) {
                                 }}
                             />
                         } 
-                        label="Enable queue join notifications" sx={{mt: 1}}
+                        label={
+                            <div>
+                                Enable queue join notifications
+                            </div>
+                        }
                     />
                     </Grid>
-                    <Grid className="d-flex" item sx={{ mt: -3 }} xs={12}>
+                    <Grid className="d-flex" item xs={12}>
                         <FormControlLabel 
                             control={
                                 <Checkbox 
