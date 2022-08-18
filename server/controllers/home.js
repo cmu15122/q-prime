@@ -39,7 +39,7 @@ exports.getOHQ = function () {
 };
 
 function buildStudentEntryData(student) {
-    let studentPos = ohq.getPosition(student.andrewID); // Should grab this for cheaper
+    let studentPos = ohq.getPosition(student.andrewID); //TODO: Should find cheaper way to grab this
     let studentEntryData = {
         name: student.preferredName,
         andrewID: student.andrewID,
@@ -51,6 +51,7 @@ function buildStudentEntryData(student) {
         status: student.status,
         isFrozen: student.isFrozen,
         message: student.message,
+        messageBuffer: student.messageBuffer,
         position: studentPos,
     }
 

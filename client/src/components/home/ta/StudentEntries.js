@@ -15,12 +15,12 @@ export default function StudentEntries(props) {
     const [helpIdx, setHelpIdx] = useState(-1); // idx of student that you are helping, only valid when isHelping is true
 
     function updateStudentFromSockets(res) {
-        console.log(res);
         setStudents(students => {
             let ind = students.findIndex(p => (p.andrewID === res.andrewID));
             students[ind] = res.data.studentData;
             return [...students];
         });
+        console.log(res.data.studentData);
     }
 
     useEffect(() => {
