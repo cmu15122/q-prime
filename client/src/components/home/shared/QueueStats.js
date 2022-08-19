@@ -8,7 +8,7 @@ import BaseCard from "../../common/cards/BaseCard";
 import { socketSubscribeTo } from "../../../services/SocketsService";
 
 export default function QueueStats(props) {
-    const { queueData, queueFrozen } = props;
+    const { queueData, queueFrozen, theme } = props;
 
     const [numStudents, setNumStudents] = useState();
     const [waitTime, setWaitTime] = useState();
@@ -41,9 +41,9 @@ export default function QueueStats(props) {
                         <Typography variant="h5" fontWeight="bold" sx={{ mt: 2 }}>The queue is</Typography>
                         {
                             queueFrozen ? 
-                            <Typography color="red" variant="h5" fontWeight="bold" sx={{ mt: 1, mb: 2 }}>CLOSED</Typography>
+                            <Typography color={theme.palette.error.main} variant="h5" fontWeight="bold" sx={{ mt: 1, mb: 2 }}>CLOSED</Typography>
                             : 
-                            <Typography color="green" variant="h5" fontWeight="bold" sx={{ mt: 1, mb: 2 }}>OPEN</Typography>
+                            <Typography color={theme.palette.success.main} variant="h5" fontWeight="bold" sx={{ mt: 1, mb: 2 }}>OPEN</Typography>
                         }
                     </div>
                     <div>
