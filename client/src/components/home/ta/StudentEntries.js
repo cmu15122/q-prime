@@ -3,14 +3,69 @@ import React, { useState, useEffect } from "react";
 import BaseTable from "../../common/table/BaseTable";
 import StudentEntry from "./StudentEntry";
 
+import FilterOptions from "./dialogs/FilterOptions";
+import { Button, Popover } from '@mui/material';
+import FilterListIcon from '@mui/icons-material/FilterList';
+
 import HomeService from "../../../services/HomeService";
 import { socketSubscribeTo, socketUnsubscribeFrom } from "../../../services/SocketsService";
 import { StudentStatusValues } from "../../../services/StudentStatus";
 
 export default function StudentEntries(props) {
     const { theme, queueData } = props;
+    /* BEGIN FILTER LOGIC */
+    const [filteredLocations, setFilteredLocations] = React.useState([]);
+    const [filteredTopics, setFilteredTopics] = React.useState([]);
 
+    const Filter = () => {
+        const handleFilterDialog = (event) => {
+            console.log(event)
+            setAnchorEl(event.currentTarget);
+        };
+
+        const [anchorEl, setAnchorEl] = React.useState(null);
+        const handleFilterClose = () => {
+            setAnchorEl(null);
+        };
+        const openFilterDialog = Boolean(anchorEl);
+
+        return (
+            <div>
+                <Button
+                    variant="contained"
+                    startIcon={<FilterListIcon />}
+                    sx={{ fontWeight: "bold", mr: 1 }}
+                    onClick={handleFilterDialog}
+                    aria-describedby={"popover"}
+                >
+                    Filter
+                </Button>
+                <Popover
+                    id={"popover"}
+                    open={openFilterDialog}
+                    anchorEl={anchorEl}
+                    onClose={handleFilterClose}
+                    anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                    }}
+                >
+                    <FilterOptions 
+                        queueData={queueData}
+                        filteredLocations={filteredLocations}
+                        filteredTopics={filteredTopics}
+                        setFilteredLocations={setFilteredLocations}
+                        setFilteredTopics={setFilteredTopics}
+                    />
+                </Popover>
+            </div>
+        )
+    };
+    /* END FILTER LOGIC (the actual filtering is in QUEUE LOGIC)*/
+
+    /* BEGIN QUEUE LOGIC */
     const [students, setStudents] = useState([]);
+    const [filteredStudents, setFilteredStudents] = useState([]);
     const [isHelping, setIsHelping] = useState(false);
     const [helpIdx, setHelpIdx] = useState(-1); // idx of student that you are helping, only valid when isHelping is true
 
@@ -92,6 +147,19 @@ export default function StudentEntries(props) {
         }
     }, [students, queueData]);
 
+    useEffect(() => {
+        console.log(filteredLocations, filteredTopics);
+
+        var newFiltered = students
+        if (filteredLocations.length > 0) {
+            newFiltered = newFiltered.filter((student) => filteredLocations.includes(student.location))
+        }
+        if (filteredTopics.length > 0) {
+            newFiltered = newFiltered.filter((student) => filteredTopics.includes(student.topic.name))
+        }
+        setFilteredStudents(newFiltered);
+    }, [students, filteredLocations, filteredTopics]);
+
     const handleClickHelp = (index) => {
         HomeService.helpStudent(JSON.stringify({
             andrewID: students[index].andrewID
@@ -126,10 +194,12 @@ export default function StudentEntries(props) {
         students[index].status = StudentStatusValues.WAITING;
     }
 
+    /* END QUEUE LOGIC */
+
     return (
-        <BaseTable title="Students">
+        <BaseTable title="Students" HeaderTailComp={Filter}>
             {
-                students.map((student, index) => (
+                filteredStudents.map((student, index) => (
                     <StudentEntry
                         key={student.andrewID}
                         theme={theme}
