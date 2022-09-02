@@ -286,6 +286,10 @@ exports.post_add_question = function (req, res) {
            student: models.student.findOrCreate({ // TODO: change to findOne after adding permanent students to database
                where: {
                    student_id: account.user_id
+               },
+               defaults: {
+                   num_questions: 0,
+                   time_on_queue: 0
                }
            }),
            account: account
@@ -376,6 +380,7 @@ exports.post_remove_student = function (req, res) {
  
    let id = req.body.andrewID;
    let taID = req.user.isTA ? req.user.ta.ta_id : null;
+   let exitTime = moment.tz(new Date(), "America/New_York").toDate();
  
    if (ohq.getPosition(id) === -1) {
        res.status(400);
@@ -393,7 +398,7 @@ exports.post_remove_student = function (req, res) {
  
    sockets.remove(id, returnedData);
  
-   // helpTime is nil if a TA removed
+   // helpTime is not nil if a TA helped 
    if (returnedData.helpTime) {
        models.account.findOrCreate({
            where: {
@@ -410,11 +415,39 @@ exports.post_remove_student = function (req, res) {
                student: models.student.findOrCreate({
                    where: {
                        student_id: account.user_id
+                   },
+                   defaults: {
+                       num_questions: 0,
+                       time_on_queue: 0
                    }
                })
            });
        }).then((results) => {
-           return Promise.props({
+            // update student metrics
+            models.student.findOne({
+                where: {
+                    student_id: results.student[0].student_id
+                },
+            }).then((stu) => {
+                stu.update({
+                    num_questions: parseInt(stu.num_questions) + 1, // number of questions a student has asked
+                    time_on_queue: parseInt(stu.time_on_queue) + (Math.abs(returnedData.helpTime - returnedData.entryTime)) // time waiting in milliseconds
+                });
+            });
+
+            // update TA metrics
+            models.ta.findOne({
+                where: {
+                    ta_id: taID
+                },
+            }).then((ta) => {
+                ta.update({
+                    num_helped: parseInt(ta.num_helped) + 1, // number of questions a TA has helped with
+                    time_helped: parseInt(ta.time_helped) + (Math.abs(exitTime - returnedData.helpTime)) // time spent helping students
+                });
+            });
+
+            return Promise.props({
                account: results.account,
                student: results.student[0],
                question: models.question.create({
@@ -426,7 +459,7 @@ exports.post_remove_student = function (req, res) {
                    assignment: returnedData.topic.topic_id,
                    entry_time: returnedData.entryTime,
                    help_time: returnedData.helpTime,
-                   exit_time: moment.tz(new Date(), "America/New_York").toDate(),
+                   exit_time: exitTime,
                    num_asked_to_fix: returnedData.numAskedToFix
                })
            });
@@ -441,45 +474,6 @@ exports.post_remove_student = function (req, res) {
            res.status(500);
            res.json({
                message: 'The student was removed from the queue but an error occurred adding the question to the database'
-           });
-       })
-   }
- 
-   // do the same but don't add question to db
-   else {
-       models.account.findOrCreate({
-           where: {
-               email: {
-                   [Sequelize.Op.like]: returnedData.andrewID + '@%'
-               }
-           },
-           defaults: {
-               email: returnedData.andrewID + '@andrew.cmu.edu'
-           }
-       }).then(([account,]) => {
-           return Promise.props({
-               account: account,
-               student: models.student.findOrCreate({
-                   where: {
-                       student_id: account.user_id
-                   }
-               })
-           });
-       }).then((results) => {
-           return Promise.props({
-               account: results.account,
-               student: results.student[0],
-           });
-       }).then((results) => {
-           res.status(200);
-           res.json({
-               message: 'The student was successfully removed from the queue',
-           });
-       }).catch((err) => {
-           console.log(err);
-           res.status(500);
-           res.json({
-               message: 'The student was removed from the queue but an error occurred'
            });
        })
    }

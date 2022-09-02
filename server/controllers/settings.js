@@ -594,6 +594,10 @@ exports.post_create_ta = function (req, res) {
             ta: models.ta.findOrCreate({
                 where: {
                     ta_id: account.user_id
+                },
+                defaults: {
+                    num_helped: 0,
+                    time_helped: 0
                 }
             })
         })
@@ -771,6 +775,10 @@ exports.post_upload_ta_csv = function (req, res) {
                         ta: models.ta.findOrCreate({
                             where: {
                                 ta_id: account.user_id
+                            },
+                            defaults: {
+                                num_helped: 0,
+                                time_helped: 0
                             }
                         })
                     });
