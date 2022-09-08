@@ -1,48 +1,51 @@
-import React, { useEffect, useState } from 'react';
-import {
-    Button
-} from '@mui/material'
-import YourEntry from './YourEntry';
-import RemoveQOverlay from './RemoveQConfirm';
-import FrozenOverlay from './FrozenOverlay';
-import TAHelpingOverlay from './TAHelpingOverlay';
-import UpdateQuestionOverlay from './UpdateQuestionOverlay';
-import MessageRespond from './MessageRespond'
-import AskQuestion from './AskQuestion';
-import CooldownViolationOverlay from './CooldownViolationOverlay';
-import HomeService from '../../../services/HomeService';
+import React, { useEffect, useState } from "react";
 
-import { socketSubscribeTo } from '../../../services/SocketsService';
+import YourEntry from "./YourEntry";
+import RemoveQOverlay from "./RemoveQConfirm";
+import TAHelpingOverlay from "./TAHelpingOverlay";
+import UpdateQuestionOverlay from "./UpdateQuestionOverlay";
+import MessageRespond from "./MessageOverlay"
+import AskQuestion from "../shared/AskQuestion";
+
+import HomeService from "../../../services/HomeService";
+import { StudentStatusValues } from "../../../services/StudentStatus";
+import { socketSubscribeTo, socketUnsubscribeFrom } from "../../../services/SocketsService";
 
 function StudentMain(props) {
-    const [questionValue, setQuestionValue] = useState('');
-    const [locationValue, setLocationValue] = useState('');
-    const [topicValue, setTopicValue] = useState('');
+    const { theme, queueData, studentData } = props;
+
+    const [questionValue, setQuestionValue] = useState("");
+    const [locationValue, setLocationValue] = useState("");
+    const [topicValue, setTopicValue] = useState("");
+    const [messageValue, setMessageValue] = useState("");
 
     const [removeConfirm, setRemoveConfirm] = useState(false);
+
     const [frozen, setFrozen] = useState(false);
-    const [taHelping, setTAHelping] = useState(false);
-    const [showCooldownOverlay, setShowCooldownOverlay] = useState(false)
-    const [timePassed, setTimePassed] = useState(0)
-    const [updateQ, setUpdateQ] = useState(false);
+    const [status, setStatus] = useState(StudentStatusValues.OFF_QUEUE);
     const [position, setPosition] = useState(0);
 
     const [helpingTAInfo, setHelpingTAInfo] = useState(null);
 
-    const [askQuestionOrYourEntry, setAskQuestionOrYourEntry] = useState(false)
-
-    const { theme, queueData, studentData } = props
-
     useEffect(() => {
         if (!("Notification" in window)) {
             console.log("This browser does not support desktop notification");
-        } else {
+        } else if (Notification.permission !== "granted") {
             Notification.requestPermission();
         }
+    }, []);
+
+    useEffect(() => {
+        socketSubscribeTo("add", (res) => {
+            let studentData = res.studentData;
+            if (studentData.andrewID === queueData.andrewID) {
+                setStudentValues(studentData);
+            }
+        });
 
         socketSubscribeTo("help", (res) => {
             if (res.andrewID === queueData.andrewID) {
-                setTAHelping(true);
+                setStatus(StudentStatusValues.BEING_HELPED);
                 setHelpingTAInfo(res.data.taData);
                 new Notification("It's your turn to get help!", {
                     "body": `${res.data.taData.taName} is ready to help you.`,
@@ -53,58 +56,87 @@ function StudentMain(props) {
 
         socketSubscribeTo("unhelp", (res) => {
             if (res.andrewID === queueData.andrewID) {
-                setTAHelping(false);
+                setStatus(StudentStatusValues.WAITING);
                 setHelpingTAInfo(null);
+            }
+        });
+
+        socketSubscribeTo("updateQRequest", (res) => {
+            if (res.andrewID === queueData.andrewID) {
+                setFrozen(true);
+                setStatus(StudentStatusValues.FIXING_QUESTION)
+                new Notification("Please update your question", {
+                    "requireInteraction": true
+                });
+            }
+        })
+
+        socketSubscribeTo("message", (res) => {
+            if (res.andrewID === queueData.andrewID) {
+                setStatus(StudentStatusValues.RECEIVED_MESSAGE);
+                setMessageValue(res.data.studentData.message);
+                setHelpingTAInfo(res.data.taData);
+
+                new Notification("You've been messaged by a TA", {
+                    "requireInteraction": true
+                });
             }
         });
 
         socketSubscribeTo("remove", (res) => {
             if (res.andrewID === queueData.andrewID) {
-                setTAHelping(false);
-                setUpdateQ(false);
-                setFrozen(false);
-                setRemoveConfirm(false);
-                setAskQuestionOrYourEntry(false);
+                setStatus(StudentStatusValues.OFF_QUEUE);
+
+                setQuestionValue("");
+                setTopicValue("");
+                setLocationValue("");
 
                 new Notification("You've been removed from the queue", {
                     "requireInteraction": true
                 });
             }
         });
-    }, []);
 
-    // check if student on queue on page load
-    useEffect(() => {
-        if (studentData.position !== -1) {
-            setAskQuestionOrYourEntry(true);
+        socketSubscribeTo("approveCooldown", (res) => {
+            if (res.andrewID === queueData.andrewID) {
+                setStatus(res.data.studentData.status);
+                setFrozen(res.data.studentData.isFrozen);
 
-            setPosition(studentData.position);
-            setLocationValue(studentData.location);
-            setTopicValue(studentData.topic);
-            setQuestionValue(studentData.question);
-            setFrozen(studentData.isFrozen);
-            setHelpingTAInfo(studentData.helpingTA);
-
-            let status = studentData.status;
-            if (status === 0) {
-                setTAHelping(true);
-            } else if (status === 1) {
-                setTAHelping(false);
-            } else if (status === 2) {
-                setUpdateQ(true);
-                console.log(updateQ)
-            } else if (status === 3) {
-                setFrozen(true);
-            } else if (status === 4) {
-                setFrozen(true);
-                // cooldown violation
-            } else {
-                console.log("error in status")
+                new Notification("Your entry been approved by a TA", {
+                    "requireInteraction": true
+                });
             }
-        }
-    }, [studentData, updateQ])
+        });
 
-    function removeFromQueue() {
+        return () => {
+            socketUnsubscribeFrom("add");
+            socketUnsubscribeFrom("help");
+            socketUnsubscribeFrom("unhelp");
+            socketUnsubscribeFrom("message");
+            socketUnsubscribeFrom("remove");
+            socketUnsubscribeFrom("approveCooldown");
+        };
+    }, [queueData.andrewID]);
+
+    useEffect(() => {
+        // Check if student is on queue
+        if (studentData && studentData.position !== -1) {
+            setStudentValues(studentData);
+        }
+    }, [studentData]);
+
+    const setStudentValues = (studentData) => {
+        setPosition(studentData.position);
+        setLocationValue(studentData.location);
+        setTopicValue(studentData.topic);
+        setQuestionValue(studentData.question);
+        setMessageValue(studentData.message);
+        setFrozen(studentData.isFrozen);
+        setHelpingTAInfo(studentData.helpingTA);
+        setStatus(studentData.status);
+    };
+
+    const removeFromQueue = () => {
         HomeService.removeStudent(
             JSON.stringify({
                 andrewID: queueData.andrewID
@@ -112,25 +144,35 @@ function StudentMain(props) {
         ).then(res => {
             if (res.status === 200) {
                 setRemoveConfirm(false);
-                setAskQuestionOrYourEntry(false);
-            } else {
-                console.log("Error in remove from queue");
+                setStatus(StudentStatusValues.OFF_QUEUE);
             }
-        })
-    }
+        });
+    };
+
+    const dismissMessage = () => {
+        HomeService.dismissMessage(
+            JSON.stringify({
+                andrewID: queueData.andrewID
+            })
+        ).then(res => {
+            if (res.status === 200) {
+                setStatus(StudentStatusValues.WAITING);
+            }
+        });
+    };
 
     return (
         <div>
             {
-                askQuestionOrYourEntry ?
+                (status !== StudentStatusValues.OFF_QUEUE) ?
                     <div>
                         <YourEntry
                             openRemoveOverlay={() => setRemoveConfirm(true)}
                             position={position}
                             location={locationValue}
-                            topic={topicValue?.name ?? ''}
+                            topic={topicValue.name}
                             question={questionValue}
-                            setAskQuestionOrYourEntry={setAskQuestionOrYourEntry}
+                            frozen={frozen}
                             theme={theme}
                         />
                         <RemoveQOverlay
@@ -145,50 +187,34 @@ function StudentMain(props) {
                         setQuestionValue={setQuestionValue}
                         locationValue={locationValue}
                         setLocationValue={setLocationValue}
-                        topicValue={topicValue}
                         setTopicValue={setTopicValue}
                         setPosition={setPosition}
-                        setAskQuestionOrYourEntry={setAskQuestionOrYourEntry}
-                        setShowCooldownOverlay={setShowCooldownOverlay}
-                        setTimePassed={setTimePassed}
+                        setStatus={setStatus}
                         queueData={queueData}
                         theme={theme}
                     />
             }
 
-            <Button variant="contained" onClick={() => setFrozen(true)} sx={{ m: 0.5 }}>Open Frozen Overlay</Button>
-            <FrozenOverlay
-                open={frozen}
-                handleClose={() => setFrozen(false)}
-            />
-
             <TAHelpingOverlay
-                open={taHelping}
+                open={status === StudentStatusValues.BEING_HELPED}
                 helpingTAInfo={helpingTAInfo}
             />
 
-            <Button variant="contained" onClick={() => setShowCooldownOverlay(true)} sx={{ m: 0.5 }}>Open Cooldown Violation Overlay</Button>
-            <CooldownViolationOverlay
-                open={showCooldownOverlay}
-                setOpen={setShowCooldownOverlay}
-                timePassed={timePassed}
-                questionValue={questionValue}
-                locationValue={locationValue}
-                topicValue={topicValue}
-                setPosition={setPosition}
-                setAskQuestionOrYourEntry={setAskQuestionOrYourEntry}
-                queueData={queueData}
-            />
-
-
-            <Button variant="contained" onClick={() => setUpdateQ(true)} sx={{ m: 0.5 }}>Open Update Question Overlay</Button>
             <UpdateQuestionOverlay
-                open={updateQ}
-                handleClose={() => setUpdateQ(false)}
+                open={status === StudentStatusValues.FIXING_QUESTION}
+                handleClose={() => {setStatus(StudentStatusValues.WAITING); setFrozen(false);}}
+                questionValue = {questionValue}
                 setQuestionValue={setQuestionValue}
+                andrewID = {studentData.andrewID}
             />
 
-            <MessageRespond theme={theme} />
+            <MessageRespond 
+                open={status === StudentStatusValues.RECEIVED_MESSAGE} 
+                message={messageValue}
+                helpingTAInfo={helpingTAInfo}
+                removeFromQueue={removeFromQueue}
+                dismissMessage={dismissMessage}
+            />
         </div>
     );
 }

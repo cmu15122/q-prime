@@ -13,7 +13,7 @@ function Main (props) {
 
     return (
         <div>
-            <Typography variant="h3" textAlign='center' sx={{ mt: 4 }} fontWeight='bold'>
+            <Typography variant="h3" textAlign='center' sx={{ mt: 4, mb: 2 }} fontWeight='bold'>
                 Settings
             </Typography>
             {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
-    Button, TableCell, TableRow
+    Button, TableCell, TableRow, Typography
 } from "@mui/material";
 
 import TopicDialogBody from "./dialogs/TopicDialogBody";
@@ -182,6 +182,7 @@ export default function QueueTopicSettings(props) {
                 {
                     rows.map((row, index) => (
                         <EditDeleteRow
+                            key={row.name}
                             theme={theme}
                             index={index}
                             row={row}
@@ -189,14 +190,26 @@ export default function QueueTopicSettings(props) {
                             handleEdit={handleEditDialog} 
                             handleDelete={handleDeleteDialog}
                         >
-                            <TableCell component="th" scope="row" sx={{ fontSize: "16px", fontWeight: "bold", pl: 3.25 }}>
-                                {row.name}
+                            <TableCell component="th" scope="row" sx={{ pl: 3.25 }}>
+                                <Typography sx={{ fontWeight: "bold" }}>
+                                    {row.name}
+                                </Typography>
                             </TableCell>
-                            <TableCell component="th" scope="row" sx={{ fontSize: "16px", fontStyle: "italic", pl: 3.25 }}>
-                                {row.category}
+                            <TableCell align="left">
+                                <Typography sx={{ fontStyle: "italic" }}>
+                                    {row.category}
+                                </Typography>
                             </TableCell>
-                            <TableCell align="left" sx={{ fontSize: "16px" }}>{row.startDate.toLocaleString(DateTime.DATETIME_SHORT)}</TableCell>
-                            <TableCell align="left" sx={{ fontSize: "16px" }}>{row.endDate.toLocaleString(DateTime.DATETIME_SHORT)}</TableCell>
+                            <TableCell align="left">
+                                <Typography>
+                                    {row.startDate.toLocaleString(DateTime.DATETIME_SHORT)}
+                                </Typography>
+                            </TableCell>
+                            <TableCell align="left">
+                                <Typography>
+                                    {row.endDate.toLocaleString(DateTime.DATETIME_SHORT)}
+                                </Typography>
+                            </TableCell>
                         </EditDeleteRow>
                     ))
                 }
@@ -205,13 +218,13 @@ export default function QueueTopicSettings(props) {
                     style={{ background : theme.palette.background.default }}
                 >
                     <TableCell align="center" colSpan={5}>
-                        <Button sx={{ mr: 1, fontWeight: "bold", fontSize: "18px" }} color="primary" variant="contained" onClick={() => handleAddDialog()}>
+                        <Button sx={{ mr: 1, fontWeight: "bold"}} color="primary" variant="contained" onClick={() => handleAddDialog()}>
                             + Add Topic
                         </Button>
-                        <Button sx={{ mr: 1, fontWeight: "bold", fontSize: "18px" }} color="info" variant="contained" onClick={() => handleDownload()}>
+                        <Button sx={{ mr: 1, fontWeight: "bold" }} color="info" variant="contained" onClick={() => handleDownload()}>
                             Download CSV Template
                         </Button>
-                        <Button sx={{ mr: 1, fontWeight: "bold", fontSize: "18px" }} color="info" variant="contained" onClick={() => handleUploadDialog()}>
+                        <Button sx={{ mr: 1, fontWeight: "bold" }} color="info" variant="contained" onClick={() => handleUploadDialog()}>
                             Upload CSV
                         </Button>
                     </TableCell>

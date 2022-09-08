@@ -1,25 +1,23 @@
-import * as React from 'react';
 import {
-  Button, Toolbar
-} from '@mui/material'
+    Button, Stack
+} from '@mui/material';
 
 import PersistentOptions from './PersistentOptions';
 
-
 export default function LeapStudentActions(props) {
-
-  const {
-    theme, student, approveCooldownOverride, index,
-  } = props
-
-  return (
-    <Toolbar sx={{ alignItems: 'right', justifyContent: 'flex-end' }}>
-      <div>
-        <Button color="success" variant="contained" onClick={() => approveCooldownOverride()} sx={{ m: 0.5 }}>Approve</Button>
-      </div>
-
-      {PersistentOptions(props)}
-
-    </Toolbar>
-  )
+    const {
+        approveCooldownOverride
+    } = props;
+    
+    return (
+        <Stack
+            direction={{ xs: "column", sm: "row" }}
+            sx={{ alignItems: 'center', justifyContent: 'flex-end' }}
+        >
+            <Button color="success" variant="contained" onClick={() => approveCooldownOverride()} sx={{ m: 0.5 }}>
+                Approve
+            </Button>
+            {PersistentOptions(props)}
+        </Stack>
+    );
 }

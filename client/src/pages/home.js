@@ -28,9 +28,9 @@ function Home(props) {
             {
                 queueData && 
                 <HomeMain 
-                theme={theme}
-                queueData={queueData}
-                studentData={studentData}
+                    theme={theme}
+                    queueData={queueData}
+                    studentData={studentData}
                 />
             }
         </div>

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
-    FormControlLabel, Checkbox, Card, CardContent, Typography, TextField, Grid
+    CardContent, Checkbox, FormControlLabel, Grid, TextField, Typography, 
 } from '@mui/material';
+
+import BaseCard from '../common/cards/BaseCard';
 
 import SettingsService from "../../services/SettingsService";
 
@@ -30,68 +32,70 @@ export default function NotificationSettings(props) {
     };
 
     return (
-        <div className='card' style={{ display: 'flex' }}>
-            <Card sx={{ minWidth: '100%', mt: 1 }}>
-                <CardContent>
-                    <Typography sx={{ fontSize: 16, fontWeight: 'bold', ml: 1, mt: 1}} variant="h5" gutterBottom>
-                        Notification Settings
-                    </Typography>
-                    <Grid container spacing={2}>
-                        <Grid className="d-flex" item xs={12}>
-                        <FormControlLabel control={
+        <BaseCard>
+            <CardContent>
+                <Typography sx={{ fontWeight: 'bold', ml: 1, mt: 1}} variant="body1" gutterBottom>
+                    Notification Settings
+                </Typography>
+                <Grid container spacing={1}>
+                    <Grid className="d-flex" item sx={{ mb: -1 }} xs={12}>
+                    <FormControlLabel control={
+                            <Checkbox 
+                                size="small" 
+                                sx={{ ml: 1 }}
+                                checked={joinNotifsEnabled ?? false}
+                                onChange={(e) => {
+                                    let isJoinNotifsEnabled = e.target.checked;
+                                    setJoinNotifsEnabled(isJoinNotifsEnabled);
+                                    updateNotifSettings(isJoinNotifsEnabled, remindNotifsEnabled, remindTime);
+                                }}
+                            />
+                        } 
+                        label={
+                            <div>
+                                Enable queue join notifications
+                            </div>
+                        }
+                    />
+                    </Grid>
+                    <Grid className="d-flex" item xs={12}>
+                        <FormControlLabel 
+                            control={
                                 <Checkbox 
                                     size="small" 
                                     sx={{ ml: 1 }}
-                                    checked={joinNotifsEnabled ?? false}
+                                    checked={remindNotifsEnabled ?? false}
                                     onChange={(e) => {
-                                        let isJoinNotifsEnabled = e.target.checked;
-                                        setJoinNotifsEnabled(isJoinNotifsEnabled);
-                                        updateNotifSettings(isJoinNotifsEnabled, remindNotifsEnabled, remindTime);
+                                        let isRemindNotifsEnabled = e.target.checked;
+                                        setRemindNotifsEnabled(isRemindNotifsEnabled);
+                                        updateNotifSettings(joinNotifsEnabled, isRemindNotifsEnabled, remindTime);
                                     }}
                                 />
                             } 
-                            label="Enable queue join notifications" sx={{mt: 1}}
-                        />
-                        </Grid>
-                        <Grid className="d-flex" item sx={{ mt: -3 }} xs={12}>
-                            <FormControlLabel 
-                                control={
-                                    <Checkbox 
-                                        size="small" 
-                                        sx={{ ml: 1 }}
-                                        checked={remindNotifsEnabled ?? false}
+                            label={
+                                <div>
+                                    Remind me after I've been helping for
+                                    <TextField 
+                                        id="time-notif" 
+                                        disabled={!(remindNotifsEnabled ?? false)} 
+                                        type="number"
+                                        variant="standard"
+                                        sx={{ mr: 1, ml: 1, mt: -1 }} 
+                                        style={{ width: "50px"}}
+                                        inputProps={{ style: { textAlign: 'center', min: 0 } }}
+                                        value={remindTime ?? 15}
                                         onChange={(e) => {
-                                            let isRemindNotifsEnabled = e.target.checked;
-                                            setRemindNotifsEnabled(isRemindNotifsEnabled);
-                                            updateNotifSettings(joinNotifsEnabled, isRemindNotifsEnabled, remindTime);
+                                            let newRemindTime = e.target.value;
+                                            setRemindTime(newRemindTime);
+                                            updateNotifSettings(joinNotifsEnabled, remindNotifsEnabled, newRemindTime);
                                         }}
-                                    />
-                                } 
-                                label={
-                                    <div>
-                                        Remind me after I've been helping for
-                                        <TextField 
-                                            id="time-notif" 
-                                            disabled={!(remindNotifsEnabled ?? false)} 
-                                            type="number"
-                                            variant="standard"
-                                            sx={{ mr: 1, ml: 1, mt: -1 }} 
-                                            style={{ width: "50px"}}
-                                            inputProps={{ style: { textAlign: 'center', min: 0 } }}
-                                            value={remindTime ?? 15}
-                                            onChange={(e) => {
-                                                let newRemindTime = e.target.value;
-                                                setRemindTime(newRemindTime);
-                                                updateNotifSettings(joinNotifsEnabled, remindNotifsEnabled, newRemindTime);
-                                            }}
-                                        /> 
-                                        minutes
-                                    </div>
-                                } />
-                        </Grid>
+                                    /> 
+                                    minutes
+                                </div>
+                            } />
                     </Grid>
-                </CardContent>
-            </Card>
-        </div>
+                </Grid>
+            </CardContent>
+        </BaseCard>
     );
 }

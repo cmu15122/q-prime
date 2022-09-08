@@ -1,22 +1,13 @@
-import React, { useState } from 'react';
-import AskQuestion from './AskQuestion';
+import AskQuestion from '../shared/AskQuestion';
 import StudentEntries from './StudentEntries';
 
-function TAMain(props) {
-  const { theme, queueData } = props;
-  const [questionValue, setQuestionValue] = useState('')
-
-  return (
-    <div>
-      <StudentEntries theme={theme} queueData={queueData}></StudentEntries>
-      <AskQuestion
-        questionValue={questionValue}
-        setQuestionValue={setQuestionValue}
-        queueData={queueData}
-        theme={props.theme}
-      />
-    </div>
-  );
+export default function TAMain(props) {
+    const { theme, queueData } = props;
+    
+    return (
+        <div>
+            <StudentEntries theme={theme} queueData={queueData}/>
+            <AskQuestion theme={theme} queueData={queueData}/>
+        </div>
+    );
 }
-
-export default TAMain;

@@ -1,25 +1,25 @@
-import * as React from 'react';
 import {
-  Button, Toolbar
-} from '@mui/material'
+  Button, Stack
+} from '@mui/material';
 
 import PersistentOptions from './PersistentOptions';
 
+import { StudentStatusValues } from '../../../../services/StudentStatus';
+
 export default function ActionsHelp(props) {
+    const {
+        student, index, isHelping, handleClickHelp
+    } = props;
 
-  const {
-    theme, student, index, isHelping, setIsHelping, helpIdx,
-    removeRef, confirmRemove, handleRemoveButton, handleClickHelp
-  } = props
-
-  return (
-    <Toolbar sx={{alignItems: 'right', justifyContent:'flex-end'}}>
-        <div>
-          <Button disabled={student.status == 0 || isHelping} color="info" variant="contained" onClick={() => handleClickHelp(index)} sx={{m:0.5}}>Help</Button>
-        </div>
-
-        {PersistentOptions(props)}
-
-    </Toolbar>
-  )
+    return (
+        <Stack
+            direction={{ xs: "column", sm: "row" }}
+            sx={{ alignItems: 'center', justifyContent: 'flex-end' }}
+        >
+            <Button disabled={student.status === StudentStatusValues.BEING_HELPED || isHelping} color="info" variant="contained" onClick={() => handleClickHelp(index)} sx={{ m: 0.5 }}>
+                Help
+            </Button>
+            {PersistentOptions(props)}
+        </Stack>
+    );
 }

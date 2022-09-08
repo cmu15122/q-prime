@@ -1,29 +1,38 @@
 import {
     Typography
-} from '@mui/material'
+} from '@mui/material';
 
-import * as React from 'react';
+import { StudentStatusValues } from '../../../../services/StudentStatus';
 
 export default function StudentStatus(props) {
-  const {
-    student, theme
-  } = props
+    const { student, theme, index, isHelping, helpIdx } = props;
+    const status = student.status;
 
-  const status = student.status
+    const chooseText = (status) => {
+        switch (status) {
+            case StudentStatusValues.BEING_HELPED: {
+                if (isHelping && (index === helpIdx)) {
+                    return 'You are helping';
+                } else {
+                    return `${student.taAndrewID} is Helping`;
+                }
+            }
+            case StudentStatusValues.FIXING_QUESTION: return 'Updating Question';
+            case StudentStatusValues.FROZEN: return 'Frozen';
+            case StudentStatusValues.COOLDOWN_VIOLATION: return 'Joined Before Cooldown';
+            case StudentStatusValues.RECEIVED_MESSAGE: return 'Received Message';
+            default: return '';
+        }
+    }
 
-  const chooseText = (status) => {
-      switch (status) {
-          case 0: return `${student.taAndrewID} is Helping`
-          case 2: return 'Updating Question'
-          case 3: return 'Frozen'
-          case 4: return 'Joined Before Cooldown'
-          default: return 'Not valid position'
-      }
-  }
-
-  return (
-    <Typography fontSize='14px' color={theme.palette.success.main} alignSelf='center'>
-        {chooseText(status)}
-    </Typography>
-  )
+    return (
+        <Typography 
+            fontSize='13px'
+            color={theme.palette.success.main}
+            style={{ overflowWrap: "break-word" }}
+            sx={{ mb: { xs: 1, sm: 0.5 }, }}
+        >
+            {chooseText(status)}
+        </Typography>
+    );
 }

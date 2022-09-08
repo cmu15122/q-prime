@@ -15,7 +15,7 @@ export default function AddDialog(props) {
             fullWidth
         >
             <DialogContent>
-                <Typography sx={{ pb: 2, fontWeight: 'bold', fontSize: '22px', textAlign: 'center' }}>
+                <Typography variant="h5" sx={{ pb: 2, fontWeight: 'bold', textAlign: 'center' }}>
                     {title}
                 </Typography>
                 <form onSubmit={handleCreate}>

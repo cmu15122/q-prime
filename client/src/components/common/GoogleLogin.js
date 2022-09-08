@@ -2,9 +2,9 @@ import React, { useEffect, useRef } from 'react';
 import { useCookies } from 'react-cookie';
 
 import config from '../../config/config.json';
+import HomeService from '../../services/HomeService';
 
-function GoogleLogin(props) {
-    const { queueData } = props
+function GoogleLogin() {
     const [, setCookie] = useCookies(['user']);
     const divRef = useRef(null);
 
@@ -15,21 +15,13 @@ function GoogleLogin(props) {
 
         window.google.accounts.id.initialize({
             client_id: config.google_client_id,
-            callback: async (response) => {
-                const res = await fetch('/login', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        token: response.credential,
-                    }),
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                });
-                const body = await res.json();
-                if (res.status === 200) {
-                    setCookie('user', JSON.stringify(body));
+            callback: (response) => {
+                HomeService.login(JSON.stringify({
+                    token: response.credential,
+                })).then((res) => {
+                    setCookie('user', JSON.stringify(res.data));
                     window.location.reload();
-                }
+                });
             }
         });
 
@@ -37,7 +29,7 @@ function GoogleLogin(props) {
             divRef.current,
             { theme: "outline", size: "large" }
         ); 
-    }, [queueData, setCookie]);
+    }, [setCookie]);
 
     return (
         <div ref={divRef} id="signInDiv"></div>

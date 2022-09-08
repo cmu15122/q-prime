@@ -1,24 +1,23 @@
-import * as React from 'react';
 import {
-  Button, Stack, Typography
-} from '@mui/material'
+    Button, Stack
+} from '@mui/material';
 
 export default function YouAreHelping(props) {
-  const {
-    theme, removeRef, removeStudent, index, handleCancel,
-  } = props
-
-  return (
-    <Stack direction='row' sx={{ pt: 1, pb: 1, pr: 1 }} justifyContent='flex-end'>
-      <Typography fontSize='14px' color={theme.palette.success.main} alignSelf='center'>You are helping</Typography>
-      <Stack direction='row' justifyContent='flex-end' spacing={2} sx={{ mr: 1 }}>
-        <Button variant='contained' color='cancel' sx={{ width: '40%' }} onClick={() => handleCancel(index)}>Cancel</Button>
-        <Button variant='contained' color='info' sx={{ width: '40%' }}
-          ref={removeRef} onClick={() => removeStudent(index)}
+    const {
+        removeRef, removeStudent, index, handleCancel,
+    } = props;
+    
+    return (
+        <Stack
+            direction={{ xs: "column", sm: "row" }}
+            sx={{ alignItems: 'center', justifyContent: 'flex-end' }}
         >
-          Done
-        </Button>
-      </Stack>
-    </Stack>
-  )
+            <Button variant='contained' color='cancel' sx={{ m: 0.5 }} onClick={() => handleCancel(index)}>
+                Cancel
+            </Button>
+            <Button variant='contained' color='info' sx={{ m: 0.5 }} ref={removeRef} onClick={() => removeStudent(index)}>
+                Done
+            </Button>
+        </Stack>
+    );
 }

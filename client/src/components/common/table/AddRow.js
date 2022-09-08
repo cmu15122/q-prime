@@ -12,7 +12,7 @@ export default function AddRow(props) {
             style={{ background : theme.palette.background.default }}
         >
             <TableCell align="center" colSpan={5}>
-                <Button sx={{ mr: 1, fontWeight: "bold", fontSize: "18px" }} color="primary" variant="contained" onClick={() => handleAdd()}>
+                <Button sx={{ mr: 1, fontWeight: "bold" }} color="primary" variant="contained" onClick={() => handleAdd()}>
                     {addButtonLabel}
                 </Button>
             </TableCell>
