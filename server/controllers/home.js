@@ -61,19 +61,33 @@ function buildStudentEntryData(student) {
 exports.get = function (req, res) {
     res.status(200);
 
+    let data = {
+        queueData: {
+            title: "15-122 Office Hours Queue",
+        }
+    };
+
     if (req.user.isOwner) {
-        let data = { isOwner: req.user.isOwner };
+        data.isOwner = req.user.isOwner;
         res.send(data);
         return;
     }
-    let data = {
+
+    let adminSettings = settings.get_admin_settings();
+    if (adminSettings.currSem == null) {
+        data.queueData.uninitializedSem = true;
+        res.send(data);
+        return;
+    }
+
+    data = {
         queueData: {
             title: "15-122 Office Hours Queue",
             announcements: announcements,
             queueFrozen: queueFrozen,
             numStudents: ohq.size(),
             waitTime: waittime.get(),
-            rejoinTime: settings.get_admin_settings().rejoinTime,
+            rejoinTime: adminSettings.rejoinTime,
             isAuthenticated: req.user?.isAuthenticated,
             isTA: req.user?.isTA,
             isAdmin: req.user?.isAdmin,
@@ -91,7 +105,7 @@ exports.get = function (req, res) {
 
     models.assignment_semester.findAll({
         where: {
-            sem_id: settings.get_admin_settings().currSem,
+            sem_id: adminSettings.currSem,
             start_date: { [Sequelize.Op.lt]: new Date() },
             end_date: { [Sequelize.Op.gt]: new Date() }
         },
