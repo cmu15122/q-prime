@@ -2,7 +2,6 @@
 const moment = require('moment-timezone');
 const Promise = require('bluebird');
 const Sequelize = require('sequelize');
- 
 const queue = require('./queue');
 const models = require('../models');
 const sockets = require('./sockets');
@@ -286,10 +285,6 @@ exports.post_add_question = function (req, res) {
            student: models.student.findOrCreate({ // TODO: change to findOne after adding permanent students to database
                where: {
                    student_id: account.user_id
-               },
-               defaults: {
-                   num_questions: 0,
-                   time_on_queue: 0
                }
            }),
            account: account
@@ -415,10 +410,6 @@ exports.post_remove_student = function (req, res) {
                student: models.student.findOrCreate({
                    where: {
                        student_id: account.user_id
-                   },
-                   defaults: {
-                       num_questions: 0,
-                       time_on_queue: 0
                    }
                })
            });

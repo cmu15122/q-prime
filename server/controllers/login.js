@@ -73,10 +73,6 @@ exports.post_login = async (req, res) => {
                         where: {
                             student_id: account.user_id
                         },
-                        defaults: {
-                            num_questions: 0,
-                            time_on_queue: 0
-                        }
                     });
                 }(),
             });
