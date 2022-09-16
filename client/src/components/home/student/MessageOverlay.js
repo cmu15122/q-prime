@@ -25,7 +25,6 @@ export default function MessageOverlay(props) {
                     rows={4}
                     value={message}
                     InputProps={{ readOnly: true }}
-                    type="url"
                 />
 
                 <Stack direction="row" justifyContent="center" alignItems="center" spacing={5}>
