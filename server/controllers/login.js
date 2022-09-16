@@ -78,7 +78,7 @@ exports.post_login = async (req, res) => {
                     return models.student.findOrCreate({
                         where: {
                             student_id: account.user_id
-                        },
+                        }
                     });
                 }(),
             });
