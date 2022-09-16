@@ -26,12 +26,19 @@ module.exports = (sequelize, DataTypes) => {
       unique: true,
       primaryKey: true,
     },
-    num_questions: DataTypes.BIGINT,
-    time_on_queue: DataTypes.BIGINT
+    num_questions: {
+      type: DataTypes.BIGINT,
+      defaultValue: 0
+    },
+    time_on_queue: {
+      type: DataTypes.BIGINT,
+      defaultValue: 0
+    }
   }, {
     sequelize,
     modelName: 'student',
     tableName: 'student'
   });
+
   return Student;
 };

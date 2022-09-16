@@ -28,8 +28,14 @@ module.exports = (sequelize, DataTypes) => {
     },
     is_admin: DataTypes.INTEGER,
     zoom_url: DataTypes.STRING,
-    num_helped: DataTypes.BIGINT,
-    time_helped: DataTypes.BIGINT
+    num_helped: {
+      type: DataTypes.BIGINT,
+      defaultValue: 0
+    },
+    time_helped: {
+      type: DataTypes.BIGINT,
+      defaultValue: 0
+    }
   }, {
     sequelize,
     modelName: 'ta',
