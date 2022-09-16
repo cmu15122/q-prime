@@ -16,6 +16,8 @@ exports.post_login = async (req, res) => {
         audience: config.GOOGLE_CLIENT_ID,
     });
 
+    let adminSettings = settings.get_admin_settings();
+
     const { name, email } = ticket.getPayload();
     if (email == config.OWNER_EMAIL) {
         const access_token = jwt.sign(
@@ -27,6 +29,10 @@ exports.post_login = async (req, res) => {
 
         res.status(201);
         res.json({ name: name, email: email, access_token: access_token });
+        return;
+    } else if (adminSettings.currSem == null) {
+        res.status(500);
+        res.json({ message: "Queue has not been initialized; must log in with owner email" });
         return;
     }
 
@@ -56,7 +62,7 @@ exports.post_login = async (req, res) => {
             account: account.save(),
             semUser: models.semester_user.findOrCreate({
                 where: {
-                    sem_id: settings.get_admin_settings().currSem,
+                    sem_id: adminSettings.currSem,
                     user_id: account.user_id
                 }
             })

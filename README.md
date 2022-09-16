@@ -1,6 +1,7 @@
-# 122q
+# q'
 
-On the come up B)
+## The new office hours queue for CMU's 15-122 Principles of Imperative Programming.
+
 **The Squad:** Pranav Addepalli, Angela Zhang, Amanda Li, Bhargav Hadya, Brandon Sommerfeld, Esther Cao, Jackson Romero, Lora Zhou, Mengrou Shou
 
 ## Getting Started
@@ -9,7 +10,7 @@ On the come up B)
     ```
     % npm install
     ```
-3. Download and install [PostgreSQL](https://www.postgresql.org/download/) and set up the database ([see below](#setting-up-the-database))
+3. You may need to download and install [PostgreSQL](https://www.postgresql.org/download/) and set up the database ([see below](#setting-up-the-database))
 4. Set up environment files ([see below](#configuration))
 
 ## Running Server
@@ -19,6 +20,7 @@ On the come up B)
     % npm start
     ```
 2. Server should now correctly run and update when you make changes to the files! You can check the various endpoints to see what gets returned at [localhost:8000](http://localhost:8000)
+
 3. You can run the test cases for the server by running
     ```
     % npm test
@@ -31,6 +33,7 @@ On the come up B)
     % npm start
     ```
 2. Open browser at [localhost:3000](http://localhost:3000)
+
 3. You can run the test cases for the client by running
     ```
     % npm test
