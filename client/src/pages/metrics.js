@@ -22,7 +22,7 @@ class Metrics extends Component {
 
     render() {
         return (
-            <div className="Metrics">
+            <div className="Metrics" style={{backgroundColor: this.props.theme.palette.background.default}}>
                 <Navbar theme={this.props.theme} queueData={this.state.queueData} askQuestionOrYourEntry={true}/>
                 {
                     this.state.queueData != null && 
