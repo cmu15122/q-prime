@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState, useEffect } from "react";
 import {
     Typography, Divider, CardContent, Stack, IconButton,
 } from "@mui/material";
@@ -10,13 +10,23 @@ import BaseCard from "../../common/cards/BaseCard";
 
 import * as converter from "number-to-words";
 
+import { socketSubscribeTo } from "../../../services/SocketsService";
+
 const CustomDivider = styled(Divider)({
-    marginTop: ".5em", 
+    marginTop: ".5em",
     marginBottom: ".5em"
 });
 
 export default function YourEntry(props) {
     const { openRemoveOverlay, frozen, position, location, topic, question } = props;
+
+    const [minsPerStudent, setMinsPerStudent] = useState(0);
+
+    useEffect(() => {
+        socketSubscribeTo("waittimes", (data) => {
+            setMinsPerStudent(data.minsPerStudent)
+        });
+    }, []);
 
     return (
         <BaseCard>
@@ -28,8 +38,9 @@ export default function YourEntry(props) {
                         <DeleteIcon />
                     </IconButton>
                 </Stack>
+                <Typography variant="h6">The estimated time until you are helped is <strong>{minsPerStudent * position} minutes</strong></Typography>
                 {
-                    frozen && 
+                    frozen &&
                     <div>
                         <CustomDivider/>
                         <Stack direction="row" display="flex" alignItems="center">
