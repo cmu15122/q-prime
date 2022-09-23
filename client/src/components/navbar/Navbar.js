@@ -8,7 +8,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { styled } from '@mui/material/styles';
 
 import OHQueueHeader from './OHQueueHeader';
-import LoggedInAs from './LoggedInAs';
+import ChangeNameBtn from './changeNameBtn';
 import GoogleLogin from '../common/GoogleLogin';
 import AlertOnLogout from './dialogs/AlertOnLogout';
 
@@ -41,6 +41,7 @@ export default function Navbar(props) {
     const [anchorElNav, setAnchorElNav] = useState(null);
 
     const [alertOpen, setAlertOpen] = useState(false);
+    const [pname, setpname] = useState(queueData === null ? "" : queueData.preferred_name)
 
     const handleOpenNavMenu = (event) => {
         setAnchorElNav(event.currentTarget);
@@ -210,9 +211,14 @@ export default function Navbar(props) {
                     isTA && isHome && (queueFrozen ? unfreezeButton : freezeButton)
                 }
             </Box>
-            <Box sx={{ flexGrow: 0, display: "flex", justifyContent: 'flex-end'}}>
+            <Box sx={{ flexGrow: 0, display: "flex", color: "#FFFFFF"}}>
+                { 
+                    isAuthenticated && "Currently Logged in as " + pname
+                }
+            </Box>
+            <Box sx={{ flexGrow: 0, display: "flex" }}>
                 {
-                    isAuthenticated && <LoggedInAs theme={theme} queueData={queueData}/>
+                    isAuthenticated && <ChangeNameBtn theme={theme} queueData={queueData} pname={pname} setpname={setpname}/>
                 }
             </Box>
 
