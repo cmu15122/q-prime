@@ -29,6 +29,7 @@ exports.init = function () {
 };
 
 exports.update_wait_times = function () {
+  // check number of students helped in the last 30 minutes
   models.question
     .findAll({
       where: {
@@ -44,8 +45,6 @@ exports.update_wait_times = function () {
       },
     })
     .then((questions) => {
-      // check number of students helped in the last 30 minutes
-      // (# students not being helped) / (# helped in last 30) * 30
       let totalHelpedSeconds = 0
 
       // add questions from database
@@ -63,9 +62,11 @@ exports.update_wait_times = function () {
         totalHelpedSeconds += secondsDiff
       }
 
+      // calculate total number of people helped in last 30 min
       let totalQuestions = questions.length + currentlyHelping.length
 
       if (totalQuestions != 0) {
+        // calculate time per person helped
         const minsPerStudent = Math.floor((totalHelpedSeconds / 60) / totalQuestions);
 
         const numUnhelped = home
