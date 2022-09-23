@@ -4,7 +4,7 @@ let slack = require("./slack");
 var sockets = require("./sockets");
 
 let last_updated = new Date(0);
-const ping_interval_secs = 5;
+const ping_interval_secs = 30;
 const ping_threshold_mins = 30;
 
 const models = require("../models");
