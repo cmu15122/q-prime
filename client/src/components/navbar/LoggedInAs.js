@@ -34,7 +34,7 @@ export default function LoggedInAs(props) {
     return (
         <div>
             <Button variant="h8" onClick={handleClickOpen} sx={{ color: "#FFFFFF" }}>
-                Logged in as {queueData.andrewID}
+                Logged in as {pname}
             </Button>
             <Dialog open={open} onClose={handleClose}>
                 <form onSubmit={handleSubmit}>
