@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
     Button, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, TextField,
 } from "@mui/material";
+import EditIcon from '@mui/icons-material/Edit';
 
 import SettingsService from "../../services/SettingsService";
 
@@ -33,7 +34,7 @@ export default function ChangeNameBtn(props) {
     return (
         <div>
             <Button variant="h8" onClick={handleClickOpen} sx={{ color: "#FFFFFF" }}>
-                Change Name
+                <EditIcon/>
             </Button>
             <Dialog open={open} onClose={handleClose}>
                 <form onSubmit={handleSubmit}>
