@@ -7,7 +7,7 @@ let sio;
 let ta_room = crypto.randomBytes(72).toString('base64');
 let student_room = crypto.randomBytes(72).toString('base64');
 
-exports.init = function(server) {
+exports.init = function (server) {
     sio = require("socket.io")(server, {
         cors: {
             origin: "http://localhost:3000", // TODO: change to client URL
@@ -23,11 +23,11 @@ exports.init = function(server) {
             if (!auth) return;
 
             models.account.findOne({
-                where: { access_token: auth }, 
+                where: { access_token: auth },
                 include: [
-                    { 
-                        model: models.semester_user,  
-                        where: { sem_id: settings.get_admin_settings().currSem }, 
+                    {
+                        model: models.semester_user,
+                        where: { sem_id: settings.get_admin_settings().currSem },
                         as: "semester_users"
                     }
                 ]
@@ -50,7 +50,7 @@ exports.init = function(server) {
     });
 };
 
-exports.queueFrozen = function(isFrozen) {
+exports.queueFrozen = function (isFrozen) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");
         return;
@@ -61,18 +61,20 @@ exports.queueFrozen = function(isFrozen) {
     });
 }
 
-exports.waittimes = function(times) {
+exports.waittimes = function (minsPerStudent, numStudents, numUnhelped) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");
         return;
     }
 
     sio.emit("waittimes", {
-        times: times
+        minsPerStudent: minsPerStudent,
+        numStudents: numStudents,
+        numUnhelped: numUnhelped
     });
 }
 
-exports.addAnnouncement = function(announcement) {
+exports.addAnnouncement = function (announcement) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");
         return;
@@ -82,7 +84,7 @@ exports.addAnnouncement = function(announcement) {
     });
 }
 
-exports.updateAnnouncement = function(id, announcement) {
+exports.updateAnnouncement = function (id, announcement) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");
         return;
@@ -93,7 +95,7 @@ exports.updateAnnouncement = function(id, announcement) {
     });
 }
 
-exports.deleteAnnouncement = function(announcementId) {
+exports.deleteAnnouncement = function (announcementId) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");
         return;
@@ -103,7 +105,7 @@ exports.deleteAnnouncement = function(announcementId) {
     });
 }
 
-exports.help = function(studentData, taAccount) {
+exports.help = function (studentData, taAccount) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");
         return;
@@ -122,7 +124,7 @@ exports.help = function(studentData, taAccount) {
     });
 }
 
-exports.unhelp = function(studentData, taAndrewID) {
+exports.unhelp = function (studentData, taAndrewID) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");
         return;
@@ -139,13 +141,13 @@ exports.unhelp = function(studentData, taAndrewID) {
     });
 }
 
-exports.add = function(studentData) {
+exports.add = function (studentData) {
     sio.emit("add", {
         studentData: studentData
     });
 }
 
-exports.remove = function(studentAndrewID, studentData) {
+exports.remove = function (studentAndrewID, studentData) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");
         return;
@@ -157,12 +159,12 @@ exports.remove = function(studentAndrewID, studentData) {
     });
 }
 
-exports.updateQuestion = function(studentData) {
+exports.updateQuestion = function (studentData) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");
         return;
     }
-    
+
     sio.to(ta_room).emit("updateQuestion", {
         andrewID: studentData.andrewID,
         data: {
@@ -171,7 +173,7 @@ exports.updateQuestion = function(studentData) {
     });
 }
 
-exports.updateQRequest = function(studentData) {
+exports.updateQRequest = function (studentData) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");
         return;
@@ -185,7 +187,7 @@ exports.updateQRequest = function(studentData) {
     });
 }
 
-exports.message = function(studentData, taAccount) {
+exports.message = function (studentData, taAccount) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");
         return;
@@ -202,7 +204,7 @@ exports.message = function(studentData, taAccount) {
     });
 }
 
-exports.dismiss_message = function(studentData) {
+exports.dismiss_message = function (studentData) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");
         return;
@@ -216,7 +218,7 @@ exports.dismiss_message = function(studentData) {
     });
 }
 
-exports.approveCooldown = function(studentData) {
+exports.approveCooldown = function (studentData) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");
         return;
