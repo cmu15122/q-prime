@@ -12,7 +12,7 @@ let student_room = crypto.randomBytes(72).toString('base64');
 exports.init = function(server) {
     sio = require("socket.io")(server, {
         cors: {
-            origin: config.PROTOCOL + "://" + config.DOMAIN,
+            origin: config.PROTOCOL + "://" + config.DOMAIN + ":" + config.CLIENT_PORT,
             methods: ["GET", "POST"]
         }
     });

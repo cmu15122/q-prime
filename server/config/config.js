@@ -11,6 +11,7 @@ module.exports = {
   DB_DIALECT: 'postgres',
   PROTOCOL: process.env.PROTOCOL,
   DOMAIN: process.env.DOMAIN,
+  CLIENT_PORT: process.env.CLIENT_PORT,
   TOKEN_KEY: process.env.TOKEN_KEY,
   OWNER_EMAIL: process.env.OWNER_EMAIL,
   OWNER_ACCESS_TOKEN: ''
