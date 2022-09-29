@@ -23,23 +23,24 @@ httpInstance.interceptors.request.use(
         return Promise.reject(err);
     }
 );
- 
+
 httpInstance.interceptors.response.use(
     (res) => {
         if (res.data.isOwner && !window.location.href.includes("settings")) {
             // Redirect to settings
             window.location.href = "/settings";
         }
-        if (res.data.message) {
-            toast(res.data.message, {
-                position: "bottom-left",
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            });
-        }
+        // COMMENTED OUT SO ONLY TOAST IF ERROR
+        // if (res.data.message) {
+        //     toast(res.data.message, {
+        //         position: "bottom-left",
+        //         hideProgressBar: false,
+        //         closeOnClick: true,
+        //         pauseOnHover: true,
+        //         draggable: true,
+        //         progress: undefined,
+        //     });
+        // }
         return res;
     },
     (err) => {
@@ -58,7 +59,7 @@ httpInstance.interceptors.response.use(
                 progress: undefined,
             });
         }
-       return Promise.reject(err);
+        return Promise.reject(err);
     }
 );
 
