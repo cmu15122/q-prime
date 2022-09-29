@@ -3,6 +3,7 @@
 ## The new office hours queue for CMU's 15-122 Principles of Imperative Programming.
 
 **The Squad (Summer '22):** Pranav Addepalli, Angela Zhang, Amanda Li, Bhargav Hadya, Brandon Sommerfeld, Esther Cao, Jackson Romero, Lora Zhou, Mengrou Shou
+
 **The Squad (Fall '22):** Pranav Addepalli, Angela Zhang, Amanda Li, Jackson Romero, Arthur Jakobsson, Benjamin Kwabi-Addo, Kevin Wang, Yutian Chen
 
 ## Getting Started
