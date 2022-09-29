@@ -10,12 +10,16 @@ import { socketSubscribeTo } from "../../../services/SocketsService";
 export default function QueueStats(props) {
     const { queueData, queueFrozen, theme } = props;
 
+    // TODO : change based on whether on queue or not
+
     const [numStudents, setNumStudents] = useState();
     const [waitTime, setWaitTime] = useState();
 
     useEffect(() => {
         socketSubscribeTo("waittimes", (data) => {
-            setWaitTime(data.times);
+
+            setWaitTime(data.numUnhelped * data.minsPerStudent)
+            setNumStudents(data.numStudents)
         });
     }, []);
 
@@ -31,7 +35,7 @@ export default function QueueStats(props) {
             <CardContent>
                 <Stack
                     direction="row"
-                    divider={<Divider orientation="vertical" flexItem/>}
+                    divider={<Divider orientation="vertical" flexItem />}
                     spacing={2}
                     alignItems="center"
                     justifyContent="space-evenly"
@@ -40,10 +44,10 @@ export default function QueueStats(props) {
                     <div>
                         <Typography variant="h5" fontWeight="bold" sx={{ mt: 2 }}>The queue is</Typography>
                         {
-                            queueFrozen ? 
-                            <Typography color={theme.palette.error.main} variant="h5" fontWeight="bold" sx={{ mt: 1, mb: 2 }}>CLOSED</Typography>
-                            : 
-                            <Typography color={theme.palette.success.main} variant="h5" fontWeight="bold" sx={{ mt: 1, mb: 2 }}>OPEN</Typography>
+                            queueFrozen ?
+                                <Typography color={theme.palette.error.main} variant="h5" fontWeight="bold" sx={{ mt: 1, mb: 2 }}>CLOSED</Typography>
+                                :
+                                <Typography color={theme.palette.success.main} variant="h5" fontWeight="bold" sx={{ mt: 1, mb: 2 }}>OPEN</Typography>
                         }
                     </div>
                     <div>

@@ -16,10 +16,6 @@ let queueFrozen = false;
 
 const ohq = new queue.OHQueue();
 
-exports.getOHQ = () => {
-    return ohq;
-}
-
 /** Helper Functions **/
 function respond_error(req, res, message, status) {
     res.status(status);
@@ -542,7 +538,7 @@ exports.post_update_question = function (req, res) {
         respond_error(req, res, "Invalid/missing parameters in request", 400);
         return;
     }
-    
+
     let pos = ohq.getPosition(id);
     if (pos === -1) {
         respond_error(req, res, "Student not yet on the queue", 400);
@@ -589,10 +585,10 @@ exports.post_taRequestUpdateQ = function (req, res) {
         res.json({ message: 'Student is already fixing question' })
         return
     }
-    
+
     ohq.setFixQuestion(id);
 
-    let studentData = ohq.getData(id);    
+    let studentData = ohq.getData(id);
     let studentEntryData = buildStudentEntryData(studentData);
     sockets.updateQRequest(studentEntryData);
 
