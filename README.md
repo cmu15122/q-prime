@@ -2,7 +2,7 @@
 
 ## The new office hours queue for CMU's 15-122 Principles of Imperative Programming.
 
-**The Squad:** Pranav Addepalli, Angela Zhang, Amanda Li, Bhargav Hadya, Brandon Sommerfeld, Esther Cao, Jackson Romero, Lora Zhou, Mengrou Shou
+**The Squad:** Pranav Addepalli, Angela Zhang, Amanda Li, Arthur Jakobsson, Benjamin Kwabi-Addo, Bhargav Hadya, Brandon Sommerfeld, Esther Cao, Jackson Romero, Kevin Wang, Lora Zhou, Mengrou Shou, Yutian Chen
 
 ## Getting Started
 1. Download and install [Node.js](https://nodejs.org/en/)
@@ -101,7 +101,6 @@ Inside of the `src` folder:
 | `App.js`         | Entry point for the client application, handles routing to the right page |
 | `http-common.js` | Configuring axios to contact the server (i.e. base URL, interceptors, etc) |
 | `components`     | Used to create reusable/large components in the various web pages |
-| `config`         | Used to store configuration settings to run the client |
 | `pages`          | Stored the base components for each of the pages |
 | `services`       | Used to keep axios services (used to interact with node server) |
 | `themes`         | Used to create and store global themes (i.e. colors or fonts used on every page) |
@@ -120,22 +119,19 @@ Each of these are configured in the main `client/src/App.js` file:
 Below are settings that can be set in the Admin Settings page:
 | Name          | Description        | Link  | Point of Contact for Help |
 | ------------- | ------------------ | -------------------- | ------------------------- |
-| SLACK_WEBHOOK_URL | URL to your incoming Slack webhook | https://my.slack.com/services/new/incoming-webhook/ | Angela |
+| Slack Webhook URL | URL to your incoming Slack webhook | https://my.slack.com/services/new/incoming-webhook/ | Angela |
 
-### Server-Side
-The `server/config/config.js` file has all the fields required to configure the
-server. Create a `.env` file with the following fields to set up the server:
+### Client-Side
+Create a `.env` file in the `client` folder with the following fields:
 
 | Name          | Description        | Link  | Point of Contact for Help |
 | ------------- | ------------------ | -------------------- | ------------------------- |
-| GOOGLE_CLIENT_ID | Google Client ID, used for Google OAuth | https://console.cloud.google.com/apis/credentials (Note: can not create project with Andrew email due to org permissions, need to use personal gmail) | Angela |
-| GOOGLE_CLIENT_SECRET | Google Client Secret, used for Google OAuth | https://console.cloud.google.com/apis/credentials (Note: can not create project with Andrew email due to org permissions, need to use personal gmail) | Angela |
-| POSTGRESQL_DB | Name of the PostgreSQL database | Fill using values from [setting up the database](#setting-up-the-database) | Pranav |
-| POSTGRESQL_DB_HOST | Name of the PostgreSQL database host | Fill using values from [setting up the database](#setting-up-the-database), only required if hosting the database elsewhere (i.e. on Heroku) | Pranav |
-| POSTGRESQL_DB_USER | Username to access the PostgreSQL database | Fill using values from [setting up the database](#setting-up-the-database) | Pranav |
-| POSTGRESQL_DB_PASSWORD | Password for the user to access the PostgreSQL database | Fill using values from [setting up the database](#setting-up-the-database) | Pranav |
-| TOKEN_KEY | Key used to generate access tokens for users | Can use any random alphanumerical string | Bhargav |
-| OWNER_EMAIL | Email for the owner of the queue, granted superuser permissions | Use your own email for development | Angela |
+| WDS_SOCKET_PORT | Port for sockets to use, 0 on deployment, 8000 on local testing | | Angela |
+| REACT_APP_GOOGLE_CLIENT_ID | Google Client ID, used for Google OAuth | https://console.cloud.google.com/apis/credentials (Note: can not create project with Andrew email due to org permissions, need to use personal gmail) | Angela |
+| REACT_APP_PROTOCOL | Protocol used for the host address (`http` or `https`) | | Angela |
+| REACT_APP_DOMAIN | Domain used for the host address | | Angela |
+| REACT_APP_SOCKET_PATH | Path for sockets to use coming from the domain, usually ends with `/socket.io` | | Angela |
+| REACT_APP_SERVER_PATH | Path to make API calls to the server | | Angela |
 
 Add them to the `.env` file like so:
 ```
@@ -144,3 +140,20 @@ Add them to the `.env` file like so:
     name=value,
 }
 ```
+
+### Server-Side
+The `server/config/config.js` file has all the fields required to configure the
+server. Create a `.env` file in the `server` folder with the following fields:
+
+| Name          | Description        | Link  | Point of Contact for Help |
+| ------------- | ------------------ | -------------------- | ------------------------- |
+| GOOGLE_CLIENT_ID | Google Client ID, used for Google OAuth | https://console.cloud.google.com/apis/credentials (Note: can not create project with Andrew email due to org permissions, need to use personal gmail) | Angela |
+| GOOGLE_CLIENT_SECRET | Google Client Secret, used for Google OAuth | https://console.cloud.google.com/apis/credentials (Note: can not create project with Andrew email due to org permissions, need to use personal gmail) | Angela |
+| PROTOCOL | Protocol used for the host address (<http> or <https>) | | Angela |
+| DOMAIN | Domain used for the host address | | Angela |
+| POSTGRESQL_DB | Name of the PostgreSQL database | Fill using values from [setting up the database](#setting-up-the-database) | Pranav |
+| POSTGRESQL_DB_HOST | Name of the PostgreSQL database host | Fill using values from [setting up the database](#setting-up-the-database), only required if hosting the database elsewhere (i.e. on Heroku) | Pranav |
+| POSTGRESQL_DB_USER | Username to access the PostgreSQL database | Fill using values from [setting up the database](#setting-up-the-database) | Pranav |
+| POSTGRESQL_DB_PASSWORD | Password for the user to access the PostgreSQL database | Fill using values from [setting up the database](#setting-up-the-database) | Pranav |
+| TOKEN_KEY | Key used to generate access tokens for users | Can use any random alphanumerical string | Bhargav |
+| OWNER_EMAIL | Email for the owner of the queue, granted superuser permissions | Use your own email for development | Angela |
