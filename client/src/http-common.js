@@ -5,7 +5,7 @@ import Cookies from 'universal-cookie';
 const cookies = new Cookies();
 
 let httpInstance = axios.create({
-    baseURL: "http://localhost:8000/",
+    baseURL: process.env.REACT_APP_SERVER_PATH,
     headers: {
         "Content-type": "application/json"
     }
@@ -27,7 +27,7 @@ httpInstance.interceptors.request.use(
 httpInstance.interceptors.response.use(
     (res) => {
         if (res.data.isOwner && !window.location.href.includes("settings")) {
-            // Redirect to settings
+            // Redirect owner to settings page
             window.location.href = "/settings";
         }
         // COMMENTED OUT SO ONLY TOAST IF ERROR

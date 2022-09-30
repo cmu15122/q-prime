@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useCookies } from 'react-cookie';
 
-import config from '../../config/config.json';
 import HomeService from '../../services/HomeService';
 
 function GoogleLogin() {
@@ -14,7 +13,7 @@ function GoogleLogin() {
         }
 
         window.google.accounts.id.initialize({
-            client_id: config.google_client_id,
+            client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
             callback: (response) => {
                 HomeService.login(JSON.stringify({
                     token: response.credential,

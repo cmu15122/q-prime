@@ -2,6 +2,8 @@ let crypto = require('crypto');
 let models = require('../models');
 let settings = require('./settings');
 
+let config = require('../config/config');
+
 let sio;
 
 let ta_room = crypto.randomBytes(72).toString('base64');
@@ -10,7 +12,7 @@ let student_room = crypto.randomBytes(72).toString('base64');
 exports.init = function (server) {
     sio = require("socket.io")(server, {
         cors: {
-            origin: "http://localhost:3000", // TODO: change to client URL
+            origin: config.PROTOCOL + "://" + config.DOMAIN + ":" + config.CLIENT_PORT,
             methods: ["GET", "POST"]
         }
     });

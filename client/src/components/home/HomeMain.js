@@ -11,7 +11,7 @@ import { socketSubscribeTo } from '../../services/SocketsService';
 function HomeMain (props) {
     const { theme, queueData, studentData } = props;
 
-    const gitHubLink = 'https://www.github.com'
+    const gitHubLink = "https://github.com/cmu15122/q-issues/issues"
     
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isTA, setIsTA] = useState(false);
