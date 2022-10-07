@@ -148,8 +148,6 @@ export default function StudentEntries(props) {
     }, [students, queueData]);
 
     useEffect(() => {
-        console.log(filteredLocations, filteredTopics);
-
         var newFiltered = students
         if (filteredLocations.length > 0) {
             newFiltered = newFiltered.filter((student) => filteredLocations.includes(student.location))

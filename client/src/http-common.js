@@ -1,6 +1,7 @@
 import axios from "axios";
-import { toast } from 'material-react-toastify';
 import Cookies from 'universal-cookie';
+
+import { showErrorToast } from "./services/ToastService";
 
 const cookies = new Cookies();
 
@@ -32,14 +33,7 @@ httpInstance.interceptors.response.use(
         }
         // COMMENTED OUT SO ONLY TOAST IF ERROR
         // if (res.data.message) {
-        //     toast(res.data.message, {
-        //         position: "bottom-left",
-        //         hideProgressBar: false,
-        //         closeOnClick: true,
-        //         pauseOnHover: true,
-        //         draggable: true,
-        //         progress: undefined,
-        //     });
+        //     toastService.showToast(res.data.message);
         // }
         return res;
     },
@@ -50,14 +44,7 @@ httpInstance.interceptors.response.use(
         }
         if (err.response.data.message) {
             let message = err.message + ": " + err.response.data.message;
-            toast.error(message, {
-                position: "bottom-left",
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: undefined,
-            });
+            showErrorToast(message);
         }
         return Promise.reject(err);
     }
