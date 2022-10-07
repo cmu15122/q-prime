@@ -17,7 +17,7 @@ export default function MetricsMain(props) {
             <Typography variant="h3" textAlign='center' sx={{ mt: 4 }} fontWeight='bold'>
                 Metrics
             </Typography>
-            <DateTimeSelector theme={props.theme}/>
+            {/* <DateTimeSelector theme={props.theme}/> */}
             <PersonalStats theme={props.theme}/>
             <OverallStats theme={props.theme}/>
             <CumulativeStats theme={props.theme}/>

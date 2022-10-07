@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
    Card, Divider, Typography, Grid, Table, TableBody, TableCell, 
    TableContainer, TableHead, TablePagination, TableRow, Paper
@@ -6,46 +6,55 @@ import {
 
 import { DateTime } from 'luxon';
 
+import MetricsService from '../../services/MetricsService';
+
 const columns = [
     { id: 'andrew_id', label: 'Andrew ID', width: 50 },
     { id: 'name', label: 'Name', width: 75 },
     { id: 'time_start', label: 'Time Start', width: 100 },
     { id: 'time_end', label: 'Time End', width: 100 },
-  ];
+];
   
-  function createData(andrew_id, name, time_start, time_end) {
+function createData(andrew_id, name, time_start, time_end) {
+    time_start = DateTime.fromISO(time_start).toLocaleString(DateTime.DATETIME_MED);
+    time_end = DateTime.fromISO(time_end).toLocaleString(DateTime.DATETIME_MED);
     return { andrew_id, name, time_start, time_end };
-  }
-  
-  const rows = [
-    createData('angelaz1', 'Angela Zhang', DateTime.now().setZone('America/New_York').toLocaleString(DateTime.DATETIME_MED), DateTime.now().setZone('America/New_York').plus({ minutes: 15 }).toLocaleString(DateTime.DATETIME_MED)),
-    createData('xal', 'Amanda Li', DateTime.fromISO('2022-08-29T21:00:00').toLocaleString(DateTime.DATETIME_MED), DateTime.fromISO('2022-08-29T21:00:00').toLocaleString(DateTime.DATETIME_MED)),
-    createData('lbzhou', 'Lora Zhou', DateTime.fromISO('2022-08-29T21:00:00').toLocaleString(DateTime.DATETIME_MED), DateTime.fromISO('2022-08-29T21:00:00').toLocaleString(DateTime.DATETIME_MED)),
-    createData('test', 'Test', '1', '2'),
-    createData('test', 'Test', '1', '2'),
-    createData('test', 'Test', '1', '2'),
-    createData('test', 'Test', '1', '2'),
-    createData('test', 'Test', '1', '2'),
-    createData('test', 'Test', '1', '2'),
-    createData('test', 'Test', '1', '2'),
-    createData('test', 'Test', '1', '2'),
-    createData('test', 'Test', '1', '2'),
-    createData('test', 'Test', '1', '2'),
-    createData('test', 'Test', '1', '2'),
-    createData('test', 'Test', '1', '2'),
-    createData('test', 'Test', '1', '2'),
-    createData('test', 'Test', '1', '2'),
-    createData('test', 'Test', '1', '2'),
-    createData('test', 'Test', '1', '2'),
-    createData('test', 'Test', '1', '2'),
-    createData('test', 'Test', '1', '2'),
-  ];
+}
 
 export default function PersonalStats(props) {
-    const { theme } = props;
+    const [helpedStudents, setHelpedStudents] = useState([]);
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
 
-    const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(10);
+    const [numQuestionsAnswered, setNumQuestionsAnswered] = useState(0);
+    const [averageHelpTime, setAverageHelpTime] = useState(0);
+
+    useEffect(() =>  {
+        MetricsService.getHelpedStudents().then((res) => {
+            updateHelpedStudents(res.data.helpedStudents);
+        });
+
+        MetricsService.getAverageTimePerQuestion().then((res) => {
+            setAverageHelpTime(res.data.averageTime);
+        });
+        
+        MetricsService.getNumQuestionsAnswered().then((res) => {
+            setNumQuestionsAnswered(res.data.numQuestions);
+        });
+    }, []);
+
+    const updateHelpedStudents = (newHelpedStudents) => {
+        let newRows = [];
+        newHelpedStudents.forEach (helpedStudent => {
+            newRows.push(createData(
+                helpedStudent.student_andrew, 
+                helpedStudent.student_name,
+                helpedStudent.start_date,
+                helpedStudent.end_date,
+            ));
+        });
+        setHelpedStudents(newRows);
+    }
 
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -61,26 +70,24 @@ export default function PersonalStats(props) {
             <Typography variant="h5" sx={{ mt: 4, ml: 10 }} fontWeight='bold'>
                 Personal Statistics
             </Typography>
-            <Card
-                sx={{
-                display: 'flex',
-                alignItems: 'center',
-                maxWidth: '100%',
-                border: (theme) => `1px solid ${theme.palette.divider}`,
-                borderRadius: 1,
-                mt: 4,
-                mx: 13,
-                overflow: 'hidden'
-                }}
-            >
+            <Card sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    maxWidth: '100%',
+                    border: (theme) => `1px solid ${theme.palette.divider}`,
+                    borderRadius: 1,
+                    mt: 4,
+                    mx: 13,
+                    overflow: 'hidden'
+            }}>
                 <Grid sx={{ px: 4, py: 4, alignItems: 'center', textAlign: 'center' }}>
                     <Typography variant='h6' wrap fontWeight='bold'>No. of Questions Answered</Typography>
-                    <Typography variant='h3' wrap sx={{ mt: 2 }} fontWeight='bold'>8</Typography>
+                    <Typography variant='h3' wrap sx={{ mt: 2 }} fontWeight='bold'>{numQuestionsAnswered}</Typography>
                 </Grid>
                 <Divider orientation="vertical" variant="middle" flexItem />
                 <Grid sx={{ px: 4, py: 4, alignItems: 'center', textAlign: 'center' }}>
-                    <Typography variant='h6' wrap fontWeight='bold'>Time Spent Per Question</Typography>
-                    <Typography variant='h3' wrap sx={{ mt: 2 }} fontWeight='bold'>15</Typography>
+                    <Typography variant='h6' wrap fontWeight='bold'>Average Time Spent Per Question (min)</Typography>
+                    <Typography variant='h3' wrap sx={{ mt: 2 }} fontWeight='bold'>{Number(averageHelpTime).toFixed(2)}</Typography>
                 </Grid>
                 <Divider orientation="vertical" flexItem />
                 <Paper sx={{ width: '100%' }}>
@@ -88,34 +95,37 @@ export default function PersonalStats(props) {
                         <Table stickyHeader aria-label="sticky table">
                         <TableHead>
                             <TableRow>
-                            {columns.map((column) => (
-                                <TableCell
-                                key={column.id}
-                                align={column.align}
-                                style={{ width: column.width, textOverflow: 'ellipsis' }}
-                                >
-                                {column.label}
-                                </TableCell>
-                            ))}
+                            {
+                                columns.map((column) => (
+                                    <TableCell
+                                        key={column.id}
+                                        align={column.align}
+                                        style={{ width: column.width, textOverflow: 'ellipsis' }}
+                                    >
+                                        {column.label}
+                                    </TableCell>
+                                ))
+                            }
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {rows
-                            .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                            .map((row) => {
-                                return (
-                                <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
-                                    {columns.map((column) => {
-                                    const value = row[column.id];
+                            {helpedStudents
+                                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                .map((row) => {
                                     return (
-                                        <TableCell key={column.id} align={column.align} sx={{ width: 50, textOverflow: 'ellipsis' }}>
-                                        {column.format && typeof value === 'number'
-                                            ? column.format(value)
-                                            : value}
-                                        </TableCell>
-                                    );
-                                    })}
-                                </TableRow>
+                                    <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
+                                        {
+                                            columns.map((column) => {
+                                            const value = row[column.id];
+                                            return (
+                                                <TableCell key={column.id} align={column.align} sx={{ width: 50, textOverflow: 'ellipsis' }}>
+                                                {column.format && typeof value === 'number'
+                                                    ? column.format(value)
+                                                    : value}
+                                                </TableCell>
+                                            );
+                                        })}
+                                    </TableRow>
                                 );
                             })}
                         </TableBody>
@@ -124,7 +134,7 @@ export default function PersonalStats(props) {
                     <TablePagination
                         rowsPerPageOptions={[10, 25, 100]}
                         component="div"
-                        count={rows.length}
+                        count={helpedStudents.length}
                         rowsPerPage={rowsPerPage}
                         page={page}
                         onPageChange={handleChangePage}
