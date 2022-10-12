@@ -1,68 +1,67 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 
 import SharedMain from './shared/SharedMain';
 import StudentMain from './student/StudentMain';
 import TAMain from './ta/TAMain';
 import Footer from './Footer';
-import { Container } from '@mui/material';
+import {Container} from '@mui/material';
 
-import { socketSubscribeTo } from '../../services/SocketsService';
+import {socketSubscribeTo} from '../../services/SocketsService';
 
-function HomeMain (props) {
-    const { queueData, studentData } = props;
+function HomeMain(props) {
+  const {queueData, studentData} = props;
 
-    const gitHubLink = "https://github.com/cmu15122/q-issues/issues"
-    
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [isTA, setIsTA] = useState(false);
-    const [isAdmin, setIsAdmin] = useState(false);
-    const [queueFrozen, setQueueFrozen] = useState(true);
-    const [mainPage, setMainPage] = useState(null);
+  const gitHubLink = 'https://github.com/cmu15122/q-issues/issues';
 
-    useEffect(() => {
-        socketSubscribeTo("queueFrozen", (data) => {
-            setQueueFrozen(data.isFrozen);
-        });
-    }, []);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isTA, setIsTA] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [queueFrozen, setQueueFrozen] = useState(true);
+  const [mainPage, setMainPage] = useState(null);
 
-    useEffect(() => {
-        if (queueData != null) {
-            setIsAuthenticated(queueData.isAuthenticated);
-            setIsTA(queueData.isTA);
-            setIsAdmin(queueData.isAdmin);
-            setQueueFrozen(queueData.queueFrozen);
-        }
-    }, [queueData]);
+  useEffect(() => {
+    socketSubscribeTo('queueFrozen', (data) => {
+      setQueueFrozen(data.isFrozen);
+    });
+  }, []);
 
-    useEffect(() => {        
-        if (isAuthenticated) {
-            if (isTA) {
-                setMainPage(<TAMain queueData={queueData} />);
-            }
-            else { // is student
-                if (queueFrozen) {
-                    setMainPage(null);
-                } else {
-                    setMainPage(<StudentMain queueData={queueData} studentData={studentData} />);
-                }
-            }
+  useEffect(() => {
+    if (queueData != null) {
+      setIsAuthenticated(queueData.isAuthenticated);
+      setIsTA(queueData.isTA);
+      setIsAdmin(queueData.isAdmin);
+      setQueueFrozen(queueData.queueFrozen);
+    }
+  }, [queueData]);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (isTA) {
+        setMainPage(<TAMain queueData={queueData} />);
+      } else { // is student
+        if (queueFrozen) {
+          setMainPage(null);
         } else {
-            // queue is open and you are not logged in
-            setMainPage(null);
+          setMainPage(<StudentMain queueData={queueData} studentData={studentData} />);
         }
-    }, [isAuthenticated, isTA, isAdmin, queueFrozen, queueData, studentData]);
+      }
+    } else {
+      // queue is open and you are not logged in
+      setMainPage(null);
+    }
+  }, [isAuthenticated, isTA, isAdmin, queueFrozen, queueData, studentData]);
 
-    return (
-      <Container sx={{ display: "flex", minHeight: "100vh", flexDirection: "column"}}>
-          <SharedMain
-            queueData={queueData}
-            queueFrozen={queueFrozen}
-            setQueueFrozen={setQueueFrozen}
-          />
-          {mainPage}
-          <Footer gitHubLink={gitHubLink}/>
-      </Container>
-    );
+  return (
+    <Container sx={{display: 'flex', minHeight: '100vh', flexDirection: 'column'}}>
+      <SharedMain
+        queueData={queueData}
+        queueFrozen={queueFrozen}
+        setQueueFrozen={setQueueFrozen}
+      />
+      {mainPage}
+      <Footer gitHubLink={gitHubLink}/>
+    </Container>
+  );
 }
-  
+
 export default HomeMain;

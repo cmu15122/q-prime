@@ -1,19 +1,20 @@
+import React from 'react';
 import {
-  Typography
+  Typography,
 } from '@mui/material';
 
-import ConfigSettings from './ConfigSettings'
+import ConfigSettings from './ConfigSettings';
 import Locations from './Locations';
-import QueueRejoinSettings from './QueueRejoinSettings'
-import QueueTopicSettings from './QueueTopicSettings'
-import TASettings from './TASettings'
+import QueueRejoinSettings from './QueueRejoinSettings';
+import QueueTopicSettings from './QueueTopicSettings';
+import TASettings from './TASettings';
 
-function AdminMain (props) {
-  const { queueData } = props;
+function AdminMain(props) {
+  const {queueData} = props;
 
   return (
-    <div style={{ paddingBottom: '80px' }}>
-      <Typography variant="h4" textAlign='center' sx={{ my: 4}} fontWeight='bold'>
+    <div style={{paddingBottom: '80px'}}>
+      <Typography variant="h4" textAlign='center' sx={{my: 4}} fontWeight='bold'>
         Admin Settings
       </Typography>
 
@@ -25,5 +26,5 @@ function AdminMain (props) {
     </div>
   );
 }
-  
+
 export default AdminMain;

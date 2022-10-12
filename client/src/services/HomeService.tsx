@@ -1,56 +1,56 @@
-import http from "../http-common";
+import http from '../http-common';
 
 class HomeDataService {
   getAll() {
-    return http.get("/");
+    return http.get('/');
   }
   login(data) {
-    return http.post("/login", data);
+    return http.post('/login', data);
   }
   freezeQueue() {
-    return http.post("/freezeQueue");
+    return http.post('/freezeQueue');
   }
   unfreezeQueue() {
-    return http.post("/unfreezeQueue");
+    return http.post('/unfreezeQueue');
   }
   createAnnouncement(data) {
-    return http.post("/announcements/create", data);
+    return http.post('/announcements/create', data);
   }
   updateAnnouncement(data) {
-    return http.post("/announcements/update", data);
+    return http.post('/announcements/update', data);
   }
   deleteAnnouncement(data) {
-    return http.post("/announcements/delete", data);
+    return http.post('/announcements/delete', data);
   }
   addQuestion(data) {
-    return http.post("/addQuestion", data);
+    return http.post('/addQuestion', data);
   }
   removeStudent(data) {
-    return http.post("/removeStudent", data);
+    return http.post('/removeStudent', data);
   }
   helpStudent(data) {
-    return http.post("/helpStudent", data);
+    return http.post('/helpStudent', data);
   }
   unhelpStudent(data) {
-    return http.post("/unhelpStudent", data);
+    return http.post('/unhelpStudent', data);
   }
   updateQuestion(data) {
-    return http.post("/updateQuestion", data);
+    return http.post('/updateQuestion', data);
   }
   taRequestUpdateQ(data) {
-    return http.post("/taRequestUpdateQ", data);
+    return http.post('/taRequestUpdateQ', data);
   }
   messageStudent(data) {
-    return http.post("/messageStudent", data);
+    return http.post('/messageStudent', data);
   }
   dismissMessage(data) {
-    return http.post("/dismissMessage", data);
+    return http.post('/dismissMessage', data);
   }
   approveCooldownOverride(data) {
-    return http.post("/approveCooldownOverride", data);
+    return http.post('/approveCooldownOverride', data);
   }
   displayStudents() {
-    return http.get("/displayStudents");
+    return http.get('/displayStudents');
   }
 }
 
