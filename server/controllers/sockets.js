@@ -116,7 +116,8 @@ exports.help = function(studentData, taAccount) {
             taData: {
                 taId: taAccount.ta.ta_id,
                 taName: taAccount.name,
-                taZoomUrl: taAccount.ta.zoom_url
+                taZoomUrl: taAccount.ta.zoom_url,
+                taPreferName: taAccount.preferred_name
             }
         }
     });
