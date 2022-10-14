@@ -13,10 +13,12 @@ export default function TAHelpingOverlay(props) {
         return url;
     }
 
+    const displayName = helpingTAInfo?.taPreferName === undefined ? helpingTAInfo?.taName : helpingTAInfo.taPreferName
+
     return (
         <Dialog open={open} maxWidth="sm" fullWidth>
             <DialogContent sx={{ p: 5, textAlign: "center"}} >
-                <Typography variant="h6" textAlign="center">You are being helped by {helpingTAInfo?.taName} (TA)!</Typography>
+                <Typography variant="h6" textAlign="center">You are being helped by {displayName} (TA)!</Typography>
                 {
                     helpingTAInfo?.taZoomUrl && 
                     <Button sx={{ mt: 3 }} variant="contained" target="_blank" href={addhttp(helpingTAInfo?.taZoomUrl)}>Join Zoom</Button>
