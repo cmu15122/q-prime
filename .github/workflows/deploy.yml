@@ -15,7 +15,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Push to production
-        run: 
+        run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git push production main
