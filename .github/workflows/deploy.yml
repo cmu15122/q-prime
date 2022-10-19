@@ -17,6 +17,6 @@ jobs:
       - run: git checkout HEAD^
       - name: Push to production
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "Angela Zhang"
+          git config --global user.email "angelaz1@andrew.cmu.edu"
           git push ${{ secrets.PRODUCTION_URL }} HEAD
