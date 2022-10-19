@@ -54,7 +54,7 @@ export default function YourEntry(props) {
         }
         <CustomDivider/>
         <Typography variant="h6"><strong>Location:</strong> {location}</Typography>
-        <Typography variant="h6"><strong>Topic:</strong> {topic}</Typography>
+        <Typography variant="h6"><strong>Topic:</strong> {topic.name}</Typography>
         <CustomDivider/>
         <Typography variant="h6" sx={{fontWeight: 'bold'}}>Question:</Typography>
         <Typography variant="h6">{question}</Typography>
