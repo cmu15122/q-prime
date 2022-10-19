@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {
-  Box, Button, Dialog, DialogContent, Typography, TextField,
+  Box, Button, Dialog, DialogContent, Typography, TextField, useTheme,
 } from '@mui/material';
 
 import HomeService from '../../../../services/HomeService';
@@ -8,7 +8,7 @@ import {StudentStatusValues} from '../../../../services/StudentStatus';
 
 export default function MessageDialog(props) {
   const {isOpen, onClose, student} = props;
-
+  const theme = useTheme();
   const [message, setMessage] = useState('');
 
   const onSubmit = (event) => {
@@ -40,7 +40,7 @@ export default function MessageDialog(props) {
         </Typography>
         {
           (student.messageBuffer && student.messageBuffer.length > 0) &&
-            <Box bgcolor="grey.300" sx={{mb: 2, border: 1, borderColor: 'grey.400', borderRadius: 1, display: 'flex', flexDirection: 'column', maxHeight: 80, overflow: 'hidden', overflowY: 'scroll'}}>
+            <Box bgcolor='background.paper' sx={{p: 1, mb: 2, border: 1, borderColor: 'grey.400', borderRadius: 1, display: 'flex', flexDirection: 'column', maxHeight: 80, overflow: 'hidden', overflowY: 'scroll'}}>
               <Typography variant="body2" sx={{textAlign: 'left', fontWeight: 'bold'}}>
                     Previous Messages:
               </Typography>
