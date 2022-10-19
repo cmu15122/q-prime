@@ -31,5 +31,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/${{ secrets.SSH_USER }}/q-live
-            touch hi
+            fuser -k 8000/tcp
+            cd $HOME/q-live/q-prime/client && npm install && npm run build
+            cd $HOME/q-live/q-prime/server && npm install && npm start
       
