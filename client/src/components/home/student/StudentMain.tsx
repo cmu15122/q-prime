@@ -195,6 +195,7 @@ function StudentMain(props) {
       <TAHelpingOverlay
         open={status === StudentStatusValues.BEING_HELPED}
         helpingTAInfo={helpingTAInfo}
+        question={questionValue}
       />
 
       <UpdateQuestionOverlay
