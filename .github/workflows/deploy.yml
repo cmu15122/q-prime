@@ -21,6 +21,15 @@ jobs:
           known_hosts: 'placeholder'
       - name: Adding Known Hosts
         run: ssh-keyscan -H ${{ secrets.SSH_HOST_IP }} >> ~/.ssh/known_hosts
-      - name: Deploy with rsync
+      - name: Move to machine with rsync
         run: rsync -avz /home/runner/work/q-prime/q-prime ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST_IP }}:/home/${{ secrets.SSH_USER }}/q-live/
+      - name: Deploy to production and restart
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_IP }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /home/${{ secrets.SSH_USER }}/q-live
+            touch hi
       
