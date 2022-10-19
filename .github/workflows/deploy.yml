@@ -1,4 +1,4 @@
-name: Deploy 15-122 OH Queue
+name: Deploy
 
 on:
   push:
