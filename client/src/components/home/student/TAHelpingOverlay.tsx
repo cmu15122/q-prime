@@ -21,7 +21,7 @@ export default function TAHelpingOverlay(props) {
           helpingTAInfo?.taZoomUrl &&
             <Button sx={{mt: 3}} variant="contained" target="_blank" href={addhttp(helpingTAInfo?.taZoomUrl)}>Join Zoom</Button>
         }
-        <Divider/>
+        <Divider sx={{mt: '.5em', mb: '.5em'}}/>
         <Typography variant="h6" textAlign="center">As a reminder, you asked:</Typography>
         <Typography variant="h6" textAlign="center">{question}</Typography>
       </DialogContent>
