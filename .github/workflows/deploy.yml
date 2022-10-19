@@ -22,5 +22,5 @@ jobs:
       - name: Adding Known Hosts
         run: ssh-keyscan -H ${{ secrets.SSH_HOST_IP }} >> ~/.ssh/known_hosts
       - name: Deploy with rsync
-        run: rsync -avz / ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST_IP }}:/home/ta15122/q-live
+        run: rsync -avz / ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST_IP }}:/home/${{ secrets.SSH_HOST_IP q-live
       
