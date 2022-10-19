@@ -3,6 +3,8 @@ name: Deploy 15-122 OH Queue
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
