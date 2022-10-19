@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {
-  Card, Divider, Typography, Grid, Table, TableBody, TableCell,
+  Card, Divider, Typography, Grid, Stack, Table, TableBody, TableCell,
   TableContainer, TableHead, TablePagination, TableRow, Paper,
 } from '@mui/material';
 
@@ -66,78 +66,74 @@ export default function PersonalStats() {
   };
 
   return (
-    <div>
-      <Typography variant="h5" sx={{mt: 4, ml: 10}} fontWeight='bold'>
+    <div style={{margin: 'auto', padding: '10px', width: '90%'}}>
+      <Typography variant="h5" sx={{my: 4}} fontWeight='bold'>
         Personal Statistics
       </Typography>
-      <Card
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          maxWidth: '100%',
-          border: (theme) => `1px solid ${theme.palette.divider}`,
-          borderRadius: 1,
-          mt: 4,
-          mx: 13,
-          overflow: 'hidden',
-        }}
-      >
-        <Grid sx={{px: 4, py: 4, alignItems: 'center', textAlign: 'center'}}>
-          <Typography variant='h6' fontWeight='bold'>No. of Questions Answered</Typography>
-          <Typography variant='h3' sx={{mt: 2}} fontWeight='bold'>{numQuestionsAnswered}</Typography>
-        </Grid>
-        <Divider orientation="vertical" variant="middle" flexItem />
-        <Grid sx={{px: 4, py: 4, alignItems: 'center', textAlign: 'center'}}>
-          <Typography variant='h6' fontWeight='bold'>Avg. Time Spent Per Question (min)</Typography>
-          <Typography variant='h3' sx={{mt: 2}} fontWeight='bold'>{Number(averageHelpTime).toFixed(2)}</Typography>
-        </Grid>
-        <Divider orientation="vertical" flexItem />
-        <Paper sx={{width: '100%'}}>
-          <TableContainer sx={{height: 220}}>
-            <Table stickyHeader aria-label="sticky table">
-              <TableHead>
-                <TableRow>
-                  {columns.map((column) => (
-                    <TableCell
-                      key={column.id}
-                      style={{width: column.width, textOverflow: 'ellipsis'}}
-                    >
-                      {column.label}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {helpedStudents
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row) => {
-                      return (
-                        <TableRow hover role="checkbox" tabIndex={-1} key={row.andrewId}>
-                          {columns.map((column) => {
-                            const value = row[column.id];
-                            return (
-                              <TableCell key={column.id} sx={{width: 50, textOverflow: 'ellipsis'}}>
-                                {value}
-                              </TableCell>
-                            );
-                          })}
-                        </TableRow>
-                      );
-                    })
-                }
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={[10, 25, 100]}
-            component="div"
-            count={helpedStudents.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </Paper>
+      <Card>
+        <Stack
+          direction={{xs: 'column', md: 'row'}}
+          justifyContent="space-evenly"
+          alignItems="center"
+          divider={<Divider orientation="vertical" flexItem/>}
+          spacing={2}
+          sx={{m: 2}}
+        >
+          <Grid sx={{textAlign: 'center'}}>
+            <Typography variant='h6' fontWeight='bold'>No. of Questions Answered</Typography>
+            <Typography variant='h3' sx={{mt: 2}} fontWeight='bold'>{numQuestionsAnswered}</Typography>
+          </Grid>
+          <Grid sx={{textAlign: 'center'}}>
+            <Typography variant='h6' fontWeight='bold'>Avg. Time Spent Per Question (min)</Typography>
+            <Typography variant='h3' sx={{mt: 2}} fontWeight='bold'>{Number(averageHelpTime).toFixed(2)}</Typography>
+          </Grid>
+          <Stack sx={{width: '100%'}}>
+            <TableContainer sx={{height: 220}}>
+              <Table stickyHeader aria-label="sticky table">
+                <TableHead>
+                  <TableRow>
+                    {columns.map((column) => (
+                      <TableCell
+                        key={column.id}
+                        style={{width: column.width, textOverflow: 'ellipsis'}}
+                      >
+                        {column.label}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {helpedStudents
+                      .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                      .map((row) => {
+                        return (
+                          <TableRow hover role="checkbox" tabIndex={-1} key={row.andrewId}>
+                            {columns.map((column) => {
+                              const value = row[column.id];
+                              return (
+                                <TableCell key={column.id} sx={{width: 50, textOverflow: 'ellipsis'}}>
+                                  {value}
+                                </TableCell>
+                              );
+                            })}
+                          </TableRow>
+                        );
+                      })
+                  }
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              rowsPerPageOptions={[10, 25, 100]}
+              component="div"
+              count={helpedStudents.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          </Stack>
+        </Stack>
       </Card>
     </div>
   );
