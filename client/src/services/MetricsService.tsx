@@ -5,13 +5,13 @@ class MetricsDataService {
     return http.get('/metrics');
   }
   getHelpedStudents() {
-    return http.get("/metrics/helpedStudents")
+    return http.get('/metrics/helpedStudents');
   }
   getNumQuestionsAnswered() {
-    return http.get("/metrics/numQuestionsAnswered")
+    return http.get('/metrics/numQuestionsAnswered');
   }
   getAverageTimePerQuestion() {
-    return http.get("/metrics/averageTimePerQuestion")
+    return http.get('/metrics/averageTimePerQuestion');
   }
 }
 
