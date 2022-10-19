@@ -14,6 +14,10 @@
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.2.0",
     "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^29.1.2",
+    "@types/node": "^18.8.4",
+    "@types/react": "^18.0.21",
+    "@types/react-dom": "^18.0.6",
     "axios": "^0.27.2",
     "downloadjs": "^1.4.7",
     "luxon": "^2.4.0",
@@ -28,6 +32,7 @@
     "recharts": "^2.1.13",
     "socket.io-client": "^4.5.1",
     "styled-components": "^5.3.5",
+    "typescript": "^4.8.4",
     "underscore": "^1.13.4",
     "universal-cookie": "^4.0.4",
     "web-vitals": "^2.1.4"
@@ -36,7 +41,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "lint": "eslint src/**/*.ts src/**/*.tsx"
   },
   "eslintConfig": {
     "extends": [
@@ -55,5 +61,12 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.40.0",
+    "@typescript-eslint/parser": "^5.40.0",
+    "eslint": "^8.25.0",
+    "eslint-config-google": "^0.14.0",
+    "eslint-plugin-react": "^7.31.10"
   }
 }
