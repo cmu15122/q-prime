@@ -1,0 +1,19 @@
+name: Deploy 15-122 OH Queue
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_url: production
+          branch: ${{ github.ref }}
