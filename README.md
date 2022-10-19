@@ -41,6 +41,10 @@
     % npm test
     ```
 
+4. You can run the linter (and perform auto-fixes) with the following:
+    ```
+    eslint --fix src/**/*.tsx
+    ```
 
 ## Setting Up the Database
 The server currently uses a PostgreSQL database. For the summer '22 development team, we're currently developing using a database hosted on Heroku - ping Pranav for details.
