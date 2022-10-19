@@ -1,7 +1,7 @@
 import axios from 'axios';
 import Cookies from 'universal-cookie';
 
-import { showErrorToast } from "./services/ToastService";
+import {showErrorToast} from './services/ToastService';
 
 const cookies = new Cookies();
 
@@ -13,41 +13,41 @@ const httpInstance = axios.create({
 });
 
 httpInstance.interceptors.request.use(
-  (req) => {
-    const userCookies = cookies.get('user');
-    if (userCookies != null) {
-      req.headers['Authorization'] = userCookies['access_token'];
-    }
-    return req;
-  },
-  (err) => {
-    return Promise.reject(err);
-  },
+    (req) => {
+      const userCookies = cookies.get('user');
+      if (userCookies != null) {
+        req.headers['Authorization'] = userCookies['access_token'];
+      }
+      return req;
+    },
+    (err) => {
+      return Promise.reject(err);
+    },
 );
 
 httpInstance.interceptors.response.use(
-  (res) => {
-    if (res.data.isOwner && !window.location.href.includes('settings')) {
+    (res) => {
+      if (res.data.isOwner && !window.location.href.includes('settings')) {
       // Redirect owner to settings page
-      window.location.href = '/settings';
-    }
-    // COMMENTED OUT SO ONLY TOAST IF ERROR
-    // if (res.data.message) {
-    //     toastService.showToast(res.data.message);
-    // }
-    return res;
-  },
-  (err) => {
-    if (err.response.status === 404) {
+        window.location.href = '/settings';
+      }
+      // COMMENTED OUT SO ONLY TOAST IF ERROR
+      // if (res.data.message) {
+      //     toastService.showToast(res.data.message);
+      // }
+      return res;
+    },
+    (err) => {
+      if (err.response.status === 404) {
       // Redirect to homepage
-      window.location.href = '/';
-    }
-    if (err.response.data.message) {
-      const message = err.message + ': ' + err.response.data.message;
-      showErrorToast(message);
-    }
-    return Promise.reject(err);
-  },
+        window.location.href = '/';
+      }
+      if (err.response.data.message) {
+        const message = err.message + ': ' + err.response.data.message;
+        showErrorToast(message);
+      }
+      return Promise.reject(err);
+    },
 );
 
 export default httpInstance;

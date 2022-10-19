@@ -9,12 +9,12 @@ import {useCookies} from 'react-cookie';
 import HomeService from '../../services/HomeService';
 
 export default function GoogleLogin() {
-  const [_, setCookie] = useCookies(['user']);
+  const [, setCookie] = useCookies(['user']);
 
   const login = useGoogleLogin({
-    onSuccess: codeResponse => {
+    onSuccess: (codeResponse) => {
       HomeService.login(JSON.stringify({
-        codeResponse: codeResponse
+        codeResponse: codeResponse,
       })).then((res) => {
         setCookie('user', JSON.stringify(res.data));
         window.location.reload();
@@ -24,6 +24,6 @@ export default function GoogleLogin() {
   });
 
   return (
-    <Button color="secondary" variant="contained" sx={{ mx: 2 }} onClick={() => login()}>Log In</Button>
-  )
+    <Button color="secondary" variant="contained" sx={{mx: 2}} onClick={() => login()}>Log In</Button>
+  );
 }

@@ -5,9 +5,7 @@ import {
 
 import GoogleLogin from '../../../common/GoogleLogin';
 
-export default function UninitializedDialog(props) {
-  const {queueData} = props;
-
+export default function UninitializedDialog() {
   return (
     <Dialog
       open={true}
@@ -22,7 +20,7 @@ export default function UninitializedDialog(props) {
           Please log in with the owner email set in the environment file to proceed.
         </Typography>
         <Stack justifyContent="center" alignItems="center" sx={{pt: 5}}>
-          <GoogleLogin queueData={queueData}/>
+          <GoogleLogin/>
         </Stack>
       </DialogContent>
     </Dialog>
