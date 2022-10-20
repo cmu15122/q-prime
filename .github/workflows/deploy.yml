@@ -31,6 +31,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/${{ secrets.SSH_USER }}/q-live
-            ./deploy_q.sh &
+            ./deploy_q.sh
       
       
