@@ -9,8 +9,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    container:
-      image: konstin2/maturin:master
+
     steps:
       - uses: actions/checkout@v3
         with:
@@ -32,5 +31,5 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/${{ secrets.SSH_USER }}/q-live
-            ./deploy_q.sh
+            # ./deploy_q.sh
       
