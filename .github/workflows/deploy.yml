@@ -3,7 +3,7 @@ name: Deploy Queue
 on:
   push:
     branches: [ main ]
-  pull-requests:
+  pull_request:
     branches: [ main ]
 
 jobs:
