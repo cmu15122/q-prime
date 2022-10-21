@@ -36,4 +36,5 @@ jobs:
             cd $HOME/q-live/q-prime/client && npm install && npm run build
             cd $HOME/q-live/q-prime/server
             tmux new-session -d -s queue 'npm install && npm start'
+            echo `tmux attach`
             
