@@ -32,5 +32,3 @@ jobs:
           script: |
             cd /home/${{ secrets.SSH_USER }}/q-live
             ./deploy_q.sh
-      
-      
