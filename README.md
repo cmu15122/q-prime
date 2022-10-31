@@ -94,8 +94,7 @@ This is the folder structure for the Node.js server (inside of the `server` fold
 There are many of these routes, which can all be found in the `server/routes` folder.
 
 ## General Client File Structure
-This is the folder structure for the React.js client application (inside of the `client` folder).
-*[This needs to be filled out more... I don't know React very well, will need to do more research lol]*
+This is the folder structure for the React.js client application (inside of the `client` folder)
 
 `public` - General static files served to the webpage (icons, static images, manifests, etc.)
 `src` - Where all the pages and components are built
@@ -116,9 +115,9 @@ Inside of the `src` folder:
 Each of these are configured in the main `client/src/App.js` file:
 | Page          | Path        | Example                   |
 | ------------- | ----------- | ------------------------- |
-| Home Page     | `/`         | `localhost:8000/`         |
-| Settings Page | `/settings` | `localhost:8000/settings` |
-| Metrics Page  | `/metrics`  | `localhost:8000/metrics`  |
+| Home Page     | `/`         | `localhost:3000/`         |
+| Settings Page | `/settings` | `localhost:3000/settings` |
+| Metrics Page  | `/metrics`  | `localhost:3000/metrics`  |
 
 ## Configuration
 ### Admin Settings
