@@ -34,14 +34,11 @@ const config = require("./config/config");
 
 models.sequelize.authenticate().then(() => {
     console.log("Connected to the database!");
-})
-.catch(err => {
-    console.log("Cannot connect to the database!", err);
-    process.exit();
-});
-
-models.sequelize.sync().catch((err) => {
-    console.log(err);
+    return models.sequelize.sync({force: true});
+}).then(() => {
+    console.log("Synced with the database!");
+}).catch(err => {
+    console.log("An error occurred while starting the server: ", err);
     process.exit();
 });
 
@@ -114,7 +111,7 @@ app.use(function(req, res, next) {
 // Setting Routes
 app.use('/', home);
 app.use('/settings', settings);
-app.use('/metrics', metrics)
+app.use('/metrics', metrics);
 
 const port = parseInt(process.env.PORT, 10) || 8000;
 app.set('port', port);
