@@ -11,7 +11,7 @@ const slack = require('./slack');
 // FIXME: some default values are set to simplify testing;
 // In production, these should be cleared
 let adminSettings = {
-    currSem: "",
+    currSem: "F22",
     slackURL: null,
     questionsURL: null,
     rejoinTime: 10
