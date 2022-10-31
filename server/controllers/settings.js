@@ -11,7 +11,7 @@ const slack = require('./slack');
 // FIXME: some default values are set to simplify testing;
 // In production, these should be cleared
 let adminSettings = {
-    currSem: "S22",
+    currSem: "",
     slackURL: null,
     questionsURL: null,
     rejoinTime: 10
@@ -750,15 +750,20 @@ exports.post_upload_ta_csv = function (req, res) {
             is_admin = is_admin.toLowerCase() == "true";
 
             tas.push(
-                models.account.findOrCreate({
-                    where: {
-                        email: email
-                    }
-                }).then(([account, accountCreated]) => {
+                Promise.props({
+                    name: name, 
+                    isAdmin: is_admin,
+                    account: models.account.findOrCreate({
+                        where: {
+                            email: email
+                        }
+                    })
+                }).then((results) => {
+                    let [account, accountCreated] = results.account;
                     return Promise.props({
                         account: function () {
                             if (accountCreated) {
-                                account.set({ name: name, preferred_name: name });
+                                account.set({ name: results.name, preferred_name: results.name });
                             }
                             return account.save();
                         }(),
@@ -772,7 +777,8 @@ exports.post_upload_ta_csv = function (req, res) {
                             where: {
                                 ta_id: account.user_id
                             }
-                        })
+                        }),
+                        isAdmin: results.isAdmin
                     });
                 }).then((results) => {
                     return Promise.props({
@@ -780,7 +786,7 @@ exports.post_upload_ta_csv = function (req, res) {
                             is_ta: 1
                         }),
                         ta: results.ta[0].update({
-                            is_admin: is_admin ? 1 : 0
+                            is_admin: results.isAdmin ? 1 : 0
                         })
                     });
                 })
