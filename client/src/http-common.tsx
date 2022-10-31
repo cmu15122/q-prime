@@ -1,6 +1,7 @@
 import axios from 'axios';
-import {toast} from 'material-react-toastify';
 import Cookies from 'universal-cookie';
+
+import {showErrorToast} from './services/ToastService';
 
 const cookies = new Cookies();
 
@@ -27,37 +28,23 @@ httpInstance.interceptors.request.use(
 httpInstance.interceptors.response.use(
     (res) => {
       if (res.data.isOwner && !window.location.href.includes('settings')) {
-        // Redirect owner to settings page
+      // Redirect owner to settings page
         window.location.href = '/settings';
       }
       // COMMENTED OUT SO ONLY TOAST IF ERROR
       // if (res.data.message) {
-      //     toast(res.data.message, {
-      //         position: "bottom-left",
-      //         hideProgressBar: false,
-      //         closeOnClick: true,
-      //         pauseOnHover: true,
-      //         draggable: true,
-      //         progress: undefined,
-      //     });
+      //     toastService.showToast(res.data.message);
       // }
       return res;
     },
     (err) => {
       if (err.response.status === 404) {
-        // Redirect to homepage
+      // Redirect to homepage
         window.location.href = '/';
       }
       if (err.response.data.message) {
         const message = err.message + ': ' + err.response.data.message;
-        toast.error(message, {
-          position: 'bottom-left',
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
+        showErrorToast(message);
       }
       return Promise.reject(err);
     },

@@ -49,7 +49,7 @@ app.use(function(req, res, next) {
         next();
         return;
     }
-
+    
     if (access_token == config.OWNER_ACCESS_TOKEN) {
         req.user = {
             isAuthenticated: true,
@@ -61,7 +61,7 @@ app.use(function(req, res, next) {
         next();
         return;
     }
-    
+
     models.account.findOne({
         where: {
             access_token: access_token

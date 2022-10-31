@@ -192,7 +192,7 @@ export default function Navbar(props) {
           </Box>
           <Box sx={{flexGrow: 0, display: 'flex', justifyContent: 'flex-end'}} >
             {
-              !isAuthenticated && <GoogleLogin queueData={queueData}/>
+              !isAuthenticated && <GoogleLogin/>
             }
           </Box>
           <AlertOnLogout isOpen={alertOpen} setOpen={setAlertOpen} handleConfirm={handleLogout}/>
@@ -231,7 +231,7 @@ export default function Navbar(props) {
           {
             isAuthenticated ?
             <NavbarButton onClick={handleLogoutClicked}>Logout</NavbarButton> :
-            <GoogleLogin queueData={queueData}/>
+            <GoogleLogin/>
           }
         </Box>
         <AlertOnLogout isOpen={alertOpen} setOpen={setAlertOpen} handleConfirm={handleLogout}/>

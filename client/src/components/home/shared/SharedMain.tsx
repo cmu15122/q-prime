@@ -12,7 +12,7 @@ function SharedMain(props) {
     <div>
       {
         queueData?.uninitializedSem ?
-        <UninitializedDialog queueData={queueData} /> :
+        <UninitializedDialog /> :
         (
           <div>
             <Announcements queueData={queueData} setAllRead={setAllRead} />

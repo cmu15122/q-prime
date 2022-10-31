@@ -1,41 +1,29 @@
-import React, {useEffect, useRef} from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
+
+import {
+  Button,
+} from '@mui/material';
+import {useGoogleLogin} from '@react-oauth/google';
 import {useCookies} from 'react-cookie';
 
 import HomeService from '../../services/HomeService';
 
 export default function GoogleLogin() {
   const [, setCookie] = useCookies(['user']);
-  const divRef = useRef(null);
 
-  useEffect(() => {
-    if (!(window as any).google || !divRef.current) {
-      return;
-    }
-
-    (window as any).google.accounts.id.initialize({
-      client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
-      callback: (response) => {
-        HomeService.login(JSON.stringify({
-          token: response.credential,
-        })).then((res) => {
-          setCookie('user', JSON.stringify(res.data));
-          window.location.reload();
-        });
-      },
-    });
-
-    (window as any).google.accounts.id.renderButton(
-        divRef.current,
-        {theme: 'outline', size: 'large'},
-    );
-  }, [setCookie]);
+  const login = useGoogleLogin({
+    onSuccess: (codeResponse) => {
+      HomeService.login(JSON.stringify({
+        codeResponse: codeResponse,
+      })).then((res) => {
+        setCookie('user', JSON.stringify(res.data));
+        window.location.reload();
+      });
+    },
+    flow: 'auth-code',
+  });
 
   return (
-    <div ref={divRef} id="signInDiv"></div>
+    <Button color="secondary" variant="contained" sx={{mx: 2}} onClick={() => login()}>Log In</Button>
   );
 }
-
-GoogleLogin.propTypes = {
-  queueData: PropTypes.any,
-};
