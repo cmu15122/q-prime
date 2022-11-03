@@ -158,7 +158,7 @@ export default function Announcements(props) {
               {rows.slice().reverse().map((row, index) => (
                 <ItemRow key={row.id} index={index} rowKey={row.id}>
                   <TableCell component="th" scope="row" sx={{pl: 3.25}}>
-                    <Typography sx={{fontWeight: 'bold'}}>
+                    <Typography sx={{fontWeight: 'bold', whiteSpace: 'pre-line'}}>
                       {row.content}
                     </Typography>
                   </TableCell>

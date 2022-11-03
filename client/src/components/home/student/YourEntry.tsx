@@ -19,7 +19,7 @@ const CustomDivider = styled(Divider)({
 
 export default function YourEntry(props) {
   const {openRemoveOverlay, frozen, position, location, topic, question} = props;
-
+  console.log(question.replace('↵', '\n'));
   const [minsPerStudent, setMinsPerStudent] = useState(0);
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export default function YourEntry(props) {
         <Typography variant="h6"><strong>Topic:</strong> {topic.name}</Typography>
         <CustomDivider/>
         <Typography variant="h6" sx={{fontWeight: 'bold'}}>Question:</Typography>
-        <Typography variant="h6">{question}</Typography>
+        <Typography variant="h6" style={{whiteSpace: 'pre-line'}}>{question}</Typography>
       </CardContent>
     </BaseCard>
   );
