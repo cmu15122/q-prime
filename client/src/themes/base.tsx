@@ -83,31 +83,31 @@ const lightTheme = createTheme({
     fontSize: 15,
     htmlFontSize: 15,
     h1: {
-      fontSize: 38,
+      fontSize: '6rem',
     },
     h2: {
-      fontSize: 34,
+      fontSize: '3.75rem',
     },
     h3: {
-      fontSize: 30,
+      fontSize: '3rem',
     },
     h4: {
-      fontSize: 26,
+      fontSize: '2.125rem',
     },
     h5: {
-      fontSize: 22,
+      fontSize: '1.5rem',
     },
     h6: {
-      fontSize: 18,
+      fontSize: '1.25rem',
     },
     body1: {
-      fontSize: 16,
+      fontSize: '1rem',
     },
     body2: {
-      fontSize: 14,
+      fontSize: '0.875rem',
     },
     button: {
-      fontSize: 14,
+      fontSize: '0.875rem',
     },
   },
 });
@@ -178,39 +178,39 @@ const darkTheme = createTheme({
     fontSize: 15,
     htmlFontSize: 15,
     h1: {
-      fontSize: 38,
+      fontSize: '6rem',
       color: darkThemeTextColor,
     },
     h2: {
-      fontSize: 34,
+      fontSize: '3.75rem',
       color: darkThemeTextColor,
     },
     h3: {
-      fontSize: 30,
+      fontSize: '3rem',
       color: darkThemeTextColor,
     },
     h4: {
-      fontSize: 26,
+      fontSize: '2.125rem',
       color: darkThemeTextColor,
     },
     h5: {
-      fontSize: 22,
+      fontSize: '1.5rem',
       color: darkThemeTextColor,
     },
     h6: {
-      fontSize: 18,
+      fontSize: '1.25rem',
       color: darkThemeTextColor,
     },
     body1: {
-      fontSize: 16,
+      fontSize: '1rem',
       color: darkThemeTextColor,
     },
     body2: {
-      fontSize: 14,
+      fontSize: '0.875rem',
       color: darkThemeTextColor,
     },
     button: {
-      fontSize: 14,
+      fontSize: '0.875rem',
       color: darkThemeTextColor,
     },
   },

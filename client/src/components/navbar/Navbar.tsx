@@ -156,12 +156,12 @@ export default function Navbar(props) {
                   isTA && isHome && (queueFrozen ?
                     <MenuItem onClick={unfreezeQueue}>
                       <Typography variant='subtitle2' sx={{mx: 2}}>
-                            Unfreeze
+                        Unfreeze
                       </Typography>
                     </MenuItem> :
                     <MenuItem onClick={freezeQueue}>
                       <Typography variant='subtitle2' sx={{mx: 2}}>
-                            Freeze
+                        Freeze
                       </Typography>
                     </MenuItem>
                   )

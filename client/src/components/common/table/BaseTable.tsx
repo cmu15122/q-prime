@@ -12,7 +12,7 @@ export default function BaseTable(props) {
 
   return (
     <BaseCard>
-      <CardActions style={{justifyContent: 'space-between'}}>
+      <CardActions style={{justifyContent: 'space-between', alignItems: 'center'}}>
         <Typography sx={{fontWeight: 'bold', ml: 2, mt: 1}} variant="h5" gutterBottom>
           {title}
         </Typography>

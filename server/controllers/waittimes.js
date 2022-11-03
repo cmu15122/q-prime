@@ -1,15 +1,21 @@
 const home = require("./home");
 
 let slack = require("./slack");
+let config = require("../config/config");
 var sockets = require("./sockets");
 
 let last_updated = new Date(0);
-const ping_interval_secs = 30;
+const update_interval_secs = 30;
+
+let last_pinged = null;
 const ping_threshold_mins = 30;
+const ping_interval_mins = 15;
 
 const models = require("../models");
 const { Sequelize } = require("../models");
 const moment = require("moment-timezone");
+const { OHQueue } = require("./queue");
+
 const studentCheckPeriodMins = 30;
 
 let waitTime = 0;
@@ -18,23 +24,24 @@ exports.init = function () {
   exports.update_wait_times();
   setInterval(function () {
     var prev_ping_time = new Date();
-    prev_ping_time.setSeconds(prev_ping_time.getSeconds() - ping_interval_secs);
+    prev_ping_time.setSeconds(prev_ping_time.getSeconds() - update_interval_secs);
 
     if (last_updated < prev_ping_time) {
       exports.update_wait_times();
       last_updated = new Date();
     }
-  }, ping_interval_secs * 1000);
+  }, update_interval_secs * 1000);
 };
 
 exports.update_wait_times = function () {
   // check number of students helped in the last 30 minutes
+  let now = moment.tz(new Date(), "America/New_York");
+
   models.question
     .findAll({
       where: {
         exit_time: {
-          [Sequelize.Op.gte]: moment
-            .tz(new Date(), "America/New_York")
+          [Sequelize.Op.gte]: now
             .subtract(studentCheckPeriodMins, "minutes")
             .toDate(),
         },
@@ -85,10 +92,11 @@ exports.update_wait_times = function () {
 
         waitTime = numUnhelped * minsPerStudent / totalTAs;
 
-        if (waitTime > ping_threshold_mins) {
+        if (waitTime > ping_threshold_mins && (last_pinged == null || now.diff(last_pinged, "seconds") >= ping_interval_mins * 60)) {
           slack.send_message(
-            "<!channel> Help! Honk is on fire! Save him! :everythingsfineparrot:"
+            "<!channel> The wait time is " + waitTime + " minutes right now. More TAs might be needed. (<" + config.PROTOCOL + "://" + config.DOMAIN + "/|view»>)"
           );
+          last_pinged = now;
         }
 
 

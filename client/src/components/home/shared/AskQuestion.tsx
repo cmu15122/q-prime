@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {
-  Typography, Divider, CardContent, Stack,
+  Typography, Divider, CardContent, CardActions, Stack,
   FormControl, InputLabel, MenuItem, Box, Select, Input, Button,
 } from '@mui/material';
 
@@ -110,10 +110,12 @@ export default function AskQuestion(props) {
   return (
     <div>
       <BaseCard>
-        <CardContent sx={{m: 1.5}}>
-          <Typography variant='h5' sx={{fontWeight: 'bold', textAlign: 'left'}}>Ask A Question</Typography>
-          <Divider sx={{mt: 1, mb: 2}} />
+        <CardActions style={{justifyContent: 'space-between'}}>
+          <Typography variant='h5' sx={{fontWeight: 'bold', ml: 2, my: 1}}>Ask A Question</Typography>
+        </CardActions>
+        <Divider></Divider>
 
+        <CardContent sx={{mx: 1.5}}>
           <form onSubmit={handleSubmit}>
             {
               queueData?.isTA &&
