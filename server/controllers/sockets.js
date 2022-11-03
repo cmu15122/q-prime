@@ -120,7 +120,7 @@ exports.help = function (studentData, taAccount) {
             studentData: studentData,
             taData: {
                 taId: taAccount.ta.ta_id,
-                taName: taAccount.name,
+                taName: taAccount.preferred_name,
                 taZoomUrl: taAccount.ta.zoom_url
             }
         }
