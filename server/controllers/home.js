@@ -483,7 +483,9 @@ exports.post_help_student = function (req, res) {
     ohq.help(id, req.user.ta.ta_id, req.user.andrewID, moment.tz(new Date(), "America/New_York").toDate());
     let student = ohq.getData(id);
     let studentEntryData = buildStudentEntryData(student);
-
+    let taData = req.user.account
+    // add a field to studentEntryData to keep track of the TA's preferred name
+    studentEntryData["taPrefName"] = taData.preferred_name
     sockets.help(studentEntryData, req.user.account);
 
     res.status(200)
