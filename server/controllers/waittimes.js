@@ -10,7 +10,6 @@ const ping_threshold_mins = 30;
 const models = require("../models");
 const { Sequelize } = require("../models");
 const moment = require("moment-timezone");
-const { OHQueue } = require("./queue");
 const studentCheckPeriodMins = 30;
 
 let waitTime = 0;
@@ -46,12 +45,17 @@ exports.update_wait_times = function () {
     })
     .then((questions) => {
       let totalHelpedSeconds = 0
+      let activeTAs = []
 
       // add questions from database
       for (let i = 0; i < questions.length; i++) {
         let current = questions[i]
         let secondsDiff = moment(current.exit_time).diff(moment(current.help_time), "seconds")
         totalHelpedSeconds += secondsDiff
+
+        if (!activeTAs.includes(current.ta_id)) {
+          activeTAs.push(current.ta_id);
+        }
       }
 
       // add question from live queue
@@ -60,21 +64,26 @@ exports.update_wait_times = function () {
         let current = currentlyHelping[i]
         let secondsDiff = moment.tz(new Date(), "America/New_York").diff(moment(current.helpTime), "seconds")
         totalHelpedSeconds += secondsDiff
+
+        if (!activeTAs.includes(current.taID)) {
+          activeTAs.push(current.taID);
+        }
       }
 
       // calculate total number of people helped in last 30 min
       let totalQuestions = questions.length + currentlyHelping.length
+      let totalTAs = activeTAs.length
 
       if (totalQuestions != 0) {
         // calculate time per person helped
-        const minsPerStudent = Math.floor((totalHelpedSeconds / 60) / totalQuestions);
+        const minsPerStudent = (totalHelpedSeconds / 60) / totalQuestions;
 
         const numUnhelped = home
           .getOHQ()
           .getAllStudentData()
           .filter((student) => student.status !== 0).length;
 
-        waitTime = numUnhelped * minsPerStudent;
+        waitTime = numUnhelped * minsPerStudent / totalTAs;
 
         if (waitTime > ping_threshold_mins) {
           slack.send_message(
@@ -83,7 +92,7 @@ exports.update_wait_times = function () {
         }
 
 
-        sockets.waittimes(minsPerStudent, home.getOHQ().getAllStudentData().length, numUnhelped);
+        sockets.waittimes(minsPerStudent, home.getOHQ().getAllStudentData().length, numUnhelped, totalTAs);
       }
     });
 };

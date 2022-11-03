@@ -63,7 +63,7 @@ exports.queueFrozen = function (isFrozen) {
     });
 }
 
-exports.waittimes = function (minsPerStudent, numStudents, numUnhelped) {
+exports.waittimes = function (minsPerStudent, numStudents, numUnhelped, numTAs) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");
         return;
@@ -72,7 +72,8 @@ exports.waittimes = function (minsPerStudent, numStudents, numUnhelped) {
     sio.emit("waittimes", {
         minsPerStudent: minsPerStudent,
         numStudents: numStudents,
-        numUnhelped: numUnhelped
+        numUnhelped: numUnhelped,
+        numTAs: numTAs
     });
 }
 
