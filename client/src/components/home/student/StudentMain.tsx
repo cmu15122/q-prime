@@ -12,7 +12,7 @@ import {StudentStatusValues} from '../../../services/StudentStatus';
 import {socketSubscribeTo, socketUnsubscribeFrom} from '../../../services/SocketsService';
 
 function StudentMain(props) {
-  const {queueData, studentData} = props;
+  const {queueData, queueFrozen, studentData} = props;
 
   const [questionValue, setQuestionValue] = useState('');
   const [locationValue, setLocationValue] = useState('');
@@ -164,32 +164,34 @@ function StudentMain(props) {
   return (
     <div>
       {
-    (status !== StudentStatusValues.OFF_QUEUE) ?
-        <div>
-          <YourEntry
-            openRemoveOverlay={() => setRemoveConfirm(true)}
-            position={position}
-            location={locationValue}
-            topic={topicValue}
-            question={questionValue}
-            frozen={frozen}
-          />
-          <RemoveQOverlay
-            open={removeConfirm}
-            removeFromQueue={() => removeFromQueue()}
-            handleClose={() => setRemoveConfirm(false)}
-          />
-        </div> :
-        <AskQuestion
-          questionValue={questionValue}
-          setQuestionValue={setQuestionValue}
-          locationValue={locationValue}
-          setLocationValue={setLocationValue}
-          setTopicValue={setTopicValue}
-          setPosition={setPosition}
-          setStatus={setStatus}
-          queueData={queueData}
-        />
+        (status !== StudentStatusValues.OFF_QUEUE) ?
+          <div>
+            <YourEntry
+              openRemoveOverlay={() => setRemoveConfirm(true)}
+              position={position}
+              location={locationValue}
+              topic={topicValue}
+              question={questionValue}
+              frozen={frozen}
+            />
+            <RemoveQOverlay
+              open={removeConfirm}
+              removeFromQueue={() => removeFromQueue()}
+              handleClose={() => setRemoveConfirm(false)}
+            />
+          </div> :
+          (queueFrozen ? null :
+            <AskQuestion
+              questionValue={questionValue}
+              setQuestionValue={setQuestionValue}
+              locationValue={locationValue}
+              setLocationValue={setLocationValue}
+              setTopicValue={setTopicValue}
+              setPosition={setPosition}
+              setStatus={setStatus}
+              queueData={queueData}
+            />
+          )
       }
 
       <TAHelpingOverlay

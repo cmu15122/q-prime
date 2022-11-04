@@ -39,14 +39,10 @@ function HomeMain(props) {
       if (isTA) {
         setMainPage(<TAMain queueData={queueData} />);
       } else { // is student
-        if (queueFrozen) {
-          setMainPage(null);
-        } else {
-          setMainPage(<StudentMain queueData={queueData} studentData={studentData} />);
-        }
+        setMainPage(<StudentMain queueData={queueData} queueFrozen={queueFrozen} studentData={studentData} />);
       }
     } else {
-      // queue is open and you are not logged in
+      // you are not logged in
       setMainPage(null);
     }
   }, [isAuthenticated, isTA, isAdmin, queueFrozen, queueData, studentData]);
