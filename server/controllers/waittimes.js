@@ -14,6 +14,8 @@ const ping_interval_mins = 15;
 const models = require("../models");
 const { Sequelize } = require("../models");
 const moment = require("moment-timezone");
+const { OHQueue } = require("./queue");
+
 const studentCheckPeriodMins = 30;
 
 let waitTime = 0;
