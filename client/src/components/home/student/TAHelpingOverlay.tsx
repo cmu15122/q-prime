@@ -12,6 +12,7 @@ export default function TAHelpingOverlay(props) {
     }
     return url;
   }
+
   return (
     <Dialog open={open} maxWidth="sm" fullWidth>
       <DialogContent sx={{p: 5, textAlign: 'center'}} >
