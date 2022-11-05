@@ -77,7 +77,6 @@ export default function AskQuestion(props) {
 
   function handleSubmit(event) {
     event.preventDefault();
-    console.log(event);
     callAddQuestionAPI();
   }
 

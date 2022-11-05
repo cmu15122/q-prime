@@ -19,7 +19,6 @@ const CustomDivider = styled(Divider)({
 
 export default function YourEntry(props) {
   const {openRemoveOverlay, frozen, position, location, topic, question} = props;
-  console.log(question.replace('↵', '\n'));
   const [minsPerStudent, setMinsPerStudent] = useState(0);
 
   useEffect(() => {
