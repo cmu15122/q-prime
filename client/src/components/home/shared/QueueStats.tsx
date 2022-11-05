@@ -18,7 +18,7 @@ export default function QueueStats(props) {
 
   useEffect(() => {
     socketSubscribeTo('waittimes', (data) => {
-      setWaitTime(data.numUnhelped * data.minsPerStudent);
+      setWaitTime(Math.floor(data.numUnhelped * data.minsPerStudent / data.numTAs));
       setNumStudents(data.numStudents);
     });
   }, []);
@@ -26,7 +26,7 @@ export default function QueueStats(props) {
   useEffect(() => {
     if (queueData != null) {
       setNumStudents(queueData.numStudents);
-      setWaitTime(queueData.waitTime);
+      setWaitTime(Math.floor(queueData.waitTime));
     }
   }, [queueData]);
 

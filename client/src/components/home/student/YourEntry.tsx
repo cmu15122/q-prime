@@ -19,11 +19,12 @@ const CustomDivider = styled(Divider)({
 
 export default function YourEntry(props) {
   const {openRemoveOverlay, frozen, position, location, topic, question} = props;
-  const [minsPerStudent, setMinsPerStudent] = useState(0);
+
+  const [yourWaitTime, setYourWaitTime] = useState(0);
 
   useEffect(() => {
     socketSubscribeTo('waittimes', (data) => {
-      setMinsPerStudent(data.minsPerStudent);
+      setYourWaitTime(Math.floor(data.minsPerStudent / data.numTAs * position));
     });
   }, []);
 
@@ -37,7 +38,7 @@ export default function YourEntry(props) {
             <DeleteIcon />
           </IconButton>
         </Stack>
-        <Typography variant="h6">The estimated time until you are helped is <strong>{minsPerStudent * position} minutes</strong></Typography>
+        <Typography variant="h6">The estimated time until you are helped is <strong>{yourWaitTime} minutes</strong></Typography>
         {
           frozen &&
             <div>
