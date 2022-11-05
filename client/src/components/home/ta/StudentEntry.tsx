@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react';
 import {
-  Stack, TableCell,
+  Stack, TableCell, Typography,
 } from '@mui/material';
 import PauseIcon from '@mui/icons-material/Pause';
 
@@ -70,9 +70,11 @@ export default function StudentEntry(props) {
         [{student.location}]
       </TableCell>
       <TableCell padding='none' align="left" sx={{py: 2, pr: 2, width: '60%'}}>
-        <Stack direction="row" alignItems="center">
-          { student.isFrozen && <PauseIcon fontSize="inherit"/> }
-          {`[${student.topic.name}] ${student.question}`}
+        <Stack direction="row" alignItems="center" spacing={1}>
+          {/* student.isFrozen &&  */}
+          { <PauseIcon fontSize="inherit"/> }
+          { <Typography variant='body2'>[{student.topic.name}]</Typography> }
+          { <Typography variant='body2' sx={{whiteSpace: 'pre-line'}}> {student.question} </Typography>}
         </Stack>
       </TableCell>
       <TableCell padding='none'>
