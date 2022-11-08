@@ -31,6 +31,8 @@ export default function AskQuestion(props) {
   const [showCooldownOverlay, setShowCooldownOverlay] = useState(false);
   const [timePassed, setTimePassed] = useState(0);
 
+  const [askDisabled, setAskDisabled] = useState(false);
+
   useEffect(() => {
     if (queueData != null) {
       updateTopics(queueData.topics);
@@ -77,6 +79,7 @@ export default function AskQuestion(props) {
 
   function handleSubmit(event) {
     event.preventDefault();
+    setAskDisabled(true);
     callAddQuestionAPI();
   }
 
@@ -96,6 +99,8 @@ export default function AskQuestion(props) {
       } else if (res.status === 200) {
         clearValues();
       }
+
+      setAskDisabled(false);
     });
   }
 
@@ -188,7 +193,7 @@ export default function AskQuestion(props) {
                 type="text"
               />
             </FormControl>
-            <Button fullWidth variant="contained" sx={{mt: 3, py: 1, fontSize: '16px', fontWeight: 'bold', alignContent: 'center'}} type="submit">
+            <Button disabled={askDisabled} fullWidth variant="contained" sx={{mt: 3, py: 1, fontSize: '16px', fontWeight: 'bold', alignContent: 'center'}} type="submit">
               Ask
             </Button>
           </form>
