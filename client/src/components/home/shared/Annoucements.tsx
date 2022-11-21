@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   Box, Button, CardActions, IconButton, Divider, Stack,
   Typography, Table, TableCell, TableBody, TableContainer,
@@ -17,13 +17,14 @@ import ItemRow from '../../common/table/ItemRow';
 
 import HomeService from '../../../services/HomeService';
 import {socketSubscribeTo} from '../../../services/SocketsService';
+import {useQueueDataContext} from '../../../App';
 
 function createData(id, content) {
   return {id, content};
 }
 
 export default function Announcements(props) {
-  const {queueData} = props;
+  const {queueData} = useQueueDataContext();
 
   const [selectedRow, setSelectedRow] = useState(null);
   const [rows, setRows] = useState([]);
@@ -62,7 +63,7 @@ export default function Announcements(props) {
     if (queueData != null && queueData.announcements != null) {
       updateAnnouncements(queueData.announcements);
     }
-  }, [queueData]);
+  }, [queueData.announcements]);
 
   const updateAnnouncements = (newAnnouncements) => {
     const newRows = [];
@@ -141,23 +142,23 @@ export default function Announcements(props) {
     <div style={{paddingTop: '10px'}}>
       <BaseCard>
         <CardActions style={{justifyContent: 'space-between'}}>
-          <Typography sx={{fontWeight: 'bold', ml: 2, mt: 1}} variant="h5" gutterBottom>
+          <Typography sx={{fontWeight: 'bold', ml: 2, mt: 1}} variant='h5' gutterBottom>
                         Announcements
           </Typography>
           {
             queueData?.isTA &&
-              <Button sx={{fontWeight: 'bold', mr: 1}} variant="contained" onClick={handleAddDialog}>
+              <Button sx={{fontWeight: 'bold', mr: 1}} variant='contained' onClick={handleAddDialog}>
                   + Create
               </Button>
           }
         </CardActions>
         <Divider></Divider>
         <TableContainer sx={{maxHeight: '200px'}}>
-          <Table aria-label="topicsTable" sx={{overflow: 'scroll'}} stickyHeader>
+          <Table aria-label='topicsTable' sx={{overflow: 'scroll'}} stickyHeader>
             <TableBody>
               {rows.slice().reverse().map((row, index) => (
                 <ItemRow key={row.id} index={index} rowKey={row.id}>
-                  <TableCell component="th" scope="row" sx={{pl: 3.25}}>
+                  <TableCell component='th' scope='row' sx={{pl: 3.25}}>
                     <Typography sx={{fontWeight: 'bold', whiteSpace: 'pre-line'}}>
                       {row.content}
                     </Typography>
@@ -167,11 +168,11 @@ export default function Announcements(props) {
                       {
                         queueData?.isTA &&
                         <Box>
-                          <IconButton sx={{mr: 1}} color="info" onClick={() => handleEditDialog(row)}>
+                          <IconButton sx={{mr: 1}} color='info' onClick={() => handleEditDialog(row)}>
                             <Edit />
                           </IconButton>
 
-                          <IconButton color="error" onClick={() => handleDeleteDialog(row)}>
+                          <IconButton color='error' onClick={() => handleDeleteDialog(row)}>
                             <Delete />
                           </IconButton>
                         </Box>
@@ -186,7 +187,7 @@ export default function Announcements(props) {
       </BaseCard>
 
       <AddDialog
-        title="Add New Announcement"
+        title='Add New Announcement'
         isOpen={openAdd}
         onClose={handleClose}
         handleCreate={handleAdd}
@@ -210,7 +211,7 @@ export default function Announcements(props) {
       </EditDialog>
 
       <DeleteDialog
-        title="Delete Announcement"
+        title='Delete Announcement'
         isOpen={openDelete}
         onClose={handleClose}
         handleDelete={handleDelete}

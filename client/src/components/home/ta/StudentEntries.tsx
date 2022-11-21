@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 
 import BaseTable from '../../common/table/BaseTable';
 import StudentEntry from './StudentEntry';
@@ -10,13 +10,14 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import HomeService from '../../../services/HomeService';
 import {socketSubscribeTo, socketUnsubscribeFrom} from '../../../services/SocketsService';
 import {StudentStatusValues} from '../../../services/StudentStatus';
+import {useQueueDataContext} from '../../../App';
 
 export default function StudentEntries(props) {
-  const {queueData} = props;
-
   /* BEGIN FILTER LOGIC */
   const [filteredLocations, setFilteredLocations] = React.useState([]);
   const [filteredTopics, setFilteredTopics] = React.useState([]);
+
+  const {queueData} = useQueueDataContext();
 
   const Filter = () => {
     const handleFilterDialog = (event) => {
@@ -51,7 +52,6 @@ export default function StudentEntries(props) {
           }}
         >
           <FilterOptions
-            queueData={queueData}
             filteredLocations={filteredLocations}
             filteredTopics={filteredTopics}
             setFilteredLocations={setFilteredLocations}
@@ -144,7 +144,7 @@ export default function StudentEntries(props) {
         setIsHelping(true);
       }
     }
-  }, [students, queueData]);
+  }, [students, queueData.andrewID]);
 
   useEffect(() => {
     let newFiltered = students;

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   Typography, Divider, CardContent, CardActions, Stack,
   FormControl, InputLabel, MenuItem, Box, Select, Input, Button,
@@ -9,6 +9,7 @@ import BaseCard from '../../common/cards/BaseCard';
 
 import HomeService from '../../../services/HomeService';
 import SettingsService from '../../../services/SettingsService';
+import {useQueueDataContext} from '../../../App';
 
 function createData(topicId, name) {
   return {topicId, name};
@@ -17,7 +18,7 @@ function createData(topicId, name) {
 const date = new Date();
 
 export default function AskQuestion(props) {
-  const {queueData} = props;
+  const {queueData} = useQueueDataContext();
 
   const [locations, setLocations] = useState([]);
   const [topics, setTopics] = useState([]);
@@ -43,7 +44,7 @@ export default function AskQuestion(props) {
         setAndrewID(queueData.andrewID);
       }
     }
-  }, [queueData]);
+  }, [queueData.topics, queueData.isTA, queueData.name, queueData.andrewID]);
 
   function updateTopics(newTopics) {
     const newRows = [];
@@ -124,7 +125,7 @@ export default function AskQuestion(props) {
           <form onSubmit={handleSubmit}>
             {
               queueData?.isTA &&
-                <Stack direction="row" justifyContent="left" sx={{mb: 2}}>
+                <Stack direction='row' justifyContent='left' sx={{mb: 2}}>
                   <Box sx={{minWidth: 120, width: '47%'}}>
                     <FormControl required fullWidth>
                       <Input
@@ -149,15 +150,15 @@ export default function AskQuestion(props) {
                   </Box>
                 </Stack>
             }
-            <Stack direction="row" justifyContent="left">
+            <Stack direction='row' justifyContent='left'>
               <Box sx={{minWidth: 120, width: '47%'}}>
-                <FormControl variant="standard" required fullWidth>
-                  <InputLabel id="location-select">Location</InputLabel>
+                <FormControl variant='standard' required fullWidth>
+                  <InputLabel id='location-select'>Location</InputLabel>
                   <Select
-                    labelId="location-select-label"
-                    id="location-select"
+                    labelId='location-select-label'
+                    id='location-select'
                     value={location ?? ''}
-                    label="Location"
+                    label='Location'
                     onChange={(e)=>setLocation(e.target.value)}
                     style={{textAlign: 'left'}}
                   >
@@ -166,13 +167,13 @@ export default function AskQuestion(props) {
                 </FormControl>
               </Box>
               <Box sx={{minWidth: 120, width: '47%', margin: 'auto', mr: 1}}>
-                <FormControl variant="standard" required fullWidth>
-                  <InputLabel id="topic-select">Topic</InputLabel>
+                <FormControl variant='standard' required fullWidth>
+                  <InputLabel id='topic-select'>Topic</InputLabel>
                   <Select
-                    labelId="topic-select-label"
-                    id="topic-select"
+                    labelId='topic-select-label'
+                    id='topic-select'
                     value={topic ?? ''}
-                    label="Topic"
+                    label='Topic'
                     onChange={(e)=>setTopic(e.target.value)}
                     style={{textAlign: 'left'}}
                   >
@@ -190,10 +191,10 @@ export default function AskQuestion(props) {
                 fullWidth
                 multiline
                 inputProps={{maxLength: 256}}
-                type="text"
+                type='text'
               />
             </FormControl>
-            <Button disabled={askDisabled} fullWidth variant="contained" sx={{mt: 3, py: 1, fontSize: '16px', fontWeight: 'bold', alignContent: 'center'}} type="submit">
+            <Button disabled={askDisabled} fullWidth variant='contained' sx={{mt: 3, py: 1, fontSize: '16px', fontWeight: 'bold', alignContent: 'center'}} type='submit'>
               Ask
             </Button>
           </form>
@@ -208,7 +209,6 @@ export default function AskQuestion(props) {
         question={question}
         location={location}
         topic={topic}
-        queueData={queueData}
       />
     </div>
   );

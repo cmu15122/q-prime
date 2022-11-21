@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   Button, TableCell, TableRow, Typography, useTheme,
 } from '@mui/material';
@@ -17,6 +17,7 @@ import SettingsService from '../../../services/SettingsService';
 
 import {DateTime} from 'luxon';
 import download from 'downloadjs';
+import {useQueueDataContext} from '../../../App';
 
 function createData(assignmentId, name, category, startDate, endDate) {
   startDate = DateTime.fromISO(startDate);
@@ -25,7 +26,7 @@ function createData(assignmentId, name, category, startDate, endDate) {
 }
 
 export default function QueueTopicSettings(props) {
-  const {queueData} = props;
+  const {queueData} = useQueueDataContext();
   const theme = useTheme();
 
   const [selectedRow, setSelectedRow] = useState(null);
@@ -35,7 +36,7 @@ export default function QueueTopicSettings(props) {
     if (queueData != null) {
       updateTopics(queueData.topics);
     }
-  }, [queueData]);
+  }, [queueData.topics]);
 
   const updateTopics = (newTopics) => {
     const newRows = [];

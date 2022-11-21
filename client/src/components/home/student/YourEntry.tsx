@@ -31,21 +31,21 @@ export default function YourEntry(props) {
   return (
     <BaseCard>
       <CardContent sx={{m: 1, textAlign: 'left'}}>
-        <Stack direction="row" display="flex" alignItems="center">
-          <Typography variant="h5" sx={{fontWeight: 'bold', pr: 1}}>Your Entry:</Typography>
-          <Typography variant="h5">You are <strong>{converter.toOrdinal(position+1)} in line</strong></Typography>
-          <IconButton color="error" sx={{marginLeft: 'auto', marginRight: '.5em'}} onClick={openRemoveOverlay}>
+        <Stack direction='row' display='flex' alignItems='center'>
+          <Typography variant='h5' sx={{fontWeight: 'bold', pr: 1}}>Your Entry:</Typography>
+          <Typography variant='h5'>You are <strong>{converter.toOrdinal(position+1)} in line</strong></Typography>
+          <IconButton color='error' sx={{marginLeft: 'auto', marginRight: '.5em'}} onClick={openRemoveOverlay}>
             <DeleteIcon />
           </IconButton>
         </Stack>
-        <Typography variant="h6">The estimated time until you are helped is <strong>{yourWaitTime} minutes</strong></Typography>
+        <Typography variant='h6'>The estimated time until you are helped is <strong>{yourWaitTime} minutes</strong></Typography>
         {
           frozen &&
             <div>
               <CustomDivider/>
-              <Stack direction="row" display="flex" alignItems="center">
-                <PauseIcon color="error" sx={{pr: 1}} />
-                <Typography color="error" sx={{fontWeight: 'bold'}}>
+              <Stack direction='row' display='flex' alignItems='center'>
+                <PauseIcon color='error' sx={{pr: 1}} />
+                <Typography color='error' sx={{fontWeight: 'bold'}}>
                         You have been frozen in line. This means you will not advance in the queue
                         until a TA approves your entry.
                 </Typography>
@@ -53,11 +53,11 @@ export default function YourEntry(props) {
             </div>
         }
         <CustomDivider/>
-        <Typography variant="h6"><strong>Location:</strong> {location}</Typography>
-        <Typography variant="h6"><strong>Topic:</strong> {topic.name}</Typography>
+        <Typography variant='h6'><strong>Location:</strong> {location}</Typography>
+        <Typography variant='h6'><strong>Topic:</strong> {topic.name}</Typography>
         <CustomDivider/>
-        <Typography variant="h6" sx={{fontWeight: 'bold'}}>Question:</Typography>
-        <Typography variant="h6" style={{whiteSpace: 'pre-line'}}>{question}</Typography>
+        <Typography variant='h6' sx={{fontWeight: 'bold'}}>Question:</Typography>
+        <Typography variant='h6' style={{whiteSpace: 'pre-line'}}>{question}</Typography>
       </CardContent>
     </BaseCard>
   );

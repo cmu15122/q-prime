@@ -1,5 +1,5 @@
 
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   Button, CardContent, Typography, TextField, Grid,
 } from '@mui/material';
@@ -7,9 +7,10 @@ import {
 import BaseCard from '../../common/cards/BaseCard';
 
 import SettingsService from '../../../services/SettingsService';
+import {useQueueDataContext} from '../../../App';
 
 export default function QueueRejoinSettings(props) {
-  const {queueData} = props;
+  const {queueData} = useQueueDataContext();
 
   const [rejoinTime, setRejoinTime] = useState(0);
 
@@ -17,7 +18,7 @@ export default function QueueRejoinSettings(props) {
     if (queueData != null && queueData.adminSettings != null) {
       setRejoinTime(queueData.adminSettings.rejoinTime);
     }
-  }, [queueData]);
+  }, [queueData.adminSettings]);
 
   const onSubmit = (event) => {
     event.preventDefault();

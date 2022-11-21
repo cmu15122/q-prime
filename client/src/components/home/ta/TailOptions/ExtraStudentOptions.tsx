@@ -28,7 +28,6 @@ export default function ExtraStudentOptions(props) {
       andrewID: student.andrewID,
     }));
     handleClickUpdateQ(index);
-    console.log('Clicked update -- Status: ', student.status);
   }
 
   const handleMessage = () => {

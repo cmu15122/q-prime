@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {createContext, useContext, useState} from 'react';
 import {BrowserRouter as Router, Routes, Route}
   from 'react-router-dom';
 
@@ -18,6 +18,56 @@ import {ToastContainer} from 'material-react-toastify';
 import 'material-react-toastify/dist/ReactToastify.css';
 import './App.css';
 
+type QueueDataContent = {
+  title: string,
+  announcements?: {
+    id: number,
+    content: string
+  }[],
+  queueFrozen?: boolean,
+  numStudents?: number,
+  waitTime?: number,
+  rejoinTime?: number,
+  isAuthenticated?: boolean,
+  isTA?: boolean,
+  isAdmin?: boolean,
+  andrewID?: string,
+  preferred_name?: string,
+  isOwner?: boolean,
+  topics?: {
+    assignment_id: number,
+    name: string
+  }[],
+  name?: string,
+  uninitializedSem?: boolean,
+  adminSettings?: {
+    currSem: string,
+    slackURL: string | undefined,
+    questionsURL: string | undefined,
+    rejoinTime: number
+  },
+  locations?: {
+    dayDictionary: any,
+    roomDictionary: any
+  },
+  tas?: {
+    ta_id: number,
+    name: string,
+    preferred_name: string,
+    email: string,
+    isAdmin: boolean,
+  }[],
+  settings?: any
+}
+
+type QueueDataContextContent = {
+  queueData: QueueDataContent
+  setQueueData: React.Dispatch<React.SetStateAction<QueueDataContent>>
+}
+
+let QueueDataContext: React.Context<QueueDataContextContent>;
+let useQueueDataContext: () => QueueDataContextContent;
+
 function App() {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const theme = React.useMemo(
@@ -26,36 +76,63 @@ function App() {
       [prefersDarkMode],
   );
 
+  const [queueData, setQueueData] = useState({
+    title: 'UNINITIALIZED',
+    announcements: [],
+    queueFrozen: false,
+    numStudents: 0,
+    waitTime: 0,
+    rejoinTime: 0,
+    isAuthenticated: false,
+    isTA: false,
+    isAdmin: false,
+    andrewID: '',
+    preferred_name: '',
+  });
+
   const ThemeContext = React.createContext(theme);
+
+  QueueDataContext = createContext<QueueDataContextContent>({
+    queueData: queueData,
+    setQueueData: setQueueData,
+  });
+  useQueueDataContext = () => useContext(QueueDataContext);
 
   return (
     <ThemeProvider theme={theme || darkTheme}>
       <LocalizationProvider dateAdapter={AdapterLuxon}>
         <ThemeContext.Provider value={theme}>
           <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
-            <Router>
-              <Routes>
-                <Route path='/' element={<Home theme={theme || darkTheme}/>} />
-                <Route path='/settings' element={<Settings/>} />
-                <Route path='/metrics' element={<Metrics/>} />
-              </Routes>
-            </Router>
-            <ToastContainer
-              position="bottom-left"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-            />
+            <QueueDataContext.Provider value = {{queueData, setQueueData}}>
+              <Router>
+                <Routes>
+                  <Route path='/' element={<Home theme={theme || darkTheme}/>} />
+                  <Route path='/settings' element={<Settings/>} />
+                  <Route path='/metrics' element={<Metrics/>} />
+                </Routes>
+              </Router>
+              <ToastContainer
+                position="bottom-left"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+              />
+            </QueueDataContext.Provider>
           </GoogleOAuthProvider>
         </ThemeContext.Provider>
       </LocalizationProvider>
     </ThemeProvider>
   );
 }
+
+export {
+  QueueDataContext,
+  useQueueDataContext,
+};
 
 export default App;

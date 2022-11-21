@@ -1,30 +1,33 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 
 import Navbar from '../components/navbar/Navbar';
 import MetricsMain from '../components/metrics/MetricsMain';
 
 import MetricsDataService from '../services/MetricsService';
 import {useTheme} from '@mui/material/styles';
+import {QueueDataContext, useQueueDataContext} from '../App';
 
 function Metrics() {
   const theme = useTheme();
 
-  const [queueData, setQueueData] = useState(null);
+  const {queueData, setQueueData} = useQueueDataContext();
 
   useEffect(() => {
-    MetricsDataService.getAll()
-        .then((res) => {
-          setQueueData(res.data);
-          document.title = res.data.title;
-        });
+    if (queueData.title == 'UNINITIALIZED') {
+      MetricsDataService.getAll()
+          .then((res) => {
+            setQueueData(res.data);
+            document.title = res.data.title;
+          });
+    }
   }, []);
 
   return (
     <div className="Metrics" style={{backgroundColor: theme.palette.background.default}}>
-      <Navbar queueData={queueData} askQuestionOrYourEntry={true}/>
+      <Navbar askQuestionOrYourEntry={true}/>
       {
         queueData != null &&
-          <MetricsMain queueData={queueData}/>
+          <MetricsMain/>
       }
     </div>
   );

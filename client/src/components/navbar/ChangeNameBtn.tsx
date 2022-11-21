@@ -1,13 +1,16 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   Button, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, TextField,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 
 import SettingsService from '../../services/SettingsService';
+import {useQueueDataContext} from '../../App';
 
 export default function ChangeNameBtn(props) {
-  const {queueData, setpname, pname} = props;
+  const {setpname, pname} = props;
+  const {queueData} = useQueueDataContext();
+
   const [tmpPrefName, setTmpPrefName] = useState(pname);
   const [open, setOpen] = useState(false);
 
@@ -15,7 +18,7 @@ export default function ChangeNameBtn(props) {
     if (queueData != null) {
       setpname(queueData.preferred_name);
     }
-  }, [queueData, setpname]);
+  }, [queueData.preferred_name, setpname]);
 
   const handleClickOpen = () => {
     setOpen(true);

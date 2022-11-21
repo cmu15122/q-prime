@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   CardContent, Checkbox, FormControlLabel, Grid, TextField, Typography,
 } from '@mui/material';
@@ -6,9 +6,10 @@ import {
 import BaseCard from '../common/cards/BaseCard';
 
 import SettingsService from '../../services/SettingsService';
+import {useQueueDataContext} from '../../App';
 
 export default function NotificationSettings(props) {
-  const {queueData} = props;
+  const {queueData} = useQueueDataContext();
 
   const [joinNotifsEnabled, setJoinNotifsEnabled] = useState(false);
   const [remindNotifsEnabled, setRemindNotifsEnabled] = useState(false);
@@ -21,7 +22,7 @@ export default function NotificationSettings(props) {
       setRemindNotifsEnabled(settings.remindNotifsEnabled);
       setRemindTime(settings.remindTime);
     }
-  }, [queueData]);
+  }, [queueData.settings]);
 
   const updateNotifSettings = (joinEnabled, remindEnabled, time) => {
     SettingsService.updateNotifSettings({

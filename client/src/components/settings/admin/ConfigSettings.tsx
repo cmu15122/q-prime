@@ -1,5 +1,5 @@
 
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   Button, CardContent, Typography, TextField, Grid,
 } from '@mui/material';
@@ -7,9 +7,10 @@ import {
 import BaseCard from '../../common/cards/BaseCard';
 
 import SettingsService from '../../../services/SettingsService';
+import {useQueueDataContext} from '../../../App';
 
 export default function ConfigSettings(props) {
-  const {queueData} = props;
+  const {queueData} = useQueueDataContext();
 
   const [currSem, setCurrSem] = useState('');
   const [slackURL, setSlackURL] = useState('');
@@ -21,7 +22,7 @@ export default function ConfigSettings(props) {
       setSlackURL(queueData.adminSettings.slackURL);
       setQuestionsURL(queueData.adminSettings.questionsURL);
     }
-  }, [queueData]);
+  }, [queueData.adminSettings]);
 
   const handleUpdateSemester = (event) => {
     event.preventDefault();

@@ -1,10 +1,11 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 
 import {List, ListSubheader, ListItem,
   ListItemButton, ListItemIcon, ListItemText, Checkbox,
 } from '@mui/material';
 
 import SettingsService from '../../../../services/SettingsService';
+import {useQueueDataContext} from '../../../../App';
 
 function createData(topicId, name) {
   return {topicId, name};
@@ -18,7 +19,9 @@ const FilterGroup = {
 };
 
 export default function FilterOptions(props) {
-  const {queueData, filteredLocations, filteredTopics, setFilteredLocations, setFilteredTopics} = props;
+  const {filteredLocations, filteredTopics, setFilteredLocations, setFilteredTopics} = props;
+
+  const {queueData} = useQueueDataContext();
 
   // group definition:
   // 0 = locations, 1 = topics
@@ -49,7 +52,7 @@ export default function FilterOptions(props) {
       updateTopics(queueData.topics);
       updateLocations();
     }
-  }, [queueData]);
+  }, [queueData.topics]);
 
   function updateTopics(newTopics) {
     const newRows = [];
@@ -61,7 +64,6 @@ export default function FilterOptions(props) {
     });
     newRows.push(createData(-1, 'Other'));
     setTopics(newRows);
-    console.log(newRows);
   }
 
   function updateLocations() {

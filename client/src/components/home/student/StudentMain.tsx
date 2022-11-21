@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 
 import YourEntry from './YourEntry';
 import RemoveQOverlay from './RemoveQConfirm';
@@ -10,9 +10,10 @@ import AskQuestion from '../shared/AskQuestion';
 import HomeService from '../../../services/HomeService';
 import {StudentStatusValues} from '../../../services/StudentStatus';
 import {socketSubscribeTo, socketUnsubscribeFrom} from '../../../services/SocketsService';
+import {useQueueDataContext} from '../../../App';
 
 function StudentMain(props) {
-  const {queueData, queueFrozen, studentData} = props;
+  const {queueFrozen, studentData} = props;
 
   const [questionValue, setQuestionValue] = useState('');
   const [locationValue, setLocationValue] = useState('');
@@ -26,6 +27,8 @@ function StudentMain(props) {
   const [position, setPosition] = useState(0);
 
   const [helpingTAInfo, setHelpingTAInfo] = useState(null);
+
+  const {queueData} = useQueueDataContext();
 
   useEffect(() => {
     if (!('Notification' in window)) {
@@ -189,7 +192,6 @@ function StudentMain(props) {
               setTopicValue={setTopicValue}
               setPosition={setPosition}
               setStatus={setStatus}
-              queueData={queueData}
             />
           )
       }

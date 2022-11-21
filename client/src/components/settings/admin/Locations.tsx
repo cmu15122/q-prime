@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   TableCell, Typography,
 } from '@mui/material';
@@ -13,9 +13,10 @@ import CollapsedTable from '../../common/table/CollapsedTable';
 
 import SettingsService from '../../../services/SettingsService';
 import ItemRow from '../../common/table/ItemRow';
+import {useQueueDataContext} from '../../../App';
 
 export default function Locations(props) {
-  const {queueData} = props;
+  const {queueData} = useQueueDataContext();
 
   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -33,7 +34,7 @@ export default function Locations(props) {
     if (queueData != null) {
       setDayDictionary(queueData.locations);
     }
-  }, [queueData]);
+  }, [queueData.locations]);
 
   const updateRoomDictionary = (newRoomDict) => {
     if (!newRoomDict) return;

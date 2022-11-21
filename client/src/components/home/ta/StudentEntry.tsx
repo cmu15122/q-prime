@@ -41,9 +41,7 @@ export default function StudentEntry(props) {
   }
 
   const handleClickUpdateQ = () => {
-    console.log('handleClickUpdateQ reached');
     student['status'] = StudentStatusValues.FIXING_QUESTION;
-    console.log('handleClickUpdateQ done');
   };
 
   const approveCooldownOverride = () => {

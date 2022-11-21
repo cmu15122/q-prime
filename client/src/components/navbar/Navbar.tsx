@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {useCookies} from 'react-cookie';
 import {
   useMediaQuery, AppBar, Toolbar, Box, Button, MenuItem, Menu,
@@ -14,6 +14,7 @@ import AlertOnLogout from './dialogs/AlertOnLogout';
 
 import HomeService from '../../services/HomeService';
 import {socketSubscribeTo} from '../../services/SocketsService';
+import {useQueueDataContext} from '../../App';
 
 function createPage(page, link) {
   return {page, link};
@@ -27,8 +28,10 @@ const NavbarButton = styled(Button)({
 });
 
 export default function Navbar(props) {
-  const {queueData, isHome, studentData} = props;
+  const {isHome, studentData} = props;
   const theme = useTheme();
+
+  const {queueData} = useQueueDataContext();
 
   const isMobileView = useMediaQuery('(max-width: 1000px)');
 
@@ -70,7 +73,7 @@ export default function Navbar(props) {
       setIsTA(queueData.isTA);
       setIsAdmin(queueData.isAdmin);
     }
-  }, [queueData]);
+  }, [queueData.queueFrozen, queueData.isAuthenticated, queueData.isTA, queueData.isAdmin]);
 
   useEffect(() => {
     const newPages = [];
@@ -218,7 +221,7 @@ export default function Navbar(props) {
         </Box>
         <Box sx={{flexGrow: 0, display: 'flex'}}>
           {
-            isAuthenticated && <ChangeNameBtn queueData={queueData} pname={pname} setpname={setpname}/>
+            isAuthenticated && <ChangeNameBtn pname={pname} setpname={setpname}/>
           }
         </Box>
 

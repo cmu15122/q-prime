@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   Button, Checkbox, FormControlLabel, Grid, TableCell, TableRow, Typography, useTheme,
 } from '@mui/material';
@@ -15,13 +15,14 @@ import EditDeleteRow from '../../common/table/EditDeleteRow';
 
 import SettingsService from '../../../services/SettingsService';
 import download from 'downloadjs';
+import {useQueueDataContext} from '../../../App';
 
 function createData(userId, name, email, isAdmin) {
   return {userId, name, email, isAdmin};
 }
 
 export default function TASettings(props) {
-  const {queueData} = props;
+  const {queueData} = useQueueDataContext();
   const theme = useTheme();
 
   const [selectedRow, setSelectedRow] = useState(null);
@@ -31,7 +32,7 @@ export default function TASettings(props) {
     if (queueData != null) {
       updateTAs(queueData.tas);
     }
-  }, [queueData]);
+  }, [queueData.tas]);
 
   const updateTAs = (newTAs) => {
     const newRows = [];

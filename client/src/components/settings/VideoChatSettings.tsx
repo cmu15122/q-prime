@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   Button, Collapse, FormGroup, FormControlLabel, Checkbox,
   CardContent, Typography, TextField, Grid,
@@ -7,9 +7,10 @@ import {
 import BaseCard from '../common/cards/BaseCard';
 
 import SettingsService from '../../services/SettingsService';
+import {useQueueDataContext} from '../../App';
 
 export default function VideoChatSettings(props) {
-  const {queueData} = props;
+  const {queueData} = useQueueDataContext();
 
   const [isVideoChatEnabled, setVideoChatEnabled] = useState(false);
   const [videoChatURL, setVideoChatURL] = useState('');
@@ -19,7 +20,7 @@ export default function VideoChatSettings(props) {
       setVideoChatEnabled(queueData.settings.videoChatEnabled);
       setVideoChatURL(queueData.settings.videoChatURL);
     }
-  }, [queueData]);
+  }, [queueData.settings]);
 
   const updateVideoChatEnabled = (chatEnabled) => {
     setVideoChatEnabled(chatEnabled);

@@ -7,9 +7,11 @@ import Footer from './Footer';
 import {Container} from '@mui/material';
 
 import {socketSubscribeTo} from '../../services/SocketsService';
+import {useQueueDataContext} from '../../App';
 
 function HomeMain(props) {
-  const {queueData, studentData} = props;
+  const {studentData} = props;
+  const {queueData} = useQueueDataContext();
 
   const gitHubLink = 'https://github.com/cmu15122/q-issues/issues';
 
@@ -32,25 +34,24 @@ function HomeMain(props) {
       setIsAdmin(queueData.isAdmin);
       setQueueFrozen(queueData.queueFrozen);
     }
-  }, [queueData]);
+  }, [queueData.isAuthenticated, queueData.isTA, queueData.isAdmin, queueData.queueFrozen]);
 
   useEffect(() => {
     if (isAuthenticated) {
       if (isTA) {
-        setMainPage(<TAMain queueData={queueData} />);
+        setMainPage(<TAMain/>);
       } else { // is student
-        setMainPage(<StudentMain queueData={queueData} queueFrozen={queueFrozen} studentData={studentData} />);
+        setMainPage(<StudentMain queueFrozen={queueFrozen} studentData={studentData} />);
       }
     } else {
       // you are not logged in
       setMainPage(null);
     }
-  }, [isAuthenticated, isTA, isAdmin, queueFrozen, queueData, studentData]);
+  }, [isAuthenticated, isTA, queueFrozen, studentData]);
 
   return (
     <Container sx={{display: 'flex', minHeight: '100vh', flexDirection: 'column'}}>
       <SharedMain
-        queueData={queueData}
         queueFrozen={queueFrozen}
         setQueueFrozen={setQueueFrozen}
       />

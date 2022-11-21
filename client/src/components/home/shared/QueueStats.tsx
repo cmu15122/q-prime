@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   CardContent, Divider, Stack, Typography, useTheme,
 } from '@mui/material';
@@ -6,10 +6,13 @@ import {
 import BaseCard from '../../common/cards/BaseCard';
 
 import {socketSubscribeTo} from '../../../services/SocketsService';
+import {useQueueDataContext} from '../../../App';
 
 export default function QueueStats(props) {
-  const {queueData, queueFrozen} = props;
+  const {queueFrozen} = props;
   const theme = useTheme();
+
+  const {queueData} = useQueueDataContext();
 
   // TODO : change based on whether on queue or not
 
@@ -28,30 +31,30 @@ export default function QueueStats(props) {
       setNumStudents(queueData.numStudents);
       setWaitTime(Math.floor(queueData.waitTime));
     }
-  }, [queueData]);
+  }, [queueData.numStudents, queueData.waitTime]);
 
   return (
     <BaseCard>
       <CardContent>
         <Stack
-          direction="row"
-          divider={<Divider orientation="vertical" flexItem />}
+          direction='row'
+          divider={<Divider orientation='vertical' flexItem />}
           spacing={2}
-          alignItems="center"
-          justifyContent="space-evenly"
+          alignItems='center'
+          justifyContent='space-evenly'
           sx={{pt: 1}}
         >
           <div>
-            <Typography variant="h5" fontWeight="bold" sx={{mt: 2}}>The queue is</Typography>
+            <Typography variant='h5' fontWeight='bold' sx={{mt: 2}}>The queue is</Typography>
             {
               queueFrozen ?
-                <Typography color={theme.palette.error.main} variant="h5" fontWeight="bold" sx={{mt: 1, mb: 2}}>CLOSED</Typography> :
-                <Typography color={theme.palette.success.main} variant="h5" fontWeight="bold" sx={{mt: 1, mb: 2}}>OPEN</Typography>
+                <Typography color={theme.palette.error.main} variant='h5' fontWeight='bold' sx={{mt: 1, mb: 2}}>CLOSED</Typography> :
+                <Typography color={theme.palette.success.main} variant='h5' fontWeight='bold' sx={{mt: 1, mb: 2}}>OPEN</Typography>
             }
           </div>
           <div>
-            <Typography variant="body1" sx={{mt: 2}}>There are <strong>{numStudents} students</strong> on the queue.</Typography>
-            <Typography variant="body1" sx={{mt: 1.5, mb: 2}}>The estimated wait time is <strong>{waitTime} minutes</strong> from the end of the queue.</Typography>
+            <Typography variant='body1' sx={{mt: 2}}>There are <strong>{numStudents} students</strong> on the queue.</Typography>
+            <Typography variant='body1' sx={{mt: 1.5, mb: 2}}>The estimated wait time is <strong>{waitTime} minutes</strong> from the end of the queue.</Typography>
           </div>
         </Stack>
       </CardContent>
