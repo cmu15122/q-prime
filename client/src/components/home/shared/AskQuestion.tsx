@@ -23,6 +23,7 @@ export default function AskQuestion(props) {
   const [locations, setLocations] = useState([]);
   const [topics, setTopics] = useState([]);
 
+  // not changing name or andrewID to use global because this component can also be used by TAs to manually add questions
   const [name, setName] = useState('');
   const [andrewID, setAndrewID] = useState('');
   const [location, setLocation] = useState('');

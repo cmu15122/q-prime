@@ -11,26 +11,15 @@ import {useQueueDataContext} from '../../../App';
 export default function QueueStats() {
   const theme = useTheme();
 
-  const {queueData} = useQueueDataContext();
+  const {queueData, setQueueData} = useQueueDataContext();
 
   // TODO : change based on whether on queue or not
 
-  const [numStudents, setNumStudents] = useState(0);
-  const [waitTime, setWaitTime] = useState(0);
-
   useEffect(() => {
     socketSubscribeTo('waittimes', (data) => {
-      setWaitTime(Math.floor(data.numUnhelped * data.minsPerStudent / data.numTAs));
-      setNumStudents(data.numStudents);
+      setQueueData({...queueData, waitTime: Math.floor(data.numUnhelped * data.minsPerStudent / data.numTAs), numStudents: data.numStudents});
     });
   }, []);
-
-  useEffect(() => {
-    if (queueData != null) {
-      setNumStudents(queueData.numStudents);
-      setWaitTime(Math.floor(queueData.waitTime));
-    }
-  }, [queueData.numStudents, queueData.waitTime]);
 
   return (
     <BaseCard>
@@ -52,8 +41,8 @@ export default function QueueStats() {
             }
           </div>
           <div>
-            <Typography variant='body1' sx={{mt: 2}}>There are <strong>{numStudents} students</strong> on the queue.</Typography>
-            <Typography variant='body1' sx={{mt: 1.5, mb: 2}}>The estimated wait time is <strong>{waitTime} minutes</strong> from the end of the queue.</Typography>
+            <Typography variant='body1' sx={{mt: 2}}>There are <strong>{queueData.numStudents} students</strong> on the queue.</Typography>
+            <Typography variant='body1' sx={{mt: 1.5, mb: 2}}>The estimated wait time is <strong>{queueData.waitTime} minutes</strong> from the end of the queue.</Typography>
           </div>
         </Stack>
       </CardContent>
