@@ -1,11 +1,11 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useEffect} from 'react';
 
 import Navbar from '../components/navbar/Navbar';
 import MetricsMain from '../components/metrics/MetricsMain';
 
 import MetricsDataService from '../services/MetricsService';
 import {useTheme} from '@mui/material/styles';
-import {QueueDataContext, useQueueDataContext} from '../App';
+import {useQueueDataContext} from '../App';
 
 function Metrics() {
   const theme = useTheme();
@@ -13,10 +13,10 @@ function Metrics() {
   const {queueData, setQueueData} = useQueueDataContext();
 
   useEffect(() => {
-    if (queueData.title == 'UNINITIALIZED') {
+    if (queueData.frontendInitialized === false) {
       MetricsDataService.getAll()
           .then((res) => {
-            setQueueData(res.data);
+            setQueueData({...res.data, frontendInitialized: true});
             document.title = res.data.title;
           });
     }

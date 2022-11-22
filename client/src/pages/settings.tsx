@@ -1,11 +1,11 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useEffect} from 'react';
 
 import Navbar from '../components/navbar/Navbar';
 import SettingsMain from '../components/settings/SettingsMain';
 
 import SettingsDataService from '../services/SettingsService';
 import {useTheme} from '@mui/material/styles';
-import {QueueDataContext, useQueueDataContext} from '../App';
+import {useQueueDataContext} from '../App';
 
 function Settings() {
   const theme = useTheme();
@@ -13,10 +13,10 @@ function Settings() {
   const {queueData, setQueueData} = useQueueDataContext();
 
   useEffect(() => {
-    if (queueData.title == 'UNINITIALIZED') {
+    if (queueData.frontendInitialized === false) {
       SettingsDataService.getAll()
           .then((res) => {
-            setQueueData(res.data);
+            setQueueData({...res.data, frontendInitialized: true});
             document.title = res.data.title;
           });
     }

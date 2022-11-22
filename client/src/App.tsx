@@ -19,7 +19,8 @@ import 'material-react-toastify/dist/ReactToastify.css';
 import './App.css';
 
 type QueueDataContent = {
-  title: string,
+  frontendInitialized: boolean,
+  title?: string,
   announcements?: {
     id: number,
     content: string
@@ -77,17 +78,7 @@ function App() {
   );
 
   const [queueData, setQueueData] = useState({
-    title: 'UNINITIALIZED',
-    announcements: [],
-    queueFrozen: false,
-    numStudents: 0,
-    waitTime: 0,
-    rejoinTime: 0,
-    isAuthenticated: false,
-    isTA: false,
-    isAdmin: false,
-    andrewID: '',
-    preferred_name: '',
+    frontendInitialized: false,
   });
 
   const ThemeContext = React.createContext(theme);
