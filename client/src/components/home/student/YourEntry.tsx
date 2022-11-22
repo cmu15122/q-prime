@@ -10,7 +10,7 @@ import BaseCard from '../../common/cards/BaseCard';
 
 import * as converter from 'number-to-words';
 
-import {socketSubscribeTo} from '../../../services/SocketsService';
+import {useQueueDataContext} from '../../../App';
 
 const CustomDivider = styled(Divider)({
   marginTop: '.5em',
@@ -19,14 +19,7 @@ const CustomDivider = styled(Divider)({
 
 export default function YourEntry(props) {
   const {openRemoveOverlay, frozen, position, location, topic, question} = props;
-
-  const [yourWaitTime, setYourWaitTime] = useState(0);
-
-  useEffect(() => {
-    socketSubscribeTo('waittimes', (data) => {
-      setYourWaitTime(Math.floor(data.minsPerStudent / data.numTAs * position));
-    });
-  }, []);
+  const {queueData} = useQueueDataContext();
 
   return (
     <BaseCard>
@@ -38,7 +31,7 @@ export default function YourEntry(props) {
             <DeleteIcon />
           </IconButton>
         </Stack>
-        <Typography variant='h6'>The estimated time until you are helped is <strong>{yourWaitTime} minutes</strong></Typography>
+        <Typography variant='h6'>The estimated time until you are helped is <strong>{Math.floor(queueData.minsPerStudent / queueData.numTAs * position)} minutes</strong></Typography>
         {
           frozen &&
             <div>

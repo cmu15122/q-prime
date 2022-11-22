@@ -17,7 +17,7 @@ export default function QueueStats() {
 
   useEffect(() => {
     socketSubscribeTo('waittimes', (data) => {
-      setQueueData({...queueData, waitTime: Math.floor(data.numUnhelped * data.minsPerStudent / data.numTAs), numStudents: data.numStudents});
+      setQueueData({...queueData, numUnhelped: data.numUnhelped, minsPerStudent: data.minsPerStudent, numTAs: data.numTAs, numStudents: data.numStudents});
     });
   }, []);
 
@@ -42,7 +42,7 @@ export default function QueueStats() {
           </div>
           <div>
             <Typography variant='body1' sx={{mt: 2}}>There are <strong>{queueData.numStudents} students</strong> on the queue.</Typography>
-            <Typography variant='body1' sx={{mt: 1.5, mb: 2}}>The estimated wait time is <strong>{queueData.waitTime} minutes</strong> from the end of the queue.</Typography>
+            <Typography variant='body1' sx={{mt: 1.5, mb: 2}}>The estimated wait time is <strong>{Math.floor(queueData.numUnhelped * queueData.minsPerStudent / queueData.numTAs)} minutes</strong> from the end of the queue.</Typography>
           </div>
         </Stack>
       </CardContent>

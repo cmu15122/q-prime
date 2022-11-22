@@ -26,7 +26,6 @@ type QueueDataContent = {
     content: string
   }[],
   queueFrozen?: boolean,
-  numStudents?: number,
   waitTime?: number,
   rejoinTime?: number,
   isAuthenticated?: boolean,
@@ -58,7 +57,11 @@ type QueueDataContent = {
     email: string,
     isAdmin: boolean,
   }[],
-  settings?: any
+  settings?: any,
+  numUnhelped?: number,
+  minsPerStudent?: number,
+  numTAs?: number,
+  numStudents?: number
 }
 
 type QueueDataContextContent = {
