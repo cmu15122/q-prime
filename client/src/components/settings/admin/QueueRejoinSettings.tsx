@@ -10,23 +10,14 @@ import SettingsService from '../../../services/SettingsService';
 import {useQueueDataContext} from '../../../App';
 
 export default function QueueRejoinSettings(props) {
-  const {queueData} = useQueueDataContext();
-
-  const [rejoinTime, setRejoinTime] = useState(0);
-
-  useEffect(() => {
-    if (queueData != null && queueData.adminSettings != null) {
-      setRejoinTime(queueData.adminSettings.rejoinTime);
-    }
-  }, [queueData.adminSettings]);
+  const {queueData, setQueueData} = useQueueDataContext();
 
   const onSubmit = (event) => {
     event.preventDefault();
-    if (rejoinTime === queueData.adminSettings.rejoinTime) return;
 
     SettingsService.updateRejoinTime(
         JSON.stringify({
-          rejoinTime: rejoinTime,
+          rejoinTime: queueData.rejoinTime,
         }),
     );
   };
@@ -47,9 +38,9 @@ export default function QueueRejoinSettings(props) {
                 variant="standard"
                 sx={{mx: 1, mt: -1}}
                 style={{width: '50px'}}
-                value={rejoinTime}
+                value={queueData.rejoinTime}
                 onChange={(e) => {
-                  setRejoinTime(parseInt(e.target.value, 10));
+                  setQueueData({...queueData, rejoinTime: parseInt(e.target.value, 10)});
                 }}
                 inputProps={{min: 0, style: {textAlign: 'center'}}}
               />
