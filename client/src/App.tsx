@@ -72,6 +72,34 @@ type QueueDataContextContent = {
 let QueueDataContext: React.Context<QueueDataContextContent>;
 let useQueueDataContext: () => QueueDataContextContent;
 
+type StudentDataContent = {
+  name?: string,
+  andrewID?: string,
+  taID?: number,
+  taAndrewID?: string,
+  location?: string,
+  topic?: string,
+  question?: string,
+  status?: number,
+  isFrozen?: boolean,
+  message?: string,
+  messageBuffer?: string[],
+  position?: number,
+  helpingTA?: {
+    taId: number,
+    taName: string,
+    taZoomUrl: string,
+  }
+}
+
+type StudentDataContextContent = {
+  studentData: StudentDataContent
+  setStudentData: React.Dispatch<React.SetStateAction<StudentDataContent>>
+}
+
+let StudentDataContext: React.Context<StudentDataContextContent>;
+let useStudentDataContext: () => StudentDataContextContent;
+
 function App() {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const theme = React.useMemo(
@@ -79,18 +107,28 @@ function App() {
       prefersDarkMode ? darkTheme : lightTheme,
       [prefersDarkMode],
   );
+  const ThemeContext = React.createContext(theme);
 
   const [queueData, setQueueData] = useState({
     frontendInitialized: false,
   });
-
-  const ThemeContext = React.createContext(theme);
 
   QueueDataContext = createContext<QueueDataContextContent>({
     queueData: queueData,
     setQueueData: setQueueData,
   });
   useQueueDataContext = () => useContext(QueueDataContext);
+
+
+  const [studentData, setStudentData] = useState({
+    position: -1,
+  });
+
+  StudentDataContext = createContext<StudentDataContextContent>({
+    studentData: studentData,
+    setStudentData: setStudentData,
+  });
+  useStudentDataContext = () => useContext(StudentDataContext);
 
   return (
     <ThemeProvider theme={theme || darkTheme}>
@@ -127,6 +165,8 @@ function App() {
 export {
   QueueDataContext,
   useQueueDataContext,
+  StudentDataContext,
+  useStudentDataContext,
 };
 
 export default App;

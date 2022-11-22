@@ -6,50 +6,14 @@ import HomeMain from '../components/home/HomeMain';
 
 import HomeService from '../services/HomeService';
 import {initiateSocket} from '../services/SocketsService';
-import {useQueueDataContext} from '../App';
+import {useQueueDataContext, useStudentDataContext} from '../App';
 
-type StudentDataContent = {
-  name?: string,
-  andrewID?: string,
-  taID?: number,
-  taAndrewID?: string,
-  location?: string,
-  topic?: string,
-  question?: string,
-  status?: number,
-  isFrozen?: boolean,
-  message?: string,
-  messageBuffer?: string[],
-  position?: number,
-  helpingTA?: {
-    taId: number,
-    taName: string,
-    taZoomUrl: string,
-  }
-}
-
-type StudentDataContextContent = {
-  studentData: StudentDataContent
-  setStudentData: React.Dispatch<React.SetStateAction<StudentDataContent>>
-}
-
-let StudentDataContext: React.Context<StudentDataContextContent>;
-let useStudentDataContext: () => StudentDataContextContent;
 
 function Home(props) {
   const theme = useTheme();
-  const [studentData, setStudentData] = useState({
-    position: -1,
-  });
 
   const {queueData, setQueueData} = useQueueDataContext();
-
-  StudentDataContext = createContext<StudentDataContextContent>({
-    studentData: studentData,
-    setStudentData: setStudentData,
-  });
-  useStudentDataContext = () => useContext(StudentDataContext);
-
+  const {studentData, setStudentData} = useStudentDataContext();
 
   useEffect(() => {
     if (queueData.frontendInitialized === false) {
@@ -74,10 +38,5 @@ function Home(props) {
     </div>
   );
 }
-
-export {
-  StudentDataContext,
-  useStudentDataContext,
-};
 
 export default Home;

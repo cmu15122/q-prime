@@ -14,8 +14,7 @@ import AlertOnLogout from './dialogs/AlertOnLogout';
 
 import HomeService from '../../services/HomeService';
 import {socketSubscribeTo} from '../../services/SocketsService';
-import {useQueueDataContext} from '../../App';
-import {useStudentDataContext} from '../../pages/home';
+import {useQueueDataContext, useStudentDataContext} from '../../App';
 
 function createPage(page, link) {
   return {page, link};

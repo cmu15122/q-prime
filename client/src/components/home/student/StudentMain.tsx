@@ -10,8 +10,7 @@ import AskQuestion from '../shared/AskQuestion';
 import HomeService from '../../../services/HomeService';
 import {StudentStatusValues} from '../../../services/StudentStatus';
 import {socketSubscribeTo, socketUnsubscribeFrom} from '../../../services/SocketsService';
-import {useQueueDataContext} from '../../../App';
-import {useStudentDataContext} from '../../../pages/home';
+import {useQueueDataContext, useStudentDataContext} from '../../../App';
 
 function StudentMain() {
   const [questionValue, setQuestionValue] = useState('');
