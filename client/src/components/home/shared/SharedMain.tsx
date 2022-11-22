@@ -5,10 +5,7 @@ import QueueStats from './QueueStats';
 import UninitializedDialog from './dialogs/UninitializedDialog';
 import {useQueueDataContext} from '../../../App';
 
-function SharedMain(props) {
-  const {queueFrozen, setQueueFrozen} = props;
-  const [allRead, setAllRead] = useState(true);
-
+function SharedMain() {
   const {queueData} = useQueueDataContext();
 
   return (
@@ -18,12 +15,8 @@ function SharedMain(props) {
         <UninitializedDialog /> :
         (
           <div>
-            <Announcements setAllRead={setAllRead} />
-            <QueueStats
-              queueFrozen={queueFrozen}
-              setQueueFrozen={setQueueFrozen}
-              allRead={allRead}
-            />
+            <Announcements/>
+            <QueueStats/>
           </div>
         )
       }

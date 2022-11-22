@@ -8,8 +8,7 @@ import BaseCard from '../../common/cards/BaseCard';
 import {socketSubscribeTo} from '../../../services/SocketsService';
 import {useQueueDataContext} from '../../../App';
 
-export default function QueueStats(props) {
-  const {queueFrozen} = props;
+export default function QueueStats() {
   const theme = useTheme();
 
   const {queueData} = useQueueDataContext();
@@ -47,7 +46,7 @@ export default function QueueStats(props) {
           <div>
             <Typography variant='h5' fontWeight='bold' sx={{mt: 2}}>The queue is</Typography>
             {
-              queueFrozen ?
+              queueData.queueFrozen ?
                 <Typography color={theme.palette.error.main} variant='h5' fontWeight='bold' sx={{mt: 1, mb: 2}}>CLOSED</Typography> :
                 <Typography color={theme.palette.success.main} variant='h5' fontWeight='bold' sx={{mt: 1, mb: 2}}>OPEN</Typography>
             }

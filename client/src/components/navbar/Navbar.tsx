@@ -32,7 +32,7 @@ export default function Navbar(props) {
   const {isHome} = props;
   const theme = useTheme();
 
-  const {queueData} = useQueueDataContext();
+  const {queueData, setQueueData} = useQueueDataContext();
   const {studentData} = useStudentDataContext();
 
   const isMobileView = useMediaQuery('(max-width: 1000px)');
@@ -43,7 +43,6 @@ export default function Navbar(props) {
   const [isTA, setIsTA] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [pages, setPages] = useState([]);
-  const [queueFrozen, setQueueFrozen] = useState(false);
 
   const [anchorElNav, setAnchorElNav] = useState(null);
 
@@ -64,18 +63,17 @@ export default function Navbar(props) {
 
   useEffect(() => {
     socketSubscribeTo('queueFrozen', (data) => {
-      setQueueFrozen(data.isFrozen);
+      setQueueData({...queueData, queueFrozen: data.isFrozen});
     });
   }, []);
 
   useEffect(() => {
     if (queueData != null) {
-      setQueueFrozen(queueData.queueFrozen);
       setIsAuthenticated(queueData.isAuthenticated);
       setIsTA(queueData.isTA);
       setIsAdmin(queueData.isAdmin);
     }
-  }, [queueData.queueFrozen, queueData.isAuthenticated, queueData.isTA, queueData.isAdmin]);
+  }, [queueData.isAuthenticated, queueData.isTA, queueData.isAdmin]);
 
   useEffect(() => {
     const newPages = [];
@@ -158,7 +156,7 @@ export default function Navbar(props) {
                 sx={{display: 'block'}}
               >
                 {
-                  isTA && isHome && (queueFrozen ?
+                  isTA && isHome && (queueData.queueFrozen ?
                     <MenuItem onClick={unfreezeQueue}>
                       <Typography variant='subtitle2' sx={{mx: 2}}>
                         Unfreeze
@@ -213,7 +211,7 @@ export default function Navbar(props) {
         <Box sx={{flexGrow: 1, display: 'flex'}}>
           <OHQueueHeader/>
           {
-            isTA && isHome && (queueFrozen ? unfreezeButton : freezeButton)
+            isTA && isHome && (queueData.queueFrozen ? unfreezeButton : freezeButton)
           }
         </Box>
         <Box sx={{flexGrow: 0, display: 'flex', color: '#FFFFFF'}}>

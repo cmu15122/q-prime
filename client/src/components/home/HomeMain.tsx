@@ -12,19 +12,18 @@ import {useStudentDataContext} from '../../pages/home';
 
 function HomeMain() {
   const {studentData} = useStudentDataContext();
-  const {queueData} = useQueueDataContext();
+  const {queueData, setQueueData} = useQueueDataContext();
 
   const gitHubLink = 'https://github.com/cmu15122/q-issues/issues';
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isTA, setIsTA] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [queueFrozen, setQueueFrozen] = useState(true);
   const [mainPage, setMainPage] = useState(null);
 
   useEffect(() => {
     socketSubscribeTo('queueFrozen', (data) => {
-      setQueueFrozen(data.isFrozen);
+      setQueueData({...queueData, queueFrozen: data.isFrozen});
     });
   }, []);
 
@@ -33,29 +32,25 @@ function HomeMain() {
       setIsAuthenticated(queueData.isAuthenticated);
       setIsTA(queueData.isTA);
       setIsAdmin(queueData.isAdmin);
-      setQueueFrozen(queueData.queueFrozen);
     }
-  }, [queueData.isAuthenticated, queueData.isTA, queueData.isAdmin, queueData.queueFrozen]);
+  }, [queueData.isAuthenticated, queueData.isTA, queueData.isAdmin]);
 
   useEffect(() => {
     if (isAuthenticated) {
       if (isTA) {
         setMainPage(<TAMain/>);
       } else { // is student
-        setMainPage(<StudentMain queueFrozen={queueFrozen}/>);
+        setMainPage(<StudentMain/>);
       }
     } else {
       // you are not logged in
       setMainPage(null);
     }
-  }, [isAuthenticated, isTA, queueFrozen, studentData]);
+  }, [isAuthenticated, isTA]);
 
   return (
     <Container sx={{display: 'flex', minHeight: '100vh', flexDirection: 'column'}}>
-      <SharedMain
-        queueFrozen={queueFrozen}
-        setQueueFrozen={setQueueFrozen}
-      />
+      <SharedMain/>
       {mainPage}
       <Footer gitHubLink={gitHubLink}/>
     </Container>

@@ -13,10 +13,7 @@ import {socketSubscribeTo, socketUnsubscribeFrom} from '../../../services/Socket
 import {useQueueDataContext} from '../../../App';
 import {useStudentDataContext} from '../../../pages/home';
 
-function StudentMain(props) {
-  const {queueFrozen} = props;
-  const {studentData} = useStudentDataContext();
-
+function StudentMain() {
   const [questionValue, setQuestionValue] = useState('');
   const [locationValue, setLocationValue] = useState('');
   const [topicValue, setTopicValue] = useState('');
@@ -31,6 +28,7 @@ function StudentMain(props) {
   const [helpingTAInfo, setHelpingTAInfo] = useState(null);
 
   const {queueData} = useQueueDataContext();
+  const {studentData} = useStudentDataContext();
 
   useEffect(() => {
     if (!('Notification' in window)) {
@@ -185,7 +183,7 @@ function StudentMain(props) {
               handleClose={() => setRemoveConfirm(false)}
             />
           </div> :
-          (queueFrozen ? null :
+          (queueData.queueFrozen ? null :
             <AskQuestion
               questionValue={questionValue}
               setQuestionValue={setQuestionValue}
