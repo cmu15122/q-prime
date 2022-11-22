@@ -11,12 +11,10 @@ import {useQueueDataContext} from '../../App';
 import {useStudentDataContext} from '../../pages/home';
 
 function HomeMain() {
-  const {studentData} = useStudentDataContext();
   const {queueData, setQueueData} = useQueueDataContext();
 
   const gitHubLink = 'https://github.com/cmu15122/q-issues/issues';
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isTA, setIsTA] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [mainPage, setMainPage] = useState(null);
@@ -29,14 +27,13 @@ function HomeMain() {
 
   useEffect(() => {
     if (queueData != null) {
-      setIsAuthenticated(queueData.isAuthenticated);
       setIsTA(queueData.isTA);
       setIsAdmin(queueData.isAdmin);
     }
-  }, [queueData.isAuthenticated, queueData.isTA, queueData.isAdmin]);
+  }, [queueData.isTA, queueData.isAdmin]);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (queueData.isAuthenticated) {
       if (isTA) {
         setMainPage(<TAMain/>);
       } else { // is student
@@ -46,7 +43,7 @@ function HomeMain() {
       // you are not logged in
       setMainPage(null);
     }
-  }, [isAuthenticated, isTA]);
+  }, [queueData.isAuthenticated, isTA]);
 
   return (
     <Container sx={{display: 'flex', minHeight: '100vh', flexDirection: 'column'}}>

@@ -39,7 +39,6 @@ export default function Navbar(props) {
 
   const [, , removeCookie] = useCookies(['user']);
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isTA, setIsTA] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [pages, setPages] = useState([]);
@@ -69,22 +68,21 @@ export default function Navbar(props) {
 
   useEffect(() => {
     if (queueData != null) {
-      setIsAuthenticated(queueData.isAuthenticated);
       setIsTA(queueData.isTA);
       setIsAdmin(queueData.isAdmin);
     }
-  }, [queueData.isAuthenticated, queueData.isTA, queueData.isAdmin]);
+  }, [queueData.isTA, queueData.isAdmin]);
 
   useEffect(() => {
     const newPages = [];
 
-    if (isAuthenticated && isTA) {
+    if (queueData.isAuthenticated && isTA) {
       newPages.push(createPage('Settings', '/settings'));
       newPages.push(createPage('Metrics', '/metrics'));
     }
 
     setPages(newPages);
-  }, [isAuthenticated, isTA, isAdmin]);
+  }, [queueData.isAuthenticated, isTA, isAdmin]);
 
   function handleLogout() {
     removeCookie('user');
@@ -130,7 +128,7 @@ export default function Navbar(props) {
       <AppBar position="static" style={{background: theme.alternateColors.navbar}} enableColorOnDark>
         <Toolbar sx={{display: 'flex space-between'}}>
           {
-            ((pages && pages.length > 0) || isAuthenticated) &&
+            ((pages && pages.length > 0) || queueData.isAuthenticated) &&
             <Box sx={{flexGrow: 1, display: 'flex'}}>
               <IconButton
                 size="large"
@@ -179,7 +177,7 @@ export default function Navbar(props) {
                   ))
                 }
                 {
-                  isAuthenticated &&
+                  queueData.isAuthenticated &&
                     <MenuItem onClick={handleLogoutClicked}>
                       <Typography variant='subtitle2' sx={{mx: 2}}>
                             Logout
@@ -195,7 +193,7 @@ export default function Navbar(props) {
           </Box>
           <Box sx={{flexGrow: 0, display: 'flex', justifyContent: 'flex-end'}} >
             {
-              !isAuthenticated && <GoogleLogin/>
+              !queueData.isAuthenticated && <GoogleLogin/>
             }
           </Box>
           <AlertOnLogout isOpen={alertOpen} setOpen={setAlertOpen} handleConfirm={handleLogout}/>
@@ -216,12 +214,12 @@ export default function Navbar(props) {
         </Box>
         <Box sx={{flexGrow: 0, display: 'flex', color: '#FFFFFF'}}>
           {
-            isAuthenticated && 'Currently Logged in as ' + pname
+            queueData.isAuthenticated && 'Currently Logged in as ' + pname
           }
         </Box>
         <Box sx={{flexGrow: 0, display: 'flex'}}>
           {
-            isAuthenticated && <ChangeNameBtn pname={pname} setpname={setpname}/>
+            queueData.isAuthenticated && <ChangeNameBtn pname={pname} setpname={setpname}/>
           }
         </Box>
 
@@ -232,7 +230,7 @@ export default function Navbar(props) {
             ))
           }
           {
-            isAuthenticated ?
+            queueData.isAuthenticated ?
             <NavbarButton onClick={handleLogoutClicked}>Logout</NavbarButton> :
             <GoogleLogin/>
           }

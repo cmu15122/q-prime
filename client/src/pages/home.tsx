@@ -38,7 +38,7 @@ let useStudentDataContext: () => StudentDataContextContent;
 
 function Home(props) {
   const theme = useTheme();
-  const [studentData, setStudentData] = useState(null);
+  const [studentData, setStudentData] = useState({});
 
   const {queueData, setQueueData} = useQueueDataContext();
 
