@@ -5,9 +5,8 @@ import {
 
 export default function YouAreHelping(props) {
   const {
-    removeRef, removeStudent, index, handleCancel,
+    removeRef, removeStudent, index, handleCancel, theme,
   } = props;
-  const theme = useTheme();
 
   return (
     <Stack
