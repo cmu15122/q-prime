@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React from 'react';
 
 import Announcements from './Annoucements';
 import QueueStats from './QueueStats';

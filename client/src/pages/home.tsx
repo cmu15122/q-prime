@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext, createContext} from 'react';
+import React, {useEffect} from 'react';
 import {useTheme} from '@mui/material';
 
 import Navbar from '../components/navbar/Navbar';
@@ -13,7 +13,7 @@ function Home(props) {
   const theme = useTheme();
 
   const {queueData, setQueueData} = useQueueDataContext();
-  const {studentData, setStudentData} = useStudentDataContext();
+  const {setStudentData} = useStudentDataContext();
 
   useEffect(() => {
     if (queueData.frontendInitialized === false) {

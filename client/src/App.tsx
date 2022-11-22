@@ -136,24 +136,26 @@ function App() {
         <ThemeContext.Provider value={theme}>
           <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
             <QueueDataContext.Provider value = {{queueData, setQueueData}}>
-              <Router>
-                <Routes>
-                  <Route path='/' element={<Home theme={theme || darkTheme}/>} />
-                  <Route path='/settings' element={<Settings/>} />
-                  <Route path='/metrics' element={<Metrics/>} />
-                </Routes>
-              </Router>
-              <ToastContainer
-                position="bottom-left"
-                autoClose={5000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-              />
+              <StudentDataContext.Provider value = {{studentData, setStudentData}}>
+                <Router>
+                  <Routes>
+                    <Route path='/' element={<Home theme={theme || darkTheme}/>} />
+                    <Route path='/settings' element={<Settings/>} />
+                    <Route path='/metrics' element={<Metrics/>} />
+                  </Routes>
+                </Router>
+                <ToastContainer
+                  position="bottom-left"
+                  autoClose={5000}
+                  hideProgressBar={false}
+                  newestOnTop={false}
+                  closeOnClick
+                  rtl={false}
+                  pauseOnFocusLoss
+                  draggable
+                  pauseOnHover
+                />
+              </StudentDataContext.Provider>
             </QueueDataContext.Provider>
           </GoogleOAuthProvider>
         </ThemeContext.Provider>

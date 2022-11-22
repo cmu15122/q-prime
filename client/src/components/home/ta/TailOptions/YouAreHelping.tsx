@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Button, Stack, useTheme,
+  Button, Stack,
 } from '@mui/material';
 
 export default function YouAreHelping(props) {
