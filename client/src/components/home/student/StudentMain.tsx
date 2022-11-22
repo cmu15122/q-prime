@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 import YourEntry from './YourEntry';
 import RemoveQOverlay from './RemoveQConfirm';
@@ -11,9 +11,11 @@ import HomeService from '../../../services/HomeService';
 import {StudentStatusValues} from '../../../services/StudentStatus';
 import {socketSubscribeTo, socketUnsubscribeFrom} from '../../../services/SocketsService';
 import {useQueueDataContext} from '../../../App';
+import {useStudentDataContext} from '../../../pages/home';
 
 function StudentMain(props) {
-  const {queueFrozen, studentData} = props;
+  const {queueFrozen} = props;
+  const {studentData} = useStudentDataContext();
 
   const [questionValue, setQuestionValue] = useState('');
   const [locationValue, setLocationValue] = useState('');

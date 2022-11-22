@@ -8,9 +8,10 @@ import {Container} from '@mui/material';
 
 import {socketSubscribeTo} from '../../services/SocketsService';
 import {useQueueDataContext} from '../../App';
+import {useStudentDataContext} from '../../pages/home';
 
-function HomeMain(props) {
-  const {studentData} = props;
+function HomeMain() {
+  const {studentData} = useStudentDataContext();
   const {queueData} = useQueueDataContext();
 
   const gitHubLink = 'https://github.com/cmu15122/q-issues/issues';
@@ -41,7 +42,7 @@ function HomeMain(props) {
       if (isTA) {
         setMainPage(<TAMain/>);
       } else { // is student
-        setMainPage(<StudentMain queueFrozen={queueFrozen} studentData={studentData} />);
+        setMainPage(<StudentMain queueFrozen={queueFrozen}/>);
       }
     } else {
       // you are not logged in
