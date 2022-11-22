@@ -39,8 +39,6 @@ export default function Navbar(props) {
 
   const [, , removeCookie] = useCookies(['user']);
 
-  const [isTA, setIsTA] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [pages, setPages] = useState([]);
 
   const [anchorElNav, setAnchorElNav] = useState(null);
@@ -67,22 +65,15 @@ export default function Navbar(props) {
   }, []);
 
   useEffect(() => {
-    if (queueData != null) {
-      setIsTA(queueData.isTA);
-      setIsAdmin(queueData.isAdmin);
-    }
-  }, [queueData.isTA, queueData.isAdmin]);
-
-  useEffect(() => {
     const newPages = [];
 
-    if (queueData.isAuthenticated && isTA) {
+    if (queueData.isAuthenticated && queueData.isTA) {
       newPages.push(createPage('Settings', '/settings'));
       newPages.push(createPage('Metrics', '/metrics'));
     }
 
     setPages(newPages);
-  }, [queueData.isAuthenticated, isTA, isAdmin]);
+  }, [queueData.isAuthenticated, queueData.isTA, queueData.isAdmin]);
 
   function handleLogout() {
     removeCookie('user');
@@ -154,7 +145,7 @@ export default function Navbar(props) {
                 sx={{display: 'block'}}
               >
                 {
-                  isTA && isHome && (queueData.queueFrozen ?
+                  queueData.isTA && isHome && (queueData.queueFrozen ?
                     <MenuItem onClick={unfreezeQueue}>
                       <Typography variant='subtitle2' sx={{mx: 2}}>
                         Unfreeze
@@ -209,7 +200,7 @@ export default function Navbar(props) {
         <Box sx={{flexGrow: 1, display: 'flex'}}>
           <OHQueueHeader/>
           {
-            isTA && isHome && (queueData.queueFrozen ? unfreezeButton : freezeButton)
+            queueData.isTA && isHome && (queueData.queueFrozen ? unfreezeButton : freezeButton)
           }
         </Box>
         <Box sx={{flexGrow: 0, display: 'flex', color: '#FFFFFF'}}>
