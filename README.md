@@ -19,6 +19,7 @@
 1. Start the server
     ```
     % cd server
+    % npm run db:sync   # Only on first time running or after database modification
     % npm start
     ```
 2. Server should now correctly run and update when you make changes to the files! You can check the various endpoints to see what gets returned at [localhost:8000](http://localhost:8000)
@@ -154,8 +155,10 @@ server. Create a `.env` file in the `server` folder with the following fields:
 | ------------- | ------------------ | -------------------- | ------------------------- |
 | GOOGLE_CLIENT_ID | Google Client ID, used for Google OAuth | https://console.cloud.google.com/apis/credentials (Note: can not create project with Andrew email due to org permissions, need to use personal gmail) | Angela |
 | GOOGLE_CLIENT_SECRET | Google Client Secret, used for Google OAuth | https://console.cloud.google.com/apis/credentials (Note: can not create project with Andrew email due to org permissions, need to use personal gmail) | Angela |
+| GOOGLE_REDIRECT_URI | Google Redirect URI, used for Google OAuth | https://console.cloud.google.com/apis/credentials (Note: can not create project with Andrew email due to org permissions, need to use personal gmail) | Angela |
 | PROTOCOL | Protocol used for the host address (<http> or <https>) | | Angela |
 | DOMAIN | Domain used for the host address | | Angela |
+| CLIENT_PORT | Port used by the client-side (React) | | Angela |
 | POSTGRESQL_DB | Name of the PostgreSQL database | Fill using values from [setting up the database](#setting-up-the-database) | Pranav |
 | POSTGRESQL_DB_HOST | Name of the PostgreSQL database host | Fill using values from [setting up the database](#setting-up-the-database), only required if hosting the database elsewhere (i.e. on Heroku) | Pranav |
 | POSTGRESQL_DB_USER | Username to access the PostgreSQL database | Fill using values from [setting up the database](#setting-up-the-database) | Pranav |
