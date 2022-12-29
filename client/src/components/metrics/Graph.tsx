@@ -4,24 +4,22 @@ import {
 } from '@mui/material';
 
 import {DateTime} from 'luxon';
-import {ResponsiveContainer, LineChart, Line, Label, XAxis, YAxis, CartesianGrid, Tooltip} from 'recharts';
-
-
-const data = [
-  {time: 1659116497, students: 15},
-  {time: 1659216697, students: 20},
-  {time: 1659416897, students: 30},
-];
+import {ResponsiveContainer, LineChart, BarChart, Bar, Line, Label, XAxis, YAxis, CartesianGrid, Tooltip} from 'recharts';
 
 import MetricsService from '../../services/MetricsService';
 
 export default function Graph() {
   const theme = useTheme();
-  const [graphData, setGraphData] = useState([]);
+  const [numStudentsPerDayLastWeek, setNumStudentsPerDayLastWeek] = useState([]);
+  const [numStudentsPerDay, setNumStudentsPerDay] = useState([]);
 
   useEffect(() => {
     MetricsService.getNumStudentsPerDayLastWeek().then((res) => {
-      setGraphData(res.data.numStudentsPerDayLastWeek);
+      setNumStudentsPerDayLastWeek(res.data.numStudentsPerDayLastWeek);
+    });
+
+    MetricsService.getNumStudentsPerDay().then((res) => {
+      setNumStudentsPerDay(res.data.numStudentsPerDay);
     });
   }, []);
 
@@ -35,7 +33,7 @@ export default function Graph() {
         Number of Students per Day (in the last week)
       </Typography>
       <ResponsiveContainer width={'92%'} height={400}>
-        <LineChart data={graphData} margin={{top: 40, right: 0, bottom: 40, left: 50}}>
+        <LineChart data={numStudentsPerDayLastWeek} margin={{top: 40, right: 0, bottom: 40, left: 50}}>
           <Line type="monotone" dataKey="students" strokeWidth={3} stroke={theme.palette.primary.main}/>
           <CartesianGrid stroke="#ccc" />
           <XAxis tickFormatter={dateFormatter} dataKey="day" domain={['dataMin', 'dataMax']}>
@@ -58,6 +56,27 @@ export default function Graph() {
           />
         </LineChart>
       </ResponsiveContainer>
+
+      <Typography variant="h5" sx={{mt: 4, ml: 10}} fontWeight='bold'>
+        Number of Students per Day of Week
+      </Typography>
+      <ResponsiveContainer width={'92%'} height={400}>
+        <BarChart margin={{top: 40, right: 0, bottom: 40, left: 50}} data={numStudentsPerDay}>
+          <CartesianGrid stroke="#ccc" />
+          <XAxis dataKey="day" />
+          <YAxis dataKey="students">
+            <Label
+              value={'Number of Students'}
+              position="left"
+              angle={-90}
+              style={{textAnchor: 'middle'}}
+            />
+          </YAxis>
+          <Tooltip />
+          <Bar dataKey="students" fill= {theme.palette.primary.main} />
+        </BarChart>
+      </ResponsiveContainer>
+
     </div>
   );
 }

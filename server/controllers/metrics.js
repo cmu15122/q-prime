@@ -335,7 +335,33 @@ exports.get_num_students_per_day_last_week = (req, res) => {
         res.status(200);
         res.json({ numStudentsPerDayLastWeek: numStudentsPerDayLastWeek });
     });
+}
 
-    
+exports.get_num_students_per_day = (req, res) => {
+    if (!req.user || !req.user.isTA) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
 
+    models.question.findAll({
+        attributes: [
+            [Sequelize.fn('to_char', Sequelize.col('entry_time'), 'Day'), 'day_of_week'],
+            [Sequelize.fn('count', Sequelize.col('question_id')), 'count']
+        ],
+        group: [Sequelize.fn('to_char', Sequelize.col('entry_time'), 'Day')],
+        order: [[Sequelize.col('count'), 'DESC']]
+    }).then((data) =>  {
+        let numStudentsPerDay = [];
+
+        for (const row of data) {
+            let datecount = row.dataValues;
+            numStudentsPerDay.push({'day': datecount.day_of_week.trim(), 'students': datecount.count});
+        }
+
+        console.log(numStudentsPerDay);
+
+        res.status(200);
+        res.json({ numStudentsPerDay: numStudentsPerDay });
+    });
 }
