@@ -358,10 +358,35 @@ exports.get_num_students_per_day = (req, res) => {
             let datecount = row.dataValues;
             numStudentsPerDay.push({'day': datecount.day_of_week.trim(), 'students': datecount.count});
         }
-
-        console.log(numStudentsPerDay);
-
+        
         res.status(200);
         res.json({ numStudentsPerDay: numStudentsPerDay });
+    });
+}
+
+exports.get_num_students_overall = (req, res) => {
+    if (!req.user || !req.user.isTA) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    models.question.findAll({
+        attributes: [
+            [Sequelize.fn('date', Sequelize.col('entry_time')), 'day'],
+            [Sequelize.fn('count', Sequelize.col('question_id')), 'count']
+        ],
+        group: [Sequelize.fn('date', Sequelize.col('entry_time'))],
+        order: [[Sequelize.col('day'), 'ASC']]
+    }).then((data) =>  {
+        let numStudentsOverall = [];
+
+        for (const row of data) {
+            let datecount = row.dataValues;
+            numStudentsOverall.push({'day': datecount.day, 'students': datecount.count});
+        }
+
+        res.status(200);
+        res.json({ numStudentsOverall: numStudentsOverall });
     });
 }

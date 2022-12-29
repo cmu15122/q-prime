@@ -49,6 +49,10 @@ class MetricsDataService {
   getNumStudentsPerDay() {
     return http.get('/metrics/numStudentsPerDay');
   }
+
+  getNumStudentsOverall() {
+    return http.get('/metrics/numStudentsOverall');
+  }
 }
 
 export default new MetricsDataService();
