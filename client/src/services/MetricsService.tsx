@@ -29,6 +29,18 @@ class MetricsDataService {
   getTaStudentRatio() {
     return http.get('/metrics/taStudentRatioToday');
   }
+
+  getNumQuestions() {
+    return http.get('/metrics/totalNumQuestions');
+  }
+
+  getAvgTimePerQuestion() {
+    return http.get('/metrics/totalAvgTimePerQuestion');
+  }
+
+  getTotalAvgWaitTime() {
+    return http.get('/metrics/totalAvgWaitTime');
+  }
 }
 
 export default new MetricsDataService();

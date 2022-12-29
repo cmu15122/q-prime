@@ -237,3 +237,73 @@ exports.get_ta_student_ratio_today = (req, res) => {
         res.json({ taStudentRatio: Object.keys(taCount).length + ":" + Object.keys(studentCount).length });
     });
 }
+
+exports.get_total_num_questions = (req, res) => {
+    if (!req.user || !req.user.isTA) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    models.question.findAndCountAll({
+        where: {
+        }
+    }).then(({count}) =>  {
+        res.status(200);
+        res.json({ numQuestions: count });
+    });
+}
+
+exports.get_total_avg_time_per_question = (req, res) => {
+    if (!req.user || !req.user.isTA) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    models.question.findAndCountAll({
+        where: {
+            help_time: {
+                [Sequelize.Op.ne]: null,
+            }
+        }
+    }).then(({count, rows}) =>  {
+        let averageTime = 0;
+
+        for (const questionModel of rows) {
+            let question = questionModel.dataValues;
+            averageTime += (question.exit_time - question.help_time) / 1000 / 60;
+        }
+
+        if (count != 0) averageTime /= count;
+
+        res.status(200);
+        res.json({ avgTimePerQuestion: averageTime });
+    });
+}
+
+exports.get_total_avg_wait_time = (req, res) => {
+    if (!req.user || !req.user.isTA) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    models.question.findAndCountAll({
+        where: {
+        }
+    }).then(({count, rows}) =>  {
+
+        let avgWaitTime = 0;
+
+        for (const questionModel of rows) {
+            let question = questionModel.dataValues;
+            avgWaitTime += (question.help_time - question.entry_time) / 1000 / 60;
+        }
+
+        if (count != 0) avgWaitTime /= count;
+
+        res.status(200);
+        res.json({ totalAvgWaitTime: avgWaitTime });
+    });
+}
