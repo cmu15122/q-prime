@@ -41,6 +41,10 @@ class MetricsDataService {
   getTotalAvgWaitTime() {
     return http.get('/metrics/totalAvgWaitTime');
   }
+
+  getNumStudentsPerDayLastWeek() {
+    return http.get('/metrics/numStudentsPerDayLastWeek');
+  }
 }
 
 export default new MetricsDataService();

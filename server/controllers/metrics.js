@@ -307,3 +307,38 @@ exports.get_total_avg_wait_time = (req, res) => {
         res.json({ totalAvgWaitTime: avgWaitTime });
     });
 }
+
+exports.get_num_students_per_day_last_week = (req, res) => {
+    if (!req.user || !req.user.isTA) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    models.question.findAll({
+        attributes: [
+            [Sequelize.fn('date', Sequelize.col('entry_time')), 'day'],
+            [Sequelize.fn('count', Sequelize.col('question_id')), 'count']
+        ],
+        where: {
+            entry_time: {
+                [Sequelize.Op.gte]: today - 7 * 24 * 60 * 60 * 1000,
+            }
+        },
+        group: [Sequelize.fn('date', Sequelize.col('entry_time'))]
+    }).then((data) =>  {
+        let numStudentsPerDayLastWeek = [];
+
+        for (const row of data) {
+            let datecount = row.dataValues;
+            numStudentsPerDayLastWeek.push({'day': datecount.day, 'students': datecount.count});
+            console.log(datecount.day);
+        }
+
+        res.status(200);
+        res.json({ numStudentsPerDayLastWeek: numStudentsPerDayLastWeek });
+    });
+
+    
+
+}
