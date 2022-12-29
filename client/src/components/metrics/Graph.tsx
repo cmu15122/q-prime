@@ -21,7 +21,6 @@ export default function Graph() {
 
   useEffect(() => {
     MetricsService.getNumStudentsPerDayLastWeek().then((res) => {
-      console.log(res.data.numStudentsPerDayLastWeek);
       setGraphData(res.data.numStudentsPerDayLastWeek);
     });
   }, []);

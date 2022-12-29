@@ -140,8 +140,7 @@ exports.get_num_questions_today = (req, res) => {
     models.question.findAndCountAll({
         where: {
             entry_time: {
-                [Sequelize.Op.gte]: today - 24 * 60 * 60 * 1000,
-                [Sequelize.Op.lt]: today
+                [Sequelize.Op.gte]: today - 4 * 60 * 60 * 1000,
             }
         }
     }).then(({count}) =>  {
@@ -161,8 +160,7 @@ exports.get_num_bad_questions_today = (req, res) => {
     models.question.findAndCountAll({
         where: {
             entry_time: {
-                [Sequelize.Op.gte]: today - 24 * 60 * 60 * 1000,
-                [Sequelize.Op.lt]: today
+                [Sequelize.Op.gte]: today - 4 * 60 * 60 * 1000,
             },
             num_asked_to_fix: {
                 [Sequelize.Op.gt]: 0
@@ -184,8 +182,7 @@ exports.get_avg_wait_time_today = (req, res) => {
     models.question.findAndCountAll({
         where: {
             entry_time: {
-                [Sequelize.Op.gte]: today - 24 * 60 * 60 * 1000,
-                [Sequelize.Op.lt]: today
+                [Sequelize.Op.gte]: today - 4 * 60 * 60 * 1000,
             }
         }
     }).then(({count, rows}) =>  {
@@ -214,8 +211,7 @@ exports.get_ta_student_ratio_today = (req, res) => {
     models.question.findAndCountAll({
         where: {
             entry_time: {
-                [Sequelize.Op.gte]: today - 24 * 60 * 60 * 1000,
-                [Sequelize.Op.lt]: today
+                [Sequelize.Op.gte]: today - 4 * 60 * 60 * 1000,
             }
         }
     }).then(({count, rows}) =>  {
@@ -325,7 +321,8 @@ exports.get_num_students_per_day_last_week = (req, res) => {
                 [Sequelize.Op.gte]: today - 7 * 24 * 60 * 60 * 1000,
             }
         },
-        group: [Sequelize.fn('date', Sequelize.col('entry_time'))]
+        group: [Sequelize.fn('date', Sequelize.col('entry_time'))],
+        order: [[Sequelize.col('day'), 'ASC']]
     }).then((data) =>  {
         let numStudentsPerDayLastWeek = [];
 
