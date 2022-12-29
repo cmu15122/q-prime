@@ -23,7 +23,6 @@ module.exports = (sequelize, DataTypes) => {
   Semester_User.init({
     user_id:{
       type: DataTypes.INTEGER,
-      unique: true
     },
     sem_id:{
       type: DataTypes.STRING(3),
