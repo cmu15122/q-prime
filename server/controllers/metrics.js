@@ -50,7 +50,8 @@ exports.get_helped_students = (req, res) => {
             help_time: {
                 [Sequelize.Op.ne]: null
             }
-        }
+        },
+        order: [['entry_time', 'DESC']]
     }).then((questionModels) =>  {
         let accountReqs = [];
 
@@ -329,7 +330,6 @@ exports.get_num_students_per_day_last_week = (req, res) => {
         for (const row of data) {
             let datecount = row.dataValues;
             numStudentsPerDayLastWeek.push({'day': datecount.day, 'students': datecount.count});
-            console.log(datecount.day);
         }
 
         res.status(200);
