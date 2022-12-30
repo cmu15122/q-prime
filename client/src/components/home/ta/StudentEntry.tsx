@@ -20,7 +20,8 @@ export default function StudentEntry(props) {
 
   useEffect(() => {
     const closeExpanded = (e) => {
-      if (!e.path.includes(removeRef.current)) {
+      const path = e.path || (e.composedPath && e.composedPath());
+      if (!path.includes(removeRef.current)) {
         setConfirmRemove(false);
       }
     };
@@ -41,9 +42,7 @@ export default function StudentEntry(props) {
   }
 
   const handleClickUpdateQ = () => {
-    console.log('handleClickUpdateQ reached');
     student['status'] = StudentStatusValues.FIXING_QUESTION;
-    console.log('handleClickUpdateQ done');
   };
 
   const approveCooldownOverride = () => {
