@@ -47,7 +47,6 @@ export default function FilterOptions(props) {
   // const [topics, setTopics] = useState([]);
   const topics = useMemo(() => {
     if (queueData != null) {
-
       const newRows = [];
       queueData.topics.forEach((topic) => {
         newRows.push(createData(
@@ -57,9 +56,8 @@ export default function FilterOptions(props) {
       });
       newRows.push(createData(-1, 'Other'));
       return newRows;
-    }
-    else return [];
-  }, [queueData.topics])
+    } else return [];
+  }, [queueData.topics]);
 
   // const [locations, setLocations] = useState([]);
   const locations = useMemo(() => {
@@ -74,7 +72,7 @@ export default function FilterOptions(props) {
         return roomsForDay;
       });
     } else return [];
-  }, [queueData.topics])
+  }, [queueData.topics]);
 
   // useEffect(() => {
   //   if (queueData != null) {

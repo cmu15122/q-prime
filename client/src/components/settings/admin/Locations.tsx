@@ -26,8 +26,7 @@ export default function Locations(props) {
     if (queueData != null) {
       return queueData.locations;
     } else return {};
-  }, [queueData.locations])
-
+  }, [queueData.locations]);
 
   useEffect(() => {
     SettingsService.getLocations()

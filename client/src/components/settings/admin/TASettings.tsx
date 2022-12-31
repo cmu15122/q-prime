@@ -41,7 +41,7 @@ export default function TASettings(props) {
       });
       return newRows;
     } else return [];
-  }, [queueData.tas])
+  }, [queueData.tas]);
 
   // useEffect(() => {
   //   if (queueData != null) {

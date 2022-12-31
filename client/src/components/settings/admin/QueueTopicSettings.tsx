@@ -46,7 +46,7 @@ export default function QueueTopicSettings(props) {
       });
       return newRows;
     } else return [];
-  }, [queueData.topics])
+  }, [queueData.topics]);
 
   // useEffect(() => {
   //   if (queueData != null) {

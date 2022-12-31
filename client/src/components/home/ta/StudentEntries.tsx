@@ -32,7 +32,7 @@ export default function StudentEntries(props) {
       newFiltered = newFiltered.filter((student) => filteredTopics.includes(student.topic.name));
     }
     return newFiltered;
-  }, [students, filteredLocations, filteredTopics])
+  }, [students, filteredLocations, filteredTopics]);
 
   const Filter = () => {
     const handleFilterDialog = (event) => {
