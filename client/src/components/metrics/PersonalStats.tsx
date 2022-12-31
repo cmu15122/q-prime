@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {
   Card, Divider, Typography, Grid, Stack, Table, TableBody, TableCell,
-  TableContainer, TableHead, TablePagination, TableRow, Paper,
+  TableContainer, TableHead, TablePagination, TableRow,
 } from '@mui/material';
 
 import {DateTime} from 'luxon';

@@ -20,7 +20,8 @@ export default function StudentEntry(props) {
 
   useEffect(() => {
     const closeExpanded = (e) => {
-      if (e.path && !e.path.includes(removeRef.current)) {
+      const path = e.path || (e.composedPath && e.composedPath());
+      if (!path.includes(removeRef.current)) {
         setConfirmRemove(false);
       }
     };

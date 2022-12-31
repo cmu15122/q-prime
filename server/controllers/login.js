@@ -10,7 +10,7 @@ const config = require("../config/config.js");
 const client = new OAuth2Client(
     config.GOOGLE_CLIENT_ID,
     config.GOOGLE_CLIENT_SECRET,
-    config.PROTOCOL + "://" + config.DOMAIN + ":" + config.CLIENT_PORT
+    config.GOOGLE_REDIRECT_URI
 );
 
 exports.post_login = async (req, res) => {

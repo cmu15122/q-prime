@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "nodemon app.js",
+    "db:sync": "node db_sync.js",
     "test": "jest --config ./jest.config.json",
     "test:watch": "npm run test -- --watch",
     "test:coverage": "npm run test -- --coverage"

@@ -2,6 +2,8 @@ const Sequelize = require('sequelize');
 const Promise = require("bluebird");
 
 const models = require('../models');
+const { sequelize } = require('../models');
+const today = new Date();
 
 /** Helper Functions **/
 function respond_error(req, res, message, status) {
@@ -48,7 +50,8 @@ exports.get_helped_students = (req, res) => {
             help_time: {
                 [Sequelize.Op.ne]: null
             }
-        }
+        },
+        order: [['entry_time', 'DESC']]
     }).then((questionModels) =>  {
         let accountReqs = [];
 
@@ -125,5 +128,265 @@ exports.get_avg_time_per_question = (req, res) => {
 
         res.status(200);
         res.json({ averageTime: averageTime });
+    });
+}
+
+exports.get_num_questions_today = (req, res) => {
+    if (!req.user || !req.user.isTA) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    models.question.findAndCountAll({
+        where: {
+            entry_time: {
+                [Sequelize.Op.gte]: today - 4 * 60 * 60 * 1000,
+            }
+        }
+    }).then(({count}) =>  {
+        res.status(200);
+        res.json({ numQuestionsToday: count });
+    });
+}
+
+
+exports.get_num_bad_questions_today = (req, res) => {
+    if (!req.user || !req.user.isTA) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    models.question.findAndCountAll({
+        where: {
+            entry_time: {
+                [Sequelize.Op.gte]: today - 4 * 60 * 60 * 1000,
+            },
+            num_asked_to_fix: {
+                [Sequelize.Op.gt]: 0
+            }
+        }
+    }).then(({count}) =>  {
+        res.status(200);
+        res.json({ numBadQuestions: count });
+    });
+}
+
+exports.get_avg_wait_time_today = (req, res) => {
+    if (!req.user || !req.user.isTA) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    models.question.findAndCountAll({
+        where: {
+            entry_time: {
+                [Sequelize.Op.gte]: today - 4 * 60 * 60 * 1000,
+            }
+        }
+    }).then(({count, rows}) =>  {
+
+        let avgWaitTime = 0;
+
+        for (const questionModel of rows) {
+            let question = questionModel.dataValues;
+            avgWaitTime += (question.help_time - question.entry_time) / 1000 / 60;
+        }
+
+        if (count != 0) avgWaitTime /= count;
+
+        res.status(200);
+        res.json({ avgWaitTime: avgWaitTime });
+    });
+}
+
+exports.get_ta_student_ratio_today = (req, res) => {
+    if (!req.user || !req.user.isTA) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    models.question.findAndCountAll({
+        where: {
+            entry_time: {
+                [Sequelize.Op.gte]: today - 4 * 60 * 60 * 1000,
+            }
+        }
+    }).then(({count, rows}) =>  {
+        const taCount = rows.reduce((acc, questionModel) => {
+            let question = questionModel.dataValues;
+
+            acc[question.ta_id] = (acc[question.ta_id] || 0) + 1;
+            return acc;
+        }, {});
+
+        const studentCount = rows.reduce((acc, questionModel) => {
+            let question = questionModel.dataValues;
+
+            acc[question.student_id] = (acc[question.student_id] || 0) + 1;
+            return acc;
+        }, {});
+        
+        res.status(200);
+        res.json({ taStudentRatio: Object.keys(taCount).length + ":" + Object.keys(studentCount).length });
+    });
+}
+
+exports.get_total_num_questions = (req, res) => {
+    if (!req.user || !req.user.isTA) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    models.question.findAndCountAll({
+        where: {
+        }
+    }).then(({count}) =>  {
+        res.status(200);
+        res.json({ numQuestions: count });
+    });
+}
+
+exports.get_total_avg_time_per_question = (req, res) => {
+    if (!req.user || !req.user.isTA) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    models.question.findAndCountAll({
+        where: {
+            help_time: {
+                [Sequelize.Op.ne]: null,
+            }
+        }
+    }).then(({count, rows}) =>  {
+        let averageTime = 0;
+
+        for (const questionModel of rows) {
+            let question = questionModel.dataValues;
+            averageTime += (question.exit_time - question.help_time) / 1000 / 60;
+        }
+
+        if (count != 0) averageTime /= count;
+
+        res.status(200);
+        res.json({ avgTimePerQuestion: averageTime });
+    });
+}
+
+exports.get_total_avg_wait_time = (req, res) => {
+    if (!req.user || !req.user.isTA) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    models.question.findAndCountAll({
+        where: {
+        }
+    }).then(({count, rows}) =>  {
+
+        let avgWaitTime = 0;
+
+        for (const questionModel of rows) {
+            let question = questionModel.dataValues;
+            avgWaitTime += (question.help_time - question.entry_time) / 1000 / 60;
+        }
+
+        if (count != 0) avgWaitTime /= count;
+
+        res.status(200);
+        res.json({ totalAvgWaitTime: avgWaitTime });
+    });
+}
+
+exports.get_num_students_per_day_last_week = (req, res) => {
+    if (!req.user || !req.user.isTA) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    models.question.findAll({
+        attributes: [
+            [Sequelize.fn('date', Sequelize.col('entry_time')), 'day'],
+            [Sequelize.fn('count', Sequelize.col('question_id')), 'count']
+        ],
+        where: {
+            entry_time: {
+                [Sequelize.Op.gte]: today - 7 * 24 * 60 * 60 * 1000,
+            }
+        },
+        group: [Sequelize.fn('date', Sequelize.col('entry_time'))],
+        order: [[Sequelize.col('day'), 'ASC']]
+    }).then((data) =>  {
+        let numStudentsPerDayLastWeek = [];
+
+        for (const row of data) {
+            let datecount = row.dataValues;
+            numStudentsPerDayLastWeek.push({'day': datecount.day, 'students': datecount.count});
+        }
+
+        res.status(200);
+        res.json({ numStudentsPerDayLastWeek: numStudentsPerDayLastWeek });
+    });
+}
+
+exports.get_num_students_per_day = (req, res) => {
+    if (!req.user || !req.user.isTA) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    models.question.findAll({
+        attributes: [
+            [Sequelize.fn('to_char', Sequelize.col('entry_time'), 'Day'), 'day_of_week'],
+            [Sequelize.fn('count', Sequelize.col('question_id')), 'count']
+        ],
+        group: [Sequelize.fn('to_char', Sequelize.col('entry_time'), 'Day')],
+        order: [[Sequelize.col('count'), 'DESC']]
+    }).then((data) =>  {
+        let numStudentsPerDay = [];
+
+        for (const row of data) {
+            let datecount = row.dataValues;
+            numStudentsPerDay.push({'day': datecount.day_of_week.trim(), 'students': datecount.count});
+        }
+        
+        res.status(200);
+        res.json({ numStudentsPerDay: numStudentsPerDay });
+    });
+}
+
+exports.get_num_students_overall = (req, res) => {
+    if (!req.user || !req.user.isTA) {
+        message = "You don't have permissions to perform this operation";
+        respond_error(req, res, message, 403);
+        return;
+    }
+
+    models.question.findAll({
+        attributes: [
+            [Sequelize.fn('date', Sequelize.col('entry_time')), 'day'],
+            [Sequelize.fn('count', Sequelize.col('question_id')), 'count']
+        ],
+        group: [Sequelize.fn('date', Sequelize.col('entry_time'))],
+        order: [[Sequelize.col('day'), 'ASC']]
+    }).then((data) =>  {
+        let numStudentsOverall = [];
+
+        for (const row of data) {
+            let datecount = row.dataValues;
+            numStudentsOverall.push({'day': datecount.day, 'students': datecount.count});
+        }
+
+        res.status(200);
+        res.json({ numStudentsOverall: numStudentsOverall });
     });
 }

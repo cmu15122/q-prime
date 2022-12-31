@@ -26,7 +26,7 @@ export default function VideoChatSettings(props) {
     setVideoChatEnabled(chatEnabled);
     SettingsService.updateVideoChatSettings({
       enabled: chatEnabled,
-      url: videoChatURL,
+      url: chatEnabled ? videoChatURL : '',
     });
   };
 
@@ -34,7 +34,7 @@ export default function VideoChatSettings(props) {
     event.preventDefault();
     SettingsService.updateVideoChatSettings({
       enabled: isVideoChatEnabled,
-      url: videoChatURL,
+      url: isVideoChatEnabled ? videoChatURL : '',
     });
   };
 
