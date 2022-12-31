@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useEffect, useContext, useMemo} from 'react';
 
 import {List, ListSubheader, ListItem,
   ListItemButton, ListItemIcon, ListItemText, Checkbox,
@@ -44,39 +44,68 @@ export default function FilterOptions(props) {
     }
   };
 
-  const [locations, setLocations] = useState([]);
-  const [topics, setTopics] = useState([]);
-
-  useEffect(() => {
+  // const [topics, setTopics] = useState([]);
+  const topics = useMemo(() => {
     if (queueData != null) {
-      updateTopics(queueData.topics);
-      updateLocations();
+
+      const newRows = [];
+      queueData.topics.forEach((topic) => {
+        newRows.push(createData(
+            topic.assignment_id,
+            topic.name,
+        ));
+      });
+      newRows.push(createData(-1, 'Other'));
+      return newRows;
     }
-  }, [queueData.topics]);
+    else return [];
+  }, [queueData.topics])
 
-  function updateTopics(newTopics) {
-    const newRows = [];
-    newTopics.forEach((topic) => {
-      newRows.push(createData(
-          topic.assignment_id,
-          topic.name,
-      ));
-    });
-    newRows.push(createData(-1, 'Other'));
-    setTopics(newRows);
-  }
+  // const [locations, setLocations] = useState([]);
+  const locations = useMemo(() => {
+    if (queueData != null) {
+      const day = date.getDay();
+      let newLocations = {};
+      SettingsService.getLocations().then((res) => {
+        const dayDict = res.data.dayDictionary;
+        newLocations = dayDict;
 
-  function updateLocations() {
-    const day = date.getDay();
-    let newLocations = {};
-    SettingsService.getLocations().then((res) => {
-      const dayDict = res.data.dayDictionary;
-      newLocations = dayDict;
+        const roomsForDay = (newLocations && newLocations[day]) ? newLocations[day] : ['Office Hours'];
+        return roomsForDay;
+      });
+    } else return [];
+  }, [queueData.topics])
 
-      const roomsForDay = (newLocations && newLocations[day]) ? newLocations[day] : ['Office Hours'];
-      setLocations(roomsForDay);
-    });
-  }
+  // useEffect(() => {
+  //   if (queueData != null) {
+  //     updateTopics(queueData.topics);
+  //     updateLocations();
+  //   }
+  // }, [queueData.topics]);
+
+  // function updateTopics(newTopics) {
+  //   const newRows = [];
+  //   newTopics.forEach((topic) => {
+  //     newRows.push(createData(
+  //         topic.assignment_id,
+  //         topic.name,
+  //     ));
+  //   });
+  //   newRows.push(createData(-1, 'Other'));
+  //   setTopics(newRows);
+  // }
+
+  // function updateLocations() {
+  //   const day = date.getDay();
+  //   let newLocations = {};
+  //   SettingsService.getLocations().then((res) => {
+  //     const dayDict = res.data.dayDictionary;
+  //     newLocations = dayDict;
+
+  //     const roomsForDay = (newLocations && newLocations[day]) ? newLocations[day] : ['Office Hours'];
+  //     setLocations(roomsForDay);
+  //   });
+  // }
 
   return (
     <div>

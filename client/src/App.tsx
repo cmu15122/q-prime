@@ -39,7 +39,10 @@ type QueueDataContent = {
   }[],
   topics: {
     assignment_id: number,
-    name: string
+    name: string,
+    category: string,
+    start_date: string,
+    end_date: string,
   }[],
   queueFrozen: boolean,
   numStudents: number

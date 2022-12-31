@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useEffect, useContext, useMemo} from 'react';
 import {
   TableCell, Typography,
 } from '@mui/material';
@@ -21,7 +21,13 @@ export default function Locations(props) {
   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
   const [roomDictionary, setRoomDictionary] = useState({}); // dict of location: [days]
-  const [dayDictionary, setDayDictionary] = useState({});
+  // const [dayDictionary, setDayDictionary] = useState({});
+  const dayDictionary = useMemo(() => {
+    if (queueData != null) {
+      return queueData.locations;
+    } else return {};
+  }, [queueData.locations])
+
 
   useEffect(() => {
     SettingsService.getLocations()
@@ -30,11 +36,11 @@ export default function Locations(props) {
         });
   }, []);
 
-  useEffect(() => {
-    if (queueData != null) {
-      setDayDictionary(queueData.locations);
-    }
-  }, [queueData.locations]);
+  // useEffect(() => {
+  //   if (queueData != null) {
+  //     setDayDictionary(queueData.locations);
+  //   }
+  // }, [queueData.locations]);
 
   const updateRoomDictionary = (newRoomDict) => {
     if (!newRoomDict) return;
@@ -96,7 +102,6 @@ export default function Locations(props) {
                   roomDictionary={roomDictionary}
                   setRoomDictionary={setRoomDictionary}
                   dayDictionary={dayDictionary}
-                  setDayDictionary={setDayDictionary}
                 />
               </TableCell>
             </ItemRow>

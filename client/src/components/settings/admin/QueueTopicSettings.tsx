@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useEffect, useContext, useMemo} from 'react';
 import {
   Button, TableCell, TableRow, Typography, useTheme,
 } from '@mui/material';
@@ -30,27 +30,43 @@ export default function QueueTopicSettings(props) {
   const theme = useTheme();
 
   const [selectedRow, setSelectedRow] = useState(null);
-  const [rows, setRows] = useState([]);
 
-  useEffect(() => {
+  // const [rows, setRows] = useState([]);
+  const rows = useMemo(() => {
     if (queueData != null) {
-      updateTopics(queueData.topics);
-    }
-  }, [queueData.topics]);
+      const newRows = [];
+      queueData.topics.forEach((topic) => {
+        newRows.push(createData(
+            topic.assignment_id,
+            topic.name,
+            topic.category,
+            topic.start_date,
+            topic.end_date,
+        ));
+      });
+      return newRows;
+    } else return [];
+  }, [queueData.topics])
 
-  const updateTopics = (newTopics) => {
-    const newRows = [];
-    newTopics.forEach((topic) => {
-      newRows.push(createData(
-          topic.assignment_id,
-          topic.name,
-          topic.category,
-          topic.start_date,
-          topic.end_date,
-      ));
-    });
-    setRows(newRows);
-  };
+  // useEffect(() => {
+  //   if (queueData != null) {
+  //     updateTopics(queueData.topics);
+  //   }
+  // }, [queueData.topics]);
+
+  // const updateTopics = (newTopics) => {
+  //   const newRows = [];
+  //   newTopics.forEach((topic) => {
+  //     newRows.push(createData(
+  //         topic.assignment_id,
+  //         topic.name,
+  //         topic.category,
+  //         topic.start_date,
+  //         topic.end_date,
+  //     ));
+  //   });
+  //   setRows(newRows);
+  // };
 
   const handleDownload = () => {
     SettingsService.downloadTopicCSV()
@@ -127,7 +143,8 @@ export default function QueueTopicSettings(props) {
           end_date: endDate.toString(),
         }),
     ).then((res) => {
-      updateTopics(res.data.topics);
+      // TODO SHOULD SUBSCRIBE TO NEW GLOBAL SOCKET THAT UPDATES QUEUEDATA.TAS
+      // updateTopics(res.data.topics);
       handleClose();
     });
   };
@@ -143,7 +160,7 @@ export default function QueueTopicSettings(props) {
           end_date: endDate.toString(),
         }),
     ).then((res) => {
-      updateTopics(res.data.topics);
+      // updateTopics(res.data.topics);
       handleClose();
     });
   };
@@ -154,7 +171,7 @@ export default function QueueTopicSettings(props) {
           assignment_id: selectedRow?.assignmentId,
         }),
     ).then((res) => {
-      updateTopics(res.data.topics);
+      // updateTopics(res.data.topics);
       handleClose();
     });
   };
@@ -169,7 +186,7 @@ export default function QueueTopicSettings(props) {
     formData.append('file', file);
     SettingsService.uploadTopicCSV(formData)
         .then((res) => {
-          updateTopics(res.data.topics);
+          // updateTopics(res.data.topics);
           handleClose();
         });
   };

@@ -13,11 +13,26 @@ import {StudentStatusValues} from '../../../services/StudentStatus';
 import {useQueueDataContext} from '../../../App';
 
 export default function StudentEntries(props) {
+  const {queueData} = useQueueDataContext();
+
   /* BEGIN FILTER LOGIC */
+  const [students, setStudents] = useState([]);
+  const [isHelping, setIsHelping] = useState(false);
+  const [helpIdx, setHelpIdx] = useState(-1); // idx of student that you are helping, only valid when isHelping is true
+
   const [filteredLocations, setFilteredLocations] = React.useState([]);
   const [filteredTopics, setFilteredTopics] = React.useState([]);
 
-  const {queueData} = useQueueDataContext();
+  const filteredStudents = React.useMemo(() => {
+    let newFiltered = students;
+    if (filteredLocations.length > 0) {
+      newFiltered = newFiltered.filter((student) => filteredLocations.includes(student.location));
+    }
+    if (filteredTopics.length > 0) {
+      newFiltered = newFiltered.filter((student) => filteredTopics.includes(student.topic.name));
+    }
+    return newFiltered;
+  }, [students, filteredLocations, filteredTopics])
 
   const Filter = () => {
     const handleFilterDialog = (event) => {
@@ -64,10 +79,6 @@ export default function StudentEntries(props) {
     /* END FILTER LOGIC (the actual filtering is in QUEUE LOGIC)*/
 
   /* BEGIN QUEUE LOGIC */
-  const [students, setStudents] = useState([]);
-  const [filteredStudents, setFilteredStudents] = useState([]);
-  const [isHelping, setIsHelping] = useState(false);
-  const [helpIdx, setHelpIdx] = useState(-1); // idx of student that you are helping, only valid when isHelping is true
 
   function updateStudentFromSockets(res) {
     setStudents((students) => {
@@ -146,16 +157,16 @@ export default function StudentEntries(props) {
     }
   }, [students, queueData.andrewID]);
 
-  useEffect(() => {
-    let newFiltered = students;
-    if (filteredLocations.length > 0) {
-      newFiltered = newFiltered.filter((student) => filteredLocations.includes(student.location));
-    }
-    if (filteredTopics.length > 0) {
-      newFiltered = newFiltered.filter((student) => filteredTopics.includes(student.topic.name));
-    }
-    setFilteredStudents(newFiltered);
-  }, [students, filteredLocations, filteredTopics]);
+  // useEffect(() => {
+  //   let newFiltered = students;
+  //   if (filteredLocations.length > 0) {
+  //     newFiltered = newFiltered.filter((student) => filteredLocations.includes(student.location));
+  //   }
+  //   if (filteredTopics.length > 0) {
+  //     newFiltered = newFiltered.filter((student) => filteredTopics.includes(student.topic.name));
+  //   }
+  //   setFilteredStudents(newFiltered);
+  // }, [students, filteredLocations, filteredTopics]);
 
   const handleClickHelp = (index) => {
     HomeService.helpStudent(JSON.stringify({

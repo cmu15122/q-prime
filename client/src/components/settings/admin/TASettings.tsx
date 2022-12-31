@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useEffect, useContext, useMemo} from 'react';
 import {
   Button, Checkbox, FormControlLabel, Grid, TableCell, TableRow, Typography, useTheme,
 } from '@mui/material';
@@ -26,26 +26,41 @@ export default function TASettings(props) {
   const theme = useTheme();
 
   const [selectedRow, setSelectedRow] = useState(null);
-  const [rows, setRows] = useState([]);
 
-  useEffect(() => {
+  // const [rows, setRows] = useState([]);
+  const rows = useMemo(() => {
     if (queueData != null) {
-      updateTAs(queueData.tas);
-    }
-  }, [queueData.tas]);
+      const newRows = [];
+      queueData.tas.forEach((ta) => {
+        newRows.push(createData(
+            ta.ta_id,
+            ta.preferred_name,
+            ta.email,
+            ta.isAdmin,
+        ));
+      });
+      return newRows;
+    } else return [];
+  }, [queueData.tas])
 
-  const updateTAs = (newTAs) => {
-    const newRows = [];
-    newTAs.forEach((ta) => {
-      newRows.push(createData(
-          ta.ta_id,
-          ta.preferred_name,
-          ta.email,
-          ta.isAdmin,
-      ));
-    });
-    setRows(newRows);
-  };
+  // useEffect(() => {
+  //   if (queueData != null) {
+  //     updateTAs(queueData.tas);
+  //   }
+  // }, [queueData.tas]);
+
+  // const updateTAs = (newTAs) => {
+  //   const newRows = [];
+  //   newTAs.forEach((ta) => {
+  //     newRows.push(createData(
+  //         ta.ta_id,
+  //         ta.preferred_name,
+  //         ta.email,
+  //         ta.isAdmin,
+  //     ));
+  //   });
+  //   setRows(newRows);
+  // };
 
   const handleDownload = () => {
     SettingsService.downloadTACSV()
@@ -111,7 +126,8 @@ export default function TASettings(props) {
           isAdmin: isAdmin,
         }),
     ).then((res) => {
-      updateTAs(res.data.tas);
+      // TODO SHOULD SUBSCRIBE TO NEW GLOBAL SOCKET THAT UPDATES QUEUEDATA.TAS
+      // updateTAs(res.data.tas);
       handleClose();
     });
   };
@@ -124,7 +140,7 @@ export default function TASettings(props) {
           isAdmin: isAdmin,
         }),
     ).then((res) => {
-      updateTAs(res.data.tas);
+      // updateTAs(res.data.tas);
       handleClose();
     });
   };
@@ -135,7 +151,7 @@ export default function TASettings(props) {
           user_id: selectedRow.userId,
         }),
     ).then((res) => {
-      updateTAs(res.data.tas);
+      // updateTAs(res.data.tas);
       handleClose();
     });
   };
@@ -150,7 +166,7 @@ export default function TASettings(props) {
     formData.append('file', file);
     SettingsService.uploadTACSV(formData)
         .then((res) => {
-          updateTAs(res.data.tas);
+          // updateTAs(res.data.tas);
           handleClose();
         });
   };
