@@ -4,17 +4,19 @@ import {
 } from '@mui/material';
 
 import HomeService from '../../../services/HomeService';
+import {useStudentDataContext} from '../../../App';
 
 export default function UpdateQuestionOverlay(props) {
-  const {open, handleClose, questionValue, setQuestionValue, andrewID} = props;
+  const {open, handleClose} = props;
+  const {studentData, setStudentData} = useStudentDataContext();
 
   const printAndClose = (event) => {
     event.preventDefault();
 
     HomeService.updateQuestion(
         JSON.stringify({
-          id: andrewID,
-          content: questionValue,
+          id: studentData.andrewID,
+          content: studentData.question,
         }),
     ).then(() => {
       handleClose();
@@ -42,7 +44,7 @@ export default function UpdateQuestionOverlay(props) {
           multiline
           fullWidth
           sx={{my: 2}}
-          onChange={(event) => setQuestionValue(event.target.value)}
+          onChange={(event) => setStudentData({...studentData, question: event.target.value})}
           inputProps={{maxLength: 256}}
         />
 

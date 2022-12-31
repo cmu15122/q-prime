@@ -57,47 +57,68 @@ function buildStudentEntryData(student) {
 exports.get = function (req, res) {
     res.status(200);
 
-    let data = {
-        queueData: {
-            title: "15-122 Office Hours Queue",
-        }
-    };
-
-    if (req.user.isOwner) {
-        data.isOwner = req.user.isOwner;
-        res.send(data);
-        return;
-    }
-
+    // default data to send back
     let adminSettings = settings.get_admin_settings();
-    if (adminSettings.currSem == null) {
-        data.queueData.uninitializedSem = true;
-        res.send(data);
-        return;
-    }
-
-    data = {
-        queueData: {
+    let data = {
+        // queueData: {
+            // most important global data
             title: "15-122 Office Hours Queue",
+            isOwner: req.user.isOwner,
+            uninitializedSem: adminSettings.currSem == null,
+
+            // global stats
             announcements: announcements,
+            topics: [],
             queueFrozen: queueFrozen,
             numStudents: ohq.size(),
-            waitTime: waittime.get(),
             rejoinTime: adminSettings.rejoinTime,
+            waitTime: waittime.get(),
+
+            // user state
             isAuthenticated: req.user?.isAuthenticated,
             isTA: req.user?.isTA,
             isAdmin: req.user?.isAdmin,
             andrewID: req.user?.andrewID,
-            preferred_name: req.user?.account?.preferred_name
-        },
-        studentData: {}
+            preferred_name: req.user?.account?.preferred_name,
+        // },
+        // // TODO MOVE TO OWN SOCKET
+        // studentData: {}
     };
+    // if (req.user.isOwner) {
+    //     data.isOwner = req.user.isOwner;
+    //     res.send(data);
+    //     return;
+    // }
 
-    if (!req.user.isAuthenticated) {
-        // Not logged in - this is all the information we need
-        res.send(data);
-        return;
-    }
+    // let adminSettings = settings.get_admin_settings();
+    // if (adminSettings.currSem == null) {
+    //     data.queueData.uninitializedSem = true;
+    //     res.send(data);
+    //     return;
+    // }
+
+    // data = {
+    //     queueData: {
+    //         title: "15-122 Office Hours Queue",
+    //         announcements: announcements,
+    //         queueFrozen: queueFrozen,
+    //         numStudents: ohq.size(),
+    //         waitTime: waittime.get(),
+    //         rejoinTime: adminSettings.rejoinTime,
+    //         isAuthenticated: req.user?.isAuthenticated,
+    //         isTA: req.user?.isTA,
+    //         isAdmin: req.user?.isAdmin,
+    //         andrewID: req.user?.andrewID,
+    //         preferred_name: req.user?.account?.preferred_name
+    //     },
+    //     studentData: {}
+    // };
+
+    // if (!req.user.isAuthenticated) {
+    //     // Not logged in - this is all the information we need
+    //     res.send(data);
+    //     return;
+    // }
 
     models.assignment_semester.findAll({
         where: {
@@ -118,45 +139,59 @@ exports.get = function (req, res) {
             });
         }
 
-        data.queueData.topics = assignments;
+        data.topics = assignments;
 
-        if (req.user.isTA) {
-            res.send(data);
-            return;
-        }
-
-        // Handle when logged-in user is a student
-        let studentPos = ohq.getPosition(req.user.andrewID);
-        if (studentPos === -1) {
-            // Student is not on the queue
-            data.studentData["position"] = studentPos;
-            res.send(data);
-            return;
-        }
-
-        let entry = buildStudentEntryData(ohq.queue.get(studentPos));
-        data.studentData = entry;
-
-        if (entry.status === StudentStatus.BEING_HELPED || entry.status === StudentStatus.RECEIVED_MESSAGE) {
-            models.account.findOne({
-                where: { user_id: entry.taID },
-                include: {
-                    model: models.ta,
-                    as: 'ta'
-                }
-            }).then(function (account) {
-                data.studentData.helpingTA = {
-                    taId: account.ta.ta_id,
-                    taName: account.name,
-                    taZoomUrl: account.ta.zoom_url
-                }
-                res.send(data);
-            });
-        }
-        else {
-            res.send(data);
-        }
+        res.send(data);
+        return;
     });
+}
+
+exports.get_student_data = function (req, res) {
+    let data = {
+        name: '',
+        andrewID: '',
+        taID: -1,
+        taAndrewID: '',
+        location: '',
+        topic: '',
+        question: '',
+        isFrozen: false,
+        message: '',
+        messageBuffer: [],
+        status: -1,
+        position: -1,
+    }
+
+    // Handle when logged-in user is a student
+    let studentPos = ohq.getPosition(req.user.andrewID);
+    if (studentPos === -1) {
+        // Student is not on the queue
+        res.send(data);
+        return;
+    } else {
+        res.send(buildStudentEntryData(ohq.queue.get(studentPos)));
+        return;
+    }
+
+    // if (entry.status === StudentStatus.BEING_HELPED || entry.status === StudentStatus.RECEIVED_MESSAGE) {
+    //     models.account.findOne({
+    //         where: { user_id: entry.taID },
+    //         include: {
+    //             model: models.ta,
+    //             as: 'ta'
+    //         }
+    //     }).then(function (account) {
+    //         data.studentData.helpingTA = {
+    //             taId: account.ta.ta_id,
+    //             taName: account.name,
+    //             taZoomUrl: account.ta.zoom_url
+    //         }
+    //         res.send(data);
+    //     });
+    // }
+    // else {
+    //     res.send(data);
+    // }
 }
 
 exports.post_freeze_queue = function (req, res) {

@@ -2,9 +2,11 @@ import React from 'react';
 import {
   Typography, Button, Dialog, DialogContent, Divider,
 } from '@mui/material';
+import {useStudentDataContext} from '../../../App';
 
 export default function TAHelpingOverlay(props) {
-  const {open, helpingTAInfo, question} = props;
+  const {open, helpingTAInfo} = props;
+  const {studentData} = useStudentDataContext();
 
   function addhttp(url) {
     if (!/^(?:f|ht)tps?:\/\//.test(url)) {
@@ -23,7 +25,7 @@ export default function TAHelpingOverlay(props) {
         }
         <Divider sx={{mt: '.5em', mb: '.5em'}}/>
         <Typography variant="h6" textAlign="center">As a reminder, you asked:</Typography>
-        <Typography variant="h6" textAlign="center">{question}</Typography>
+        <Typography variant="h6" textAlign="center">{studentData.question}</Typography>
       </DialogContent>
     </Dialog>
   );

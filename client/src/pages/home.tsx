@@ -13,20 +13,29 @@ function Home(props) {
   const theme = useTheme();
 
   const {queueData, setQueueData} = useQueueDataContext();
-  const {setStudentData} = useStudentDataContext();
+  const {studentData, setStudentData} = useStudentDataContext();
 
   useEffect(() => {
     if (queueData.frontendInitialized === false) {
       HomeService.getAll()
           .then((res) => {
-            setQueueData({...res.data.queueData, frontendInitialized: true});
-            setStudentData(res.data.studentData);
-            document.title = res.data.queueData.title;
+            setQueueData({...res.data, frontendInitialized: true});
+            // setStudentData(res.data.studentData);
+            document.title = res.data.title;
           });
 
       initiateSocket();
     }
   }, []);
+
+  useEffect(() => {
+    if (!queueData.isTA && studentData.frontendInitialized === false) {
+      HomeService.getStudentData()
+          .then((res) => {
+            setStudentData({...res.data, frontendInitialized: true});
+          });
+    }
+  }, [queueData.isTA]);
 
   return (
     <div className="App" style={{backgroundColor: theme.palette.background.default}}>

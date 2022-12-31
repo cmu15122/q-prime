@@ -10,7 +10,7 @@ import BaseCard from '../../common/cards/BaseCard';
 
 import * as converter from 'number-to-words';
 
-import {useQueueDataContext} from '../../../App';
+import {useQueueDataContext, useStudentDataContext} from '../../../App';
 
 const CustomDivider = styled(Divider)({
   marginTop: '.5em',
@@ -18,22 +18,25 @@ const CustomDivider = styled(Divider)({
 });
 
 export default function YourEntry(props) {
-  const {openRemoveOverlay, frozen, position, location, topic, question} = props;
+  const {openRemoveOverlay} = props;
   const {queueData} = useQueueDataContext();
+  const {studentData} = useStudentDataContext();
+
+  console.log(studentData.position);
 
   return (
     <BaseCard>
       <CardContent sx={{m: 1, textAlign: 'left'}}>
         <Stack direction='row' display='flex' alignItems='center'>
           <Typography variant='h5' sx={{fontWeight: 'bold', pr: 1}}>Your Entry:</Typography>
-          <Typography variant='h5'>You are <strong>{converter.toOrdinal(position+1)} in line</strong></Typography>
+          <Typography variant='h5'>You are <strong>{converter.toOrdinal(studentData.position+1)} in line</strong></Typography>
           <IconButton color='error' sx={{marginLeft: 'auto', marginRight: '.5em'}} onClick={openRemoveOverlay}>
             <DeleteIcon />
           </IconButton>
         </Stack>
-        <Typography variant='h6'>The estimated time until you are helped is <strong>{Math.floor(queueData.minsPerStudent / queueData.numTAs * position)} minutes</strong></Typography>
+        <Typography variant='h6'>The estimated time until you are helped is <strong>{Math.floor(queueData.minsPerStudent / queueData.numTAs * studentData.position)} minutes</strong></Typography>
         {
-          frozen &&
+          studentData.isFrozen &&
             <div>
               <CustomDivider/>
               <Stack direction='row' display='flex' alignItems='center'>
@@ -46,11 +49,11 @@ export default function YourEntry(props) {
             </div>
         }
         <CustomDivider/>
-        <Typography variant='h6'><strong>Location:</strong> {location}</Typography>
-        <Typography variant='h6'><strong>Topic:</strong> {topic.name}</Typography>
+        <Typography variant='h6'><strong>Location:</strong> {studentData.location}</Typography>
+        <Typography variant='h6'><strong>Topic:</strong> {studentData.topic}</Typography>
         <CustomDivider/>
         <Typography variant='h6' sx={{fontWeight: 'bold'}}>Question:</Typography>
-        <Typography variant='h6' style={{whiteSpace: 'pre-line'}}>{question}</Typography>
+        <Typography variant='h6' style={{whiteSpace: 'pre-line'}}>{studentData.question}</Typography>
       </CardContent>
     </BaseCard>
   );

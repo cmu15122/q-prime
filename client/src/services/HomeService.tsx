@@ -4,6 +4,9 @@ class HomeDataService {
   getAll() {
     return http.get('/');
   }
+  getStudentData() {
+    return http.get('studentData');
+  }
   login(data) {
     return http.post('/login', data);
   }

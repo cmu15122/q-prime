@@ -13,21 +13,21 @@ import {socketSubscribeTo, socketUnsubscribeFrom} from '../../../services/Socket
 import {useQueueDataContext, useStudentDataContext} from '../../../App';
 
 function StudentMain() {
-  const [questionValue, setQuestionValue] = useState('');
-  const [locationValue, setLocationValue] = useState('');
-  const [topicValue, setTopicValue] = useState('');
-  const [messageValue, setMessageValue] = useState('');
+  // const [questionValue, setQuestionValue] = useState('');
+  // const [locationValue, setLocationValue] = useState('');
+  // const [topicValue, setTopicValue] = useState('');
+  // const [messageValue, setMessageValue] = useState('');
 
   const [removeConfirm, setRemoveConfirm] = useState(false);
 
-  const [frozen, setFrozen] = useState(false);
-  const [status, setStatus] = useState(StudentStatusValues.OFF_QUEUE);
-  const [position, setPosition] = useState(0);
+  // const [frozen, setFrozen] = useState(false);
+  // const [status, setStatus] = useState(StudentStatusValues.OFF_QUEUE);
+  // const [position, setPosition] = useState(0);
 
   const [helpingTAInfo, setHelpingTAInfo] = useState(null);
 
   const {queueData} = useQueueDataContext();
-  const {studentData} = useStudentDataContext();
+  const {studentData, setStudentData} = useStudentDataContext();
 
   useEffect(() => {
     if (!('Notification' in window)) {
@@ -39,15 +39,14 @@ function StudentMain() {
 
   useEffect(() => {
     socketSubscribeTo('add', (res) => {
-      const studentData = res.studentData;
-      if (studentData.andrewID === queueData.andrewID) {
-        setStudentValues(studentData);
+      if (res.studentData.andrewID === queueData.andrewID) {
+        setStudentData({...studentData, ...res.studentData});
       }
     });
 
     socketSubscribeTo('help', (res) => {
       if (res.andrewID === queueData.andrewID) {
-        setStatus(StudentStatusValues.BEING_HELPED);
+        setStudentData({...studentData, status: StudentStatusValues.BEING_HELPED});
         setHelpingTAInfo(res.data.taData);
         new Notification('It\'s your turn to get help!', {
           'body': `${res.data.taData.taName} is ready to help you.`,
@@ -58,15 +57,14 @@ function StudentMain() {
 
     socketSubscribeTo('unhelp', (res) => {
       if (res.andrewID === queueData.andrewID) {
-        setStatus(StudentStatusValues.WAITING);
+        setStudentData({...studentData, status: StudentStatusValues.WAITING});
         setHelpingTAInfo(null);
       }
     });
 
     socketSubscribeTo('updateQRequest', (res) => {
       if (res.andrewID === queueData.andrewID) {
-        setFrozen(true);
-        setStatus(StudentStatusValues.FIXING_QUESTION);
+        setStudentData({...studentData, status: StudentStatusValues.FIXING_QUESTION, isFrozen: true});
         new Notification('Please update your question', {
           'requireInteraction': true,
         });
@@ -75,8 +73,7 @@ function StudentMain() {
 
     socketSubscribeTo('message', (res) => {
       if (res.andrewID === queueData.andrewID) {
-        setStatus(StudentStatusValues.RECEIVED_MESSAGE);
-        setMessageValue(res.data.studentData.message);
+        setStudentData({...studentData, status: StudentStatusValues.RECEIVED_MESSAGE, message: res.data.studentData.message});
         setHelpingTAInfo(res.data.taData);
 
         new Notification('You\'ve been messaged by a TA', {
@@ -87,11 +84,13 @@ function StudentMain() {
 
     socketSubscribeTo('remove', (res) => {
       if (res.andrewID === queueData.andrewID) {
-        setStatus(StudentStatusValues.OFF_QUEUE);
-
-        setQuestionValue('');
-        setTopicValue('');
-        setLocationValue('');
+        setStudentData({
+          ...studentData,
+          status: StudentStatusValues.OFF_QUEUE,
+          question: '',
+          topic: '',
+          location: '',
+        });
 
         new Notification('You\'ve been removed from the queue', {
           'requireInteraction': true,
@@ -101,8 +100,7 @@ function StudentMain() {
 
     socketSubscribeTo('approveCooldown', (res) => {
       if (res.andrewID === queueData.andrewID) {
-        setStatus(res.data.studentData.status);
-        setFrozen(res.data.studentData.isFrozen);
+        setStudentData({...studentData, status: res.data.studentData.status, isFrozen: res.data.studentData.isFrozen});
 
         new Notification('Your entry been approved by a TA', {
           'requireInteraction': true,
@@ -120,23 +118,23 @@ function StudentMain() {
     };
   }, [queueData.andrewID]);
 
-  useEffect(() => {
-    // Check if student is on queue
-    if (studentData && studentData.position !== -1) {
-      setStudentValues(studentData);
-    }
-  }, [studentData]);
+  // useEffect(() => {
+  //   // Check if student is on queue
+  //   if (studentData && studentData.position !== -1) {
+  //     setStudentValues(studentData);
+  //   }
+  // }, [studentData]);
 
-  const setStudentValues = (studentData) => {
-    setPosition(studentData.position);
-    setLocationValue(studentData.location);
-    setTopicValue(studentData.topic);
-    setQuestionValue(studentData.question);
-    setMessageValue(studentData.message);
-    setFrozen(studentData.isFrozen);
-    setHelpingTAInfo(studentData.helpingTA);
-    setStatus(studentData.status);
-  };
+  // const setStudentValues = (studentData) => {
+  //   setPosition(studentData.position);
+  //   setLocationValue(studentData.location);
+  //   setTopicValue(studentData.topic);
+  //   setQuestionValue(studentData.question);
+  //   setMessageValue(studentData.message);
+  //   setFrozen(studentData.isFrozen);
+  //   setHelpingTAInfo(studentData.helpingTA);
+  //   setStatus(studentData.status);
+  // };
 
   const removeFromQueue = () => {
     HomeService.removeStudent(
@@ -146,7 +144,7 @@ function StudentMain() {
     ).then((res) => {
       if (res.status === 200) {
         setRemoveConfirm(false);
-        setStatus(StudentStatusValues.OFF_QUEUE);
+        setStudentData({...studentData, status: StudentStatusValues.OFF_QUEUE});
       }
     });
   };
@@ -158,7 +156,7 @@ function StudentMain() {
         }),
     ).then((res) => {
       if (res.status === 200) {
-        setStatus(StudentStatusValues.WAITING);
+        setStudentData({...studentData, status: StudentStatusValues.WAITING});
       }
     });
   };
@@ -166,15 +164,10 @@ function StudentMain() {
   return (
     <div>
       {
-        (status !== StudentStatusValues.OFF_QUEUE) ?
+        (studentData.status !== StudentStatusValues.OFF_QUEUE) ?
           <div>
             <YourEntry
               openRemoveOverlay={() => setRemoveConfirm(true)}
-              position={position}
-              location={locationValue}
-              topic={topicValue}
-              question={questionValue}
-              frozen={frozen}
             />
             <RemoveQOverlay
               open={removeConfirm}
@@ -184,36 +177,24 @@ function StudentMain() {
           </div> :
           (queueData.queueFrozen ? null :
             <AskQuestion
-              questionValue={questionValue}
-              setQuestionValue={setQuestionValue}
-              locationValue={locationValue}
-              setLocationValue={setLocationValue}
-              setTopicValue={setTopicValue}
-              setPosition={setPosition}
-              setStatus={setStatus}
             />
           )
       }
 
       <TAHelpingOverlay
-        open={status === StudentStatusValues.BEING_HELPED}
+        open={studentData.status === StudentStatusValues.BEING_HELPED}
         helpingTAInfo={helpingTAInfo}
-        question={questionValue}
       />
 
       <UpdateQuestionOverlay
-        open={status === StudentStatusValues.FIXING_QUESTION}
+        open={studentData.status === StudentStatusValues.FIXING_QUESTION}
         handleClose={() => {
-          setStatus(StudentStatusValues.WAITING); setFrozen(false);
+          setStudentData({...studentData, status: StudentStatusValues.WAITING, isFrozen: false});
         }}
-        questionValue = {questionValue}
-        setQuestionValue={setQuestionValue}
-        andrewID = {studentData.andrewID}
       />
 
       <MessageRespond
-        open={status === StudentStatusValues.RECEIVED_MESSAGE}
-        message={messageValue}
+        open={studentData.status === StudentStatusValues.RECEIVED_MESSAGE}
         helpingTAInfo={helpingTAInfo}
         removeFromQueue={removeFromQueue}
         dismissMessage={dismissMessage}

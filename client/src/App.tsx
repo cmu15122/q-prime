@@ -1,3 +1,7 @@
+// TODO: Bug where setting preferred name as student causes crash and reload
+// TODO: Standardize queueData.locations
+// TODO: Where does TAHelping overlay get data from??
+
 import React, {createContext, useContext, useState} from 'react';
 import {BrowserRouter as Router, Routes, Route}
   from 'react-router-dom';
@@ -17,29 +21,45 @@ import {ToastContainer} from 'material-react-toastify';
 
 import 'material-react-toastify/dist/ReactToastify.css';
 import './App.css';
+import {StudentStatusValues} from './services/StudentStatus';
 
 type QueueDataContent = {
+  // not mirrored on backend
   frontendInitialized: boolean,
-  title?: string,
-  announcements?: {
+
+  // most important global data
+  title: string,
+  isOwner: boolean,
+  uninitializedSem: boolean,
+
+  // global stats
+  announcements: {
     id: number,
     content: string
   }[],
-  queueFrozen?: boolean,
-  waitTime?: number,
-  rejoinTime?: number,
-  isAuthenticated?: boolean,
-  isTA?: boolean,
-  isAdmin?: boolean,
-  andrewID?: string,
-  preferred_name?: string,
-  isOwner?: boolean,
-  topics?: {
+  topics: {
     assignment_id: number,
     name: string
   }[],
-  name?: string,
-  uninitializedSem?: boolean,
+  queueFrozen: boolean,
+  numStudents: number
+  rejoinTime: number,
+  waitTime: number,
+
+  // user state
+  isAuthenticated: boolean,
+  isTA: boolean,
+  isAdmin: boolean,
+  andrewID: string,
+  preferred_name: string,
+
+  // need on backend // TODO Probably do this when you get waittimes not on a 30s timer
+  numUnhelped?: number,
+  minsPerStudent?: number,
+  numTAs?: number,
+
+  // should be part of settings not queueData
+  // name?: string,
   adminSettings?: {
     currSem: string,
     slackURL: string | undefined,
@@ -58,10 +78,6 @@ type QueueDataContent = {
     isAdmin: boolean,
   }[],
   settings?: any,
-  numUnhelped?: number,
-  minsPerStudent?: number,
-  numTAs?: number,
-  numStudents?: number
 }
 
 type QueueDataContextContent = {
@@ -73,23 +89,27 @@ let QueueDataContext: React.Context<QueueDataContextContent>;
 let useQueueDataContext: () => QueueDataContextContent;
 
 type StudentDataContent = {
-  name?: string,
-  andrewID?: string,
-  taID?: number,
-  taAndrewID?: string,
-  location?: string,
-  topic?: string,
-  question?: string,
-  status?: number,
-  isFrozen?: boolean,
-  message?: string,
-  messageBuffer?: string[],
-  position?: number,
-  helpingTA?: {
-    taId: number,
-    taName: string,
-    taZoomUrl: string,
-  }
+  frontendInitialized: boolean,
+
+  name: string,
+  andrewID: string,
+  taID: number,
+  taAndrewID: string,
+  location: string,
+  topic: string,
+  question: string,
+  isFrozen: boolean,
+  message: string,
+  messageBuffer: string[],
+  status: number,
+  position: number,
+
+  // unclear if used??
+  // helpingTA?: {
+  //   taId: number,
+  //   taName: string,
+  //   taZoomUrl: string,
+  // }
 }
 
 type StudentDataContextContent = {
@@ -111,6 +131,23 @@ function App() {
 
   const [queueData, setQueueData] = useState({
     frontendInitialized: false,
+
+    title: '15-122 Office Hours Queue',
+    isOwner: false,
+    uninitializedSem: false,
+
+    announcements: [],
+    topics: [],
+    queueFrozen: true,
+    numStudents: 0,
+    rejoinTime: 15,
+    waitTime: 0,
+
+    isAuthenticated: false,
+    isTA: false,
+    isAdmin: false,
+    andrewID: '',
+    preferred_name: '',
   });
 
   QueueDataContext = createContext<QueueDataContextContent>({
@@ -121,6 +158,19 @@ function App() {
 
 
   const [studentData, setStudentData] = useState({
+    frontendInitialized: false,
+
+    name: '',
+    andrewID: '',
+    taID: -1,
+    taAndrewID: '',
+    location: '',
+    topic: '',
+    question: '',
+    isFrozen: false,
+    message: '',
+    messageBuffer: [],
+    status: StudentStatusValues.OFF_QUEUE,
     position: -1,
   });
 

@@ -9,15 +9,15 @@ import BaseCard from '../../common/cards/BaseCard';
 
 import HomeService from '../../../services/HomeService';
 import SettingsService from '../../../services/SettingsService';
-import {useQueueDataContext} from '../../../App';
+import {useQueueDataContext, useStudentDataContext} from '../../../App';
 
-function createData(topicId, name) {
-  return {topicId, name};
-}
+// function createData(topicId, name) {
+//   return {topicId, name};
+// }
 
 const date = new Date();
 
-export default function AskQuestion(props) {
+export default function AskQuestion() {
   const {queueData} = useQueueDataContext();
 
   const [locations, setLocations] = useState([]);
@@ -35,27 +35,26 @@ export default function AskQuestion(props) {
 
   const [askDisabled, setAskDisabled] = useState(false);
 
+  const {studentData, setStudentData} = useStudentDataContext();
+
   useEffect(() => {
     if (queueData != null) {
       updateTopics(queueData.topics);
       updateLocations();
 
       if (!queueData.isTA) {
-        setName(queueData.name);
+        setName(queueData.preferred_name);
         setAndrewID(queueData.andrewID);
       }
     }
-  }, [queueData.topics, queueData.isTA, queueData.name, queueData.andrewID]);
+  }, [queueData.topics, queueData.isTA, queueData.andrewID]);
 
   function updateTopics(newTopics) {
-    const newRows = [];
+    const newRows = newTopics;
     newTopics.forEach((topic) => {
-      newRows.push(createData(
-          topic.assignment_id,
-          topic.name,
-      ));
+      newRows.push(topic);
     });
-    newRows.push(createData(-1, 'Other'));
+    newRows.push('Other');
     setTopics(newRows);
 
     if (newRows.length === 1) {
@@ -99,6 +98,12 @@ export default function AskQuestion(props) {
         setTimePassed(Math.round(res.data.timePassed));
         setShowCooldownOverlay(true);
       } else if (res.status === 200) {
+        setStudentData({
+          ...studentData,
+          location: location,
+          topic: topic,
+          question: question,
+        });
         clearValues();
       }
 
@@ -178,7 +183,7 @@ export default function AskQuestion(props) {
                     onChange={(e)=>setTopic(e.target.value)}
                     style={{textAlign: 'left'}}
                   >
-                    {topics.map((top) => <MenuItem value={top} key={top.topicId}>{top.name}</MenuItem>)}
+                    {topics.map((top) => <MenuItem value={top} key={top}>{top}</MenuItem>)}
                   </Select>
                 </FormControl>
               </Box>
@@ -202,6 +207,7 @@ export default function AskQuestion(props) {
         </CardContent>
       </BaseCard>
 
+      {/* TODO: Come back and fix this overlay by removing props, also figure out why everything broken lolol */}
       <CooldownViolationOverlay
         open={showCooldownOverlay}
         setOpen={setShowCooldownOverlay}
