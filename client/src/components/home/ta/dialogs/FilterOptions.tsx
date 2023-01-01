@@ -5,7 +5,7 @@ import {List, ListSubheader, ListItem,
 } from '@mui/material';
 
 import SettingsService from '../../../../services/SettingsService';
-import {useQueueDataContext} from '../../../../App';
+import { QueueDataContext } from '../../../../App';
 
 function createData(assignment_id, name) {
   return {assignment_id, name};
@@ -21,7 +21,7 @@ const FilterGroup = {
 export default function FilterOptions(props) {
   const {filteredLocations, filteredTopics, setFilteredLocations, setFilteredTopics} = props;
 
-  const {queueData} = useQueueDataContext();
+  const {queueData} = useContext(QueueDataContext);
 
   // group definition:
   // 0 = locations, 1 = topics

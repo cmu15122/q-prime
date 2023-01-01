@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {useTheme} from '@mui/material';
 
 import Navbar from '../components/navbar/Navbar';
@@ -6,14 +6,14 @@ import HomeMain from '../components/home/HomeMain';
 
 import HomeService from '../services/HomeService';
 import {initiateSocket} from '../services/SocketsService';
-import {useQueueDataContext, useStudentDataContext} from '../App';
+import { QueueDataContext, StudentDataContext } from '../App';
 
 
 function Home(props) {
   const theme = useTheme();
 
-  const {queueData, setQueueData} = useQueueDataContext();
-  const {studentData, setStudentData} = useStudentDataContext();
+  const {queueData, setQueueData} = useContent(QueueDataContext);
+  const {studentData, setStudentData} = useContext(StudentDataContext);
 
   useEffect(() => {
     if (queueData.frontendInitialized === false) {

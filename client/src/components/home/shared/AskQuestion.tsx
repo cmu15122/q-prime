@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useMemo} from 'react';
 import {
   Typography, Divider, CardContent, CardActions, Stack,
   FormControl, InputLabel, MenuItem, Box, Select, Input, Button,
@@ -20,8 +20,42 @@ const date = new Date();
 export default function AskQuestion() {
   const {queueData} = useQueueDataContext();
 
-  const [locations, setLocations] = useState([]);
-  const [topics, setTopics] = useState([]);
+  // const [locations, setLocations] = useState([]);
+  const locations = useMemo(() => {
+    if (queueData != null) {
+      const day = date.getDay();
+      let newLocations = {};
+
+      const dayDict = queueData.locations.dayDictionary;
+      newLocations = dayDict;
+
+      const roomsForDay = (newLocations && newLocations[day]) ? newLocations[day] : ['Office Hours'];
+
+      if (roomsForDay.length === 1) {
+        setLocation(roomsForDay[0]);
+      }
+
+      return roomsForDay;
+    } else return [];
+  }, [queueData.locations]);
+
+  const topics = useMemo(() => {
+    if (queueData != null) {
+      const newRows = [];
+      queueData.topics.forEach((topic) => {
+        newRows.push(topic);
+      });
+      newRows.push(createData(-1, 'Other'));
+      console.log(newRows);
+
+      if (newRows.length === 1) {
+        setTopic(newRows[0]);
+      }
+
+      return newRows;
+    } else return [createData(-1, 'Other')];
+  }, [queueData.topics]);
+  // const [topics, setTopics] = useState([]);
 
   // not changing name or andrewID to use global because this component can also be used by TAs to manually add questions
   const [name, setName] = useState('');
@@ -39,45 +73,42 @@ export default function AskQuestion() {
 
   useEffect(() => {
     if (queueData != null) {
-      updateTopics(queueData.topics);
-      updateLocations();
-
       if (!queueData.isTA) {
         setName(queueData.preferred_name);
         setAndrewID(queueData.andrewID);
       }
     }
-  }, [queueData.topics, queueData.isTA, queueData.andrewID]);
+  }, [queueData.isTA, queueData.preferred_name, queueData.andrewID]);
 
-  function updateTopics(newTopics) {
-    const newRows = [];
-    newTopics.forEach((topic) => {
-      newRows.push(topic);
-    });
-    newRows.push(createData(-1, 'Other'));
-    console.log(newRows);
-    setTopics(newRows);
+  // function updateTopics(newTopics) {
+  //   const newRows = [];
+  //   newTopics.forEach((topic) => {
+  //     newRows.push(topic);
+  //   });
+  //   newRows.push(createData(-1, 'Other'));
+  //   console.log(newRows);
+  //   setTopics(newRows);
 
-    if (newRows.length === 1) {
-      setTopic(newRows[0]);
-    }
-  }
+  //   if (newRows.length === 1) {
+  //     setTopic(newRows[0]);
+  //   }
+  // }
 
-  function updateLocations() {
-    const day = date.getDay();
-    let newLocations = {};
-    SettingsService.getLocations().then((res) => {
-      const dayDict = res.data.dayDictionary;
-      newLocations = dayDict;
+  // function updateLocations() {
+  //   const day = date.getDay();
+  //   let newLocations = {};
+  //   SettingsService.getLocations().then((res) => {
+  //     const dayDict = res.data.dayDictionary;
+  //     newLocations = dayDict;
 
-      const roomsForDay = (newLocations && newLocations[day]) ? newLocations[day] : ['Office Hours'];
-      setLocations(roomsForDay);
+  //     const roomsForDay = (newLocations && newLocations[day]) ? newLocations[day] : ['Office Hours'];
+  //     setLocations(roomsForDay);
 
-      if (roomsForDay.length === 1) {
-        setLocation(roomsForDay[0]);
-      }
-    });
-  }
+  //     if (roomsForDay.length === 1) {
+  //       setLocation(roomsForDay[0]);
+  //     }
+  //   });
+  // }
 
   function handleSubmit(event) {
     event.preventDefault();
