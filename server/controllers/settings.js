@@ -199,7 +199,8 @@ exports.post_update_preferredname = function (req, res) {
         account: account.save()
     }).then(function (results) {
         req.user.account = results.account;
-        get_response(req, res, `Settings updated successfully`);
+        // get_response(req, res, `Settings updated successfully`);
+        respond(req, res, `Name updated successfully`, {}, 200);
     }).catch(err => {
         console.log(err);
         message = err.message || "An error occurred while updating settings";
