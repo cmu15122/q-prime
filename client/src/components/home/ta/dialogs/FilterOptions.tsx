@@ -7,8 +7,8 @@ import {List, ListSubheader, ListItem,
 import SettingsService from '../../../../services/SettingsService';
 import {useQueueDataContext} from '../../../../App';
 
-function createData(topicId, name) {
-  return {topicId, name};
+function createData(assignment_id, name) {
+  return {assignment_id, name};
 }
 
 const date = new Date();

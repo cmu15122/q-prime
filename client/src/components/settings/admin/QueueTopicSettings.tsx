@@ -19,10 +19,10 @@ import {DateTime} from 'luxon';
 import download from 'downloadjs';
 import {useQueueDataContext} from '../../../App';
 
-function createData(assignmentId, name, category, startDate, endDate) {
+function createData(assignment_id, name, category, startDate, endDate) {
   startDate = DateTime.fromISO(startDate);
   endDate = DateTime.fromISO(endDate);
-  return {assignmentId, name, category, startDate, endDate};
+  return {assignment_id, name, category, startDate, endDate};
 }
 
 export default function QueueTopicSettings(props) {
@@ -153,7 +153,7 @@ export default function QueueTopicSettings(props) {
     event.preventDefault();
     SettingsService.updateTopic(
         JSON.stringify({
-          assignment_id: selectedRow?.assignmentId,
+          assignment_id: selectedRow?.assignment_id,
           name: name,
           category: category,
           start_date: startDate.toString(),
@@ -168,7 +168,7 @@ export default function QueueTopicSettings(props) {
   const handleDelete = () => {
     SettingsService.deleteTopic(
         JSON.stringify({
-          assignment_id: selectedRow?.assignmentId,
+          assignment_id: selectedRow?.assignment_id,
         }),
     ).then((res) => {
       // updateTopics(res.data.topics);

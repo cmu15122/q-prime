@@ -11,9 +11,9 @@ import HomeService from '../../../services/HomeService';
 import SettingsService from '../../../services/SettingsService';
 import {useQueueDataContext, useStudentDataContext} from '../../../App';
 
-// function createData(topicId, name) {
-//   return {topicId, name};
-// }
+function createData(assignment_id, name) {
+  return {assignment_id, name};
+}
 
 const date = new Date();
 
@@ -27,7 +27,7 @@ export default function AskQuestion() {
   const [name, setName] = useState('');
   const [andrewID, setAndrewID] = useState('');
   const [location, setLocation] = useState('');
-  const [topic, setTopic] = useState('');
+  const [topic, setTopic] = useState(null);
   const [question, setQuestion] = useState('');
 
   const [showCooldownOverlay, setShowCooldownOverlay] = useState(false);
@@ -50,11 +50,12 @@ export default function AskQuestion() {
   }, [queueData.topics, queueData.isTA, queueData.andrewID]);
 
   function updateTopics(newTopics) {
-    const newRows = newTopics;
+    const newRows = [];
     newTopics.forEach((topic) => {
       newRows.push(topic);
     });
-    newRows.push('Other');
+    newRows.push(createData(-1, 'Other'));
+    console.log(newRows);
     setTopics(newRows);
 
     if (newRows.length === 1) {
@@ -115,7 +116,7 @@ export default function AskQuestion() {
     setName('');
     setAndrewID('');
     setLocation('');
-    setTopic('');
+    setTopic(null);
     setQuestion('');
   }
 
@@ -183,7 +184,8 @@ export default function AskQuestion() {
                     onChange={(e)=>setTopic(e.target.value)}
                     style={{textAlign: 'left'}}
                   >
-                    {topics.map((top) => <MenuItem value={top} key={top}>{top}</MenuItem>)}
+                    {/* // TODO COME BACK FIGURE OUT WHY KEYS AREN'T UNIQUE */}
+                    {topics.map((top) => <MenuItem value={top} key={top.assignment_id}>{top.name}</MenuItem>)}
                   </Select>
                 </FormControl>
               </Box>

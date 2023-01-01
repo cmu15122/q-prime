@@ -328,7 +328,7 @@ const StudentStatus = Object.freeze({
  *      status: StudentStatus,
  *      question: string,
  *      location: string,
- *      topic: json string (fields: topic_id (int), name (string)
+ *      topic: json string (fields: assignment_id (int), name (string)
  *      entryTime: Moment object,
  *      taID: int,
  *      taAndrewID: string,

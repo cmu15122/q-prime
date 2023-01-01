@@ -467,7 +467,7 @@ exports.post_remove_student = function (req, res) {
                 sem_id: settings.get_admin_settings().currSem,
                 question: returnedData.question,
                 location: returnedData.location,
-                assignment: returnedData.topic.topic_id,
+                assignment: returnedData.topic.assignment_id,
                 entry_time: returnedData.entryTime,
                 help_time: returnedData.helpTime,
                 exit_time: moment.tz(new Date(), "America/New_York").toDate(),
