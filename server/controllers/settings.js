@@ -52,11 +52,14 @@ function get_response(req, res, message = null) {
     if (!req.user.isAdmin) {
         let data = {
             title: "15-122 Office Hours Queue | Settings",
+            isOwner: req.user.isOwner,
+
             settings: settings,
+            rejoinTime: adminSettings.rejoinTime,
+
             isAuthenticated: req.user.isAuthenticated,
             isTA: req.user.isTA,
             isAdmin: req.user.isAdmin,
-            isOwner: req.user.isOwner,
             andrewID: req.user.andrewID,
             preferred_name: req.user?.account?.preferred_name
         };
@@ -119,6 +122,8 @@ function get_response(req, res, message = null) {
             topics: assignments,
             tas: tas,
             adminSettings: adminSettings,
+            // TODO This should be fixed by giving each page its own data object, not just queueData
+            rejoinTime: adminSettings.rejoinTime,
             settings: settings,
             isAuthenticated: req.user.isAuthenticated,
             isTA: req.user.isTA,
@@ -751,7 +756,7 @@ exports.post_upload_ta_csv = function (req, res) {
 
             tas.push(
                 Promise.props({
-                    name: name, 
+                    name: name,
                     isAdmin: is_admin,
                     account: models.account.findOrCreate({
                         where: {
