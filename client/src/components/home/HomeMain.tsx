@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 
 import SharedMain from './shared/SharedMain';
 import StudentMain from './student/StudentMain';
@@ -7,10 +7,11 @@ import Footer from './Footer';
 import {Container} from '@mui/material';
 
 import {socketSubscribeTo} from '../../services/SocketsService';
-import {useQueueDataContext} from '../../App';
+import {QueueDataContext, UserDataContext} from '../../App';
 
 function HomeMain() {
-  const {queueData, setQueueData} = useQueueDataContext();
+  const {queueData, setQueueData} = useContext(QueueDataContext);
+  const {userData} = useContext(UserDataContext);
 
   const gitHubLink = 'https://github.com/cmu15122/q-issues/issues';
 
@@ -23,8 +24,8 @@ function HomeMain() {
   }, []);
 
   useEffect(() => {
-    if (queueData.isAuthenticated) {
-      if (queueData.isTA) {
+    if (userData.isAuthenticated) {
+      if (userData.isTA) {
         setMainPage(<TAMain/>);
       } else { // is student
         setMainPage(<StudentMain/>);
@@ -33,7 +34,7 @@ function HomeMain() {
       // you are not logged in
       setMainPage(null);
     }
-  }, [queueData.isAuthenticated, queueData.isTA]);
+  }, [userData.isAuthenticated, userData.isTA]);
 
   return (
     <Container sx={{display: 'flex', minHeight: '100vh', flexDirection: 'column'}}>
