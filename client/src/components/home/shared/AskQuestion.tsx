@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useMemo} from 'react';
+import React, {useState, useEffect, useMemo, useContext} from 'react';
 import {
   Typography, Divider, CardContent, CardActions, Stack,
   FormControl, InputLabel, MenuItem, Box, Select, Input, Button,
@@ -9,7 +9,7 @@ import BaseCard from '../../common/cards/BaseCard';
 
 import HomeService from '../../../services/HomeService';
 import SettingsService from '../../../services/SettingsService';
-import {useQueueDataContext, useStudentDataContext} from '../../../App';
+import {QueueDataContext, StudentDataContext, UserDataContext} from '../../../App';
 
 function createData(assignment_id, name) {
   return {assignment_id, name};
@@ -18,7 +18,8 @@ function createData(assignment_id, name) {
 const date = new Date();
 
 export default function AskQuestion() {
-  const {queueData} = useQueueDataContext();
+  const {userData} = useContext(UserDataContext);
+  const {queueData} = useContext(QueueDataContext);
 
   // const [locations, setLocations] = useState([]);
   const locations = useMemo(() => {
@@ -69,16 +70,14 @@ export default function AskQuestion() {
 
   const [askDisabled, setAskDisabled] = useState(false);
 
-  const {studentData, setStudentData} = useStudentDataContext();
+  const {studentData, setStudentData} = useContext(StudentDataContext);
 
   useEffect(() => {
-    if (queueData != null) {
-      if (!queueData.isTA) {
-        setName(queueData.preferred_name);
-        setAndrewID(queueData.andrewID);
-      }
+    if (!userData.isTA) {
+      setName(userData.preferred_name);
+      setAndrewID(userData.andrewID);
     }
-  }, [queueData.isTA, queueData.preferred_name, queueData.andrewID]);
+  }, [userData.isTA, userData.preferred_name, userData.andrewID]);
 
   // function updateTopics(newTopics) {
   //   const newRows = [];
@@ -162,7 +161,7 @@ export default function AskQuestion() {
         <CardContent sx={{mx: 1.5}}>
           <form onSubmit={handleSubmit}>
             {
-              queueData?.isTA &&
+              userData.isTA &&
                 <Stack direction='row' justifyContent='left' sx={{mb: 2}}>
                   <Box sx={{minWidth: 120, width: '47%'}}>
                     <FormControl required fullWidth>
