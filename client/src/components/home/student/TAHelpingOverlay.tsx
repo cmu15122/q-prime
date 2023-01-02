@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   Typography, Button, Dialog, DialogContent, Divider,
 } from '@mui/material';
-import {useStudentDataContext} from '../../../App';
+import {StudentDataContext} from '../../../App';
 
 export default function TAHelpingOverlay(props) {
   const {open, helpingTAInfo} = props;
-  const {studentData} = useStudentDataContext();
+  const {studentData} = useContext(StudentDataContext);
 
   function addhttp(url) {
     if (!/^(?:f|ht)tps?:\/\//.test(url)) {
