@@ -8,10 +8,10 @@ import Locations from './Locations';
 import QueueRejoinSettings from './QueueRejoinSettings';
 import QueueTopicSettings from './QueueTopicSettings';
 import TASettings from './TASettings';
-import {useQueueDataContext} from '../../../App';
+import { QueueSettingsContext } from '../../../App';
 
 function AdminMain(props) {
-  const {queueData} = useQueueDataContext();
+  const {queueSettings} = useContext(QueueSettingsContext);
 
   return (
     <div style={{paddingBottom: '80px'}}>
@@ -21,9 +21,9 @@ function AdminMain(props) {
 
       <ConfigSettings></ConfigSettings>
       <QueueRejoinSettings></QueueRejoinSettings>
-      { queueData.adminSettings.currSem && <QueueTopicSettings></QueueTopicSettings> }
-      { queueData.adminSettings.currSem && <Locations></Locations> }
-      { queueData.adminSettings.currSem && <TASettings></TASettings> }
+      { queueSettings.currSem && <QueueTopicSettings></QueueTopicSettings> }
+      { queueSettings.currSem && <Locations></Locations> }
+      { queueSettings.currSem && <TASettings></TASettings> }
     </div>
   );
 }
