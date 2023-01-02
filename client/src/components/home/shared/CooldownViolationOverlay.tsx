@@ -4,13 +4,13 @@ import {
 } from '@mui/material';
 
 import HomeService from '../../../services/HomeService';
-import {useQueueDataContext} from '../../../App';
+import {QueueDataContext} from '../../../App';
 
 export default function CooldownViolationOverlay(props) {
   const {open, setOpen, andrewID, question, location, topic, timePassed} = props;
   const theme = useTheme();
 
-  const {queueData} = useQueueDataContext();
+  const {queueData} = useContext(QueueDataContext);
 
   function callAddQuestionAPIOverrideCooldown() {
     HomeService.addQuestion(
