@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   Typography, Divider, CardContent, Stack, IconButton,
 } from '@mui/material';
@@ -10,7 +10,7 @@ import BaseCard from '../../common/cards/BaseCard';
 
 import * as converter from 'number-to-words';
 
-import {useQueueDataContext, useStudentDataContext} from '../../../App';
+import {QueueDataContext, StudentDataContext} from '../../../App';
 
 const CustomDivider = styled(Divider)({
   marginTop: '.5em',
@@ -19,8 +19,8 @@ const CustomDivider = styled(Divider)({
 
 export default function YourEntry(props) {
   const {openRemoveOverlay} = props;
-  const {queueData} = useQueueDataContext();
-  const {studentData} = useStudentDataContext();
+  const {queueData} = useContext(QueueDataContext);
+  const {studentData} = useContext(StudentDataContext);
 
   console.log(studentData.position);
 
