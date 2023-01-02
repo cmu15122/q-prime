@@ -17,7 +17,7 @@ import SettingsService from '../../../services/SettingsService';
 
 import {DateTime} from 'luxon';
 import download from 'downloadjs';
-import {useQueueDataContext} from '../../../App';
+import {QueueDataContext} from '../../../App';
 
 function createData(assignment_id, name, category, startDate, endDate) {
   startDate = DateTime.fromISO(startDate);
@@ -26,7 +26,7 @@ function createData(assignment_id, name, category, startDate, endDate) {
 }
 
 export default function QueueTopicSettings(props) {
-  const {queueData} = useQueueDataContext();
+  const {queueData} = useContext(QueueDataContext);
   const theme = useTheme();
 
   const [selectedRow, setSelectedRow] = useState(null);
