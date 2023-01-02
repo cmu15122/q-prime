@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
 import Announcements from './Annoucements';
 import QueueStats from './QueueStats';
 import UninitializedDialog from './dialogs/UninitializedDialog';
-import {useQueueDataContext} from '../../../App';
+import {QueueDataContext} from '../../../App';
 
 function SharedMain() {
-  const {queueData} = useQueueDataContext();
+  const {queueData} = useContext(QueueDataContext);
 
   return (
     <div>
