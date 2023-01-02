@@ -10,10 +10,11 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import HomeService from '../../../services/HomeService';
 import {socketSubscribeTo, socketUnsubscribeFrom} from '../../../services/SocketsService';
 import {StudentStatusValues} from '../../../services/StudentStatus';
-import {useQueueDataContext} from '../../../App';
+import {QueueDataContext, UserDataContext} from '../../../App';
 
 export default function StudentEntries(props) {
-  const {queueData} = useQueueDataContext();
+  const {queueData} = useContext(QueueDataContext);
+  const {userData} = useContext(UserDataContext);
 
   /* BEGIN FILTER LOGIC */
   const [students, setStudents] = useState([]);
@@ -137,7 +138,7 @@ export default function StudentEntries(props) {
         [...students.filter((p) => p.andrewID !== res.andrewID)],
       );
 
-      if (res.studentData.taAndrewID === queueData.andrewID) {
+      if (res.studentData.taAndrewID === userData.andrewID) {
         setIsHelping(false);
         setHelpIdx(-1);
       }
@@ -146,16 +147,16 @@ export default function StudentEntries(props) {
     return () => {
       socketUnsubscribeFrom('remove');
     };
-  }, [queueData.andrewID]);
+  }, [userData.andrewID]);
 
   useEffect(() => {
     for (const [index, student] of students.entries()) {
-      if (student.status === StudentStatusValues.BEING_HELPED && student.taAndrewID === queueData.andrewID) {
+      if (student.status === StudentStatusValues.BEING_HELPED && student.taAndrewID === userData.andrewID) {
         setHelpIdx(index);
         setIsHelping(true);
       }
     }
-  }, [students, queueData.andrewID]);
+  }, [students, userData.andrewID]);
 
   // useEffect(() => {
   //   let newFiltered = students;
