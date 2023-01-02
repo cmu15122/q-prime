@@ -146,6 +146,36 @@ exports.get = function (req, res) {
     });
 }
 
+exports.get_user_data = function (req, res) {
+    let data = {
+        userData: {
+            isOwner: req.user.isOwner,
+            isAuthenticated: req.user.isAuthenticated,
+            isTA: req.user.isTA,
+            isAdmin: req.user.isAdmin,
+            andrewID: req.user.andrewID,
+            preferredName: req.user.isOwner ? 'Owner' : req.user.account.preferredName,
+        }
+    }
+
+    if (!data.userData.isOwner && data.userData.isTA) {
+        data.userData = {
+            ...data.userData,
+            taSettings: {
+                videoChatEnabled: req.user.account.settings.videoChatEnabled,
+                videoChatURL: req.user.account.settings.videoChatURL,
+                joinNotifsEnabled: req.user.account.settings.joinNotifsEnabled,
+                remindNotifsEnabled: req.user.account.settings.remindNotifsEnabled,
+                remindTime: req.user.account.settings.remindTime,
+            }
+        }
+    }
+
+    res.status(200);
+    res.send(data);
+    return;
+}
+
 exports.get_student_data = function (req, res) {
     let data = {
         name: '',

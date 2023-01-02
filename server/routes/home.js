@@ -6,6 +6,7 @@ const login = require('../controllers/login');
 
 router.get('/', home.get);
 router.get('/studentData', home.get_student_data);
+router.get('/userData', home.get_user_data);
 router.post('/freezeQueue', home.post_freeze_queue);
 router.post('/unfreezeQueue', home.post_unfreeze_queue);
 router.post('/addQuestion', home.post_add_question);

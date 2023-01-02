@@ -22,11 +22,11 @@ import {ToastContainer} from 'material-react-toastify';
 import 'material-react-toastify/dist/ReactToastify.css';
 import './App.css';
 import {StudentStatusValues} from './services/StudentStatus';
-import {QueueData} from '../../../q-prime/types/QueueData'
-import {StudentData} from '../../../q-prime/types/StudentData'
-import {QueueSettings} from '../../../q-prime/types/QueueSettings'
-import {UserData} from '../../../q-prime/types/UserData'
-import { socketSubscribeTo } from './services/SocketsService';
+import {QueueData} from '../../../q-prime/types/QueueData';
+import {StudentData} from '../../../q-prime/types/StudentData';
+import {QueueSettings} from '../../../q-prime/types/QueueSettings';
+import {UserData} from '../../../q-prime/types/UserData';
+import {socketSubscribeTo} from './services/SocketsService';
 import HomeService from './services/HomeService';
 
 type QueueDataContextContent = {
@@ -45,13 +45,13 @@ type QueueSettingsContextContent = {
   queueSettings: QueueSettings,
   setQueueSettings: React.Dispatch<React.SetStateAction<QueueSettings>>
 }
-let QueueSettingsContext: React.Context<QueueSettingsContextContent>
+let QueueSettingsContext: React.Context<QueueSettingsContextContent>;
 
 type UserDataContextContent = {
   userData: UserData,
   setUserData: React.Dispatch<React.SetStateAction<UserData>>
 }
-let UserDataContext: React.Context<UserDataContextContent>
+let UserDataContext: React.Context<UserDataContextContent>;
 
 
 function App() {
@@ -88,7 +88,7 @@ function App() {
   const queueDataContextObject = {
     queueData: queueData,
     setQueueData: setQueueData,
-  }
+  };
   QueueDataContext = createContext<QueueDataContextContent>(queueDataContextObject);
 
   const [studentData, setStudentData] = useState<StudentData>({
@@ -109,7 +109,7 @@ function App() {
   const studentDataContextObject = {
     studentData: studentData,
     setStudentData: setStudentData,
-  }
+  };
   StudentDataContext = createContext<StudentDataContextContent>(studentDataContextObject);
 
   const [queueSettings, setQueueSettings] = useState<QueueSettings>({
@@ -122,7 +122,7 @@ function App() {
   const queueSettingsContextObject = {
     queueSettings: queueSettings,
     setQueueSettings: setQueueSettings,
-  }
+  };
   QueueSettingsContext = createContext<QueueSettingsContextContent>(queueSettingsContextObject);
 
   const [userData, setUserData] = useState<UserData>({
@@ -132,18 +132,12 @@ function App() {
     isAdmin: false,
     andrewID: '',
     preferred_name: '',
-
-    videoChatEnabled: false,
-    videoChatURL: '',
-    joinNotifsEnabled: false,
-    remindNotifsEnabled: false,
-    remindTime: 15,
   });
   // this needs to be created at a higher level to prevent unintentional rerenders
   const userDataContextObject = {
     userData: userData,
     setUserData: setUserData,
-  }
+  };
   UserDataContext = createContext<UserDataContextContent>(userDataContextObject);
 
 
@@ -152,20 +146,24 @@ function App() {
     HomeService.getAll().then((res) => {
       setQueueData(res.data);
       document.title = res.data.title;
-    })
+    });
 
     HomeService.getStudentData().then((res) => {
       setStudentData(res.data);
-    })
+    });
+
+    HomeService.getUserData().then((res) => {
+      setUserData(res.data.userData);
+    });
 
     socketSubscribeTo('queueData', (data: QueueData) => {
-      setQueueData(data)
-    })
+      setQueueData(data);
+    });
 
     socketSubscribeTo('studentData', (data: StudentData) => {
-      setStudentData(data)
-    })
-  }, [])
+      setStudentData(data);
+    });
+  }, []);
 
   return (
     <ThemeProvider theme={theme || darkTheme}>
@@ -209,7 +207,7 @@ export {
   QueueDataContext,
   StudentDataContext,
   QueueSettingsContext,
-  UserDataContext
+  UserDataContext,
 };
 
 export default App;

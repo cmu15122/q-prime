@@ -5,7 +5,10 @@ class HomeDataService {
     return http.get('/');
   }
   getStudentData() {
-    return http.get('studentData');
+    return http.get('/studentData');
+  }
+  getUserData() {
+    return http.get('/userData');
   }
   login(data) {
     return http.post('/login', data);

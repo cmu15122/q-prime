@@ -16,9 +16,9 @@ export default function NotificationSettings(props) {
   const [remindTime, setRemindTime] = useState(15);
 
   useEffect(() => {
-    setJoinNotifsEnabled(userData.joinNotifsEnabled);
-    setRemindNotifsEnabled(userData.remindNotifsEnabled);
-    setRemindTime(userData.remindTime);
+    setJoinNotifsEnabled(userData.taSettings?.joinNotifsEnabled);
+    setRemindNotifsEnabled(userData.taSettings?.remindNotifsEnabled);
+    setRemindTime(userData.taSettings?.remindTime);
   }, [userData]);
 
   const updateNotifSettings = (joinEnabled, remindEnabled, time) => {

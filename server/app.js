@@ -46,14 +46,14 @@ app.use(function(req, res, next) {
         next();
         return;
     }
-    
+
     if (access_token == config.OWNER_ACCESS_TOKEN) {
         req.user = {
             isAuthenticated: true,
             isTA: true,
             isAdmin: true,
             isOwner: true,
-            andrewID: "Owner"
+            andrewID: "Owner",
         };
         next();
         return;
@@ -64,12 +64,12 @@ app.use(function(req, res, next) {
             access_token: access_token
         },
         include: [
-            { 
-                model: models.semester_user,  
+            {
+                model: models.semester_user,
                 where: {
                     sem_id: settingsCtr.get_admin_settings().currSem,
-                }, 
-                as: "semester_users" 
+                },
+                as: "semester_users"
             },
             { model: models.student, as: "student" },
             { model: models.ta, as: "ta" },
@@ -79,8 +79,8 @@ app.use(function(req, res, next) {
         let student = account?.student;
         let ta = account?.ta;
 
-        if (account == null || semester_user == null || 
-            (student == null && ta == null)) 
+        if (account == null || semester_user == null ||
+            (student == null && ta == null))
         {
             req.user = { isAuthenticated: false };
             next();
@@ -96,7 +96,7 @@ app.use(function(req, res, next) {
             sem_user: semester_user,
             student: student,
             ta: ta,
-            isAuthenticated: true, 
+            isAuthenticated: true,
             isTA: isTA,
             isAdmin: isAdmin,
             andrewID: andrewID

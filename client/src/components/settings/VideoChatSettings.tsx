@@ -16,8 +16,8 @@ export default function VideoChatSettings(props) {
   const [videoChatURL, setVideoChatURL] = useState('');
 
   useEffect(() => {
-    setVideoChatEnabled(userData.videoChatEnabled);
-    setVideoChatURL(userData.videoChatURL);
+    setVideoChatEnabled(userData.taSettings?.videoChatEnabled);
+    setVideoChatURL(userData.taSettings?.videoChatURL);
   }, [userData]);
 
   const updateVideoChatEnabled = (chatEnabled) => {
