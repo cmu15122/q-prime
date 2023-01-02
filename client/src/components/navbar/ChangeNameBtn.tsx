@@ -5,20 +5,18 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 
 import SettingsService from '../../services/SettingsService';
-import {useQueueDataContext} from '../../App';
+import {UserDataContext} from '../../App';
 
 export default function ChangeNameBtn(props) {
   const {setpname, pname} = props;
-  const {queueData} = useQueueDataContext();
+  const {userData} = useContext(UserDataContext);
 
   const [tmpPrefName, setTmpPrefName] = useState(pname);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (queueData != null) {
-      setpname(queueData.preferred_name);
-    }
-  }, [queueData.preferred_name, setpname]);
+    setpname(userData.preferred_name);
+  }, [userData.preferred_name, setpname]);
 
   const handleClickOpen = () => {
     setOpen(true);
