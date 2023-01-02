@@ -7,20 +7,18 @@ import {
 import BaseCard from '../common/cards/BaseCard';
 
 import SettingsService from '../../services/SettingsService';
-import {useQueueDataContext} from '../../App';
+import { QueueDataContext, QueueSettingsContext } from '../../App';
 
 export default function VideoChatSettings(props) {
-  const {queueData} = useQueueDataContext();
+  const {queueSettings} = useContext(QueueSettingsContext);
 
   const [isVideoChatEnabled, setVideoChatEnabled] = useState(false);
   const [videoChatURL, setVideoChatURL] = useState('');
 
   useEffect(() => {
-    if (queueData != null && queueData.settings != null) {
-      setVideoChatEnabled(queueData.settings.videoChatEnabled);
-      setVideoChatURL(queueData.settings.videoChatURL);
-    }
-  }, [queueData.settings]);
+    setVideoChatEnabled(queueSettings.videoChatEnabled);
+    setVideoChatURL(queueSettings.videoChatURL);
+  }, [queueSettings]);
 
   const updateVideoChatEnabled = (chatEnabled) => {
     setVideoChatEnabled(chatEnabled);

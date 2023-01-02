@@ -1,9 +1,10 @@
 export type QueueSettings = {
-  adminSettings: {
-    currSem: string,
-    slackURL: string | undefined,
-    questionsURL: string | undefined,
-    rejoinTime: number
-  },
-  settings: any,
+  currSem: string,
+  slackURL: string | undefined,
+  questionsURL: string | undefined,
+  rejoinTime: number,
+
+  // user specific settings
+  videoChatEnabled: boolean,
+  videoChatURL: string
 }
