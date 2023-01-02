@@ -6,23 +6,20 @@ import {
 import BaseCard from '../common/cards/BaseCard';
 
 import SettingsService from '../../services/SettingsService';
-import {useQueueDataContext} from '../../App';
+import {UserDataContext} from '../../App';
 
 export default function NotificationSettings(props) {
-  const {queueData} = useQueueDataContext();
+  const {userData} = useContext(UserDataContext);
 
   const [joinNotifsEnabled, setJoinNotifsEnabled] = useState(false);
   const [remindNotifsEnabled, setRemindNotifsEnabled] = useState(false);
   const [remindTime, setRemindTime] = useState(15);
 
   useEffect(() => {
-    if (queueData != null && queueData.settings != null) {
-      const settings = queueData.settings;
-      setJoinNotifsEnabled(settings.joinNotifsEnabled);
-      setRemindNotifsEnabled(settings.remindNotifsEnabled);
-      setRemindTime(settings.remindTime);
-    }
-  }, [queueData.settings]);
+    setJoinNotifsEnabled(userData.joinNotifsEnabled);
+    setRemindNotifsEnabled(userData.remindNotifsEnabled);
+    setRemindTime(userData.remindTime);
+  }, [userData]);
 
   const updateNotifSettings = (joinEnabled, remindEnabled, time) => {
     SettingsService.updateNotifSettings({
