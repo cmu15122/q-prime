@@ -24,7 +24,9 @@ import './App.css';
 import {StudentStatusValues} from './services/StudentStatus';
 import {QueueData} from '../../../q-prime/types/QueueData'
 import {StudentData} from '../../../q-prime/types/StudentData'
+import {QueueSettings} from '../../../q-prime/types/QueueSettings'
 import { socketSubscribeTo } from './services/SocketsService';
+import HomeService from './services/HomeService';
 
 type QueueDataContextContent = {
   queueData: QueueData
@@ -37,6 +39,13 @@ type StudentDataContextContent = {
   setStudentData: React.Dispatch<React.SetStateAction<StudentData>>
 }
 let StudentDataContext: React.Context<StudentDataContextContent>;
+
+type QueueSettingsContextContent = {
+  queueSettings: QueueSettings,
+  setQueueSettings: React.Dispatch<React.SetStateAction<QueueSettings>>
+}
+let QueueSettingsContext: React.Context<QueueSettingsContextContent>
+
 
 function App() {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
@@ -103,8 +112,34 @@ function App() {
   }
   StudentDataContext = createContext<StudentDataContextContent>(studentDataContextObject);
 
+  const [queueSettings, setQueueSettings] = useState<QueueSettings>({
+    adminSettings: {
+      currSem: '',
+      slackURL: undefined,
+      questionsURL: undefined,
+      rejoinTime: 15,
+    },
+    settings: null
+  });
+  // this needs to be created at a higher level to prevent unintentional rerenders
+  const queueSettingsContextObject = {
+    queueSettings: queueSettings,
+    setQueueSettings: setQueueSettings,
+  }
+  QueueSettingsContext = createContext<QueueSettingsContextContent>(queueSettingsContextObject);
+
+
   // subscribe to global sockets
   useEffect(() => {
+    HomeService.getAll().then((res) => {
+      setQueueData(res.data);
+      document.title = res.data.title;
+    })
+
+    HomeService.getStudentData().then((res) => {
+      setStudentData(res.data);
+    })
+
     socketSubscribeTo('queueData', (data: QueueData) => {
       setQueueData(data)
     })
@@ -121,24 +156,26 @@ function App() {
           <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
             <QueueDataContext.Provider value = {queueDataContextObject}>
               <StudentDataContext.Provider value = {studentDataContextObject}>
-                <Router>
-                  <Routes>
-                    <Route path='/' element={<Home theme={theme || darkTheme}/>} />
-                    <Route path='/settings' element={<Settings/>} />
-                    <Route path='/metrics' element={<Metrics/>} />
-                  </Routes>
-                </Router>
-                <ToastContainer
-                  position="bottom-left"
-                  autoClose={5000}
-                  hideProgressBar={false}
-                  newestOnTop={false}
-                  closeOnClick
-                  rtl={false}
-                  pauseOnFocusLoss
-                  draggable
-                  pauseOnHover
-                />
+                <QueueSettingsContext.Provider value = {queueSettingsContextObject}>
+                  <Router>
+                    <Routes>
+                      <Route path='/' element={<Home theme={theme || darkTheme}/>} />
+                      <Route path='/settings' element={<Settings/>} />
+                      <Route path='/metrics' element={<Metrics/>} />
+                    </Routes>
+                  </Router>
+                  <ToastContainer
+                    position="bottom-left"
+                    autoClose={5000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                  />
+                </QueueSettingsContext.Provider>
               </StudentDataContext.Provider>
             </QueueDataContext.Provider>
           </GoogleOAuthProvider>
@@ -151,6 +188,7 @@ function App() {
 export {
   QueueDataContext,
   StudentDataContext,
+  QueueSettingsContext
 };
 
 export default App;

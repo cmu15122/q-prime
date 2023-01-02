@@ -12,30 +12,8 @@ import { QueueDataContext, StudentDataContext } from '../App';
 function Home(props) {
   const theme = useTheme();
 
-  const {queueData, setQueueData} = useContent(QueueDataContext);
+  const {queueData, setQueueData} = useContext(QueueDataContext);
   const {studentData, setStudentData} = useContext(StudentDataContext);
-
-  useEffect(() => {
-    if (queueData.frontendInitialized === false) {
-      HomeService.getAll()
-          .then((res) => {
-            setQueueData({...res.data, frontendInitialized: true});
-            // setStudentData(res.data.studentData);
-            document.title = res.data.title;
-          });
-
-      initiateSocket();
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!queueData.isTA && studentData.frontendInitialized === false) {
-      HomeService.getStudentData()
-          .then((res) => {
-            setStudentData({...res.data, frontendInitialized: true});
-          });
-    }
-  }, [queueData.isTA]);
 
   return (
     <div className="App" style={{backgroundColor: theme.palette.background.default}}>
