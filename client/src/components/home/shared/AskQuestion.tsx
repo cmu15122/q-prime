@@ -21,6 +21,20 @@ export default function AskQuestion() {
   const {userData} = useContext(UserDataContext);
   const {queueData} = useContext(QueueDataContext);
 
+  // not changing name or andrewID to use global because this component can also be used by TAs to manually add questions
+  const [name, setName] = useState('');
+  const [andrewID, setAndrewID] = useState('');
+  const [location, setLocation] = useState('');
+  const [topic, setTopic] = useState(null);
+  const [question, setQuestion] = useState('');
+
+  const [showCooldownOverlay, setShowCooldownOverlay] = useState(false);
+  const [timePassed, setTimePassed] = useState(0);
+
+  const [askDisabled, setAskDisabled] = useState(false);
+
+  const {studentData, setStudentData} = useContext(StudentDataContext);
+
   // const [locations, setLocations] = useState([]);
   const locations = useMemo(() => {
     if (queueData != null) {
@@ -57,20 +71,6 @@ export default function AskQuestion() {
     } else return [createData(-1, 'Other')];
   }, [queueData.topics]);
   // const [topics, setTopics] = useState([]);
-
-  // not changing name or andrewID to use global because this component can also be used by TAs to manually add questions
-  const [name, setName] = useState('');
-  const [andrewID, setAndrewID] = useState('');
-  const [location, setLocation] = useState('');
-  const [topic, setTopic] = useState(null);
-  const [question, setQuestion] = useState('');
-
-  const [showCooldownOverlay, setShowCooldownOverlay] = useState(false);
-  const [timePassed, setTimePassed] = useState(0);
-
-  const [askDisabled, setAskDisabled] = useState(false);
-
-  const {studentData, setStudentData} = useContext(StudentDataContext);
 
   useEffect(() => {
     if (!userData.isTA) {

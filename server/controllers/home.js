@@ -77,6 +77,7 @@ exports.get = function (req, res) {
 
         topics: [],
         locations: settings.internal_get_locations(),
+        tas: []
     };
 
     models.assignment_semester.findAll({
@@ -99,6 +100,33 @@ exports.get = function (req, res) {
         }
 
         data.topics = assignments;
+
+        return models.semester_user.findAll({
+            where: { sem_id: adminSettings.currSem, is_ta: 1 },
+            include: [
+                {
+                    model: models.account,
+                    include: [{ model: models.ta, as: "ta" }],
+                }
+            ],
+            order: [['account', 'preferred_name', 'ASC']]
+        })
+    }).then((results) => {
+        let tas = [];
+
+        for (const semUser of results) {
+            let account = semUser.account;
+            let ta = account.ta;
+            tas.push({
+                ta_id: ta.ta_id,
+                name: account.name,
+                preferred_name: account.preferred_name,
+                email: account.email,
+                isAdmin: ta.is_admin == 1
+            });
+        }
+
+        data.tas = tas;
 
         res.send(data);
         return;
