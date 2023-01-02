@@ -4,14 +4,6 @@ export type QueueData = {
   uninitializedSem: boolean,
   queueFrozen: boolean,
 
-  // user state
-  isOwner: boolean,
-  isAuthenticated: boolean,
-  isTA: boolean,
-  isAdmin: boolean,
-  andrewID: string,
-  preferred_name: string,
-
   // global stats
   numStudents: number
   rejoinTime: number,

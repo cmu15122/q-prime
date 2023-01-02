@@ -25,6 +25,7 @@ import {StudentStatusValues} from './services/StudentStatus';
 import {QueueData} from '../../../q-prime/types/QueueData'
 import {StudentData} from '../../../q-prime/types/StudentData'
 import {QueueSettings} from '../../../q-prime/types/QueueSettings'
+import {UserData} from '../../../q-prime/types/UserData'
 import { socketSubscribeTo } from './services/SocketsService';
 import HomeService from './services/HomeService';
 
@@ -46,6 +47,12 @@ type QueueSettingsContextContent = {
 }
 let QueueSettingsContext: React.Context<QueueSettingsContextContent>
 
+type UserDataContextContent = {
+  userData: UserData,
+  setUserData: React.Dispatch<React.SetStateAction<UserData>>
+}
+let UserDataContext: React.Context<UserDataContextContent>
+
 
 function App() {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
@@ -60,13 +67,6 @@ function App() {
     title: '15-122 Office Hours Queue',
     uninitializedSem: false,
     queueFrozen: true,
-
-    isOwner: false,
-    isAuthenticated: false,
-    isTA: false,
-    isAdmin: false,
-    andrewID: '',
-    preferred_name: '',
 
     numStudents: 0,
     rejoinTime: 15,
@@ -117,9 +117,6 @@ function App() {
     slackURL: undefined,
     questionsURL: undefined,
     rejoinTime: 15,
-
-    videoChatEnabled: false,
-    videoChatURL: ''
   });
   // this needs to be created at a higher level to prevent unintentional rerenders
   const queueSettingsContextObject = {
@@ -127,6 +124,27 @@ function App() {
     setQueueSettings: setQueueSettings,
   }
   QueueSettingsContext = createContext<QueueSettingsContextContent>(queueSettingsContextObject);
+
+  const [userData, setUserData] = useState<UserData>({
+    isOwner: false,
+    isAuthenticated: false,
+    isTA: false,
+    isAdmin: false,
+    andrewID: '',
+    preferred_name: '',
+
+    videoChatEnabled: false,
+    videoChatURL: '',
+    joinNotifsEnabled: false,
+    remindNotifsEnabled: false,
+    remindTime: 15,
+  });
+  // this needs to be created at a higher level to prevent unintentional rerenders
+  const userDataContextObject = {
+    userData: userData,
+    setUserData: setUserData,
+  }
+  UserDataContext = createContext<UserDataContextContent>(userDataContextObject);
 
 
   // subscribe to global sockets
@@ -157,24 +175,26 @@ function App() {
             <QueueDataContext.Provider value = {queueDataContextObject}>
               <StudentDataContext.Provider value = {studentDataContextObject}>
                 <QueueSettingsContext.Provider value = {queueSettingsContextObject}>
-                  <Router>
-                    <Routes>
-                      <Route path='/' element={<Home theme={theme || darkTheme}/>} />
-                      <Route path='/settings' element={<Settings/>} />
-                      <Route path='/metrics' element={<Metrics/>} />
-                    </Routes>
-                  </Router>
-                  <ToastContainer
-                    position="bottom-left"
-                    autoClose={5000}
-                    hideProgressBar={false}
-                    newestOnTop={false}
-                    closeOnClick
-                    rtl={false}
-                    pauseOnFocusLoss
-                    draggable
-                    pauseOnHover
-                  />
+                  <UserDataContext.Provider value = {userDataContextObject}>
+                    <Router>
+                      <Routes>
+                        <Route path='/' element={<Home theme={theme || darkTheme}/>} />
+                        <Route path='/settings' element={<Settings/>} />
+                        <Route path='/metrics' element={<Metrics/>} />
+                      </Routes>
+                    </Router>
+                    <ToastContainer
+                      position="bottom-left"
+                      autoClose={5000}
+                      hideProgressBar={false}
+                      newestOnTop={false}
+                      closeOnClick
+                      rtl={false}
+                      pauseOnFocusLoss
+                      draggable
+                      pauseOnHover
+                    />
+                  </UserDataContext.Provider>
                 </QueueSettingsContext.Provider>
               </StudentDataContext.Provider>
             </QueueDataContext.Provider>
@@ -188,7 +208,8 @@ function App() {
 export {
   QueueDataContext,
   StudentDataContext,
-  QueueSettingsContext
+  QueueSettingsContext,
+  UserDataContext
 };
 
 export default App;
