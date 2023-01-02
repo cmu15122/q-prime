@@ -15,11 +15,11 @@ export default function QueueStats() {
 
   // TODO : change based on whether on queue or not
 
-  useEffect(() => {
-    socketSubscribeTo('waittimes', (data) => {
-      setQueueData({...queueData, numUnhelped: data.numUnhelped, minsPerStudent: data.minsPerStudent, numTAs: data.numTAs, numStudents: data.numStudents});
-    });
-  }, []);
+  // useEffect(() => {
+  //   socketSubscribeTo('waittimes', (data) => {
+  //     setQueueData({...queueData, numUnhelped: data.numUnhelped, minsPerStudent: data.minsPerStudent, numTAs: data.numTAs, numStudents: data.numStudents});
+  //   });
+  // }, []);
 
   return (
     <BaseCard>

@@ -113,7 +113,7 @@ function App() {
   StudentDataContext = createContext<StudentDataContextContent>(studentDataContextObject);
 
   const [queueSettings, setQueueSettings] = useState<QueueSettings>({
-    currSem: '',
+    currSem: 'W22', // TODO THIS IS HARDCODED, SHOULD BE CHANGED TO GET AND SUBSCRIBE TO SOCKET
     slackURL: undefined,
     questionsURL: undefined,
     rejoinTime: 15,

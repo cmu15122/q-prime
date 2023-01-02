@@ -14,7 +14,7 @@ import AlertOnLogout from './dialogs/AlertOnLogout';
 
 import HomeService from '../../services/HomeService';
 import {socketSubscribeTo} from '../../services/SocketsService';
-import { QueueDataContext, StudentDataContext, UserDataContext } from '../../App';
+import {QueueDataContext, StudentDataContext, UserDataContext} from '../../App';
 
 function createPage(page, link) {
   return {page, link};
@@ -58,11 +58,11 @@ export default function Navbar(props) {
     window.location.href = pageLink;
   };
 
-  useEffect(() => {
-    socketSubscribeTo('queueFrozen', (data) => {
-      setQueueData({...queueData, queueFrozen: data.isFrozen});
-    });
-  }, []);
+  // useEffect(() => {
+  //   socketSubscribeTo('queueFrozen', (data) => {
+  //     setQueueData({...queueData, queueFrozen: data.isFrozen});
+  //   });
+  // }, []);
 
   useEffect(() => {
     const newPages = [];

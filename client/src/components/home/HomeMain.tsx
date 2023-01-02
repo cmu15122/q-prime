@@ -17,11 +17,11 @@ function HomeMain() {
 
   const [mainPage, setMainPage] = useState(null);
 
-  useEffect(() => {
-    socketSubscribeTo('queueFrozen', (data) => {
-      setQueueData({...queueData, queueFrozen: data.isFrozen});
-    });
-  }, []);
+  // useEffect(() => {
+  //   socketSubscribeTo('queueFrozen', (data) => {
+  //     setQueueData({...queueData, queueFrozen: data.isFrozen});
+  //   });
+  // }, []);
 
   useEffect(() => {
     if (userData.isAuthenticated) {

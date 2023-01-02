@@ -76,7 +76,7 @@ exports.get = function (req, res) {
         announcements: announcements,
 
         topics: [],
-        locations: settings.internal_get_locations,
+        locations: settings.internal_get_locations(),
     };
 
     models.assignment_semester.findAll({
