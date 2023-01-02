@@ -916,6 +916,13 @@ exports.get_locations = function (req, res) {
     return dayDictionary
 }
 
+exports.internal_get_locations = function () {
+    return {
+        dayDictionary: dayDictionary,
+        roomDictionary: dayToRoomDictionary(dayDictionary)
+    }
+}
+
 exports.remove_location = function (req, res) {
     if (!req.user || !req.user.isAdmin) {
         message = "You don't have permissions to perform this operation";

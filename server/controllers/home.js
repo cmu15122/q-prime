@@ -60,65 +60,24 @@ exports.get = function (req, res) {
     // default data to send back
     let adminSettings = settings.get_admin_settings();
     let data = {
-        // queueData: {
-            // most important global data
-            title: "15-122 Office Hours Queue",
-            isOwner: req.user.isOwner,
-            uninitializedSem: adminSettings.currSem == null,
+        // most important global data
+        title: "15-122 Office Hours Queue",
+        uninitializedSem: adminSettings.currSem == null,
+        queueFrozen: queueFrozen,
 
-            // global stats
-            announcements: announcements,
-            topics: [],
-            queueFrozen: queueFrozen,
-            numStudents: ohq.size(),
-            rejoinTime: adminSettings.rejoinTime,
-            waitTime: waittime.get(),
+        // global stats
+        numStudents: ohq.size(),
+        rejoinTime: adminSettings.rejoinTime,
+        waitTime: waittime.get(),
+        numUnhelped: 5, // TODO Add waittimes functionality here
+        minsPerStudent: 5,
+        numTAs: 5,
 
-            // user state
-            isAuthenticated: req.user?.isAuthenticated,
-            isTA: req.user?.isTA,
-            isAdmin: req.user?.isAdmin,
-            andrewID: req.user?.andrewID,
-            preferred_name: req.user?.account?.preferred_name,
-        // },
-        // // TODO MOVE TO OWN SOCKET
-        // studentData: {}
+        announcements: announcements,
+
+        topics: [],
+        locations: settings.internal_get_locations,
     };
-    // if (req.user.isOwner) {
-    //     data.isOwner = req.user.isOwner;
-    //     res.send(data);
-    //     return;
-    // }
-
-    // let adminSettings = settings.get_admin_settings();
-    // if (adminSettings.currSem == null) {
-    //     data.queueData.uninitializedSem = true;
-    //     res.send(data);
-    //     return;
-    // }
-
-    // data = {
-    //     queueData: {
-    //         title: "15-122 Office Hours Queue",
-    //         announcements: announcements,
-    //         queueFrozen: queueFrozen,
-    //         numStudents: ohq.size(),
-    //         waitTime: waittime.get(),
-    //         rejoinTime: adminSettings.rejoinTime,
-    //         isAuthenticated: req.user?.isAuthenticated,
-    //         isTA: req.user?.isTA,
-    //         isAdmin: req.user?.isAdmin,
-    //         andrewID: req.user?.andrewID,
-    //         preferred_name: req.user?.account?.preferred_name
-    //     },
-    //     studentData: {}
-    // };
-
-    // if (!req.user.isAuthenticated) {
-    //     // Not logged in - this is all the information we need
-    //     res.send(data);
-    //     return;
-    // }
 
     models.assignment_semester.findAll({
         where: {
@@ -154,7 +113,7 @@ exports.get_user_data = function (req, res) {
             isTA: req.user.isTA,
             isAdmin: req.user.isAdmin,
             andrewID: req.user.andrewID,
-            preferredName: req.user.isOwner ? 'Owner' : req.user.account.preferredName,
+            preferredName: req.user.account ? req.user.account.preferredName : '',
         }
     }
 

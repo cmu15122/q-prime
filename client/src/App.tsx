@@ -141,7 +141,7 @@ function App() {
   UserDataContext = createContext<UserDataContextContent>(userDataContextObject);
 
 
-  // subscribe to global sockets
+  // get initial data and subscribe to global sockets
   useEffect(() => {
     HomeService.getAll().then((res) => {
       setQueueData(res.data);
