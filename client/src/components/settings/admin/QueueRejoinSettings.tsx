@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   Button, CardContent, Typography, TextField, Grid,
 } from '@mui/material';
@@ -7,10 +7,10 @@ import {
 import BaseCard from '../../common/cards/BaseCard';
 
 import SettingsService from '../../../services/SettingsService';
-import {useQueueDataContext} from '../../../App';
+import {QueueDataContext} from '../../../App';
 
 export default function QueueRejoinSettings(props) {
-  const {queueData, setQueueData} = useQueueDataContext();
+  const {queueData} = useContext(QueueDataContext);
 
   const onSubmit = (event) => {
     event.preventDefault();
