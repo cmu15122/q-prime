@@ -113,13 +113,13 @@ function App() {
   StudentDataContext = createContext<StudentDataContextContent>(studentDataContextObject);
 
   const [queueSettings, setQueueSettings] = useState<QueueSettings>({
-    adminSettings: {
-      currSem: '',
-      slackURL: undefined,
-      questionsURL: undefined,
-      rejoinTime: 15,
-    },
-    settings: null
+    currSem: '',
+    slackURL: undefined,
+    questionsURL: undefined,
+    rejoinTime: 15,
+
+    videoChatEnabled: false,
+    videoChatURL: ''
   });
   // this needs to be created at a higher level to prevent unintentional rerenders
   const queueSettingsContextObject = {
