@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {
   CardContent, Divider, Stack, Typography, useTheme,
 } from '@mui/material';
@@ -6,12 +6,12 @@ import {
 import BaseCard from '../../common/cards/BaseCard';
 
 import {socketSubscribeTo} from '../../../services/SocketsService';
-import {useQueueDataContext} from '../../../App';
+import {QueueDataContext} from '../../../App';
 
 export default function QueueStats() {
   const theme = useTheme();
 
-  const {queueData, setQueueData} = useQueueDataContext();
+  const {queueData, setQueueData} = useContext(QueueDataContext);
 
   // TODO : change based on whether on queue or not
 
