@@ -1,14 +1,14 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   Button, Dialog, DialogContent, Input, Stack, Typography,
 } from '@mui/material';
 
 import HomeService from '../../../services/HomeService';
-import {useStudentDataContext} from '../../../App';
+import {StudentDataContext} from '../../../App';
 
 export default function UpdateQuestionOverlay(props) {
   const {open, handleClose} = props;
-  const {studentData, setStudentData} = useStudentDataContext();
+  const {studentData, setStudentData} = useContext(StudentDataContext);
 
   const printAndClose = (event) => {
     event.preventDefault();
