@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 
 import YourEntry from './YourEntry';
 import RemoveQOverlay from './RemoveQConfirm';
@@ -10,7 +10,7 @@ import AskQuestion from '../shared/AskQuestion';
 import HomeService from '../../../services/HomeService';
 import {StudentStatusValues} from '../../../services/StudentStatus';
 import {socketSubscribeTo, socketUnsubscribeFrom} from '../../../services/SocketsService';
-import {useQueueDataContext, useStudentDataContext} from '../../../App';
+import {QueueDataContext, StudentDataContext, UserDataContext} from '../../../App';
 
 function StudentMain() {
   // const [questionValue, setQuestionValue] = useState('');
@@ -26,8 +26,9 @@ function StudentMain() {
 
   const [helpingTAInfo, setHelpingTAInfo] = useState(null);
 
-  const {queueData} = useQueueDataContext();
-  const {studentData, setStudentData} = useStudentDataContext();
+  const {queueData} = useContext(QueueDataContext);
+  const {studentData, setStudentData} = useContext(StudentDataContext);
+  const {userData} = useContext(UserDataContext);
 
   useEffect(() => {
     if (!('Notification' in window)) {
@@ -39,13 +40,13 @@ function StudentMain() {
 
   useEffect(() => {
     socketSubscribeTo('add', (res) => {
-      if (res.studentData.andrewID === queueData.andrewID) {
+      if (res.studentData.andrewID === userData.andrewID) {
         setStudentData({...studentData, ...res.studentData});
       }
     });
 
     socketSubscribeTo('help', (res) => {
-      if (res.andrewID === queueData.andrewID) {
+      if (res.andrewID === userData.andrewID) {
         setStudentData({...studentData, status: StudentStatusValues.BEING_HELPED});
         setHelpingTAInfo(res.data.taData);
         new Notification('It\'s your turn to get help!', {
@@ -56,14 +57,14 @@ function StudentMain() {
     });
 
     socketSubscribeTo('unhelp', (res) => {
-      if (res.andrewID === queueData.andrewID) {
+      if (res.andrewID === userData.andrewID) {
         setStudentData({...studentData, status: StudentStatusValues.WAITING});
         setHelpingTAInfo(null);
       }
     });
 
     socketSubscribeTo('updateQRequest', (res) => {
-      if (res.andrewID === queueData.andrewID) {
+      if (res.andrewID === userData.andrewID) {
         setStudentData({...studentData, status: StudentStatusValues.FIXING_QUESTION, isFrozen: true});
         new Notification('Please update your question', {
           'requireInteraction': true,
@@ -72,7 +73,7 @@ function StudentMain() {
     });
 
     socketSubscribeTo('message', (res) => {
-      if (res.andrewID === queueData.andrewID) {
+      if (res.andrewID === userData.andrewID) {
         setStudentData({...studentData, status: StudentStatusValues.RECEIVED_MESSAGE, message: res.data.studentData.message});
         setHelpingTAInfo(res.data.taData);
 
@@ -83,7 +84,7 @@ function StudentMain() {
     });
 
     socketSubscribeTo('remove', (res) => {
-      if (res.andrewID === queueData.andrewID) {
+      if (res.andrewID === userData.andrewID) {
         setStudentData({
           ...studentData,
           status: StudentStatusValues.OFF_QUEUE,
@@ -99,7 +100,7 @@ function StudentMain() {
     });
 
     socketSubscribeTo('approveCooldown', (res) => {
-      if (res.andrewID === queueData.andrewID) {
+      if (res.andrewID === userData.andrewID) {
         setStudentData({...studentData, status: res.data.studentData.status, isFrozen: res.data.studentData.isFrozen});
 
         new Notification('Your entry been approved by a TA', {
@@ -116,7 +117,7 @@ function StudentMain() {
       socketUnsubscribeFrom('remove');
       socketUnsubscribeFrom('approveCooldown');
     };
-  }, [queueData.andrewID]);
+  }, [userData.andrewID]);
 
   // useEffect(() => {
   //   // Check if student is on queue
@@ -139,7 +140,7 @@ function StudentMain() {
   const removeFromQueue = () => {
     HomeService.removeStudent(
         JSON.stringify({
-          andrewID: queueData.andrewID,
+          andrewID: userData.andrewID,
         }),
     ).then((res) => {
       if (res.status === 200) {
@@ -152,7 +153,7 @@ function StudentMain() {
   const dismissMessage = () => {
     HomeService.dismissMessage(
         JSON.stringify({
-          andrewID: queueData.andrewID,
+          andrewID: userData.andrewID,
         }),
     ).then((res) => {
       if (res.status === 200) {
