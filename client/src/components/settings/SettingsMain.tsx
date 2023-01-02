@@ -6,10 +6,10 @@ import {
 import AdminMain from './admin/AdminMain';
 import VideoChatSettings from './VideoChatSettings';
 import NotificationSettings from './NotificationSettings';
-import {useQueueDataContext} from '../../App';
+import {QueueDataContext} from '../../App';
 
 function Main(props) {
-  const {queueData} = useQueueDataContext();
+  const {queueData} = useContext(QueueDataContext);
 
   return (
     <div>
@@ -17,14 +17,14 @@ function Main(props) {
         Settings
       </Typography>
       {
-        !queueData?.isOwner && <VideoChatSettings/>
+        !queueData.isOwner && <VideoChatSettings/>
       }
       {
-        !queueData?.isOwner && <NotificationSettings/>
+        !queueData.isOwner && <NotificationSettings/>
       }
 
       {
-        queueData?.isAdmin && <AdminMain/>
+        queueData.isAdmin && <AdminMain/>
       }
     </div>
   );
