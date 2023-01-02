@@ -15,14 +15,14 @@ import EditDeleteRow from '../../common/table/EditDeleteRow';
 
 import SettingsService from '../../../services/SettingsService';
 import download from 'downloadjs';
-import {useQueueDataContext} from '../../../App';
+import {QueueDataContext} from '../../../App';
 
 function createData(userId, name, email, isAdmin) {
   return {userId, name, email, isAdmin};
 }
 
 export default function TASettings(props) {
-  const {queueData} = useQueueDataContext();
+  const {queueData} = useContext(QueueDataContext);
   const theme = useTheme();
 
   const [selectedRow, setSelectedRow] = useState(null);
