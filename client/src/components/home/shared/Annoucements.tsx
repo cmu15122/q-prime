@@ -17,14 +17,15 @@ import ItemRow from '../../common/table/ItemRow';
 
 import HomeService from '../../../services/HomeService';
 import {socketSubscribeTo} from '../../../services/SocketsService';
-import {useQueueDataContext} from '../../../App';
+import {QueueDataContext, UserDataContext} from '../../../App';
 
 function createData(id, content) {
   return {id, content};
 }
 
 export default function Announcements(props) {
-  const {queueData} = useQueueDataContext();
+  const {queueData} = useContext(QueueDataContext);
+  const {userData} = useContext(UserDataContext);
 
   const [selectedRow, setSelectedRow] = useState(null);
   const [rows, setRows] = useState([]);
@@ -146,7 +147,7 @@ export default function Announcements(props) {
                         Announcements
           </Typography>
           {
-            queueData?.isTA &&
+            userData.isTA &&
               <Button sx={{fontWeight: 'bold', mr: 1}} variant='contained' onClick={handleAddDialog}>
                   + Create
               </Button>
@@ -166,7 +167,7 @@ export default function Announcements(props) {
                   <TableCell>
                     <Stack sx={{mr: 2}} direction='row' margin='auto' justifyContent='flex-end'>
                       {
-                        queueData?.isTA &&
+                        userData.isTA &&
                         <Box>
                           <IconButton sx={{mr: 1}} color='info' onClick={() => handleEditDialog(row)}>
                             <Edit />
