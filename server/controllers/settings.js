@@ -21,6 +21,11 @@ exports.get_admin_settings = function () {
     return adminSettings;
 }
 
+exports.get_queue_settings = function (req, res) {
+    res.status(200)
+    res.json(adminSettings)
+}
+
 /** Helper Functions **/
 function respond_error(req, res, message, status) {
     res.status(status);

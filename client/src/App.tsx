@@ -28,6 +28,7 @@ import {QueueSettings} from '../../types/QueueSettings';
 import {UserData} from '../../types/UserData';
 import {socketSubscribeTo} from './services/SocketsService';
 import HomeService from './services/HomeService';
+import SettingsService from './services/SettingsService';
 
 type QueueDataContextContent = {
   queueData: QueueData
@@ -164,6 +165,15 @@ function App() {
       setStudentData(data);
     });
   }, []);
+
+  // get queue settings if user is admin
+  useEffect(() => {
+    if (userData.isAdmin) {
+      SettingsService.getQueueSettings().then((res) => {
+        setQueueSettings(res.data);
+      });
+    }
+  }, [userData]);
 
   return (
     <ThemeProvider theme={theme || darkTheme}>

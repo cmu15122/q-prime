@@ -4,6 +4,9 @@ class SettingsDataService {
   getAll() {
     return http.get('/settings');
   }
+  getQueueSettings() {
+    return http.get('/settings/queueSettings');
+  }
   updateVideoChatSettings(data) {
     return http.post('/settings/videoChat/update', data);
   }

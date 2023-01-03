@@ -5,6 +5,8 @@ const settings = require('../controllers/settings');
 
 router.get('/', settings.get);
 
+router.get('/queueSettings', settings.get_queue_settings);
+
 router.post('/videoChat/update', settings.post_update_video_chat);
 router.post('/notifs/update', settings.post_update_notifs);
 router.post('/preferredname/update', settings.post_update_preferredname);
