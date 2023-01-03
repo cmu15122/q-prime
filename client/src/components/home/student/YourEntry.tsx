@@ -22,8 +22,6 @@ export default function YourEntry(props) {
   const {queueData} = useContext(QueueDataContext);
   const {studentData} = useContext(StudentDataContext);
 
-  console.log(studentData.position);
-
   return (
     <BaseCard>
       <CardContent sx={{m: 1, textAlign: 'left'}}>

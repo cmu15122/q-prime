@@ -61,7 +61,6 @@ export default function AskQuestion() {
         newRows.push(topic);
       });
       newRows.push(createData(-1, 'Other'));
-      console.log(newRows);
 
       if (newRows.length === 1) {
         setTopic(newRows[0]);

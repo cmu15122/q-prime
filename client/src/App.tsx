@@ -145,7 +145,6 @@ function App() {
   useEffect(() => {
     HomeService.getAll().then((res) => {
       setQueueData(res.data);
-      console.log(res.data);
       document.title = res.data.title;
     });
 
