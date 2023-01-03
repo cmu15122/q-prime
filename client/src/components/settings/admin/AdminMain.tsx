@@ -8,7 +8,7 @@ import Locations from './Locations';
 import QueueRejoinSettings from './QueueRejoinSettings';
 import QueueTopicSettings from './QueueTopicSettings';
 import TASettings from './TASettings';
-import { QueueSettingsContext } from '../../../App';
+import {QueueSettingsContext} from '../../../App';
 
 function AdminMain(props) {
   const {queueSettings} = useContext(QueueSettingsContext);

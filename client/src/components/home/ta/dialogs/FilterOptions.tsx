@@ -5,7 +5,7 @@ import {List, ListSubheader, ListItem,
 } from '@mui/material';
 
 import SettingsService from '../../../../services/SettingsService';
-import { QueueDataContext } from '../../../../App';
+import {QueueDataContext} from '../../../../App';
 
 function createData(assignment_id, name) {
   return {assignment_id, name};

@@ -6,7 +6,7 @@ import HomeMain from '../components/home/HomeMain';
 
 import HomeService from '../services/HomeService';
 import {initiateSocket} from '../services/SocketsService';
-import { QueueDataContext, StudentDataContext } from '../App';
+import {QueueDataContext, StudentDataContext} from '../App';
 
 
 function Home(props) {

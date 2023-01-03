@@ -22,10 +22,10 @@ import {ToastContainer} from 'material-react-toastify';
 import 'material-react-toastify/dist/ReactToastify.css';
 import './App.css';
 import {StudentStatusValues} from './services/StudentStatus';
-import {QueueData} from '../../../q-prime/types/QueueData';
-import {StudentData} from '../../../q-prime/types/StudentData';
-import {QueueSettings} from '../../../q-prime/types/QueueSettings';
-import {UserData} from '../../../q-prime/types/UserData';
+import {QueueData} from '../../types/QueueData';
+import {StudentData} from '../../types/StudentData';
+import {QueueSettings} from '../../types/QueueSettings';
+import {UserData} from '../../types/UserData';
 import {socketSubscribeTo} from './services/SocketsService';
 import HomeService from './services/HomeService';
 

@@ -13,7 +13,7 @@ import CollapsedTable from '../../common/table/CollapsedTable';
 
 import SettingsService from '../../../services/SettingsService';
 import ItemRow from '../../common/table/ItemRow';
-import { QueueDataContext } from '../../../App';
+import {QueueDataContext} from '../../../App';
 
 export default function Locations(props) {
   const {queueData} = useContext(QueueDataContext);

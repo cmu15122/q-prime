@@ -5,7 +5,7 @@ import MetricsMain from '../components/metrics/MetricsMain';
 
 import MetricsDataService from '../services/MetricsService';
 import {useTheme} from '@mui/material/styles';
-import { QueueDataContext } from '../App';
+import {QueueDataContext} from '../App';
 
 function Metrics() {
   const theme = useTheme();
