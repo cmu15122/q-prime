@@ -159,7 +159,7 @@ exports.get_user_data = function (req, res) {
             ...data.userData,
             taSettings: {
                 videoChatEnabled: req.user.account.dataValues.settings.videoChatEnabled,
-                videoChatURL: req.user.account.dataValues.settings.videoChatURL,
+                videoChatURL: req.user.ta.dataValues.zoom_url,
                 joinNotifsEnabled: req.user.account.dataValues.settings.joinNotifsEnabled,
                 remindNotifsEnabled: req.user.account.dataValues.settings.remindNotifsEnabled,
                 remindTime: req.user.account.dataValues.settings.remindTime,
