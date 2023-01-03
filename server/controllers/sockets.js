@@ -52,16 +52,49 @@ exports.init = function (server) {
     });
 };
 
-exports.queueFrozen = function (isFrozen) {
+exports.queueData = function (queueData) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");
         return;
     }
 
-    sio.emit("queueFrozen", {
-        isFrozen: isFrozen
+    sio.emit("queueData", {
+        ...queueData
     });
 }
+
+exports.studentData = function (studentData) {
+    if (!sio) {
+        console.log("ERROR: Socket.io is not initialized yet");
+        return;
+    }
+
+    sio.emit("studentData", {
+        ...studentData
+    });
+}
+
+exports.allStudents = function (allStudents) {
+    if (!sio) {
+        console.log("ERROR: Socket.io is not initialized yet");
+        return;
+    }
+
+    sio.emit("allStudents", {
+        allStudents: allStudents
+    });
+}
+
+// exports.queueFrozen = function (isFrozen) {
+//     if (!sio) {
+//         console.log("ERROR: Socket.io is not initialized yet");
+//         return;
+//     }
+
+//     sio.emit("queueFrozen", {
+//         isFrozen: isFrozen
+//     });
+// }
 
 exports.waittimes = function (minsPerStudent, numStudents, numUnhelped, numTAs) {
     if (!sio) {

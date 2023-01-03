@@ -54,6 +54,11 @@ type UserDataContextContent = {
 }
 let UserDataContext: React.Context<UserDataContextContent>;
 
+type AllStudentsContextContent = {
+  allStudents: StudentData[],
+  setAllStudents: React.Dispatch<React.SetStateAction<StudentData[]>>
+}
+let AllStudentsContext: React.Context<AllStudentsContextContent>;
 
 function App() {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
@@ -98,7 +103,10 @@ function App() {
     taID: -1,
     taAndrewID: '',
     location: '',
-    topic: '',
+    topic: {
+      assignment_id: -1,
+      name: '',
+    },
     question: '',
     isFrozen: false,
     message: '',
@@ -141,16 +149,19 @@ function App() {
   };
   UserDataContext = createContext<UserDataContextContent>(userDataContextObject);
 
+  const [allStudents, setAllStudents] = useState<StudentData[]>([]);
+  const allStudentsContextObject = {
+    allStudents: allStudents,
+    setAllStudents: setAllStudents,
+  };
+  AllStudentsContext = createContext<AllStudentsContextContent>(allStudentsContextObject);
+
 
   // get initial data and subscribe to global sockets
   useEffect(() => {
     HomeService.getAll().then((res) => {
       setQueueData(res.data);
       document.title = res.data.title;
-    });
-
-    HomeService.getStudentData().then((res) => {
-      setStudentData(res.data);
     });
 
     HomeService.getUserData().then((res) => {
@@ -160,10 +171,6 @@ function App() {
     socketSubscribeTo('queueData', (data: QueueData) => {
       setQueueData(data);
     });
-
-    socketSubscribeTo('studentData', (data: StudentData) => {
-      setStudentData(data);
-    });
   }, []);
 
   // get queue settings if user is admin
@@ -171,6 +178,26 @@ function App() {
     if (userData.isAdmin) {
       SettingsService.getQueueSettings().then((res) => {
         setQueueSettings(res.data);
+      });
+    }
+    // get data for all students
+    if (userData.isTA) {
+      HomeService.getAllStudents().then((res) => {
+        setAllStudents(res.data.allStudents);
+      });
+
+      socketSubscribeTo('allStudents', (data: {allStudents: StudentData[]}) => {
+        setAllStudents(data.allStudents);
+      });
+
+    // get personal data (if authenticated means logged in student)
+    } else if (userData.isAuthenticated) {
+      HomeService.getStudentData().then((res) => {
+        setStudentData(res.data);
+      });
+
+      socketSubscribeTo('studentData', (data: StudentData) => {
+        setStudentData(data);
       });
     }
   }, [userData]);
@@ -184,24 +211,26 @@ function App() {
               <StudentDataContext.Provider value = {studentDataContextObject}>
                 <QueueSettingsContext.Provider value = {queueSettingsContextObject}>
                   <UserDataContext.Provider value = {userDataContextObject}>
-                    <Router>
-                      <Routes>
-                        <Route path='/' element={<Home theme={theme || darkTheme}/>} />
-                        <Route path='/settings' element={<Settings/>} />
-                        <Route path='/metrics' element={<Metrics/>} />
-                      </Routes>
-                    </Router>
-                    <ToastContainer
-                      position="bottom-left"
-                      autoClose={5000}
-                      hideProgressBar={false}
-                      newestOnTop={false}
-                      closeOnClick
-                      rtl={false}
-                      pauseOnFocusLoss
-                      draggable
-                      pauseOnHover
-                    />
+                    <AllStudentsContext.Provider value = {allStudentsContextObject}>
+                      <Router>
+                        <Routes>
+                          <Route path='/' element={<Home theme={theme || darkTheme}/>} />
+                          <Route path='/settings' element={<Settings/>} />
+                          <Route path='/metrics' element={<Metrics/>} />
+                        </Routes>
+                      </Router>
+                      <ToastContainer
+                        position="bottom-left"
+                        autoClose={5000}
+                        hideProgressBar={false}
+                        newestOnTop={false}
+                        closeOnClick
+                        rtl={false}
+                        pauseOnFocusLoss
+                        draggable
+                        pauseOnHover
+                      />
+                    </AllStudentsContext.Provider>
                   </UserDataContext.Provider>
                 </QueueSettingsContext.Provider>
               </StudentDataContext.Provider>
@@ -218,6 +247,7 @@ export {
   StudentDataContext,
   QueueSettingsContext,
   UserDataContext,
+  AllStudentsContext,
 };
 
 export default App;

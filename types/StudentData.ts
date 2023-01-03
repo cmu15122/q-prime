@@ -4,7 +4,10 @@ export type StudentData = {
     taID: number,
     taAndrewID: string,
     location: string,
-    topic: string,
+    topic: {
+        assignment_id: number,
+        name: string,
+    },
     question: string,
     isFrozen: boolean,
     message: string,

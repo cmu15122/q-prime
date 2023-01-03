@@ -89,7 +89,10 @@ function StudentMain() {
           ...studentData,
           status: StudentStatusValues.OFF_QUEUE,
           question: '',
-          topic: '',
+          topic: {
+            assignment_id: -1,
+            name: '',
+          },
           location: '',
         });
 

@@ -4,7 +4,6 @@ const router = express.Router();
 const settings = require('../controllers/settings');
 
 router.get('/', settings.get);
-
 router.get('/queueSettings', settings.get_queue_settings);
 
 router.post('/videoChat/update', settings.post_update_video_chat);
@@ -28,7 +27,6 @@ router.post('/config/slack/update', settings.post_update_slack_url);
 router.post('/config/questions/update', settings.post_update_questions_url);
 router.post('/config/rejoin/update', settings.post_update_rejoin_time);
 
-router.get('/locations/get', settings.get_locations);
 router.post('/locations/update', settings.post_update_locations);
 router.post('/locations/add', settings.add_location);
 router.post('/locations/remove', settings.remove_location);

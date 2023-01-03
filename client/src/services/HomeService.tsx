@@ -7,6 +7,9 @@ class HomeDataService {
   getStudentData() {
     return http.get('/studentData');
   }
+  getAllStudents() {
+    return http.get('/allStudents');
+  }
   getUserData() {
     return http.get('/userData');
   }
@@ -54,9 +57,6 @@ class HomeDataService {
   }
   approveCooldownOverride(data) {
     return http.post('/approveCooldownOverride', data);
-  }
-  displayStudents() {
-    return http.get('/displayStudents');
   }
 }
 

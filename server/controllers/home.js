@@ -54,10 +54,7 @@ function buildStudentEntryData(student) {
     return studentEntryData;
 }
 
-exports.get = function (req, res) {
-    res.status(200);
-
-    // default data to send back
+function buildQueueData() {
     let adminSettings = settings.get_admin_settings();
     let data = {
         // most important global data
@@ -80,7 +77,7 @@ exports.get = function (req, res) {
         tas: []
     };
 
-    models.assignment_semester.findAll({
+    return models.assignment_semester.findAll({
         where: {
             sem_id: adminSettings.currSem,
             start_date: { [Sequelize.Op.lt]: new Date() },
@@ -127,9 +124,20 @@ exports.get = function (req, res) {
         }
 
         data.tas = tas;
+        return data;
+    });
+}
 
+function emitNewQueueData() {
+    buildQueueData().then((data) => {
+        sockets.queueData(data);
+    });
+}
+
+exports.get = function (req, res) {
+    res.status(200);
+    buildQueueData().then((data) => {
         res.send(data);
-        return;
     });
 }
 
@@ -211,13 +219,43 @@ exports.get_student_data = function (req, res) {
     // }
 }
 
+/**
+ *
+ * @param {*} studentPos Should be -1 if student not on queue
+ */
+function emitNewStudentData(studentPos) {
+    sockets.studentData(buildStudentEntryData(ohq.queue.get(studentPos)))
+}
+
+function buildAllStudents() {
+    // assuming that students at front of queue go first
+    let allStudents = ohq.getAllStudentData();
+    allStudents = allStudents.map((student) => {
+        let studentEntryData = buildStudentEntryData(student);
+        return studentEntryData;
+    })
+
+    return allStudents;
+}
+
+exports.get_all_students = function (req, res) {
+    res.status(200);
+    res.send({
+        allStudents: buildAllStudents()
+    });
+}
+
+function emitNewAllStudents() {
+    sockets.allStudents(buildAllStudents());
+}
+
 exports.post_freeze_queue = function (req, res) {
     if (!req.user || !req.user.isTA) {
         return;
     }
 
     queueFrozen = true;
-    sockets.queueFrozen(queueFrozen);
+    emitNewQueueData()
 }
 
 exports.post_unfreeze_queue = function (req, res) {
@@ -226,7 +264,7 @@ exports.post_unfreeze_queue = function (req, res) {
     }
 
     queueFrozen = false;
-    sockets.queueFrozen(queueFrozen);
+    emitNewQueueData()
 }
 
 /** Announcements */
@@ -419,8 +457,9 @@ exports.post_add_question = function (req, res) {
             data['message'] = "Successfully added to queue";
             res.json(data);
 
-            let studentEntryData = buildStudentEntryData(ohq.getData(id));
-            sockets.add(studentEntryData);
+            // sockets.add(studentEntryData);
+            emitNewStudentData(ohq.getPosition(id));
+            emitNewAllStudents();
         }
     }).catch((err) => {
         console.log(err);
