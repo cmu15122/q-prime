@@ -516,6 +516,11 @@ exports.post_remove_student = function (req, res) {
     emitNewStudentData(id);
     emitNewAllStudents();
 
+    // this necessary as places move up
+    ohq.getAllStudentData().forEach((student) => {
+        emitNewStudentData(student.andrewID);
+    });
+
     // TODO, FIXME: Don't write TA added questions to the database or TA manually removed questions
     models.account.findOrCreate({
         where: {
