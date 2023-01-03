@@ -116,7 +116,7 @@ app.set('port', port);
 
 const server = http.createServer(app);
 
-waittimes.init();
+// waittimes.init();
 slack.init();
 sockets.init(server);
 

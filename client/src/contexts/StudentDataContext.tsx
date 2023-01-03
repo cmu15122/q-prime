@@ -22,7 +22,7 @@ const StudentDataContext = createContext({
     messageBuffer: [],
     status: StudentStatusValues.OFF_QUEUE as number,
     position: -1,
-  },
+  } as StudentData,
   setStudentData: ((studentData: StudentData) => {}) as React.Dispatch<React.SetStateAction<StudentData>>,
 });
 
@@ -49,11 +49,15 @@ const StudentDataContextProvider = ({children}: {children: React.ReactNode}) => 
   useEffect(() => {
     if (userData.isAuthenticated) {
       HomeService.getStudentData().then((res) => {
-        setStudentData(res.data);
+        if (res.status === 200 && res.data.andrewID === userData.andrewID) {
+          setStudentData(res.data);
+        }
       });
 
       socketSubscribeTo('studentData', (data: StudentData) => {
-        setStudentData(data);
+        if (data.andrewID === userData.andrewID) {
+          setStudentData(data);
+        }
       });
     }
   }, [userData.isAuthenticated]);

@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import {
   Button, Dialog, DialogContent, Input, Stack, Typography,
 } from '@mui/material';
@@ -10,13 +10,15 @@ export default function UpdateQuestionOverlay(props) {
   const {open, handleClose} = props;
   const {studentData, setStudentData} = useContext(StudentDataContext);
 
+  const [tempQuestion, setTempQuestion] = useState(studentData.question);
+
   const printAndClose = (event) => {
     event.preventDefault();
 
     HomeService.updateQuestion(
         JSON.stringify({
           id: studentData.andrewID,
-          content: studentData.question,
+          content: tempQuestion,
         }),
     ).then(() => {
       handleClose();
@@ -44,7 +46,7 @@ export default function UpdateQuestionOverlay(props) {
           multiline
           fullWidth
           sx={{my: 2}}
-          onChange={(event) => setStudentData({...studentData, question: event.target.value})}
+          onChange={(event) => setTempQuestion(event.target.value)}
           inputProps={{maxLength: 256}}
         />
 

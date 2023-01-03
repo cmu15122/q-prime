@@ -128,12 +128,6 @@ export default function AskQuestion() {
         setTimePassed(Math.round(res.data.timePassed));
         setShowCooldownOverlay(true);
       } else if (res.status === 200) {
-        setStudentData({
-          ...studentData,
-          location: location,
-          topic: topic,
-          question: question,
-        });
         clearValues();
       }
 

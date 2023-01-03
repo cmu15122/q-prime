@@ -65,7 +65,7 @@ function buildQueueData() {
         // global stats
         numStudents: ohq.size(),
         rejoinTime: adminSettings.rejoinTime,
-        waitTime: waittime.get(),
+        waitTime: 0,
         numUnhelped: 5, // TODO Add waittimes functionality here
         minsPerStudent: 5,
         numTAs: 5,
@@ -175,7 +175,7 @@ exports.get_user_data = function (req, res) {
 exports.get_student_data = function (req, res) {
     let data = {
         name: '',
-        andrewID: '',
+        andrewID: req.user.andrewID,
         taID: -1,
         taAndrewID: '',
         location: '',
@@ -222,10 +222,29 @@ exports.get_student_data = function (req, res) {
 
 /**
  *
- * @param {*} studentPos Should be -1 if student not on queue
+ * @param {*} studentAndrewID
  */
-function emitNewStudentData(studentPos) {
-    sockets.studentData(buildStudentEntryData(ohq.queue.get(studentPos)))
+function emitNewStudentData(studentAndrewID) {
+    let data = ohq.getData(studentAndrewID)
+
+    if (data !== StudentStatus.ERROR) {
+        sockets.studentData(buildStudentEntryData(ohq.getData(studentAndrewID)));
+    } else {
+        sockets.studentData({
+            name: '',
+            andrewID: studentAndrewID,
+            taID: -1,
+            taAndrewID: '',
+            location: '',
+            topic: '',
+            question: '',
+            isFrozen: false,
+            message: '',
+            messageBuffer: [],
+            status: -1,
+            position: -1,
+        });
+    }
 }
 
 function buildAllStudents() {
@@ -459,7 +478,7 @@ exports.post_add_question = function (req, res) {
             res.json(data);
 
             // sockets.add(studentEntryData);
-            emitNewStudentData(ohq.getPosition(id));
+            emitNewStudentData(id);
             emitNewAllStudents();
         }
     }).catch((err) => {
@@ -493,8 +512,9 @@ exports.post_remove_student = function (req, res) {
         return;
     }
 
+    sockets.remove(id);
+    emitNewStudentData(id);
     emitNewAllStudents();
-    // sockets.remove(id, returnedData);
 
     // TODO, FIXME: Don't write TA added questions to the database or TA manually removed questions
     models.account.findOrCreate({
@@ -579,7 +599,8 @@ exports.post_help_student = function (req, res) {
     // let taData = req.user.account
     // // add a field to studentEntryData to keep track of the TA's preferred name
     // studentEntryData["taPrefName"] = taData.preferred_name
-    // sockets.help(studentEntryData, req.user.account);
+    sockets.help(id, req.user.account);
+    emitNewStudentData(id);
     emitNewAllStudents();
 
     res.status(200)
@@ -615,7 +636,8 @@ exports.post_unhelp_student = function (req, res) {
     // let student = ohq.getData(id);
     // let studentEntryData = buildStudentEntryData(student);
 
-    // sockets.unhelp(studentEntryData, req.user.andrewID);
+    sockets.unhelp(id, req.user.andrewID);
+    emitNewStudentData(id);
     emitNewAllStudents();
 
     res.status(200);
@@ -654,6 +676,7 @@ exports.post_update_question = function (req, res) {
 
     // let studentEntryData = buildStudentEntryData(studentData);
     // sockets.updateQuestion(studentEntryData);
+    emitNewStudentData(id);
     emitNewAllStudents();
 
     respond(req, res, 'Question updated successfully', studentData, 200);
@@ -688,7 +711,8 @@ exports.post_taRequestUpdateQ = function (req, res) {
 
     // let studentData = ohq.getData(id);
     // let studentEntryData = buildStudentEntryData(studentData);
-    // sockets.updateQRequest(studentEntryData);
+    sockets.updateQRequest(id);
+    emitNewStudentData(id);
     emitNewAllStudents();
 
     respond(req, res, 'Update question request sent successfully', req.body, 200);
@@ -723,7 +747,8 @@ exports.post_message_student = function (req, res) {
 
     // let student = ohq.getData(id);
     // let studentEntryData = buildStudentEntryData(student);
-    // sockets.message(studentEntryData, req.user.account);
+    sockets.message(id, req.user.account);
+    emitNewStudentData(id);
     emitNewAllStudents();
 
     res.status(200);
@@ -754,7 +779,8 @@ exports.post_dismiss_message = function (req, res) {
 
     // let student = ohq.getData(id);
     // let studentEntryData = buildStudentEntryData(student);
-    // sockets.dismiss_message(studentEntryData);
+    sockets.dismiss_message(id);
+    emitNewStudentData(id);
     emitNewAllStudents();
 
     res.status(200);
@@ -790,7 +816,8 @@ exports.post_approve_cooldown_override = function (req, res) {
 
     // let student = ohq.getData(id);
     // let studentEntryData = buildStudentEntryData(student);
-    // sockets.approveCooldown(studentEntryData);
+    sockets.approveCooldown(id);
+    emitNewStudentData(id);
     emitNewAllStudents();
 
     res.status(200)

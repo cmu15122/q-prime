@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
 
 import YourEntry from './YourEntry';
 import RemoveQOverlay from './RemoveQConfirm';
@@ -29,7 +29,7 @@ function StudentMain() {
   const [helpingTAInfo, setHelpingTAInfo] = useState(null);
 
   const {queueData} = useContext(QueueDataContext);
-  const {studentData, setStudentData} = useContext(StudentDataContext);
+  const {studentData} = useContext(StudentDataContext);
   const {userData} = useContext(UserDataContext);
 
   useEffect(() => {
@@ -40,89 +40,89 @@ function StudentMain() {
     }
   }, []);
 
-  useEffect(() => {
-    socketSubscribeTo('add', (res) => {
-      if (res.studentData.andrewID === userData.andrewID) {
-        setStudentData({...studentData, ...res.studentData});
-      }
-    });
+  // useEffect(() => {
+  //   socketSubscribeTo('add', (res) => {
+  //     if (res.studentData.andrewID === userData.andrewID) {
+  //       setStudentData({...studentData, ...res.studentData});
+  //     }
+  //   });
 
-    socketSubscribeTo('help', (res) => {
-      if (res.andrewID === userData.andrewID) {
-        setStudentData({...studentData, status: StudentStatusValues.BEING_HELPED});
-        setHelpingTAInfo(res.data.taData);
-        new Notification('It\'s your turn to get help!', {
-          'body': `${res.data.taData.taName} is ready to help you.`,
-          'requireInteraction': true,
-        });
-      }
-    });
+  //   socketSubscribeTo('help', (res) => {
+  //     if (res.andrewID === userData.andrewID) {
+  //       setStudentData({...studentData, status: StudentStatusValues.BEING_HELPED});
+  //       setHelpingTAInfo(res.data.taData);
+  //       new Notification('It\'s your turn to get help!', {
+  //         'body': `${res.data.taData.taName} is ready to help you.`,
+  //         'requireInteraction': true,
+  //       });
+  //     }
+  //   });
 
-    socketSubscribeTo('unhelp', (res) => {
-      if (res.andrewID === userData.andrewID) {
-        setStudentData({...studentData, status: StudentStatusValues.WAITING});
-        setHelpingTAInfo(null);
-      }
-    });
+  //   socketSubscribeTo('unhelp', (res) => {
+  //     if (res.andrewID === userData.andrewID) {
+  //       setStudentData({...studentData, status: StudentStatusValues.WAITING});
+  //       setHelpingTAInfo(null);
+  //     }
+  //   });
 
-    socketSubscribeTo('updateQRequest', (res) => {
-      if (res.andrewID === userData.andrewID) {
-        setStudentData({...studentData, status: StudentStatusValues.FIXING_QUESTION, isFrozen: true});
-        new Notification('Please update your question', {
-          'requireInteraction': true,
-        });
-      }
-    });
+  //   socketSubscribeTo('updateQRequest', (res) => {
+  //     if (res.andrewID === userData.andrewID) {
+  //       setStudentData({...studentData, status: StudentStatusValues.FIXING_QUESTION, isFrozen: true});
+  //       new Notification('Please update your question', {
+  //         'requireInteraction': true,
+  //       });
+  //     }
+  //   });
 
-    socketSubscribeTo('message', (res) => {
-      if (res.andrewID === userData.andrewID) {
-        setStudentData({...studentData, status: StudentStatusValues.RECEIVED_MESSAGE, message: res.data.studentData.message});
-        setHelpingTAInfo(res.data.taData);
+  //   socketSubscribeTo('message', (res) => {
+  //     if (res.andrewID === userData.andrewID) {
+  //       setStudentData({...studentData, status: StudentStatusValues.RECEIVED_MESSAGE, message: res.data.studentData.message});
+  //       setHelpingTAInfo(res.data.taData);
 
-        new Notification('You\'ve been messaged by a TA', {
-          'requireInteraction': true,
-        });
-      }
-    });
+  //       new Notification('You\'ve been messaged by a TA', {
+  //         'requireInteraction': true,
+  //       });
+  //     }
+  //   });
 
-    socketSubscribeTo('remove', (res) => {
-      if (res.andrewID === userData.andrewID) {
-        setStudentData({
-          ...studentData,
-          status: StudentStatusValues.OFF_QUEUE,
-          question: '',
-          topic: {
-            assignment_id: -1,
-            name: '',
-          },
-          location: '',
-        });
+  //   socketSubscribeTo('remove', (res) => {
+  //     if (res.andrewID === userData.andrewID) {
+  //       setStudentData({
+  //         ...studentData,
+  //         status: StudentStatusValues.OFF_QUEUE,
+  //         question: '',
+  //         topic: {
+  //           assignment_id: -1,
+  //           name: '',
+  //         },
+  //         location: '',
+  //       });
 
-        new Notification('You\'ve been removed from the queue', {
-          'requireInteraction': true,
-        });
-      }
-    });
+  //       new Notification('You\'ve been removed from the queue', {
+  //         'requireInteraction': true,
+  //       });
+  //     }
+  //   });
 
-    socketSubscribeTo('approveCooldown', (res) => {
-      if (res.andrewID === userData.andrewID) {
-        setStudentData({...studentData, status: res.data.studentData.status, isFrozen: res.data.studentData.isFrozen});
+  //   socketSubscribeTo('approveCooldown', (res) => {
+  //     if (res.andrewID === userData.andrewID) {
+  //       setStudentData({...studentData, status: res.data.studentData.status, isFrozen: res.data.studentData.isFrozen});
 
-        new Notification('Your entry been approved by a TA', {
-          'requireInteraction': true,
-        });
-      }
-    });
+  //       new Notification('Your entry been approved by a TA', {
+  //         'requireInteraction': true,
+  //       });
+  //     }
+  //   });
 
-    return () => {
-      socketUnsubscribeFrom('add');
-      socketUnsubscribeFrom('help');
-      socketUnsubscribeFrom('unhelp');
-      socketUnsubscribeFrom('message');
-      socketUnsubscribeFrom('remove');
-      socketUnsubscribeFrom('approveCooldown');
-    };
-  }, [userData.andrewID]);
+  //   return () => {
+  //     socketUnsubscribeFrom('add');
+  //     socketUnsubscribeFrom('help');
+  //     socketUnsubscribeFrom('unhelp');
+  //     socketUnsubscribeFrom('message');
+  //     socketUnsubscribeFrom('remove');
+  //     socketUnsubscribeFrom('approveCooldown');
+  //   };
+  // }, [userData.andrewID]);
 
   // useEffect(() => {
   //   // Check if student is on queue
@@ -142,6 +142,58 @@ function StudentMain() {
   //   setStatus(studentData.status);
   // };
 
+  useEffect(() => {
+    socketSubscribeTo('help', (res) => {
+      if (res.andrewID === userData.andrewID) {
+        setHelpingTAInfo(res.data.taData);
+        new Notification('It\'s your turn to get help!', {
+          'body': `${res.data.taData.taName} is ready to help you.`,
+          'requireInteraction': true,
+        });
+      }
+    });
+
+    socketSubscribeTo('unhelp', (res) => {
+      if (res.andrewID === userData.andrewID) {
+        setHelpingTAInfo(null);
+      }
+    });
+
+    socketSubscribeTo('updateQRequest', (res) => {
+      if (res.andrewID === userData.andrewID) {
+        new Notification('Please update your question', {
+          'requireInteraction': true,
+        });
+      }
+    });
+
+    socketSubscribeTo('message', (res) => {
+      if (res.andrewID === userData.andrewID) {
+        setHelpingTAInfo(res.data.taData);
+
+        new Notification('You\'ve been messaged by a TA', {
+          'requireInteraction': true,
+        });
+      }
+    });
+
+    socketSubscribeTo('remove', (res) => {
+      if (res.andrewID === userData.andrewID) {
+        new Notification('You\'ve been removed from the queue', {
+          'requireInteraction': true,
+        });
+      }
+    });
+
+    socketSubscribeTo('approveCooldown', (res) => {
+      if (res.andrewID === userData.andrewID) {
+        new Notification('Your entry been approved by a TA', {
+          'requireInteraction': true,
+        });
+      }
+    });
+  }, [userData.andrewID]);
+
   const removeFromQueue = () => {
     HomeService.removeStudent(
         JSON.stringify({
@@ -150,7 +202,7 @@ function StudentMain() {
     ).then((res) => {
       if (res.status === 200) {
         setRemoveConfirm(false);
-        setStudentData({...studentData, status: StudentStatusValues.OFF_QUEUE});
+        // setStudentData({...studentData, status: StudentStatusValues.OFF_QUEUE});
       }
     });
   };
@@ -162,30 +214,38 @@ function StudentMain() {
         }),
     ).then((res) => {
       if (res.status === 200) {
-        setStudentData({...studentData, status: StudentStatusValues.WAITING});
+        // setStudentData({...studentData, status: StudentStatusValues.WAITING});
       }
     });
   };
 
+  const statusDependentComponents = useMemo(() => {
+    return (
+      <div>
+        {
+          (studentData.status !== StudentStatusValues.OFF_QUEUE) ?
+            <div>
+              <YourEntry
+                openRemoveOverlay={() => setRemoveConfirm(true)}
+              />
+              <RemoveQOverlay
+                open={removeConfirm}
+                removeFromQueue={() => removeFromQueue()}
+                handleClose={() => setRemoveConfirm(false)}
+              />
+            </div> :
+            (queueData.queueFrozen ? null :
+              <AskQuestion
+              />
+            )
+        }
+      </div>
+    );
+  }, [studentData.status, queueData.queueFrozen, removeConfirm]);
+
   return (
     <div>
-      {
-        (studentData.status !== StudentStatusValues.OFF_QUEUE) ?
-          <div>
-            <YourEntry
-              openRemoveOverlay={() => setRemoveConfirm(true)}
-            />
-            <RemoveQOverlay
-              open={removeConfirm}
-              removeFromQueue={() => removeFromQueue()}
-              handleClose={() => setRemoveConfirm(false)}
-            />
-          </div> :
-          (queueData.queueFrozen ? null :
-            <AskQuestion
-            />
-          )
-      }
+      {statusDependentComponents}
 
       <TAHelpingOverlay
         open={studentData.status === StudentStatusValues.BEING_HELPED}
@@ -194,9 +254,7 @@ function StudentMain() {
 
       <UpdateQuestionOverlay
         open={studentData.status === StudentStatusValues.FIXING_QUESTION}
-        handleClose={() => {
-          setStudentData({...studentData, status: StudentStatusValues.WAITING, isFrozen: false});
-        }}
+        handleClose={() => {}}
       />
 
       <MessageRespond
@@ -204,6 +262,7 @@ function StudentMain() {
         helpingTAInfo={helpingTAInfo}
         removeFromQueue={removeFromQueue}
         dismissMessage={dismissMessage}
+        handleClose={() => {}}
       />
     </div>
   );
