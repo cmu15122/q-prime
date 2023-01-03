@@ -249,10 +249,6 @@ function emitNewAllStudents() {
     sockets.allStudents(buildAllStudents());
 }
 
-function emitUpdatedQueueData(updatedPortion) {
-    sockets.queueData(updatedPortion);
-}
-
 exports.post_freeze_queue = function (req, res) {
     if (!req.user || !req.user.isTA) {
         return;
@@ -260,9 +256,6 @@ exports.post_freeze_queue = function (req, res) {
 
     queueFrozen = true;
     emitNewQueueData()
-    // emitUpdatedQueueData({
-    //     queueFrozen: queueFrozen,
-    // })
 }
 
 exports.post_unfreeze_queue = function (req, res) {
@@ -272,9 +265,6 @@ exports.post_unfreeze_queue = function (req, res) {
 
     queueFrozen = false;
     emitNewQueueData()
-    // emitUpdatedQueueData({
-    //     queueFrozen: queueFrozen,
-    // })
 }
 
 /** Announcements */
@@ -308,7 +298,7 @@ exports.post_create_announcement = function (req, res) {
     announcements.push(announcement);
     announcementId++;
 
-    sockets.addAnnouncement(announcement);
+    emitNewQueueData()
     respond(req, res, `Announcement created successfully`, { announcements: announcements }, 200);
 }
 
@@ -336,7 +326,7 @@ exports.post_update_announcement = function (req, res) {
         id: id,
         content: content
     }
-    sockets.updateAnnouncement(id, announcements[index]);
+    emitNewQueueData()
     respond(req, res, `Announcement updated successfully`, { announcements: announcements }, 200);
 }
 
@@ -355,7 +345,7 @@ exports.post_delete_announcement = function (req, res) {
     }
 
     announcements.splice(index, 1);
-    sockets.deleteAnnouncement(id);
+    emitNewQueueData()
     respond(req, res, `Announcement deleted successfully`, { announcements: announcements }, 200);
 }
 

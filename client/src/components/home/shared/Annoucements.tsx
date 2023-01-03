@@ -16,7 +16,6 @@ import BaseCard from '../../common/cards/BaseCard';
 import ItemRow from '../../common/table/ItemRow';
 
 import HomeService from '../../../services/HomeService';
-import {socketSubscribeTo} from '../../../services/SocketsService';
 import {UserDataContext} from '../../../contexts/UserDataContext';
 import {QueueDataContext} from '../../../contexts/QueueDataContext';
 
@@ -30,36 +29,6 @@ export default function Announcements(props) {
 
   const [selectedRow, setSelectedRow] = useState(null);
   const [rows, setRows] = useState([]);
-
-  useEffect(() => {
-    socketSubscribeTo('addAnnouncement', (data) => {
-      const announcement = data.announcement;
-
-      const newAnnouncement = createData(
-          announcement.id,
-          announcement.content,
-      );
-
-      setRows((rows) => [...rows.filter((p) => p.id !== announcement.id), newAnnouncement]);
-    });
-
-    socketSubscribeTo('updateAnnouncement', (data) => {
-      const id = data.updatedId;
-      const announcement = data.announcement;
-
-      const newAnnouncement = createData(
-          announcement.id,
-          announcement.content,
-      );
-
-      setRows((rows) => [...rows.filter((p) => p.id !== id), newAnnouncement]);
-    });
-
-    socketSubscribeTo('deleteAnnouncement', (data) => {
-      const id = data.deletedId;
-      setRows((rows) => [...rows.filter((p) => p.id !== id)]);
-    });
-  }, []);
 
   useEffect(() => {
     if (queueData != null && queueData.announcements != null) {
