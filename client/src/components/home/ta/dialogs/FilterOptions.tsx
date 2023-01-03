@@ -63,15 +63,14 @@ export default function FilterOptions(props) {
     if (queueData != null) {
       const day = date.getDay();
       let newLocations = {};
-      SettingsService.getLocations().then((res) => {
-        const dayDict = res.data.dayDictionary;
-        newLocations = dayDict;
+      const dayDict = queueData.locations.dayDictionary;
+      newLocations = dayDict;
 
-        const roomsForDay = (newLocations && newLocations[day]) ? newLocations[day] : ['Office Hours'];
-        return roomsForDay;
-      });
+      const roomsForDay = (newLocations && newLocations[day]) ? newLocations[day] : ['Office Hours'];
+      console.log(roomsForDay);
+      return roomsForDay;
     } else return [];
-  }, [queueData.topics]);
+  }, [queueData.locations]);
 
   // useEffect(() => {
   //   if (queueData != null) {
@@ -155,7 +154,7 @@ export default function FilterOptions(props) {
 
           return (
             <ListItem
-              key={value.id}
+              key={value.name}
               disablePadding
             >
               <ListItemButton role={undefined} onClick={handleToggle(FilterGroup.Topic, value.name)} dense>
