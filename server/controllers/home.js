@@ -249,6 +249,10 @@ function emitNewAllStudents() {
     sockets.allStudents(buildAllStudents());
 }
 
+function emitUpdatedQueueData(updatedPortion) {
+    sockets.queueData(updatedPortion);
+}
+
 exports.post_freeze_queue = function (req, res) {
     if (!req.user || !req.user.isTA) {
         return;
@@ -256,6 +260,9 @@ exports.post_freeze_queue = function (req, res) {
 
     queueFrozen = true;
     emitNewQueueData()
+    // emitUpdatedQueueData({
+    //     queueFrozen: queueFrozen,
+    // })
 }
 
 exports.post_unfreeze_queue = function (req, res) {
@@ -265,6 +272,9 @@ exports.post_unfreeze_queue = function (req, res) {
 
     queueFrozen = false;
     emitNewQueueData()
+    // emitUpdatedQueueData({
+    //     queueFrozen: queueFrozen,
+    // })
 }
 
 /** Announcements */

@@ -6,11 +6,9 @@ import TAMain from './ta/TAMain';
 import Footer from './Footer';
 import {Container} from '@mui/material';
 
-import {socketSubscribeTo} from '../../services/SocketsService';
-import {QueueDataContext, UserDataContext} from '../../App';
+import {UserDataContext} from '../../contexts/UserDataContext';
 
 function HomeMain() {
-  const {queueData, setQueueData} = useContext(QueueDataContext);
   const {userData} = useContext(UserDataContext);
 
   const gitHubLink = 'https://github.com/cmu15122/q-issues/issues';

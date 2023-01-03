@@ -17,7 +17,8 @@ import ItemRow from '../../common/table/ItemRow';
 
 import HomeService from '../../../services/HomeService';
 import {socketSubscribeTo} from '../../../services/SocketsService';
-import {QueueDataContext, UserDataContext} from '../../../App';
+import {UserDataContext} from '../../../contexts/UserDataContext';
+import {QueueDataContext} from '../../../contexts/QueueDataContext';
 
 function createData(id, content) {
   return {id, content};

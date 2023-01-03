@@ -5,13 +5,12 @@ import MetricsMain from '../components/metrics/MetricsMain';
 
 import MetricsDataService from '../services/MetricsService';
 import {useTheme} from '@mui/material/styles';
-import {QueueDataContext} from '../App';
+import {QueueDataContext} from '../contexts/QueueDataContext';
 
 function Metrics() {
   const theme = useTheme();
 
-  const {queueData, setQueueData} = useContext(QueueDataContext);
-
+  const {queueData} = useContext(QueueDataContext);
   // useEffect(() => {
   //   if (queueData.frontendInitialized === false) {
   //     MetricsDataService.getAll()
@@ -25,10 +24,7 @@ function Metrics() {
   return (
     <div className="Metrics" style={{backgroundColor: theme.palette.background.default}}>
       <Navbar askQuestionOrYourEntry={true}/>
-      {
-        queueData != null &&
-          <MetricsMain/>
-      }
+      <MetricsMain/>
     </div>
   );
 }

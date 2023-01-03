@@ -15,7 +15,7 @@ import EditDeleteRow from '../../common/table/EditDeleteRow';
 
 import SettingsService from '../../../services/SettingsService';
 import download from 'downloadjs';
-import {QueueDataContext} from '../../../App';
+import {QueueDataContext} from '../../../contexts/QueueDataContext';
 
 function createData(userId, name, email, isAdmin) {
   return {userId, name, email, isAdmin};

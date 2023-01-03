@@ -5,12 +5,9 @@ import SettingsMain from '../components/settings/SettingsMain';
 
 import SettingsDataService from '../services/SettingsService';
 import {useTheme} from '@mui/material/styles';
-import {QueueDataContext} from '../App';
 
 function Settings() {
   const theme = useTheme();
-
-  const {queueData, setQueueData} = useContext(QueueDataContext);
 
   // useEffect(() => {
   //   if (queueData.frontendInitialized === false) {
@@ -25,10 +22,7 @@ function Settings() {
   return (
     <div className="Settings" style={{backgroundColor: theme.palette.background.default}}>
       <Navbar/>
-      {
-        queueData != null &&
-          <SettingsMain/>
-      }
+      <SettingsMain/>
     </div>
   );
 }

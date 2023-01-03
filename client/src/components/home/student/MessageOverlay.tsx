@@ -2,7 +2,7 @@ import React, {useContext} from 'react';
 import {
   Button, Dialog, DialogContent, Stack, TextField, Typography,
 } from '@mui/material';
-import {StudentDataContext} from '../../../App';
+import {StudentDataContext} from '../../../contexts/StudentDataContext';
 
 export default function MessageOverlay(props) {
   const {open, handleClose, helpingTAInfo, removeFromQueue, dismissMessage} = props;

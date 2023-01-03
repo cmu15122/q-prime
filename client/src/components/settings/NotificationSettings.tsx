@@ -6,7 +6,7 @@ import {
 import BaseCard from '../common/cards/BaseCard';
 
 import SettingsService from '../../services/SettingsService';
-import {UserDataContext} from '../../App';
+import {UserDataContext} from '../../contexts/UserDataContext';
 
 export default function NotificationSettings(props) {
   const {userData} = useContext(UserDataContext);

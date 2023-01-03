@@ -5,7 +5,7 @@ import {List, ListSubheader, ListItem,
 } from '@mui/material';
 
 import SettingsService from '../../../../services/SettingsService';
-import {QueueDataContext} from '../../../../App';
+import {QueueDataContext} from '../../../../contexts/QueueDataContext';
 
 function createData(assignment_id, name) {
   return {assignment_id, name};
@@ -22,7 +22,6 @@ export default function FilterOptions(props) {
   const {filteredLocations, filteredTopics, setFilteredLocations, setFilteredTopics} = props;
 
   const {queueData} = useContext(QueueDataContext);
-
   // group definition:
   // 0 = locations, 1 = topics
   const handleToggle = (group, value) => () => {

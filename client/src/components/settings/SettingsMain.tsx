@@ -6,7 +6,7 @@ import {
 import AdminMain from './admin/AdminMain';
 import VideoChatSettings from './VideoChatSettings';
 import NotificationSettings from './NotificationSettings';
-import {UserDataContext} from '../../App';
+import {UserDataContext} from '../../contexts/UserDataContext';
 
 function Main(props) {
   const {userData} = useContext(UserDataContext);

@@ -8,12 +8,12 @@ import {Button, Popover} from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 
 import HomeService from '../../../services/HomeService';
-import {socketSubscribeTo, socketUnsubscribeFrom} from '../../../services/SocketsService';
 import {StudentStatusValues} from '../../../services/StudentStatus';
-import {AllStudentsContext, QueueDataContext, UserDataContext} from '../../../App';
+import {UserDataContext} from '../../../contexts/UserDataContext';
+import {QueueDataContext} from '../../../contexts/QueueDataContext';
+import {AllStudentsContext} from '../../../contexts/AllStudentsContext';
 
 export default function StudentEntries(props) {
-  const {queueData} = useContext(QueueDataContext);
   const {userData} = useContext(UserDataContext);
   const {allStudents} = useContext(AllStudentsContext);
 

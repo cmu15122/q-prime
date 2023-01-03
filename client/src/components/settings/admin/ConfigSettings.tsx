@@ -7,7 +7,7 @@ import {
 import BaseCard from '../../common/cards/BaseCard';
 
 import SettingsService from '../../../services/SettingsService';
-import {QueueSettingsContext} from '../../../App';
+import {QueueSettingsContext} from '../../../contexts/QueueSettingsContext';
 
 export default function ConfigSettings(props) {
   const {queueSettings} = useContext(QueueSettingsContext);

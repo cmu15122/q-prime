@@ -4,7 +4,7 @@ import {
 } from '@mui/material';
 
 import HomeService from '../../../services/HomeService';
-import {StudentDataContext} from '../../../App';
+import {StudentDataContext} from '../../../contexts/StudentDataContext';
 
 export default function UpdateQuestionOverlay(props) {
   const {open, handleClose} = props;

@@ -7,11 +7,10 @@ import {
 import BaseCard from '../../common/cards/BaseCard';
 
 import SettingsService from '../../../services/SettingsService';
-import {QueueDataContext} from '../../../App';
+import {QueueDataContext} from '../../../contexts/QueueDataContext';
 
 export default function QueueRejoinSettings(props) {
   const {queueData} = useContext(QueueDataContext);
-
   const onSubmit = (event) => {
     event.preventDefault();
 

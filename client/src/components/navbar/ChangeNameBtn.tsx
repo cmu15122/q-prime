@@ -5,7 +5,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 
 import SettingsService from '../../services/SettingsService';
-import {UserDataContext} from '../../App';
+import {UserDataContext} from '../../contexts/UserDataContext';
 
 export default function ChangeNameBtn(props) {
   const {setpname, pname} = props;

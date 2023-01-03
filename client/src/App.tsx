@@ -21,44 +21,11 @@ import {ToastContainer} from 'material-react-toastify';
 
 import 'material-react-toastify/dist/ReactToastify.css';
 import './App.css';
-import {StudentStatusValues} from './services/StudentStatus';
-import {QueueData} from '../../types/QueueData';
-import {StudentData} from '../../types/StudentData';
-import {QueueSettings} from '../../types/QueueSettings';
-import {UserData} from '../../types/UserData';
-import {socketSubscribeTo} from './services/SocketsService';
-import HomeService from './services/HomeService';
-import SettingsService from './services/SettingsService';
-
-type QueueDataContextContent = {
-  queueData: QueueData
-  setQueueData: React.Dispatch<React.SetStateAction<QueueData>>
-}
-let QueueDataContext: React.Context<QueueDataContextContent>;
-
-type StudentDataContextContent = {
-  studentData: StudentData
-  setStudentData: React.Dispatch<React.SetStateAction<StudentData>>
-}
-let StudentDataContext: React.Context<StudentDataContextContent>;
-
-type QueueSettingsContextContent = {
-  queueSettings: QueueSettings,
-  setQueueSettings: React.Dispatch<React.SetStateAction<QueueSettings>>
-}
-let QueueSettingsContext: React.Context<QueueSettingsContextContent>;
-
-type UserDataContextContent = {
-  userData: UserData,
-  setUserData: React.Dispatch<React.SetStateAction<UserData>>
-}
-let UserDataContext: React.Context<UserDataContextContent>;
-
-type AllStudentsContextContent = {
-  allStudents: StudentData[],
-  setAllStudents: React.Dispatch<React.SetStateAction<StudentData[]>>
-}
-let AllStudentsContext: React.Context<AllStudentsContextContent>;
+import {QueueDataContextProvider} from './contexts/QueueDataContext';
+import {AllStudentsContextProvider} from './contexts/AllStudentsContext';
+import {StudentDataContextProvider} from './contexts/StudentDataContext';
+import {QueueSettingsContextProvider} from './contexts/QueueSettingsContext';
+import {UserDataContextProvider} from './contexts/UserDataContext';
 
 function App() {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
@@ -69,149 +36,16 @@ function App() {
   );
   const ThemeContext = React.createContext(theme);
 
-  const [queueData, setQueueData] = useState<QueueData>({
-    title: '15-122 Office Hours Queue',
-    uninitializedSem: false,
-    queueFrozen: true,
-
-    numStudents: 0,
-    rejoinTime: 15,
-    waitTime: 0,
-    numUnhelped: 0,
-    minsPerStudent: 0,
-    numTAs: 0,
-
-    announcements: [],
-    topics: [],
-    locations: {
-      dayDictionary: {},
-      roomDictionary: {},
-    },
-
-    tas: [],
-  });
-  // this needs to be created at a higher level to prevent unintentional rerenders
-  const queueDataContextObject = {
-    queueData: queueData,
-    setQueueData: setQueueData,
-  };
-  QueueDataContext = createContext<QueueDataContextContent>(queueDataContextObject);
-
-  const [studentData, setStudentData] = useState<StudentData>({
-    name: '',
-    andrewID: '',
-    taID: -1,
-    taAndrewID: '',
-    location: '',
-    topic: {
-      assignment_id: -1,
-      name: '',
-    },
-    question: '',
-    isFrozen: false,
-    message: '',
-    messageBuffer: [],
-    status: StudentStatusValues.OFF_QUEUE,
-    position: -1,
-  });
-  // this needs to be created at a higher level to prevent unintentional rerenders
-  const studentDataContextObject = {
-    studentData: studentData,
-    setStudentData: setStudentData,
-  };
-  StudentDataContext = createContext<StudentDataContextContent>(studentDataContextObject);
-
-  const [queueSettings, setQueueSettings] = useState<QueueSettings>({
-    currSem: '',
-    slackURL: undefined,
-    questionsURL: undefined,
-    rejoinTime: 15,
-  });
-  // this needs to be created at a higher level to prevent unintentional rerenders
-  const queueSettingsContextObject = {
-    queueSettings: queueSettings,
-    setQueueSettings: setQueueSettings,
-  };
-  QueueSettingsContext = createContext<QueueSettingsContextContent>(queueSettingsContextObject);
-
-  const [userData, setUserData] = useState<UserData>({
-    isOwner: false,
-    isAuthenticated: false,
-    isTA: false,
-    isAdmin: false,
-    andrewID: '',
-    preferredName: '',
-  });
-  // this needs to be created at a higher level to prevent unintentional rerenders
-  const userDataContextObject = {
-    userData: userData,
-    setUserData: setUserData,
-  };
-  UserDataContext = createContext<UserDataContextContent>(userDataContextObject);
-
-  const [allStudents, setAllStudents] = useState<StudentData[]>([]);
-  const allStudentsContextObject = {
-    allStudents: allStudents,
-    setAllStudents: setAllStudents,
-  };
-  AllStudentsContext = createContext<AllStudentsContextContent>(allStudentsContextObject);
-
-
-  // get initial data and subscribe to global sockets
-  useEffect(() => {
-    HomeService.getAll().then((res) => {
-      setQueueData(res.data);
-      document.title = res.data.title;
-    });
-
-    HomeService.getUserData().then((res) => {
-      setUserData(res.data.userData);
-    });
-
-    socketSubscribeTo('queueData', (data: QueueData) => {
-      setQueueData(data);
-    });
-  }, []);
-
-  // get queue settings if user is admin
-  useEffect(() => {
-    if (userData.isAdmin) {
-      SettingsService.getQueueSettings().then((res) => {
-        setQueueSettings(res.data);
-      });
-    }
-    // get data for all students
-    if (userData.isTA) {
-      HomeService.getAllStudents().then((res) => {
-        setAllStudents(res.data.allStudents);
-      });
-
-      socketSubscribeTo('allStudents', (data: {allStudents: StudentData[]}) => {
-        setAllStudents(data.allStudents);
-      });
-
-    // get personal data (if authenticated means logged in student)
-    } else if (userData.isAuthenticated) {
-      HomeService.getStudentData().then((res) => {
-        setStudentData(res.data);
-      });
-
-      socketSubscribeTo('studentData', (data: StudentData) => {
-        setStudentData(data);
-      });
-    }
-  }, [userData]);
-
   return (
     <ThemeProvider theme={theme || darkTheme}>
       <LocalizationProvider dateAdapter={AdapterLuxon}>
         <ThemeContext.Provider value={theme}>
           <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
-            <QueueDataContext.Provider value = {queueDataContextObject}>
-              <StudentDataContext.Provider value = {studentDataContextObject}>
-                <QueueSettingsContext.Provider value = {queueSettingsContextObject}>
-                  <UserDataContext.Provider value = {userDataContextObject}>
-                    <AllStudentsContext.Provider value = {allStudentsContextObject}>
+            <UserDataContextProvider>
+              <QueueDataContextProvider>
+                <StudentDataContextProvider>
+                  <QueueSettingsContextProvider>
+                    <AllStudentsContextProvider>
                       <Router>
                         <Routes>
                           <Route path='/' element={<Home theme={theme || darkTheme}/>} />
@@ -230,24 +64,16 @@ function App() {
                         draggable
                         pauseOnHover
                       />
-                    </AllStudentsContext.Provider>
-                  </UserDataContext.Provider>
-                </QueueSettingsContext.Provider>
-              </StudentDataContext.Provider>
-            </QueueDataContext.Provider>
+                    </AllStudentsContextProvider>
+                  </QueueSettingsContextProvider>
+                </StudentDataContextProvider>
+              </QueueDataContextProvider>
+            </UserDataContextProvider>
           </GoogleOAuthProvider>
         </ThemeContext.Provider>
       </LocalizationProvider>
     </ThemeProvider>
   );
 }
-
-export {
-  QueueDataContext,
-  StudentDataContext,
-  QueueSettingsContext,
-  UserDataContext,
-  AllStudentsContext,
-};
 
 export default App;

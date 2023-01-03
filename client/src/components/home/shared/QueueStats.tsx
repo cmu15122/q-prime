@@ -6,13 +6,12 @@ import {
 import BaseCard from '../../common/cards/BaseCard';
 
 import {socketSubscribeTo} from '../../../services/SocketsService';
-import {QueueDataContext} from '../../../App';
+import {QueueDataContext} from '../../../contexts/QueueDataContext';
 
 export default function QueueStats() {
   const theme = useTheme();
 
-  const {queueData, setQueueData} = useContext(QueueDataContext);
-
+  const {queueData} = useContext(QueueDataContext);
   // TODO : change based on whether on queue or not
 
   // useEffect(() => {

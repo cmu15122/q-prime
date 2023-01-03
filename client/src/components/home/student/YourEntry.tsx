@@ -10,7 +10,8 @@ import BaseCard from '../../common/cards/BaseCard';
 
 import * as converter from 'number-to-words';
 
-import {QueueDataContext, StudentDataContext} from '../../../App';
+import {StudentDataContext} from '../../../contexts/StudentDataContext';
+import {QueueDataContext} from '../../../contexts/QueueDataContext';
 
 const CustomDivider = styled(Divider)({
   marginTop: '.5em',

@@ -2,7 +2,7 @@ import React, {useContext} from 'react';
 import {
   Typography, Button, Dialog, DialogContent, Divider,
 } from '@mui/material';
-import {StudentDataContext} from '../../../App';
+import {StudentDataContext} from '../../../contexts/StudentDataContext';
 
 export default function TAHelpingOverlay(props) {
   const {open, helpingTAInfo} = props;

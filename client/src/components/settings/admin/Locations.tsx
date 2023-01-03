@@ -13,11 +13,10 @@ import CollapsedTable from '../../common/table/CollapsedTable';
 
 import SettingsService from '../../../services/SettingsService';
 import ItemRow from '../../common/table/ItemRow';
-import {QueueDataContext} from '../../../App';
+import {QueueDataContext} from '../../../contexts/QueueDataContext';
 
 export default function Locations(props) {
   const {queueData} = useContext(QueueDataContext);
-
   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
   const [roomDictionary, setRoomDictionary] = useState({}); // dict of location: [days]

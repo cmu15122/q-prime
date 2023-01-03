@@ -13,8 +13,9 @@ import GoogleLogin from '../common/GoogleLogin';
 import AlertOnLogout from './dialogs/AlertOnLogout';
 
 import HomeService from '../../services/HomeService';
-import {socketSubscribeTo} from '../../services/SocketsService';
-import {QueueDataContext, StudentDataContext, UserDataContext} from '../../App';
+import {UserDataContext} from '../../contexts/UserDataContext';
+import {QueueDataContext} from '../../contexts/QueueDataContext';
+import {StudentDataContext} from '../../contexts/StudentDataContext';
 
 function createPage(page, link) {
   return {page, link};
@@ -31,7 +32,8 @@ export default function Navbar(props) {
   const {isHome} = props;
   const theme = useTheme();
 
-  const {queueData, setQueueData} = useContext(QueueDataContext);
+  const {queueData} = useContext(QueueDataContext);
+
   const {studentData} = useContext(StudentDataContext);
   const {userData} = useContext(UserDataContext);
 
@@ -101,18 +103,7 @@ export default function Navbar(props) {
   const unfreezeButton = <Button color="secondary" variant="contained" sx={{mx: 2}} onClick={unfreezeQueue}>Unfreeze</Button>;
   const freezeButton = <Button color="secondary" variant="contained" sx={{mx: 2}} onClick={freezeQueue}>Freeze</Button>;
 
-  if (!queueData) {
-    // No queue data received, nothing to render
-    return (
-      <AppBar position="static" style={{background: theme.alternateColors.navbar}} enableColorOnDark>
-        <Toolbar sx={{display: 'flex space-between'}}>
-          <Box sx={{flexGrow: 1, display: 'flex'}}>
-            <OHQueueHeader/>
-          </Box>
-        </Toolbar>
-      </AppBar>
-    );
-  } else if (isMobileView) {
+  if (isMobileView) {
     return (
       <AppBar position="static" style={{background: theme.alternateColors.navbar}} enableColorOnDark>
         <Toolbar sx={{display: 'flex space-between'}}>

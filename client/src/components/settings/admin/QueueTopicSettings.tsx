@@ -17,7 +17,7 @@ import SettingsService from '../../../services/SettingsService';
 
 import {DateTime} from 'luxon';
 import download from 'downloadjs';
-import {QueueDataContext} from '../../../App';
+import {QueueDataContext} from '../../../contexts/QueueDataContext';
 
 function createData(assignment_id, name, category, startDate, endDate) {
   startDate = DateTime.fromISO(startDate);
