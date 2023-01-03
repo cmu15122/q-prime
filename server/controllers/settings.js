@@ -623,7 +623,8 @@ exports.post_create_ta = function (req, res) {
             })
         });
     }).then(function () {
-        get_response(req, res, `TA ${name} created successfully`);
+        home.emit_new_queue_data();
+        // get_response(req, res, `TA ${name} created successfully`);
     }).catch(err => {
         console.log(err);
         message = err.message || "An error occurred while creating topic";
@@ -685,7 +686,8 @@ exports.post_update_ta = function (req, res) {
             name: results.account.name
         })
     }).then(function (results) {
-        get_response(req, res, `TA ${results.name} updated successfully`);
+        home.emit_new_queue_data();
+        // get_response(req, res, `TA ${results.name} updated successfully`);
     }).catch(err => {
         message = err.message || "An error occurred while updating TA";
         respond_error(req, res, message, 500);
@@ -714,7 +716,8 @@ exports.post_delete_ta = function (req, res) {
             is_ta: 0
         });
     }).then(function () {
-        get_response(req, res, `TA deleted successfully`);
+        home.emit_new_queue_data();
+        // get_response(req, res, `TA deleted successfully`);
     }).catch(err => {
         message = err.message || "An error occurred while deleting TA";
         respond_error(req, res, message, 500);
@@ -813,7 +816,8 @@ exports.post_upload_ta_csv = function (req, res) {
             tas: Promise.all(tas)
         });
     }).then(() => {
-        get_response(req, res, `TAs created successfully`);
+        home.emit_new_queue_data();
+        // get_response(req, res, `TAs created successfully`);
     }).catch(err => {
         console.log(err);
         message = err.message || "An error occurred while creating uploaded tas";

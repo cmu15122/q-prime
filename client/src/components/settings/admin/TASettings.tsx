@@ -125,11 +125,8 @@ export default function TASettings(props) {
           email: email,
           isAdmin: isAdmin,
         }),
-    ).then((res) => {
-      // TODO SHOULD SUBSCRIBE TO NEW GLOBAL SOCKET THAT UPDATES QUEUEDATA.TAS
-      // updateTAs(res.data.tas);
-      handleClose();
-    });
+    );
+    handleClose();
   };
 
   const handleEdit = (event) => {
@@ -139,10 +136,8 @@ export default function TASettings(props) {
           user_id: selectedRow.userId,
           isAdmin: isAdmin,
         }),
-    ).then((res) => {
-      // updateTAs(res.data.tas);
-      handleClose();
-    });
+    );
+    handleClose();
   };
 
   const handleDelete = () => {
@@ -150,10 +145,8 @@ export default function TASettings(props) {
         JSON.stringify({
           user_id: selectedRow.userId,
         }),
-    ).then((res) => {
-      // updateTAs(res.data.tas);
-      handleClose();
-    });
+    );
+    handleClose();
   };
 
   const handleUpload = (event) => {
@@ -164,11 +157,8 @@ export default function TASettings(props) {
 
     const formData = new FormData();
     formData.append('file', file);
-    SettingsService.uploadTACSV(formData)
-        .then((res) => {
-          // updateTAs(res.data.tas);
-          handleClose();
-        });
+    SettingsService.uploadTACSV(formData);
+    handleClose();
   };
 
   return (
