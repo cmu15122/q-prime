@@ -383,7 +383,8 @@ exports.post_create_topic = function (req, res) {
             end_date: end_date
         })
     }).then(function () {
-        get_response(req, res, `Assignment ${name} created successfully`);
+        home.emit_new_queue_data();
+        // get_response(req, res, `Assignment ${name} created successfully`);
     }).catch(err => {
         message = err.message || "An error occurred while creating topic";
         respond_error(req, res, message, 500);
@@ -444,7 +445,8 @@ exports.post_update_topic = function (req, res) {
             }()
         })
     }).then(function () {
-        get_response(req, res, `Assignment ${name} updated successfully`);
+        home.emit_new_queue_data();
+        // get_response(req, res, `Assignment ${name} updated successfully`);
     }).catch(err => {
         message = err.message || "An error occurred while updating topic";
         respond_error(req, res, message, 500);
@@ -469,7 +471,8 @@ exports.post_delete_topic = function (req, res) {
             assignment_id: assignment_id
         }
     }).then(function () {
-        get_response(req, res, `Assignment deleted successfully`);
+        home.emit_new_queue_data();
+        // get_response(req, res, `Assignment deleted successfully`);
     }).catch(err => {
         message = err.message || "An error occurred while deleting topic";
         respond_error(req, res, message, 500);
@@ -561,7 +564,8 @@ exports.post_upload_topic_csv = function (req, res) {
             assignments: Promise.all(assignments)
         });
     }).then(() => {
-        get_response(req, res, `Assignments created successfully`);
+        home.emit_new_queue_data();
+        // get_response(req, res, `Assignments created successfully`);
     }).catch(err => {
         console.log(err);
         message = err.message || "An error occurred while creating uploaded topics";

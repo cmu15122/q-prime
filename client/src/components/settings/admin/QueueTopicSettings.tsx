@@ -1,3 +1,7 @@
+// TODO Issues with editing topics, fairly certain not a result of my changes
+// Editing will cause a lot of MUI errors in console and can sometimes just delete the topics?
+// Issue persists after page refresh
+
 import React, {useState, useEffect, useContext, useMemo} from 'react';
 import {
   Button, TableCell, TableRow, Typography, useTheme,
@@ -142,11 +146,9 @@ export default function QueueTopicSettings(props) {
           start_date: startDate.toString(),
           end_date: endDate.toString(),
         }),
-    ).then((res) => {
-      // TODO SHOULD SUBSCRIBE TO NEW GLOBAL SOCKET THAT UPDATES QUEUEDATA.TAS
-      // updateTopics(res.data.topics);
-      handleClose();
-    });
+    );
+
+    handleClose();
   };
 
   const handleEdit = (event) => {
@@ -159,10 +161,9 @@ export default function QueueTopicSettings(props) {
           start_date: startDate.toString(),
           end_date: endDate.toString(),
         }),
-    ).then((res) => {
-      // updateTopics(res.data.topics);
-      handleClose();
-    });
+    );
+
+    handleClose();
   };
 
   const handleDelete = () => {
@@ -170,10 +171,9 @@ export default function QueueTopicSettings(props) {
         JSON.stringify({
           assignment_id: selectedRow?.assignment_id,
         }),
-    ).then((res) => {
-      // updateTopics(res.data.topics);
-      handleClose();
-    });
+    );
+
+    handleClose();
   };
 
   const handleUpload = (event) => {
@@ -184,11 +184,9 @@ export default function QueueTopicSettings(props) {
 
     const formData = new FormData();
     formData.append('file', file);
-    SettingsService.uploadTopicCSV(formData)
-        .then((res) => {
-          // updateTopics(res.data.topics);
-          handleClose();
-        });
+    SettingsService.uploadTopicCSV(formData);
+
+    handleClose();
   };
 
   return (
