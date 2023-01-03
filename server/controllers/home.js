@@ -133,6 +133,7 @@ function emitNewQueueData() {
         sockets.queueData(data);
     });
 }
+exports.emit_new_queue_data = emitNewQueueData;
 
 exports.get = function (req, res) {
     res.status(200);

@@ -19,20 +19,26 @@ export default function Locations(props) {
   const {queueData} = useContext(QueueDataContext);
   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-  const [roomDictionary, setRoomDictionary] = useState({}); // dict of location: [days]
+  // const [roomDictionary, setRoomDictionary] = useState({}); // dict of location: [days]
   // const [dayDictionary, setDayDictionary] = useState({});
   const dayDictionary = useMemo(() => {
     if (queueData != null) {
-      return queueData.locations;
+      return queueData.locations.dayDictionary;
+    } else return {};
+  }, [queueData.locations]);
+  const roomDictionary = useMemo(() => {
+    if (queueData != null) {
+      return queueData.locations.roomDictionary;
     } else return {};
   }, [queueData.locations]);
 
-  useEffect(() => {
-    SettingsService.getLocations()
-        .then((res) => {
-          updateRoomDictionary(res.data.roomDictionary);
-        });
-  }, []);
+
+  // useEffect(() => {
+  //   SettingsService.getLocations()
+  //       .then((res) => {
+  //         updateRoomDictionary(res.data.roomDictionary);
+  //       });
+  // }, []);
 
   // useEffect(() => {
   //   if (queueData != null) {
@@ -40,10 +46,10 @@ export default function Locations(props) {
   //   }
   // }, [queueData.locations]);
 
-  const updateRoomDictionary = (newRoomDict) => {
-    if (!newRoomDict) return;
-    setRoomDictionary(newRoomDict);
-  };
+  // const updateRoomDictionary = (newRoomDict) => {
+  //   if (!newRoomDict) return;
+  //   setRoomDictionary(newRoomDict);
+  // };
 
   const convertIdxToDays = (idxArr) => {
     return idxArr.map((idx) => daysOfWeek[idx]);
@@ -68,10 +74,9 @@ export default function Locations(props) {
         JSON.stringify({
           room: room,
         }),
-    ).then((res) => {
-      handleClose();
-      setRoomDictionary(res.data.roomDictionary);
-    });
+    );
+
+    handleClose();
   };
 
   return (
@@ -80,7 +85,7 @@ export default function Locations(props) {
         title="Location Settings"
       >
         {
-          Object.keys(roomDictionary).map((room, index) => (
+          Object.keys(roomDictionary).sort().map((room, index) => (
             <ItemRow
               key={index}
               index={index}
@@ -98,7 +103,6 @@ export default function Locations(props) {
                   days={roomDictionary[room]}
                   daysOfWeek={daysOfWeek}
                   roomDictionary={roomDictionary}
-                  setRoomDictionary={setRoomDictionary}
                   dayDictionary={dayDictionary}
                 />
               </TableCell>

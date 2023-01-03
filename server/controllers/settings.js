@@ -6,6 +6,7 @@ const csvtojson = require("csvtojson");
 const models = require('../models');
 const sockets = require('./sockets')
 const slack = require('./slack');
+const home = require('./home');
 
 // Global admin settings
 // FIXME: some default values are set to simplify testing;
@@ -864,13 +865,11 @@ exports.add_location = function (req, res) {
         dayDictionary["-1"] = [room]
     }
 
-    var roomDictionary = dayToRoomDictionary(dayDictionary)
-
-    respond(req, res, `Location added successfully`, { dayDictionary: dayDictionary, roomDictionary: roomDictionary }, 200);
+    home.emit_new_queue_data();
+    // respond(req, res, `Location added successfully`, { dayDictionary: dayDictionary, roomDictionary: roomDictionary }, 200);
 }
 
 exports.post_update_locations = function (req, res) {
-    console.log(req.user)
     if (!req.user || !req.user.isAdmin) {
         message = "You don't have permissions to perform this operation";
         respond_error(req, res, message, 403);
@@ -910,16 +909,15 @@ exports.post_update_locations = function (req, res) {
     }
     dayDictionary = newDayDictionary
 
-    var roomDictionary = dayToRoomDictionary(dayDictionary)
-    console.log(roomDictionary)
-    respond(req, res, `Location changed successfully`, { dayDictionary: dayDictionary, roomDictionary: roomDictionary }, 200);
+    home.emit_new_queue_data();
+    // respond(req, res, `Location changed successfully`, { dayDictionary: dayDictionary, roomDictionary: roomDictionary }, 200);
 }
 
-exports.get_locations = function (req, res) {
-    var roomDictionary = dayToRoomDictionary(dayDictionary)
-    respond(req, res, null, { dayDictionary: dayDictionary, roomDictionary: roomDictionary }, 200);
-    return dayDictionary
-}
+// exports.get_locations = function (req, res) {
+//     var roomDictionary = dayToRoomDictionary(dayDictionary)
+//     respond(req, res, null, { dayDictionary: dayDictionary, roomDictionary: roomDictionary }, 200);
+//     return dayDictionary
+// }
 
 exports.internal_get_locations = function () {
     return {
@@ -964,7 +962,6 @@ exports.remove_location = function (req, res) {
     }
     dayDictionary["-1"] = emptyRoomArr
 
-    var roomDictionary = dayToRoomDictionary(dayDictionary)
-
-    respond(req, res, null, { dayDictionary: dayDictionary, roomDictionary: roomDictionary }, 200);
+    home.emit_new_queue_data();
+    // respond(req, res, null, { dayDictionary: dayDictionary, roomDictionary: roomDictionary }, 200);
 }

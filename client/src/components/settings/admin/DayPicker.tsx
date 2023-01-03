@@ -20,7 +20,6 @@ export default function DayPicker(props) {
 
     const newRoomDictionary = roomDictionary;
     newRoomDictionary[room] = convertDaysToIdx(newArr);
-    setRoomDictionary(newRoomDictionary);
 
     SettingsService.updateLocations(
         JSON.stringify({
@@ -37,9 +36,7 @@ export default function DayPicker(props) {
           room: room,
           days: roomDictionary[room],
         }),
-    ).then((res) => {
-      setRoomDictionary(res.data.roomDictionary);
-    });
+    );
   };
 
   return (

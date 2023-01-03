@@ -67,7 +67,6 @@ export default function FilterOptions(props) {
       newLocations = dayDict;
 
       const roomsForDay = (newLocations && newLocations[day]) ? newLocations[day] : ['Office Hours'];
-      console.log(roomsForDay);
       return roomsForDay;
     } else return [];
   }, [queueData.locations]);
