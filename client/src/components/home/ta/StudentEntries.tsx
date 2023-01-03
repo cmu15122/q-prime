@@ -10,7 +10,6 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import HomeService from '../../../services/HomeService';
 import {StudentStatusValues} from '../../../services/StudentStatus';
 import {UserDataContext} from '../../../contexts/UserDataContext';
-import {QueueDataContext} from '../../../contexts/QueueDataContext';
 import {AllStudentsContext} from '../../../contexts/AllStudentsContext';
 
 export default function StudentEntries(props) {

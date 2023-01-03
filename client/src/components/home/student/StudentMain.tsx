@@ -9,7 +9,7 @@ import AskQuestion from '../shared/AskQuestion';
 
 import HomeService from '../../../services/HomeService';
 import {StudentStatusValues} from '../../../services/StudentStatus';
-import {socketSubscribeTo, socketUnsubscribeFrom} from '../../../services/SocketsService';
+import {socketSubscribeTo} from '../../../services/SocketsService';
 import {UserDataContext} from '../../../contexts/UserDataContext';
 import {QueueDataContext} from '../../../contexts/QueueDataContext';
 import {StudentDataContext} from '../../../contexts/StudentDataContext';
