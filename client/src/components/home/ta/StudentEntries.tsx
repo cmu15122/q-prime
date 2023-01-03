@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useEffect, useContext, useMemo} from 'react';
 
 import BaseTable from '../../common/table/BaseTable';
 import StudentEntry from './StudentEntry';
@@ -21,10 +21,10 @@ export default function StudentEntries(props) {
   const [isHelping, setIsHelping] = useState(false);
   const [helpIdx, setHelpIdx] = useState(-1); // idx of student that you are helping, only valid when isHelping is true
 
-  const [filteredLocations, setFilteredLocations] = React.useState([]);
-  const [filteredTopics, setFilteredTopics] = React.useState([]);
+  const [filteredLocations, setFilteredLocations] = useState([]);
+  const [filteredTopics, setFilteredTopics] = useState([]);
 
-  const filteredStudents = React.useMemo(() => {
+  const filteredStudents = useMemo(() => {
     let newFiltered = allStudents;
     if (filteredLocations.length > 0) {
       newFiltered = newFiltered.filter((student) => filteredLocations.includes(student.location));
@@ -40,7 +40,7 @@ export default function StudentEntries(props) {
       setAnchorEl(event.currentTarget);
     };
 
-    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [anchorEl, setAnchorEl] = useState(null);
     const handleFilterClose = () => {
       setAnchorEl(null);
     };

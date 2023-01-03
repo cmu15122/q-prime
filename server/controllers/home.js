@@ -492,7 +492,8 @@ exports.post_remove_student = function (req, res) {
         return;
     }
 
-    sockets.remove(id, returnedData);
+    emitNewAllStudents();
+    // sockets.remove(id, returnedData);
 
     // TODO, FIXME: Don't write TA added questions to the database or TA manually removed questions
     models.account.findOrCreate({
@@ -572,12 +573,13 @@ exports.post_help_student = function (req, res) {
     }
 
     ohq.help(id, req.user.ta.ta_id, req.user.andrewID, moment.tz(new Date(), "America/New_York").toDate());
-    let student = ohq.getData(id);
-    let studentEntryData = buildStudentEntryData(student);
-    let taData = req.user.account
-    // add a field to studentEntryData to keep track of the TA's preferred name
-    studentEntryData["taPrefName"] = taData.preferred_name
-    sockets.help(studentEntryData, req.user.account);
+    // let student = ohq.getData(id);
+    // let studentEntryData = buildStudentEntryData(student);
+    // let taData = req.user.account
+    // // add a field to studentEntryData to keep track of the TA's preferred name
+    // studentEntryData["taPrefName"] = taData.preferred_name
+    // sockets.help(studentEntryData, req.user.account);
+    emitNewAllStudents();
 
     res.status(200)
     res.json({ message: 'The student was helped' })
@@ -609,10 +611,11 @@ exports.post_unhelp_student = function (req, res) {
     }
 
     ohq.unhelp(id);
-    let student = ohq.getData(id);
-    let studentEntryData = buildStudentEntryData(student);
+    // let student = ohq.getData(id);
+    // let studentEntryData = buildStudentEntryData(student);
 
-    sockets.unhelp(studentEntryData, req.user.andrewID);
+    // sockets.unhelp(studentEntryData, req.user.andrewID);
+    emitNewAllStudents();
 
     res.status(200);
     res.json({ message: 'The student was unhelped' });
@@ -648,8 +651,9 @@ exports.post_update_question = function (req, res) {
     studentData.question = newQuestion;
     ohq.unsetFixQuestion(id);
 
-    let studentEntryData = buildStudentEntryData(studentData);
-    sockets.updateQuestion(studentEntryData);
+    // let studentEntryData = buildStudentEntryData(studentData);
+    // sockets.updateQuestion(studentEntryData);
+    emitNewAllStudents();
 
     respond(req, res, 'Question updated successfully', studentData, 200);
 }
@@ -681,9 +685,10 @@ exports.post_taRequestUpdateQ = function (req, res) {
 
     ohq.setFixQuestion(id);
 
-    let studentData = ohq.getData(id);
-    let studentEntryData = buildStudentEntryData(studentData);
-    sockets.updateQRequest(studentEntryData);
+    // let studentData = ohq.getData(id);
+    // let studentEntryData = buildStudentEntryData(studentData);
+    // sockets.updateQRequest(studentEntryData);
+    emitNewAllStudents();
 
     respond(req, res, 'Update question request sent successfully', req.body, 200);
 }
@@ -715,9 +720,10 @@ exports.post_message_student = function (req, res) {
 
     ohq.receiveMessage(id, req.user.ta.ta_id, req.user.andrewID, message);
 
-    let student = ohq.getData(id);
-    let studentEntryData = buildStudentEntryData(student);
-    sockets.message(studentEntryData, req.user.account);
+    // let student = ohq.getData(id);
+    // let studentEntryData = buildStudentEntryData(student);
+    // sockets.message(studentEntryData, req.user.account);
+    emitNewAllStudents();
 
     res.status(200);
     res.json({ message: 'The student was messaged' });
@@ -745,9 +751,10 @@ exports.post_dismiss_message = function (req, res) {
 
     ohq.dismissMessage(id);
 
-    let student = ohq.getData(id);
-    let studentEntryData = buildStudentEntryData(student);
-    sockets.dismiss_message(studentEntryData);
+    // let student = ohq.getData(id);
+    // let studentEntryData = buildStudentEntryData(student);
+    // sockets.dismiss_message(studentEntryData);
+    emitNewAllStudents();
 
     res.status(200);
     res.json({ message: 'Message dismissed' });
@@ -780,22 +787,11 @@ exports.post_approve_cooldown_override = function (req, res) {
 
     ohq.unsetCooldownViolation(id);
 
-    let student = ohq.getData(id);
-    let studentEntryData = buildStudentEntryData(student);
-    sockets.approveCooldown(studentEntryData);
+    // let student = ohq.getData(id);
+    // let studentEntryData = buildStudentEntryData(student);
+    // sockets.approveCooldown(studentEntryData);
+    emitNewAllStudents();
 
     res.status(200)
     res.json({ message: "approved cooldown violation" })
-}
-
-exports.get_display_students = async function (req, res) {
-    // assuming that students at front of queue go first
-    var allStudents = ohq.getAllStudentData();
-    allStudents = allStudents.map((student) => {
-        let studentEntryData = buildStudentEntryData(student);
-        return studentEntryData;
-    })
-
-    res.status(200);
-    res.send(allStudents);
 }
