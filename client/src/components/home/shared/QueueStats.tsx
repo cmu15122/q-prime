@@ -12,7 +12,6 @@ export default function QueueStats() {
   const theme = useTheme();
 
   const {queueData} = useContext(QueueDataContext);
-  // TODO : change based on whether on queue or not
 
   // useEffect(() => {
   //   socketSubscribeTo('waittimes', (data) => {

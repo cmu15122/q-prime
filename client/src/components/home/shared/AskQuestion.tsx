@@ -207,7 +207,6 @@ export default function AskQuestion() {
                     onChange={(e)=>setTopic(e.target.value)}
                     style={{textAlign: 'left'}}
                   >
-                    {/* // TODO COME BACK FIGURE OUT WHY KEYS AREN'T UNIQUE */}
                     {topics.map((top) => <MenuItem value={top} key={top.assignment_id}>{top.name}</MenuItem>)}
                   </Select>
                 </FormControl>
@@ -232,7 +231,6 @@ export default function AskQuestion() {
         </CardContent>
       </BaseCard>
 
-      {/* TODO: Come back and fix this overlay by removing props, also figure out why everything broken lolol */}
       <CooldownViolationOverlay
         open={showCooldownOverlay}
         setOpen={setShowCooldownOverlay}

@@ -1,7 +1,3 @@
-// TODO: Bug where setting preferred name as student causes crash and reload
-// TODO: Standardize queueData.locations
-// TODO: Where does TAHelping overlay get data from??
-
 import React, {createContext, useContext, useEffect, useState} from 'react';
 import {BrowserRouter as Router, Routes, Route}
   from 'react-router-dom';
