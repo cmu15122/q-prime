@@ -5,7 +5,7 @@ export type UserData = {
     isTA: boolean,
     isAdmin: boolean,
     andrewID: string,
-    preferred_name: string,
+    preferredName: string,
 
     taSettings?: {
         // user specific settings

@@ -99,7 +99,8 @@ app.use(function(req, res, next) {
             isAuthenticated: true,
             isTA: isTA,
             isAdmin: isAdmin,
-            andrewID: andrewID
+            andrewID: andrewID,
+            isOwner: false
         };
         next();
     });

@@ -44,7 +44,7 @@ export default function Navbar(props) {
   const [anchorElNav, setAnchorElNav] = useState(null);
 
   const [alertOpen, setAlertOpen] = useState(false);
-  const [pname, setpname] = useState(userData.preferred_name);
+  const [pname, setpname] = useState(userData.preferredName);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -58,12 +58,6 @@ export default function Navbar(props) {
     window.location.href = pageLink;
   };
 
-  // useEffect(() => {
-  //   socketSubscribeTo('queueFrozen', (data) => {
-  //     setQueueData({...queueData, queueFrozen: data.isFrozen});
-  //   });
-  // }, []);
-
   useEffect(() => {
     const newPages = [];
 
@@ -73,7 +67,11 @@ export default function Navbar(props) {
     }
 
     setPages(newPages);
-  }, [userData.isAuthenticated, userData.isTA, userData.isAdmin]);
+  }, [userData.isAuthenticated, userData.isTA]);
+
+  useEffect(() => {
+    setpname(userData.preferredName);
+  }, [userData.preferredName, setpname]);
 
   function handleLogout() {
     removeCookie('user');

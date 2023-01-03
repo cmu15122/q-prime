@@ -14,10 +14,6 @@ export default function ChangeNameBtn(props) {
   const [tmpPrefName, setTmpPrefName] = useState(pname);
   const [open, setOpen] = useState(false);
 
-  useEffect(() => {
-    setpname(userData.preferred_name);
-  }, [userData.preferred_name, setpname]);
-
   const handleClickOpen = () => {
     setOpen(true);
   };

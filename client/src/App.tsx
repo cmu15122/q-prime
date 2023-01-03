@@ -132,7 +132,7 @@ function App() {
     isTA: false,
     isAdmin: false,
     andrewID: '',
-    preferred_name: '',
+    preferredName: '',
   });
   // this needs to be created at a higher level to prevent unintentional rerenders
   const userDataContextObject = {

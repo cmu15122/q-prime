@@ -141,7 +141,7 @@ exports.get_user_data = function (req, res) {
             isTA: req.user.isTA,
             isAdmin: req.user.isAdmin,
             andrewID: req.user.andrewID,
-            preferredName: req.user.account ? req.user.account.preferredName : '',
+            preferredName: req.user.account ? req.user.account.dataValues.preferred_name : '',
         }
     }
 
@@ -149,11 +149,11 @@ exports.get_user_data = function (req, res) {
         data.userData = {
             ...data.userData,
             taSettings: {
-                videoChatEnabled: req.user.account.settings.videoChatEnabled,
-                videoChatURL: req.user.account.settings.videoChatURL,
-                joinNotifsEnabled: req.user.account.settings.joinNotifsEnabled,
-                remindNotifsEnabled: req.user.account.settings.remindNotifsEnabled,
-                remindTime: req.user.account.settings.remindTime,
+                videoChatEnabled: req.user.account.dataValues.settings.videoChatEnabled,
+                videoChatURL: req.user.account.dataValues.settings.videoChatURL,
+                joinNotifsEnabled: req.user.account.dataValues.settings.joinNotifsEnabled,
+                remindNotifsEnabled: req.user.account.dataValues.settings.remindNotifsEnabled,
+                remindTime: req.user.account.dataValues.settings.remindTime,
             }
         }
     }

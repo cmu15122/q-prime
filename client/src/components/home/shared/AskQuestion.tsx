@@ -73,10 +73,10 @@ export default function AskQuestion() {
 
   useEffect(() => {
     if (!userData.isTA) {
-      setName(userData.preferred_name);
+      setName(userData.preferredName);
       setAndrewID(userData.andrewID);
     }
-  }, [userData.isTA, userData.preferred_name, userData.andrewID]);
+  }, [userData.isTA, userData.preferredName, userData.andrewID]);
 
   // function updateTopics(newTopics) {
   //   const newRows = [];
