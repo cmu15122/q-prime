@@ -5,19 +5,12 @@ import {
 
 import BaseCard from '../../common/cards/BaseCard';
 
-import {socketSubscribeTo} from '../../../services/SocketsService';
 import {QueueDataContext} from '../../../contexts/QueueDataContext';
 
 export default function QueueStats() {
   const theme = useTheme();
 
   const {queueData} = useContext(QueueDataContext);
-
-  // useEffect(() => {
-  //   socketSubscribeTo('waittimes', (data) => {
-  //     setQueueData({...queueData, numUnhelped: data.numUnhelped, minsPerStudent: data.minsPerStudent, numTAs: data.numTAs, numStudents: data.numStudents});
-  //   });
-  // }, []);
 
   return (
     <BaseCard>
@@ -40,7 +33,7 @@ export default function QueueStats() {
           </div>
           <div>
             <Typography variant='body1' sx={{mt: 2}}>There are <strong>{queueData.numStudents} students</strong> on the queue.</Typography>
-            <Typography variant='body1' sx={{mt: 1.5, mb: 2}}>The estimated wait time is <strong>{Math.floor(queueData.numUnhelped * queueData.minsPerStudent / queueData.numTAs)} minutes</strong> from the end of the queue.</Typography>
+            <Typography variant='body1' sx={{mt: 1.5, mb: 2}}>The estimated wait time is <strong>{queueData.numTAs === 0 ? 0 : Math.floor(queueData.numUnhelped * queueData.minsPerStudent / queueData.numTAs)} minutes</strong> from the end of the queue.</Typography>
           </div>
         </Stack>
       </CardContent>

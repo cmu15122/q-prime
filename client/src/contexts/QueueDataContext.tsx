@@ -16,7 +16,6 @@ const QueueDataContextProvider = ({children}: {children: React.ReactNode}) => {
 
     numStudents: 0,
     rejoinTime: 15,
-    waitTime: 0,
     numUnhelped: 0,
     minsPerStudent: 0,
     numTAs: 0,

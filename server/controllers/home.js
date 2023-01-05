@@ -16,6 +16,10 @@ let queueFrozen = false;
 
 const ohq = new queue.OHQueue();
 
+exports.getOHQ = function () {
+    return ohq;
+};
+
 /** Helper Functions **/
 function respond_error(req, res, message, status) {
     res.status(status);
@@ -52,6 +56,7 @@ function buildStudentEntryData(student) {
 
 function buildQueueData() {
     let adminSettings = settings.get_admin_settings();
+
     let data = {
         // most important global data
         title: "15-122 Office Hours Queue",
@@ -61,10 +66,6 @@ function buildQueueData() {
         // global stats
         numStudents: ohq.size(),
         rejoinTime: adminSettings.rejoinTime,
-        waitTime: 0,
-        numUnhelped: 5, // TODO Add waittimes functionality here
-        minsPerStudent: 5,
-        numTAs: 5,
 
         announcements: announcements,
 
@@ -120,6 +121,13 @@ function buildQueueData() {
         }
 
         data.tas = tas;
+
+        return waittime.wait_time_data();
+    }).then((waitTimeData) => {
+        data.numUnhelped = waitTimeData.numUnhelped;
+        data.minsPerStudent = waitTimeData.minsPerStudent;
+        data.numTAs = waitTimeData.numTAs;
+
         return data;
     });
 }
@@ -448,6 +456,7 @@ exports.post_add_question = function (req, res) {
 
             respond(req, res, `Successfully added to queue`, data, 200);
 
+            emitNewQueueData();
             emitNewStudentData(id);
             emitNewAllStudents();
         }
@@ -479,6 +488,8 @@ exports.post_remove_student = function (req, res) {
     }
 
     sockets.remove(id);
+
+    emitNewQueueData();
     emitNewStudentData(id);
     emitNewAllStudents();
 
@@ -554,6 +565,8 @@ exports.post_help_student = function (req, res) {
 
     ohq.help(id, req.user.ta.ta_id, req.user.andrewID, moment.tz(new Date(), "America/New_York").toDate());
     sockets.help(id, req.user.account);
+
+    emitNewQueueData();
     emitNewStudentData(id);
     emitNewAllStudents();
 
@@ -582,6 +595,8 @@ exports.post_unhelp_student = function (req, res) {
 
     ohq.unhelp(id);
     sockets.unhelp(id, req.user.andrewID);
+
+    emitNewQueueData();
     emitNewStudentData(id);
     emitNewAllStudents();
 

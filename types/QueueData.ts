@@ -7,7 +7,6 @@ export type QueueData = {
   // global stats
   numStudents: number
   rejoinTime: number,
-  waitTime: number,
   numUnhelped: number,
   minsPerStudent: number,
   numTAs: number,

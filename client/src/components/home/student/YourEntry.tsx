@@ -33,7 +33,7 @@ export default function YourEntry(props) {
             <DeleteIcon />
           </IconButton>
         </Stack>
-        <Typography variant='h6'>The estimated time until you are helped is <strong>{Math.floor(queueData.minsPerStudent / queueData.numTAs * studentData.position)} minutes</strong></Typography>
+        <Typography variant='h6'>The estimated time until you are helped is <strong>{queueData.numTAs * studentData.position === 0 ? 0 : Math.floor(queueData.minsPerStudent / queueData.numTAs * studentData.position)} minutes</strong></Typography>
         {
           studentData.isFrozen &&
             <div>
