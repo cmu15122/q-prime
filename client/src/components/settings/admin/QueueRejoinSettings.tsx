@@ -14,7 +14,6 @@ export default function QueueRejoinSettings(props) {
   const onSubmit = (event) => {
     event.preventDefault();
 
-    // TODO Need to make sure that server sends out new queue data after updateRejoinTime is called
     SettingsService.updateRejoinTime(
         JSON.stringify({
           rejoinTime: rejoinTimeInput,
@@ -43,7 +42,6 @@ export default function QueueRejoinSettings(props) {
                 defaultValue={queueData.rejoinTime ? queueData.rejoinTime : 10}
                 onChange={(e) => {
                   rejoinTimeInput = parseInt(e.target.value, 10);
-                  // setQueueData({...queueData, rejoinTime: parseInt(e.target.value, 10)});
                 }}
                 inputProps={{min: 0, style: {textAlign: 'center'}}}
               />

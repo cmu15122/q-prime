@@ -237,6 +237,7 @@ exports.post_update_rejoin_time = function (req, res) {
     if (adminSettings.rejoinTime == rejoinTime) return;
 
     adminSettings.rejoinTime = rejoinTime;
+    home.emit_new_queue_data();
     respond_success(req, res, `Rejoin time updated successfully to ${rejoinTime} minutes`);
 }
 
