@@ -2,7 +2,7 @@
 // Editing will cause a lot of MUI errors in console and can sometimes just delete the topics?
 // Issue persists after page refresh
 
-import React, {useState, useEffect, useContext, useMemo} from 'react';
+import React, {useState, useContext, useMemo} from 'react';
 import {
   Button, TableCell, TableRow, Typography, useTheme,
 } from '@mui/material';
@@ -35,7 +35,6 @@ export default function QueueTopicSettings(props) {
 
   const [selectedRow, setSelectedRow] = useState(null);
 
-  // const [rows, setRows] = useState([]);
   const rows = useMemo(() => {
     if (queueData != null) {
       const newRows = [];
@@ -51,26 +50,6 @@ export default function QueueTopicSettings(props) {
       return newRows;
     } else return [];
   }, [queueData.topics]);
-
-  // useEffect(() => {
-  //   if (queueData != null) {
-  //     updateTopics(queueData.topics);
-  //   }
-  // }, [queueData.topics]);
-
-  // const updateTopics = (newTopics) => {
-  //   const newRows = [];
-  //   newTopics.forEach((topic) => {
-  //     newRows.push(createData(
-  //         topic.assignment_id,
-  //         topic.name,
-  //         topic.category,
-  //         topic.start_date,
-  //         topic.end_date,
-  //     ));
-  //   });
-  //   setRows(newRows);
-  // };
 
   const handleDownload = () => {
     SettingsService.downloadTopicCSV()

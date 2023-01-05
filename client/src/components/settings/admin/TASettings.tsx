@@ -27,7 +27,6 @@ export default function TASettings(props) {
 
   const [selectedRow, setSelectedRow] = useState(null);
 
-  // const [rows, setRows] = useState([]);
   const rows = useMemo(() => {
     if (queueData != null) {
       const newRows = [];
@@ -42,25 +41,6 @@ export default function TASettings(props) {
       return newRows;
     } else return [];
   }, [queueData.tas]);
-
-  // useEffect(() => {
-  //   if (queueData != null) {
-  //     updateTAs(queueData.tas);
-  //   }
-  // }, [queueData.tas]);
-
-  // const updateTAs = (newTAs) => {
-  //   const newRows = [];
-  //   newTAs.forEach((ta) => {
-  //     newRows.push(createData(
-  //         ta.ta_id,
-  //         ta.preferred_name,
-  //         ta.email,
-  //         ta.isAdmin,
-  //     ));
-  //   });
-  //   setRows(newRows);
-  // };
 
   const handleDownload = () => {
     SettingsService.downloadTACSV()

@@ -15,17 +15,7 @@ import {QueueDataContext} from '../../../contexts/QueueDataContext';
 import {StudentDataContext} from '../../../contexts/StudentDataContext';
 
 function StudentMain() {
-  // const [questionValue, setQuestionValue] = useState('');
-  // const [locationValue, setLocationValue] = useState('');
-  // const [topicValue, setTopicValue] = useState('');
-  // const [messageValue, setMessageValue] = useState('');
-
   const [removeConfirm, setRemoveConfirm] = useState(false);
-
-  // const [frozen, setFrozen] = useState(false);
-  // const [status, setStatus] = useState(StudentStatusValues.OFF_QUEUE);
-  // const [position, setPosition] = useState(0);
-
   const [helpingTAInfo, setHelpingTAInfo] = useState(null);
 
   const {queueData} = useContext(QueueDataContext);
@@ -39,108 +29,6 @@ function StudentMain() {
       Notification.requestPermission();
     }
   }, []);
-
-  // useEffect(() => {
-  //   socketSubscribeTo('add', (res) => {
-  //     if (res.studentData.andrewID === userData.andrewID) {
-  //       setStudentData({...studentData, ...res.studentData});
-  //     }
-  //   });
-
-  //   socketSubscribeTo('help', (res) => {
-  //     if (res.andrewID === userData.andrewID) {
-  //       setStudentData({...studentData, status: StudentStatusValues.BEING_HELPED});
-  //       setHelpingTAInfo(res.data.taData);
-  //       new Notification('It\'s your turn to get help!', {
-  //         'body': `${res.data.taData.taName} is ready to help you.`,
-  //         'requireInteraction': true,
-  //       });
-  //     }
-  //   });
-
-  //   socketSubscribeTo('unhelp', (res) => {
-  //     if (res.andrewID === userData.andrewID) {
-  //       setStudentData({...studentData, status: StudentStatusValues.WAITING});
-  //       setHelpingTAInfo(null);
-  //     }
-  //   });
-
-  //   socketSubscribeTo('updateQRequest', (res) => {
-  //     if (res.andrewID === userData.andrewID) {
-  //       setStudentData({...studentData, status: StudentStatusValues.FIXING_QUESTION, isFrozen: true});
-  //       new Notification('Please update your question', {
-  //         'requireInteraction': true,
-  //       });
-  //     }
-  //   });
-
-  //   socketSubscribeTo('message', (res) => {
-  //     if (res.andrewID === userData.andrewID) {
-  //       setStudentData({...studentData, status: StudentStatusValues.RECEIVED_MESSAGE, message: res.data.studentData.message});
-  //       setHelpingTAInfo(res.data.taData);
-
-  //       new Notification('You\'ve been messaged by a TA', {
-  //         'requireInteraction': true,
-  //       });
-  //     }
-  //   });
-
-  //   socketSubscribeTo('remove', (res) => {
-  //     if (res.andrewID === userData.andrewID) {
-  //       setStudentData({
-  //         ...studentData,
-  //         status: StudentStatusValues.OFF_QUEUE,
-  //         question: '',
-  //         topic: {
-  //           assignment_id: -1,
-  //           name: '',
-  //         },
-  //         location: '',
-  //       });
-
-  //       new Notification('You\'ve been removed from the queue', {
-  //         'requireInteraction': true,
-  //       });
-  //     }
-  //   });
-
-  //   socketSubscribeTo('approveCooldown', (res) => {
-  //     if (res.andrewID === userData.andrewID) {
-  //       setStudentData({...studentData, status: res.data.studentData.status, isFrozen: res.data.studentData.isFrozen});
-
-  //       new Notification('Your entry been approved by a TA', {
-  //         'requireInteraction': true,
-  //       });
-  //     }
-  //   });
-
-  //   return () => {
-  //     socketUnsubscribeFrom('add');
-  //     socketUnsubscribeFrom('help');
-  //     socketUnsubscribeFrom('unhelp');
-  //     socketUnsubscribeFrom('message');
-  //     socketUnsubscribeFrom('remove');
-  //     socketUnsubscribeFrom('approveCooldown');
-  //   };
-  // }, [userData.andrewID]);
-
-  // useEffect(() => {
-  //   // Check if student is on queue
-  //   if (studentData && studentData.position !== -1) {
-  //     setStudentValues(studentData);
-  //   }
-  // }, [studentData]);
-
-  // const setStudentValues = (studentData) => {
-  //   setPosition(studentData.position);
-  //   setLocationValue(studentData.location);
-  //   setTopicValue(studentData.topic);
-  //   setQuestionValue(studentData.question);
-  //   setMessageValue(studentData.message);
-  //   setFrozen(studentData.isFrozen);
-  //   setHelpingTAInfo(studentData.helpingTA);
-  //   setStatus(studentData.status);
-  // };
 
   useEffect(() => {
     socketSubscribeTo('help', (res) => {
@@ -202,7 +90,6 @@ function StudentMain() {
     ).then((res) => {
       if (res.status === 200) {
         setRemoveConfirm(false);
-        // setStudentData({...studentData, status: StudentStatusValues.OFF_QUEUE});
       }
     });
   };
@@ -212,11 +99,7 @@ function StudentMain() {
         JSON.stringify({
           andrewID: userData.andrewID,
         }),
-    ).then((res) => {
-      if (res.status === 200) {
-        // setStudentData({...studentData, status: StudentStatusValues.WAITING});
-      }
-    });
+    );
   };
 
   const statusDependentComponents = useMemo(() => {

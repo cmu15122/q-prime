@@ -1,15 +1,13 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState} from 'react';
 import {
   Button, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, TextField,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 
 import SettingsService from '../../services/SettingsService';
-import {UserDataContext} from '../../contexts/UserDataContext';
 
 export default function ChangeNameBtn(props) {
   const {setpname, pname} = props;
-  const {userData} = useContext(UserDataContext);
 
   const [tmpPrefName, setTmpPrefName] = useState(pname);
   const [open, setOpen] = useState(false);

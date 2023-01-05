@@ -80,74 +80,6 @@ export default function StudentEntries(props) {
 
   /* BEGIN QUEUE LOGIC */
 
-  // function updateStudentFromSockets(res) {
-  //   setStudents((students) => {
-  //     const ind = students.findIndex((p) => (p.andrewID === res.andrewID));
-  //     students[ind] = res.data.studentData;
-  //     return [...students];
-  //   });
-  // }
-
-  // useEffect(() => {
-  //   if (!('Notification' in window)) {
-  //     console.log('This browser does not support desktop notification');
-  //   } else if (Notification.permission !== 'granted') {
-  //     Notification.requestPermission();
-  //   }
-
-  //   HomeService.displayStudents().then((res) => {
-  //     setStudents(res.data);
-  //   });
-
-  //   socketSubscribeTo('add', (res) => {
-  //     setStudents((students) =>
-  //       [...students.filter((p) => p.andrewID !== res.studentData.andrewID), res.studentData],
-  //     );
-
-  //     new Notification('New Queue Entry', {
-  //       'body': 'Name: ' + res.studentData.name + '\n' +
-  //               'Andrew ID: ' + res.studentData.andrewID + '\n' +
-  //               'Topic: ' + res.studentData.topic.name,
-  //     });
-  //   });
-
-  //   socketSubscribeTo('help', updateStudentFromSockets);
-  //   socketSubscribeTo('unhelp', updateStudentFromSockets);
-  //   socketSubscribeTo('updateQuestion', updateStudentFromSockets);
-  //   socketSubscribeTo('updateQRequest', updateStudentFromSockets);
-  //   socketSubscribeTo('message', updateStudentFromSockets);
-  //   socketSubscribeTo('dismissMessage', updateStudentFromSockets);
-  //   socketSubscribeTo('approveCooldown', updateStudentFromSockets);
-
-  //   return () => {
-  //     socketUnsubscribeFrom('add');
-  //     socketUnsubscribeFrom('help');
-  //     socketUnsubscribeFrom('unhelp');
-  //     socketUnsubscribeFrom('updateQuestion');
-  //     socketUnsubscribeFrom('updateQRequest');
-  //     socketUnsubscribeFrom('message');
-  //     socketUnsubscribeFrom('dismissMessage');
-  //     socketUnsubscribeFrom('approveCooldown');
-  //   };
-  // }, []);
-
-  // useEffect(() => {
-  //   socketSubscribeTo('remove', (res) => {
-  //     setStudents((students) =>
-  //       [...students.filter((p) => p.andrewID !== res.andrewID)],
-  //     );
-
-  //     if (res.studentData.taAndrewID === userData.andrewID) {
-  //       setIsHelping(false);
-  //       setHelpIdx(-1);
-  //     }
-  //   });
-
-  //   return () => {
-  //     socketUnsubscribeFrom('remove');
-  //   };
-  // }, [userData.andrewID]);
-
   useEffect(() => {
     setIsHelping(false);
     for (const [index, student] of allStudents.entries()) {
@@ -157,17 +89,6 @@ export default function StudentEntries(props) {
       }
     }
   }, [allStudents, userData.andrewID]);
-
-  // useEffect(() => {
-  //   let newFiltered = students;
-  //   if (filteredLocations.length > 0) {
-  //     newFiltered = newFiltered.filter((student) => filteredLocations.includes(student.location));
-  //   }
-  //   if (filteredTopics.length > 0) {
-  //     newFiltered = newFiltered.filter((student) => filteredTopics.includes(student.topic.name));
-  //   }
-  //   setFilteredStudents(newFiltered);
-  // }, [students, filteredLocations, filteredTopics]);
 
   const handleClickHelp = (index) => {
     HomeService.helpStudent(JSON.stringify({

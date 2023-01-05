@@ -8,7 +8,7 @@ import {StudentDataContext} from '../../../contexts/StudentDataContext';
 
 export default function UpdateQuestionOverlay(props) {
   const {open, handleClose} = props;
-  const {studentData, setStudentData} = useContext(StudentDataContext);
+  const {studentData} = useContext(StudentDataContext);
 
   const [tempQuestion, setTempQuestion] = useState(studentData.question);
 

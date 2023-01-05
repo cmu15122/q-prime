@@ -21,6 +21,7 @@ const date = new Date();
 export default function AskQuestion() {
   const {userData} = useContext(UserDataContext);
   const {queueData} = useContext(QueueDataContext);
+
   // not changing name or andrewID to use global because this component can also be used by TAs to manually add questions
   const [name, setName] = useState('');
   const [andrewID, setAndrewID] = useState('');
@@ -35,7 +36,6 @@ export default function AskQuestion() {
 
   const {studentData, setStudentData} = useContext(StudentDataContext);
 
-  // const [locations, setLocations] = useState([]);
   const locations = useMemo(() => {
     if (queueData != null) {
       const day = date.getDay();
@@ -69,7 +69,6 @@ export default function AskQuestion() {
       return newRows;
     } else return [createData(-1, 'Other')];
   }, [queueData.topics]);
-  // const [topics, setTopics] = useState([]);
 
   useEffect(() => {
     if (!userData.isTA) {
@@ -77,36 +76,6 @@ export default function AskQuestion() {
       setAndrewID(userData.andrewID);
     }
   }, [userData.isTA, userData.preferredName, userData.andrewID]);
-
-  // function updateTopics(newTopics) {
-  //   const newRows = [];
-  //   newTopics.forEach((topic) => {
-  //     newRows.push(topic);
-  //   });
-  //   newRows.push(createData(-1, 'Other'));
-  //   console.log(newRows);
-  //   setTopics(newRows);
-
-  //   if (newRows.length === 1) {
-  //     setTopic(newRows[0]);
-  //   }
-  // }
-
-  // function updateLocations() {
-  //   const day = date.getDay();
-  //   let newLocations = {};
-  //   SettingsService.getLocations().then((res) => {
-  //     const dayDict = res.data.dayDictionary;
-  //     newLocations = dayDict;
-
-  //     const roomsForDay = (newLocations && newLocations[day]) ? newLocations[day] : ['Office Hours'];
-  //     setLocations(roomsForDay);
-
-  //     if (roomsForDay.length === 1) {
-  //       setLocation(roomsForDay[0]);
-  //     }
-  //   });
-  // }
 
   function handleSubmit(event) {
     event.preventDefault();

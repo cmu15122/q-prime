@@ -19,8 +19,6 @@ export default function Locations(props) {
   const {queueData} = useContext(QueueDataContext);
   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-  // const [roomDictionary, setRoomDictionary] = useState({}); // dict of location: [days]
-  // const [dayDictionary, setDayDictionary] = useState({});
   const dayDictionary = useMemo(() => {
     if (queueData != null) {
       return queueData.locations.dayDictionary;
@@ -31,25 +29,6 @@ export default function Locations(props) {
       return queueData.locations.roomDictionary;
     } else return {};
   }, [queueData.locations]);
-
-
-  // useEffect(() => {
-  //   SettingsService.getLocations()
-  //       .then((res) => {
-  //         updateRoomDictionary(res.data.roomDictionary);
-  //       });
-  // }, []);
-
-  // useEffect(() => {
-  //   if (queueData != null) {
-  //     setDayDictionary(queueData.locations);
-  //   }
-  // }, [queueData.locations]);
-
-  // const updateRoomDictionary = (newRoomDict) => {
-  //   if (!newRoomDict) return;
-  //   setRoomDictionary(newRoomDict);
-  // };
 
   const convertIdxToDays = (idxArr) => {
     return idxArr.map((idx) => daysOfWeek[idx]);
