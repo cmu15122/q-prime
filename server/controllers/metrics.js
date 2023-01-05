@@ -11,35 +11,17 @@ function respond_error(req, res, message, status) {
     res.json({ message: message });
 }
 
-exports.get = (req, res) => {
-    res.status(200);
-
-    if (!req.user || !req.user.isTA) {
-        message = "You don't have permissions to view this page";
-        respond_error(req, res, message, 404);
-        return;
+function respond(req, res, message, data, status) {
+    res.status(status);
+    if (message) {
+        data['message'] = message;
     }
-
-    if (req.user.isOwner) {
-        let data = { isOwner: req.user.isOwner };
-        res.send(data);
-        return;
-    }
-
-    res.send({ 
-        title: "15-122 Office Hours Queue | Metrics",
-        isAuthenticated: req.user.isAuthenticated,
-        isTA: req.user.isTA,
-        isAdmin: req.user.isAdmin,
-        andrewID: req.user?.andrewID,
-        preferred_name: req.user?.account?.preferred_name
-    });
-};
+    res.json(data);
+}
 
 exports.get_helped_students = (req, res) => {
     if (!req.user || !req.user.isTA) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -77,15 +59,13 @@ exports.get_helped_students = (req, res) => {
             }
         }
 
-        res.status(200);
-        res.json({ helpedStudents: questions });
+        respond(req, res, "Got helped students", { helpedStudents: questions }, 200);
     });
 }
 
 exports.get_num_questions_answered = (req, res) => {
     if (!req.user || !req.user.isTA) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -97,15 +77,13 @@ exports.get_num_questions_answered = (req, res) => {
             }
         }
     }).then(({count, rows}) =>  {
-        res.status(200);
-        res.json({ numQuestions: count });
+        respond(req, res, "Got number of questions answered", { numQuestions: count }, 200);
     });
 }
 
 exports.get_avg_time_per_question = (req, res) => {
     if (!req.user || !req.user.isTA) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -126,15 +104,13 @@ exports.get_avg_time_per_question = (req, res) => {
 
         if (count != 0) averageTime /= count;
 
-        res.status(200);
-        res.json({ averageTime: averageTime });
+        respond(req, res, "Got average time per question", { averageTime: averageTime }, 200);
     });
 }
 
 exports.get_num_questions_today = (req, res) => {
     if (!req.user || !req.user.isTA) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -145,16 +121,14 @@ exports.get_num_questions_today = (req, res) => {
             }
         }
     }).then(({count}) =>  {
-        res.status(200);
-        res.json({ numQuestionsToday: count });
+        respond(req, res, "Got number of questions today", { numQuestionsToday: count }, 200);
     });
 }
 
 
 exports.get_num_bad_questions_today = (req, res) => {
     if (!req.user || !req.user.isTA) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -168,15 +142,13 @@ exports.get_num_bad_questions_today = (req, res) => {
             }
         }
     }).then(({count}) =>  {
-        res.status(200);
-        res.json({ numBadQuestions: count });
+        respond(req, res, "Got number of bad questions today", { numBadQuestionsToday: count }, 200);
     });
 }
 
 exports.get_avg_wait_time_today = (req, res) => {
     if (!req.user || !req.user.isTA) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -197,15 +169,13 @@ exports.get_avg_wait_time_today = (req, res) => {
 
         if (count != 0) avgWaitTime /= count;
 
-        res.status(200);
-        res.json({ avgWaitTime: avgWaitTime });
+        respond(req, res, "Got average wait time today", { avgWaitTime: avgWaitTime }, 200);
     });
 }
 
 exports.get_ta_student_ratio_today = (req, res) => {
     if (!req.user || !req.user.isTA) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -229,16 +199,14 @@ exports.get_ta_student_ratio_today = (req, res) => {
             acc[question.student_id] = (acc[question.student_id] || 0) + 1;
             return acc;
         }, {});
-        
-        res.status(200);
-        res.json({ taStudentRatio: Object.keys(taCount).length + ":" + Object.keys(studentCount).length });
+
+        respond(req, res, "Got TA:Student ratio today", { taStudentRatio: Object.keys(taCount).length + ":" + Object.keys(studentCount).length }, 200);
     });
 }
 
 exports.get_total_num_questions = (req, res) => {
     if (!req.user || !req.user.isTA) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -246,15 +214,13 @@ exports.get_total_num_questions = (req, res) => {
         where: {
         }
     }).then(({count}) =>  {
-        res.status(200);
-        res.json({ numQuestions: count });
+        respond(req, res, "Got number of questions answered", { numQuestions: count }, 200);
     });
 }
 
 exports.get_total_avg_time_per_question = (req, res) => {
     if (!req.user || !req.user.isTA) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -274,15 +240,13 @@ exports.get_total_avg_time_per_question = (req, res) => {
 
         if (count != 0) averageTime /= count;
 
-        res.status(200);
-        res.json({ avgTimePerQuestion: averageTime });
+        respond(req, res, "Got average time per question", { averageTime: averageTime }, 200);
     });
 }
 
 exports.get_total_avg_wait_time = (req, res) => {
     if (!req.user || !req.user.isTA) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -300,15 +264,13 @@ exports.get_total_avg_wait_time = (req, res) => {
 
         if (count != 0) avgWaitTime /= count;
 
-        res.status(200);
-        res.json({ totalAvgWaitTime: avgWaitTime });
+        respond(req, res, "Got average wait time", { totalAvgWaitTime: avgWaitTime }, 200);
     });
 }
 
 exports.get_num_students_per_day_last_week = (req, res) => {
     if (!req.user || !req.user.isTA) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -332,15 +294,13 @@ exports.get_num_students_per_day_last_week = (req, res) => {
             numStudentsPerDayLastWeek.push({'day': datecount.day, 'students': datecount.count});
         }
 
-        res.status(200);
-        res.json({ numStudentsPerDayLastWeek: numStudentsPerDayLastWeek });
+        respond(req, res, "Got number of students per day last week", { numStudentsPerDayLastWeek: numStudentsPerDayLastWeek }, 200);
     });
 }
 
 exports.get_num_students_per_day = (req, res) => {
     if (!req.user || !req.user.isTA) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -358,16 +318,14 @@ exports.get_num_students_per_day = (req, res) => {
             let datecount = row.dataValues;
             numStudentsPerDay.push({'day': datecount.day_of_week.trim(), 'students': datecount.count});
         }
-        
-        res.status(200);
-        res.json({ numStudentsPerDay: numStudentsPerDay });
+
+        respond(req, res, "Got number of students per day", { numStudentsPerDay: numStudentsPerDay }, 200);
     });
 }
 
 exports.get_num_students_overall = (req, res) => {
     if (!req.user || !req.user.isTA) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -386,7 +344,6 @@ exports.get_num_students_overall = (req, res) => {
             numStudentsOverall.push({'day': datecount.day, 'students': datecount.count});
         }
 
-        res.status(200);
-        res.json({ numStudentsOverall: numStudentsOverall });
+        respond(req, res, "Got number of students overall", { numStudentsOverall: numStudentsOverall }, 200);
     });
 }

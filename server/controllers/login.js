@@ -69,14 +69,14 @@ exports.post_login = async (req, res) => {
             }
 
             Promise.props({
-                account: models.account.findOrCreate({ 
+                account: models.account.findOrCreate({
                     where: { email: email }
                 }),
                 name: name
             }).then((res) => {
                 let name = res.name;
                 let [account, created] = res.account;
-        
+
                 if (created || !account.access_token) {
                     const access_token = jwt.sign(
                         {
@@ -86,14 +86,14 @@ exports.post_login = async (req, res) => {
                         config.TOKEN_KEY,
                         { algorithm: 'HS256' }
                     );
-        
+
                     account.set({
                         name: name,
                         preferred_name: name,
                         access_token: access_token
                     });
                 }
-        
+
                 return Promise.props({
                     account: account.save(),
                     semUser: models.semester_user.findOrCreate({
@@ -106,7 +106,7 @@ exports.post_login = async (req, res) => {
             }).then(function(results) {
                 let account = results.account;
                 let [semUser, semUserCreated] = results.semUser;
-        
+
                 if (semUserCreated || (semUser.isTA != 1)) {
                     return Promise.props({
                         account: account,
@@ -119,7 +119,7 @@ exports.post_login = async (req, res) => {
                         }(),
                     });
                 }
-        
+
                 return Promise.props({
                     account: account,
                     ta: function() {
@@ -145,8 +145,4 @@ exports.post_login = async (req, res) => {
         res.status(500);
         res.json({ message: err.message });
     });
-};
-
-exports.post_logout = (req, res) => {
-    res.status(200);
 };

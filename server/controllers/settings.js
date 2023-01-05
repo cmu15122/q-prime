@@ -12,7 +12,7 @@ const home = require('./home');
 // FIXME: some default values are set to simplify testing;
 // In production, these should be cleared
 let adminSettings = {
-    currSem: "W22",
+    currSem: "W22", // TODO: Set to W22 for testing, fix later
     slackURL: null,
     questionsURL: null,
     rejoinTime: 10
@@ -41,121 +41,19 @@ function respond(req, res, message, data, status) {
     res.json(data);
 }
 
-function get_response(req, res, message = null) {
+function respond_success(req, res, message = null) {
     if (!req.user || !req.user.isTA) {
-        message = "You don't have permissions to view this page";
-        respond_error(req, res, message, 404);
+        respond_error(req, res, "You don't have permissions to view this page", 404);
         return;
     }
 
-    // Grab TA settings
-    let settings = req.user.account?.settings;
-    if (!settings) {
-        settings = {};
-    }
-    settings["videoChatURL"] = req.user.ta?.zoom_url;
-
-    if (!req.user.isAdmin) {
-        let data = {
-            title: "15-122 Office Hours Queue | Settings",
-            isOwner: req.user.isOwner,
-
-            settings: settings,
-            rejoinTime: adminSettings.rejoinTime,
-
-            isAuthenticated: req.user.isAuthenticated,
-            isTA: req.user.isTA,
-            isAdmin: req.user.isAdmin,
-            andrewID: req.user.andrewID,
-            preferred_name: req.user?.account?.preferred_name
-        };
-        respond(req, res, message, data, 200);
-    }
-
-    Promise.props({
-        assignment_semesters: function () {
-            if (!adminSettings.currSem) return [];
-
-            return models.assignment_semester.findAll({
-                where: { sem_id: adminSettings.currSem },
-                include: models.assignment,
-                order: [['end_date', 'ASC']]
-            });
-        }(),
-        semester_users: function () {
-            if (!adminSettings.currSem) return [];
-
-            return models.semester_user.findAll({
-                where: { sem_id: adminSettings.currSem, is_ta: 1 },
-                include: [
-                    {
-                        model: models.account,
-                        include: [{ model: models.ta, as: "ta" }],
-                    }
-                ],
-                order: [['account', 'preferred_name', 'ASC']]
-            })
-        }()
-    }).then(function (results) {
-        let assignments = [];
-        let tas = [];
-
-        for (const assignmentSem of results.assignment_semesters) {
-            let assignment = assignmentSem.assignment;
-            assignments.push({
-                assignment_id: assignmentSem.assignment_id,
-                name: assignment.name,
-                category: assignment.category,
-                start_date: assignmentSem.start_date,
-                end_date: assignmentSem.end_date,
-            });
-        }
-
-        for (const semUser of results.semester_users) {
-            let account = semUser.account;
-            let ta = account.ta;
-            tas.push({
-                ta_id: ta.ta_id,
-                name: account.name,
-                preferred_name: account.preferred_name,
-                email: account.email,
-                isAdmin: ta.is_admin == 1
-            });
-        }
-
-        let data = {
-            title: "15-122 Office Hours Queue | Settings",
-            topics: assignments,
-            tas: tas,
-            adminSettings: adminSettings,
-            // TODO This should be fixed by giving each page its own data object, not just queueData
-            rejoinTime: adminSettings.rejoinTime,
-            settings: settings,
-            isAuthenticated: req.user.isAuthenticated,
-            isTA: req.user.isTA,
-            isAdmin: req.user.isAdmin,
-            isOwner: req.user.isOwner,
-            andrewID: req.user.andrewID,
-            preferred_name: req.user?.account?.preferred_name || ""
-        };
-        respond(req, res, message, data, 200);
-    }).catch(err => {
-        console.log(err);
-        message = err.message || "An error occurred while retrieving data";
-        respond_error(req, res, message, 500);
-    });
-}
-
-/** Get Function **/
-exports.get = function (req, res) {
-    get_response(req, res);
+    respond(req, res, message, {}, 200);
 }
 
 /** General Settings **/
 exports.post_update_video_chat = function (req, res) {
     if (!req.user || !req.user.isTA) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -182,7 +80,7 @@ exports.post_update_video_chat = function (req, res) {
     }).then(function (results) {
         req.user.account = results.account;
         req.user.ta = results.ta;
-        get_response(req, res, urlChanged ? `Settings updated successfully` : "");
+        respond_success(req, res, urlChanged ? `Settings updated successfully` : "");
     }).catch(err => {
         console.log(err);
         message = err.message || "An error occurred while updating settings";
@@ -192,8 +90,7 @@ exports.post_update_video_chat = function (req, res) {
 
 exports.post_update_preferredname = function (req, res) {
     if (!req.user) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
     var pname = req.body.preferred_name;
@@ -205,8 +102,7 @@ exports.post_update_preferredname = function (req, res) {
         account: account.save()
     }).then(function (results) {
         req.user.account = results.account;
-        // get_response(req, res, `Settings updated successfully`);
-        respond(req, res, `Name updated successfully`, {}, 200);
+        respond_success(req, res, `Settings updated successfully`);
     }).catch(err => {
         console.log(err);
         message = err.message || "An error occurred while updating settings";
@@ -216,8 +112,7 @@ exports.post_update_preferredname = function (req, res) {
 
 exports.post_update_notifs = function (req, res) {
     if (!req.user || !req.user.isTA) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -227,7 +122,7 @@ exports.post_update_notifs = function (req, res) {
 
     if (remindTime < 0) {
         // Do nothing if remind time is invalid
-        get_response(req, res);
+        respond_success(req, res);
         return;
     }
 
@@ -247,7 +142,7 @@ exports.post_update_notifs = function (req, res) {
         account: account.save()
     }).then(function (results) {
         req.user.account = results.account;
-        get_response(req, res);
+        respond_success(req, res);
     }).catch(err => {
         console.log(err);
         message = err.message || "An error occurred while updating settings";
@@ -261,8 +156,7 @@ exports.post_update_notifs = function (req, res) {
 /** Config Settings **/
 exports.post_update_semester = function (req, res) {
     if (!req.user || !req.user.isAdmin) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -274,7 +168,7 @@ exports.post_update_semester = function (req, res) {
 
     // If already at current semester, no need to change
     if (sem_id == adminSettings.currSem) {
-        get_response(req, res);
+        respond_success(req, res);
         return;
     }
 
@@ -284,7 +178,7 @@ exports.post_update_semester = function (req, res) {
         }
     }).then(function (results) {
         adminSettings.currSem = results[0].sem_id;
-        get_response(req, res, `Current semester set to ${sem_id} successfully`);
+        respond_success(req, res, `Current semester set to ${sem_id} successfully`);
     }).catch(err => {
         message = err.message || "An error occurred while updating current semester";
         respond_error(req, res, message, 500);
@@ -293,8 +187,7 @@ exports.post_update_semester = function (req, res) {
 
 exports.post_update_slack_url = function (req, res) {
     if (!req.user || !req.user.isAdmin) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -308,13 +201,12 @@ exports.post_update_slack_url = function (req, res) {
 
     adminSettings.slackURL = slackURL;
     slack.update_slack();
-    respond(req, res, `Slack Webhook URL updated successfully`, {}, 200);
+    respond_success(req, res, `Slack Webhook URL updated successfully`);
 }
 
 exports.post_update_questions_url = function (req, res) {
     if (!req.user || !req.user.isAdmin) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -327,13 +219,12 @@ exports.post_update_questions_url = function (req, res) {
     if (adminSettings.questionsURL == questionsURL) return;
 
     adminSettings.questionsURL = questionsURL;
-    respond(req, res, `Questions Guide URL updated successfully`, {}, 200);
+    respond_success(req, res, `Questions Guide URL updated successfully`);
 }
 
 exports.post_update_rejoin_time = function (req, res) {
     if (!req.user || !req.user.isAdmin) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -346,14 +237,13 @@ exports.post_update_rejoin_time = function (req, res) {
     if (adminSettings.rejoinTime == rejoinTime) return;
 
     adminSettings.rejoinTime = rejoinTime;
-    respond(req, res, `Rejoin time updated successfully to ${rejoinTime} minutes`, {}, 200);
+    respond_success(req, res, `Rejoin time updated successfully to ${rejoinTime} minutes`);
 }
 
 /** Topics Functions **/
 exports.post_create_topic = function (req, res) {
     if (!req.user || !req.user.isAdmin) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -384,7 +274,7 @@ exports.post_create_topic = function (req, res) {
         })
     }).then(function () {
         home.emit_new_queue_data();
-        // get_response(req, res, `Assignment ${name} created successfully`);
+        respond_success(req, res, `Assignment ${name} created successfully`);
     }).catch(err => {
         message = err.message || "An error occurred while creating topic";
         respond_error(req, res, message, 500);
@@ -393,8 +283,7 @@ exports.post_create_topic = function (req, res) {
 
 exports.post_update_topic = function (req, res) {
     if (!req.user || !req.user.isAdmin) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -446,7 +335,7 @@ exports.post_update_topic = function (req, res) {
         })
     }).then(function () {
         home.emit_new_queue_data();
-        // get_response(req, res, `Assignment ${name} updated successfully`);
+        respond_success(req, res, `Assignment ${name} updated successfully`);
     }).catch(err => {
         message = err.message || "An error occurred while updating topic";
         respond_error(req, res, message, 500);
@@ -455,8 +344,7 @@ exports.post_update_topic = function (req, res) {
 
 exports.post_delete_topic = function (req, res) {
     if (!req.user || !req.user.isAdmin) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -472,7 +360,7 @@ exports.post_delete_topic = function (req, res) {
         }
     }).then(function () {
         home.emit_new_queue_data();
-        // get_response(req, res, `Assignment deleted successfully`);
+        respond_success(req, res, `Assignment deleted successfully`);
     }).catch(err => {
         message = err.message || "An error occurred while deleting topic";
         respond_error(req, res, message, 500);
@@ -481,8 +369,7 @@ exports.post_delete_topic = function (req, res) {
 
 exports.post_download_topic_csv = function (req, res) {
     if (!req.user || !req.user.isAdmin) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -498,8 +385,7 @@ exports.post_download_topic_csv = function (req, res) {
 
 exports.post_upload_topic_csv = function (req, res) {
     if (!req.user || !req.user.isAdmin) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -565,7 +451,7 @@ exports.post_upload_topic_csv = function (req, res) {
         });
     }).then(() => {
         home.emit_new_queue_data();
-        // get_response(req, res, `Assignments created successfully`);
+        respond_success(req, res, `Assignments created successfully`);
     }).catch(err => {
         console.log(err);
         message = err.message || "An error occurred while creating uploaded topics";
@@ -576,8 +462,7 @@ exports.post_upload_topic_csv = function (req, res) {
 /** TA Functions **/
 exports.post_create_ta = function (req, res) {
     if (!req.user || !req.user.isAdmin) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -624,7 +509,7 @@ exports.post_create_ta = function (req, res) {
         });
     }).then(function () {
         home.emit_new_queue_data();
-        // get_response(req, res, `TA ${name} created successfully`);
+        respond_success(req, res, `TA ${name} created successfully`);
     }).catch(err => {
         console.log(err);
         message = err.message || "An error occurred while creating topic";
@@ -634,8 +519,7 @@ exports.post_create_ta = function (req, res) {
 
 exports.post_update_ta = function (req, res) {
     if (!req.user || !req.user.isAdmin) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -687,7 +571,7 @@ exports.post_update_ta = function (req, res) {
         })
     }).then(function (results) {
         home.emit_new_queue_data();
-        // get_response(req, res, `TA ${results.name} updated successfully`);
+        respond_success(req, res, `TA ${results.name} updated successfully`);
     }).catch(err => {
         message = err.message || "An error occurred while updating TA";
         respond_error(req, res, message, 500);
@@ -696,8 +580,7 @@ exports.post_update_ta = function (req, res) {
 
 exports.post_delete_ta = function (req, res) {
     if (!req.user || !req.user.isAdmin) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -717,7 +600,7 @@ exports.post_delete_ta = function (req, res) {
         });
     }).then(function () {
         home.emit_new_queue_data();
-        // get_response(req, res, `TA deleted successfully`);
+        respond_success(req, res, `TA deleted successfully`);
     }).catch(err => {
         message = err.message || "An error occurred while deleting TA";
         respond_error(req, res, message, 500);
@@ -726,8 +609,7 @@ exports.post_delete_ta = function (req, res) {
 
 exports.post_download_ta_csv = function (req, res) {
     if (!req.user || !req.user.isAdmin) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -743,8 +625,7 @@ exports.post_download_ta_csv = function (req, res) {
 
 exports.post_upload_ta_csv = function (req, res) {
     if (!req.user || !req.user.isAdmin) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -817,7 +698,7 @@ exports.post_upload_ta_csv = function (req, res) {
         });
     }).then(() => {
         home.emit_new_queue_data();
-        // get_response(req, res, `TAs created successfully`);
+        respond_success(req, res, `TAs created successfully`);
     }).catch(err => {
         console.log(err);
         message = err.message || "An error occurred while creating uploaded tas";
@@ -856,8 +737,7 @@ const dayToRoomDictionary = (obj) => {
 
 exports.add_location = function (req, res) {
     if (!req.user || !req.user.isAdmin) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -874,13 +754,12 @@ exports.add_location = function (req, res) {
     }
 
     home.emit_new_queue_data();
-    // respond(req, res, `Location added successfully`, { dayDictionary: dayDictionary, roomDictionary: roomDictionary }, 200);
+    respond_success(req, res, `Location added successfully`);
 }
 
 exports.post_update_locations = function (req, res) {
     if (!req.user || !req.user.isAdmin) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -918,14 +797,8 @@ exports.post_update_locations = function (req, res) {
     dayDictionary = newDayDictionary
 
     home.emit_new_queue_data();
-    // respond(req, res, `Location changed successfully`, { dayDictionary: dayDictionary, roomDictionary: roomDictionary }, 200);
+    respond_success(req, res, `Location changed successfully`);
 }
-
-// exports.get_locations = function (req, res) {
-//     var roomDictionary = dayToRoomDictionary(dayDictionary)
-//     respond(req, res, null, { dayDictionary: dayDictionary, roomDictionary: roomDictionary }, 200);
-//     return dayDictionary
-// }
 
 exports.internal_get_locations = function () {
     return {
@@ -936,8 +809,7 @@ exports.internal_get_locations = function () {
 
 exports.remove_location = function (req, res) {
     if (!req.user || !req.user.isAdmin) {
-        message = "You don't have permissions to perform this operation";
-        respond_error(req, res, message, 403);
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
     }
 
@@ -971,5 +843,5 @@ exports.remove_location = function (req, res) {
     dayDictionary["-1"] = emptyRoomArr
 
     home.emit_new_queue_data();
-    // respond(req, res, null, { dayDictionary: dayDictionary, roomDictionary: roomDictionary }, 200);
+    respond_success(req, res, `Location removed successfully`);
 }

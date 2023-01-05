@@ -85,62 +85,6 @@ exports.allStudents = function (allStudents) {
     });
 }
 
-// exports.queueFrozen = function (isFrozen) {
-//     if (!sio) {
-//         console.log("ERROR: Socket.io is not initialized yet");
-//         return;
-//     }
-
-//     sio.emit("queueFrozen", {
-//         isFrozen: isFrozen
-//     });
-// }
-
-// exports.waittimes = function (minsPerStudent, numStudents, numUnhelped, numTAs) {
-//     if (!sio) {
-//         console.log("ERROR: Socket.io is not initialized yet");
-//         return;
-//     }
-
-//     sio.emit("waittimes", {
-//         minsPerStudent: minsPerStudent,
-//         numStudents: numStudents,
-//         numUnhelped: numUnhelped,
-//         numTAs: numTAs
-//     });
-// }
-
-// exports.addAnnouncement = function (announcement) {
-//     if (!sio) {
-//         console.log("ERROR: Socket.io is not initialized yet");
-//         return;
-//     }
-//     sio.emit("addAnnouncement", {
-//         announcement: announcement
-//     });
-// }
-
-// exports.updateAnnouncement = function (id, announcement) {
-//     if (!sio) {
-//         console.log("ERROR: Socket.io is not initialized yet");
-//         return;
-//     }
-//     sio.emit("updateAnnouncement", {
-//         updatedId: id,
-//         announcement: announcement
-//     });
-// }
-
-// exports.deleteAnnouncement = function (announcementId) {
-//     if (!sio) {
-//         console.log("ERROR: Socket.io is not initialized yet");
-//         return;
-//     }
-//     sio.emit("deleteAnnouncement", {
-//         deletedId: announcementId
-//     });
-// }
-
 exports.help = function (studentAndrewID, taAccount) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");
@@ -175,12 +119,6 @@ exports.unhelp = function (studentAndrewID, taAndrewID) {
     });
 }
 
-// exports.add = function (studentData) {
-//     sio.emit("add", {
-//         studentData: studentData
-//     });
-// }
-
 exports.remove = function (studentAndrewID) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");
@@ -191,20 +129,6 @@ exports.remove = function (studentAndrewID) {
         andrewID: studentAndrewID,
     });
 }
-
-// exports.updateQuestion = function (studentData) {
-//     if (!sio) {
-//         console.log("ERROR: Socket.io is not initialized yet");
-//         return;
-//     }
-
-//     sio.to(ta_room).emit("updateQuestion", {
-//         andrewID: studentData.andrewID,
-//         data: {
-//             studentData: studentData
-//         }
-//     });
-// }
 
 exports.updateQRequest = function (studentAndrewID) {
     if (!sio) {

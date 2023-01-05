@@ -25,6 +25,5 @@ router.post('/announcements/update', home.post_update_announcement);
 router.post('/announcements/delete', home.post_delete_announcement);
 
 router.post('/login', login.post_login);
-router.post('/logout', login.post_logout);
 
 module.exports = router;
