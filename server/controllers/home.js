@@ -456,6 +456,12 @@ exports.post_add_question = function (req, res) {
 
             respond(req, res, `Successfully added to queue`, data, 200);
 
+            sockets.add({
+                name: account.preferred_name,
+                andrewID: id,
+                topic: req.body.topic,
+            });
+
             emitNewQueueData();
             emitNewStudentData(id);
             emitNewAllStudents();

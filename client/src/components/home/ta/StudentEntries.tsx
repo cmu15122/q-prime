@@ -11,6 +11,7 @@ import HomeService from '../../../services/HomeService';
 import {StudentStatusValues} from '../../../services/StudentStatus';
 import {UserDataContext} from '../../../contexts/UserDataContext';
 import {AllStudentsContext} from '../../../contexts/AllStudentsContext';
+import {socketSubscribeTo} from '../../../services/SocketsService';
 
 export default function StudentEntries(props) {
   const {userData} = useContext(UserDataContext);
@@ -79,6 +80,16 @@ export default function StudentEntries(props) {
     /* END FILTER LOGIC (the actual filtering is in QUEUE LOGIC)*/
 
   /* BEGIN QUEUE LOGIC */
+
+  useEffect(() => {
+    socketSubscribeTo('add', (res) => {
+      new Notification('New Queue Entry', {
+        'body': 'Name: ' + res.studentData.name + '\n' +
+                'Andrew ID: ' + res.studentData.andrewID + '\n' +
+                'Topic: ' + res.studentData.topic.name,
+      });
+    });
+  }, []);
 
   useEffect(() => {
     setIsHelping(false);

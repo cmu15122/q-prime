@@ -119,6 +119,12 @@ exports.unhelp = function (studentAndrewID, taAndrewID) {
     });
 }
 
+exports.add = function (studentData) {
+    sio.emit("add", {
+        studentData: studentData
+    });
+}
+
 exports.remove = function (studentAndrewID) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");
