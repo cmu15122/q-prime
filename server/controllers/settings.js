@@ -384,7 +384,7 @@ exports.post_download_topic_csv = function (req, res) {
     }
 }
 
-exports.post_upload_topic_csv = function (req, res) {
+exports.post_upload_topic_csv = function(req, res) {
     if (!req.user || !req.user.isAdmin) {
         respond_error(req, res, "You don't have permissions to perform this operation", 403);
         return;
@@ -397,13 +397,18 @@ exports.post_upload_topic_csv = function (req, res) {
     }
 
     let csvData = file.buffer.toString('utf8');
-    csvtojson().fromString(csvData).then((data) => {
+    csvtojson().fromString(csvData).then(async (data) => {
         var assignments = [];
+        var topics = [];
         for (var i = 0; i < data.length; ++i) {
-            var name = data[i].name;
-            var category = data[i].category;
-            var start_date = moment.tz(new Date(data[i].start_date), "America/New_York").toDate(); // TODO: get timezone (get from client? global config?)
-            var end_date = moment.tz(new Date(data[i].end_date), "America/New_York").toDate();
+            topics.push(data[i]);
+        }
+
+        await Promise.all(topics.map(topic => {
+            var name = topic.name;
+            var category = topic.category;
+            var start_date = new Date(topic.start_date);
+            var end_date = new Date(topic.end_date);
 
             if (!start_date.getTime() || !end_date.getTime() || !name || !category) {
                 throw new Error("Invalid fields in CSV file");
@@ -415,15 +420,14 @@ exports.post_upload_topic_csv = function (req, res) {
                         name: name,
                         category: category
                     }
-                }).then(([assignment,]) => {
+                }).then(([assignment, ]) => {
                     return Promise.props({
-                        assignment_semester:
-                            models.assignment_semester.findOne({
-                                where: {
-                                    assignment_id: assignment.assignment_id,
-                                    sem_id: adminSettings.currSem
-                                }
-                            }),
+                        assignment_semester: models.assignment_semester.findOne({
+                            where: {
+                                assignment_id: assignment.assignment_id,
+                                sem_id: adminSettings.currSem
+                            }
+                        }),
                         assignment: assignment
                     });
                 }).then((result) => {
@@ -445,7 +449,7 @@ exports.post_upload_topic_csv = function (req, res) {
                     });
                 })
             );
-        }
+        }));
 
         return Promise.props({
             assignments: Promise.all(assignments)
