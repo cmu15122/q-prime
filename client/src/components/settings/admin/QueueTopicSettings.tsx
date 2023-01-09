@@ -24,7 +24,9 @@ import download from 'downloadjs';
 import {QueueDataContext} from '../../../contexts/QueueDataContext';
 
 function createData(assignment_id, name, category, startDate, endDate) {
+  console.log(startDate);
   startDate = DateTime.fromISO(startDate);
+  console.log(startDate);
   endDate = DateTime.fromISO(endDate);
   return {assignment_id, name, category, startDate, endDate};
 }
@@ -39,6 +41,8 @@ export default function QueueTopicSettings(props) {
     if (queueData != null) {
       const newRows = [];
       queueData.topics.forEach((topic) => {
+        console.log(queueData.topics);
+        console.log(topic);
         newRows.push(createData(
             topic.assignment_id,
             topic.name,

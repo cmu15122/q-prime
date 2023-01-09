@@ -89,7 +89,10 @@ function buildQueueData() {
             let assignment = assignmentSem.assignment;
             assignments.push({
                 assignment_id: assignmentSem.assignment_id,
-                name: assignment.name
+                name: assignment.name,
+                category: assignment.category,
+                start_date: assignmentSem.start_date,
+                end_date: assignmentSem.end_date
             });
         }
 
