@@ -83,11 +83,13 @@ export default function StudentEntries(props) {
 
   useEffect(() => {
     socketSubscribeTo('add', (res) => {
-      new Notification('New Queue Entry', {
-        'body': 'Name: ' + res.studentData.name + '\n' +
-                'Andrew ID: ' + res.studentData.andrewID + '\n' +
-                'Topic: ' + res.studentData.topic.name,
-      });
+      if (userData.taSettings?.joinNotifsEnabled) {
+        new Notification('New Queue Entry', {
+          'body': 'Name: ' + res.studentData.name + '\n' +
+                  'Andrew ID: ' + res.studentData.andrewID + '\n' +
+                  'Topic: ' + res.studentData.topic.name,
+        });
+      }
     });
   }, []);
 
