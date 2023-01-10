@@ -76,7 +76,9 @@ function buildQueueData() {
 
     return models.assignment_semester.findAll({
         where: {
-            sem_id: adminSettings.currSem
+            sem_id: adminSettings.currSem,
+            start_date: { [Sequelize.Op.lt]: new Date() },
+            end_date: { [Sequelize.Op.gt]: new Date() }
         },
         order: [['end_date', 'ASC']],
         include: models.assignment
@@ -135,7 +137,6 @@ function buildQueueData() {
 
 function emitNewQueueData() {
     buildQueueData().then((data) => {
-        console.log(data);
         sockets.queueData(data);
     });
 }
