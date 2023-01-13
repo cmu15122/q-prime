@@ -184,3 +184,12 @@ exports.approveCooldown = function (studentAndrewID) {
         andrewID: studentAndrewID,
     });
 }
+
+exports.remind = function (taAndrewId) {
+    if (!sio) {
+        console.log("ERROR: Socket.io is not initialized yet");
+        return;
+    }
+
+    sio.emit(`remind/${taAndrewId}`);
+}

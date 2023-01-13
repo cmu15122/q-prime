@@ -8,6 +8,7 @@ const models = require('../models');
 const sockets = require('./sockets');
 const waittime = require('./waittimes')
 const settings = require('./settings');
+const notify = require('./notify');
 
 const StudentStatus = queue.StudentStatus;
 
@@ -258,6 +259,8 @@ exports.post_freeze_queue = function (req, res) {
         return;
     }
 
+    notify.stop();
+
     queueFrozen = true;
     emitNewQueueData()
     respond(req, res, 'Successfully froze queue', {}, 200)
@@ -268,6 +271,8 @@ exports.post_unfreeze_queue = function (req, res) {
         respond_error(req, res, 'You do not have permissions to perform this operation', 403);
         return;
     }
+
+    notify.init();
 
     queueFrozen = false;
     emitNewQueueData()
