@@ -47,10 +47,12 @@ export default function FilterOptions(props) {
     if (queueData != null) {
       const newRows = [];
       queueData.topics.forEach((topic) => {
-        newRows.push(createData(
-            topic.assignment_id,
-            topic.name,
-        ));
+        if (new Date(topic.start_date) <= new Date() && new Date(topic.end_date) > new Date()) {
+          newRows.push(createData(
+              topic.assignment_id,
+              topic.name,
+          ));
+        }
       });
       newRows.push(createData(-1, 'Other'));
       return newRows;

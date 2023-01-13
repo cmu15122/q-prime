@@ -58,7 +58,9 @@ export default function AskQuestion() {
     if (queueData != null) {
       const newRows = [];
       queueData.topics.forEach((topic) => {
-        newRows.push(topic);
+        if (new Date(topic.start_date) <= new Date() && new Date(topic.end_date) > new Date()) {
+          newRows.push(topic);
+        }
       });
       newRows.push(createData(-1, 'Other'));
 
