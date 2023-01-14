@@ -17,6 +17,8 @@ export type QueueData = {
     content: string
   }[],
 
+  questionsURL: string,
+
   topics: {
     assignment_id: number,
     name: string,

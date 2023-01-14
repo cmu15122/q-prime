@@ -7,7 +7,6 @@ const QueueSettingsContext = createContext({
   queueSettings: {
     currSem: '',
     slackURL: undefined,
-    questionsURL: undefined,
   },
   setQueueSettings: ((queueSettings: QueueSettings) => {}) as React.Dispatch<React.SetStateAction<QueueSettings>>,
 });
@@ -17,7 +16,6 @@ const QueueSettingsContextProvider = ({children}: {children: React.ReactNode}) =
   const [queueSettings, setQueueSettings] = useState<QueueSettings>({
     currSem: '',
     slackURL: undefined,
-    questionsURL: undefined,
   });
 
   useEffect(() => {

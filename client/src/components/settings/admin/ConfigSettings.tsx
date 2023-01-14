@@ -8,9 +8,11 @@ import BaseCard from '../../common/cards/BaseCard';
 
 import SettingsService from '../../../services/SettingsService';
 import {QueueSettingsContext} from '../../../contexts/QueueSettingsContext';
+import {QueueDataContext} from '../../../contexts/QueueDataContext';
 
 export default function ConfigSettings(props) {
   const {queueSettings} = useContext(QueueSettingsContext);
+  const {queueData} = useContext(QueueDataContext);
 
   const [currSem, setCurrSem] = useState('');
   const [slackURL, setSlackURL] = useState('');
@@ -19,7 +21,7 @@ export default function ConfigSettings(props) {
   useEffect(() => {
     setCurrSem(queueSettings.currSem);
     setSlackURL(queueSettings.slackURL);
-    setQuestionsURL(queueSettings.questionsURL);
+    setQuestionsURL(queueData.questionsURL);
   }, [queueSettings]);
 
   const handleUpdateSemester = (event) => {
@@ -49,7 +51,7 @@ export default function ConfigSettings(props) {
 
   const handleUpdateQuestionsURL = (event) => {
     event.preventDefault();
-    if (questionsURL === queueSettings.questionsURL) return;
+    if (questionsURL === queueData.questionsURL) return;
 
     SettingsService.updateQuestionsURL(
         JSON.stringify({

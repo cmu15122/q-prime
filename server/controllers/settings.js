@@ -14,7 +14,7 @@ const home = require('./home');
 let adminSettings = {
     currSem: "W22", // TODO: Set to W22 for testing, fix later
     slackURL: null,
-    questionsURL: null,
+    questionsURL: '',
     rejoinTime: 10
 };
 
@@ -219,6 +219,7 @@ exports.post_update_questions_url = function (req, res) {
     if (adminSettings.questionsURL == questionsURL) return;
 
     adminSettings.questionsURL = questionsURL;
+    home.emit_new_queue_data();
     respond_success(req, res, `Questions Guide URL updated successfully`);
 }
 
