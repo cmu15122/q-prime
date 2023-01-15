@@ -33,7 +33,7 @@ function App() {
       <LocalizationProvider dateAdapter={AdapterLuxon}>
         <ThemeContext.Provider value={theme}>
           <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
-            <Router>
+            <Router basename={process.env.PUBLIC_URL}>
               <Routes>
                 <Route path='/' element={<Home theme={theme || darkTheme}/>} />
                 <Route path='/settings' element={<Settings/>} />

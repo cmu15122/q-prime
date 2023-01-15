@@ -138,6 +138,7 @@ Create a `.env` file in the `client` folder with the following fields:
 | REACT_APP_DOMAIN | Domain used for the host address | | Angela |
 | REACT_APP_SOCKET_PATH | Path for sockets to use coming from the domain, usually ends with `/socket.io` | | Angela |
 | REACT_APP_SERVER_PATH | Path to make API calls to the server | | Angela |
+| PUBLIC_URL | URL for where the application will run | | Pranav |
 
 Add them to the `.env` file like so:
 ```
