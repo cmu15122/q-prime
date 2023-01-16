@@ -41,7 +41,7 @@ function App() {
                 <StudentDataContextProvider>
                   <AdminSettingsContextProvider>
                     <AllStudentsContextProvider>
-                      <Router>
+                      <Router basename={process.env.PUBLIC_URL}>
                         <Routes>
                           <Route path='/' element={<Home theme={theme || darkTheme}/>} />
                           <Route path='/settings' element={<Settings/>} />
