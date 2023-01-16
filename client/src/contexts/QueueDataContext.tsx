@@ -21,6 +21,7 @@ const QueueDataContextProvider = ({children}: {children: React.ReactNode}) => {
     numTAs: 0,
 
     announcements: [],
+    questionsURL: '',
     topics: [],
     locations: {
       dayDictionary: {},

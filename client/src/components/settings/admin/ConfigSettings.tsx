@@ -7,24 +7,26 @@ import {
 import BaseCard from '../../common/cards/BaseCard';
 
 import SettingsService from '../../../services/SettingsService';
-import {QueueSettingsContext} from '../../../contexts/QueueSettingsContext';
+import {AdminSettingsContext} from '../../../contexts/AdminSettingsContext';
+import {QueueDataContext} from '../../../contexts/QueueDataContext';
 
 export default function ConfigSettings(props) {
-  const {queueSettings} = useContext(QueueSettingsContext);
+  const {adminSettings} = useContext(AdminSettingsContext);
+  const {queueData} = useContext(QueueDataContext);
 
   const [currSem, setCurrSem] = useState('');
   const [slackURL, setSlackURL] = useState('');
   const [questionsURL, setQuestionsURL] = useState('');
 
   useEffect(() => {
-    setCurrSem(queueSettings.currSem);
-    setSlackURL(queueSettings.slackURL);
-    setQuestionsURL(queueSettings.questionsURL);
-  }, [queueSettings]);
+    setCurrSem(adminSettings.currSem);
+    setSlackURL(adminSettings.slackURL);
+    setQuestionsURL(queueData.questionsURL);
+  }, [adminSettings]);
 
   const handleUpdateSemester = (event) => {
     event.preventDefault();
-    if (currSem === queueSettings.currSem) return;
+    if (currSem === adminSettings.currSem) return;
 
     SettingsService.updateSemester(
         JSON.stringify({
@@ -38,7 +40,7 @@ export default function ConfigSettings(props) {
 
   const handleUpdateSlackURL = (event) => {
     event.preventDefault();
-    if (slackURL === queueSettings.slackURL) return;
+    if (slackURL === adminSettings.slackURL) return;
 
     SettingsService.updateSlackURL(
         JSON.stringify({
@@ -49,7 +51,7 @@ export default function ConfigSettings(props) {
 
   const handleUpdateQuestionsURL = (event) => {
     event.preventDefault();
-    if (questionsURL === queueSettings.questionsURL) return;
+    if (questionsURL === queueData.questionsURL) return;
 
     SettingsService.updateQuestionsURL(
         JSON.stringify({

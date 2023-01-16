@@ -70,6 +70,8 @@ function buildQueueData() {
 
         announcements: announcements,
 
+        questionsURL: adminSettings.questionsURL,
+
         topics: [],
         locations: settings.internal_get_locations(),
         tas: []

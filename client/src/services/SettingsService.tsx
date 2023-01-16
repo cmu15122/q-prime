@@ -1,8 +1,8 @@
 import http from '../http-common';
 
 class SettingsDataService {
-  getQueueSettings() {
-    return http.get('/settings/queueSettings');
+  getAdminSettings() {
+    return http.get('/settings/adminSettings');
   }
   updateVideoChatSettings(data) {
     return http.post('/settings/videoChat/update', data);

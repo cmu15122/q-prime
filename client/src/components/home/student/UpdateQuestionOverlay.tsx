@@ -1,14 +1,16 @@
 import React, {useContext, useState} from 'react';
 import {
-  Button, Dialog, DialogContent, Input, Stack, Typography,
+  Button, Dialog, DialogContent, Input, Link, Stack, Typography,
 } from '@mui/material';
 
 import HomeService from '../../../services/HomeService';
 import {StudentDataContext} from '../../../contexts/StudentDataContext';
+import {QueueDataContext} from '../../../contexts/QueueDataContext';
 
 export default function UpdateQuestionOverlay(props) {
   const {open, handleClose} = props;
   const {studentData} = useContext(StudentDataContext);
+  const {queueData} = useContext(QueueDataContext);
 
   const [tempQuestion, setTempQuestion] = useState(studentData.question);
 
@@ -38,7 +40,7 @@ export default function UpdateQuestionOverlay(props) {
         <Typography variant="body1" sx={{pt: 2}}>
           A TA has requested that you update your question. Before we can help you, we need more details from you.
           More specifically, we need to know what you&apos;ve tried and already understand in addition to your question.
-          Make sure to review *Insert Diderot link* for more help!
+          Make sure to review <Link target="_blank" href={queueData.questionsURL}>Question Guidelines</Link> for more help!
         </Typography>
 
         <Input

@@ -1,6 +1,5 @@
-import React, {createContext, useContext, useEffect, useState} from 'react';
-import {BrowserRouter as Router, Routes, Route}
-  from 'react-router-dom';
+import React from 'react';
+import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 
 import Home from './pages/home';
 import Settings from './pages/settings';
@@ -20,7 +19,7 @@ import './App.css';
 import {QueueDataContextProvider} from './contexts/QueueDataContext';
 import {AllStudentsContextProvider} from './contexts/AllStudentsContext';
 import {StudentDataContextProvider} from './contexts/StudentDataContext';
-import {QueueSettingsContextProvider} from './contexts/QueueSettingsContext';
+import {AdminSettingsContextProvider} from './contexts/AdminSettingsContext';
 import {UserDataContextProvider} from './contexts/UserDataContext';
 
 function App() {
@@ -40,7 +39,7 @@ function App() {
             <UserDataContextProvider>
               <QueueDataContextProvider>
                 <StudentDataContextProvider>
-                  <QueueSettingsContextProvider>
+                  <AdminSettingsContextProvider>
                     <AllStudentsContextProvider>
                       <Router>
                         <Routes>
@@ -61,7 +60,7 @@ function App() {
                         pauseOnHover
                       />
                     </AllStudentsContextProvider>
-                  </QueueSettingsContextProvider>
+                  </AdminSettingsContextProvider>
                 </StudentDataContextProvider>
               </QueueDataContextProvider>
             </UserDataContextProvider>

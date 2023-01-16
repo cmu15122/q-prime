@@ -3,7 +3,7 @@ const router = express.Router();
 
 const settings = require('../controllers/settings');
 
-router.get('/queueSettings', settings.get_queue_settings);
+router.get('/adminSettings', settings.get_queue_settings);
 
 router.post('/videoChat/update', settings.post_update_video_chat);
 router.post('/notifs/update', settings.post_update_notifs);
