@@ -1,13 +1,14 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext, useMemo} from 'react';
 
 import {List, ListSubheader, ListItem,
   ListItemButton, ListItemIcon, ListItemText, Checkbox,
 } from '@mui/material';
 
 import SettingsService from '../../../../services/SettingsService';
+import {QueueDataContext} from '../../../../contexts/QueueDataContext';
 
-function createData(topicId, name) {
-  return {topicId, name};
+function createData(assignment_id, name) {
+  return {assignment_id, name};
 }
 
 const date = new Date();
@@ -18,8 +19,9 @@ const FilterGroup = {
 };
 
 export default function FilterOptions(props) {
-  const {queueData, filteredLocations, filteredTopics, setFilteredLocations, setFilteredTopics} = props;
+  const {filteredLocations, filteredTopics, setFilteredLocations, setFilteredTopics} = props;
 
+  const {queueData} = useContext(QueueDataContext);
   // group definition:
   // 0 = locations, 1 = topics
   const handleToggle = (group, value) => () => {
@@ -41,40 +43,33 @@ export default function FilterOptions(props) {
     }
   };
 
-  const [locations, setLocations] = useState([]);
-  const [topics, setTopics] = useState([]);
-
-  useEffect(() => {
+  const topics = useMemo(() => {
     if (queueData != null) {
-      updateTopics(queueData.topics);
-      updateLocations();
-    }
-  }, [queueData]);
+      const newRows = [];
+      queueData.topics.forEach((topic) => {
+        if (new Date(topic.start_date) <= new Date() && new Date(topic.end_date) > new Date()) {
+          newRows.push(createData(
+              topic.assignment_id,
+              topic.name,
+          ));
+        }
+      });
+      newRows.push(createData(-1, 'Other'));
+      return newRows;
+    } else return [];
+  }, [queueData.topics]);
 
-  function updateTopics(newTopics) {
-    const newRows = [];
-    newTopics.forEach((topic) => {
-      newRows.push(createData(
-          topic.assignment_id,
-          topic.name,
-      ));
-    });
-    newRows.push(createData(-1, 'Other'));
-    setTopics(newRows);
-    console.log(newRows);
-  }
-
-  function updateLocations() {
-    const day = date.getDay();
-    let newLocations = {};
-    SettingsService.getLocations().then((res) => {
-      const dayDict = res.data.dayDictionary;
+  const locations = useMemo(() => {
+    if (queueData != null) {
+      const day = date.getDay();
+      let newLocations = {};
+      const dayDict = queueData.locations.dayDictionary;
       newLocations = dayDict;
 
       const roomsForDay = (newLocations && newLocations[day]) ? newLocations[day] : ['Office Hours'];
-      setLocations(roomsForDay);
-    });
-  }
+      return roomsForDay;
+    } else return [];
+  }, [queueData.locations]);
 
   return (
     <div>
@@ -127,7 +122,7 @@ export default function FilterOptions(props) {
 
           return (
             <ListItem
-              key={value.id}
+              key={value.name}
               disablePadding
             >
               <ListItemButton role={undefined} onClick={handleToggle(FilterGroup.Topic, value.name)} dense>

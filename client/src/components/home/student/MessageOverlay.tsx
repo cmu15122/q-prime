@@ -1,11 +1,12 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {
   Button, Dialog, DialogContent, Stack, TextField, Typography,
 } from '@mui/material';
+import {StudentDataContext} from '../../../contexts/StudentDataContext';
 
 export default function MessageOverlay(props) {
-  const {open, message, handleClose, helpingTAInfo, removeFromQueue, dismissMessage} = props;
-
+  const {open, handleClose, helpingTAInfo, removeFromQueue, dismissMessage} = props;
+  const {studentData} = useContext(StudentDataContext);
   const leaveQueue = () => {
     removeFromQueue();
     handleClose();
@@ -23,7 +24,7 @@ export default function MessageOverlay(props) {
           multiline
           fullWidth
           rows={4}
-          value={message}
+          value={studentData.message}
           InputProps={{readOnly: true}}
         />
 

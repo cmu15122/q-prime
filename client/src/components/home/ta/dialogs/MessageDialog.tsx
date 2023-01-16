@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {
-  Box, Button, Dialog, DialogContent, Typography, TextField, useTheme,
+  Box, Button, Dialog, DialogContent, Typography, TextField,
 } from '@mui/material';
 
 import HomeService from '../../../../services/HomeService';
@@ -8,7 +8,6 @@ import {StudentStatusValues} from '../../../../services/StudentStatus';
 
 export default function MessageDialog(props) {
   const {isOpen, onClose, student} = props;
-  const theme = useTheme();
   const [message, setMessage] = useState('');
 
   const onSubmit = (event) => {

@@ -1,8 +1,8 @@
 import http from '../http-common';
 
 class SettingsDataService {
-  getAll() {
-    return http.get('/settings');
+  getAdminSettings() {
+    return http.get('/settings/adminSettings');
   }
   updateVideoChatSettings(data) {
     return http.post('/settings/videoChat/update', data);
@@ -65,9 +65,6 @@ class SettingsDataService {
   }
   updateLocations(data) {
     return http.post('/settings/locations/update', data);
-  }
-  getLocations() {
-    return http.get('/settings/locations/get');
   }
   addLocation(data) {
     return http.post('/settings/locations/add', data);

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {useCookies} from 'react-cookie';
 import {
   useMediaQuery, AppBar, Toolbar, Box, Button, MenuItem, Menu,
@@ -13,7 +13,9 @@ import GoogleLogin from '../common/GoogleLogin';
 import AlertOnLogout from './dialogs/AlertOnLogout';
 
 import HomeService from '../../services/HomeService';
-import {socketSubscribeTo} from '../../services/SocketsService';
+import {UserDataContext} from '../../contexts/UserDataContext';
+import {QueueDataContext} from '../../contexts/QueueDataContext';
+import {StudentDataContext} from '../../contexts/StudentDataContext';
 
 function createPage(page, link) {
   return {page, link};
@@ -27,23 +29,24 @@ const NavbarButton = styled(Button)({
 });
 
 export default function Navbar(props) {
-  const {queueData, isHome, studentData} = props;
+  const {isHome} = props;
   const theme = useTheme();
+
+  const {queueData} = useContext(QueueDataContext);
+
+  const {studentData} = useContext(StudentDataContext);
+  const {userData} = useContext(UserDataContext);
 
   const isMobileView = useMediaQuery('(max-width: 1000px)');
 
   const [, , removeCookie] = useCookies(['user']);
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isTA, setIsTA] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const [pages, setPages] = useState([]);
-  const [queueFrozen, setQueueFrozen] = useState(false);
 
   const [anchorElNav, setAnchorElNav] = useState(null);
 
   const [alertOpen, setAlertOpen] = useState(false);
-  const [pname, setpname] = useState(queueData === null ? '' : queueData.preferred_name);
+  const [pname, setpname] = useState(userData.preferredName);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -58,30 +61,19 @@ export default function Navbar(props) {
   };
 
   useEffect(() => {
-    socketSubscribeTo('queueFrozen', (data) => {
-      setQueueFrozen(data.isFrozen);
-    });
-  }, []);
-
-  useEffect(() => {
-    if (queueData != null) {
-      setQueueFrozen(queueData.queueFrozen);
-      setIsAuthenticated(queueData.isAuthenticated);
-      setIsTA(queueData.isTA);
-      setIsAdmin(queueData.isAdmin);
-    }
-  }, [queueData]);
-
-  useEffect(() => {
     const newPages = [];
 
-    if (isAuthenticated && isTA) {
+    if (userData.isAuthenticated && userData.isTA) {
       newPages.push(createPage('Settings', '/settings'));
       newPages.push(createPage('Metrics', '/metrics'));
     }
 
     setPages(newPages);
-  }, [isAuthenticated, isTA, isAdmin]);
+  }, [userData.isAuthenticated, userData.isTA]);
+
+  useEffect(() => {
+    setpname(userData.preferredName);
+  }, [userData.preferredName, setpname]);
 
   function handleLogout() {
     removeCookie('user');
@@ -111,23 +103,12 @@ export default function Navbar(props) {
   const unfreezeButton = <Button color="secondary" variant="contained" sx={{mx: 2}} onClick={unfreezeQueue}>Unfreeze</Button>;
   const freezeButton = <Button color="secondary" variant="contained" sx={{mx: 2}} onClick={freezeQueue}>Freeze</Button>;
 
-  if (!queueData) {
-    // No queue data received, nothing to render
-    return (
-      <AppBar position="static" style={{background: theme.alternateColors.navbar}} enableColorOnDark>
-        <Toolbar sx={{display: 'flex space-between'}}>
-          <Box sx={{flexGrow: 1, display: 'flex'}}>
-            <OHQueueHeader/>
-          </Box>
-        </Toolbar>
-      </AppBar>
-    );
-  } else if (isMobileView) {
+  if (isMobileView) {
     return (
       <AppBar position="static" style={{background: theme.alternateColors.navbar}} enableColorOnDark>
         <Toolbar sx={{display: 'flex space-between'}}>
           {
-            ((pages && pages.length > 0) || isAuthenticated) &&
+            ((pages && pages.length > 0) || userData.isAuthenticated) &&
             <Box sx={{flexGrow: 1, display: 'flex'}}>
               <IconButton
                 size="large"
@@ -153,7 +134,7 @@ export default function Navbar(props) {
                 sx={{display: 'block'}}
               >
                 {
-                  isTA && isHome && (queueFrozen ?
+                  userData.isTA && isHome && (queueData.queueFrozen ?
                     <MenuItem onClick={unfreezeQueue}>
                       <Typography variant='subtitle2' sx={{mx: 2}}>
                         Unfreeze
@@ -176,7 +157,7 @@ export default function Navbar(props) {
                   ))
                 }
                 {
-                  isAuthenticated &&
+                  userData.isAuthenticated &&
                     <MenuItem onClick={handleLogoutClicked}>
                       <Typography variant='subtitle2' sx={{mx: 2}}>
                             Logout
@@ -192,7 +173,7 @@ export default function Navbar(props) {
           </Box>
           <Box sx={{flexGrow: 0, display: 'flex', justifyContent: 'flex-end'}} >
             {
-              !isAuthenticated && <GoogleLogin/>
+              !userData.isAuthenticated && <GoogleLogin/>
             }
           </Box>
           <AlertOnLogout isOpen={alertOpen} setOpen={setAlertOpen} handleConfirm={handleLogout}/>
@@ -208,17 +189,17 @@ export default function Navbar(props) {
         <Box sx={{flexGrow: 1, display: 'flex'}}>
           <OHQueueHeader/>
           {
-            isTA && isHome && (queueFrozen ? unfreezeButton : freezeButton)
+            userData.isTA && isHome && (queueData.queueFrozen ? unfreezeButton : freezeButton)
           }
         </Box>
         <Box sx={{flexGrow: 0, display: 'flex', color: '#FFFFFF'}}>
           {
-            isAuthenticated && 'Currently Logged in as ' + pname
+            userData.isAuthenticated && 'Currently Logged in as ' + pname
           }
         </Box>
         <Box sx={{flexGrow: 0, display: 'flex'}}>
           {
-            isAuthenticated && <ChangeNameBtn queueData={queueData} pname={pname} setpname={setpname}/>
+            userData.isAuthenticated && <ChangeNameBtn pname={pname} setpname={setpname}/>
           }
         </Box>
 
@@ -229,7 +210,7 @@ export default function Navbar(props) {
             ))
           }
           {
-            isAuthenticated ?
+            userData.isAuthenticated ?
             <NavbarButton onClick={handleLogoutClicked}>Logout</NavbarButton> :
             <GoogleLogin/>
           }

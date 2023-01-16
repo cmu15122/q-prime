@@ -25,6 +25,7 @@
         "max-len": "off",
         "require-jsdoc": "off",
         "react/prop-types": "off",
-        "linebreak-style": "off"
+        "linebreak-style": "off",
+        "camelcase": "off"
     }
 }

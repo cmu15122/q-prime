@@ -1,13 +1,12 @@
 import React from 'react';
 import {
-  Button, Stack, useTheme,
+  Button, Stack,
 } from '@mui/material';
 
 export default function YouAreHelping(props) {
   const {
-    removeRef, removeStudent, index, handleCancel,
+    removeRef, removeStudent, index, handleCancel, theme,
   } = props;
-  const theme = useTheme();
 
   return (
     <Stack
