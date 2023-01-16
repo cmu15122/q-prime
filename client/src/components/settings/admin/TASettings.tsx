@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext, useMemo} from 'react';
 import {
   Button, Checkbox, FormControlLabel, Grid, TableCell, TableRow, Typography, useTheme,
 } from '@mui/material';
@@ -15,36 +15,32 @@ import EditDeleteRow from '../../common/table/EditDeleteRow';
 
 import SettingsService from '../../../services/SettingsService';
 import download from 'downloadjs';
+import {QueueDataContext} from '../../../contexts/QueueDataContext';
 
 function createData(userId, name, email, isAdmin) {
   return {userId, name, email, isAdmin};
 }
 
 export default function TASettings(props) {
-  const {queueData} = props;
+  const {queueData} = useContext(QueueDataContext);
   const theme = useTheme();
 
   const [selectedRow, setSelectedRow] = useState(null);
-  const [rows, setRows] = useState([]);
 
-  useEffect(() => {
+  const rows = useMemo(() => {
     if (queueData != null) {
-      updateTAs(queueData.tas);
-    }
-  }, [queueData]);
-
-  const updateTAs = (newTAs) => {
-    const newRows = [];
-    newTAs.forEach((ta) => {
-      newRows.push(createData(
-          ta.ta_id,
-          ta.preferred_name,
-          ta.email,
-          ta.isAdmin,
-      ));
-    });
-    setRows(newRows);
-  };
+      const newRows = [];
+      queueData.tas.forEach((ta) => {
+        newRows.push(createData(
+            ta.ta_id,
+            ta.preferred_name,
+            ta.email,
+            ta.isAdmin,
+        ));
+      });
+      return newRows;
+    } else return [];
+  }, [queueData.tas]);
 
   const handleDownload = () => {
     SettingsService.downloadTACSV()
@@ -109,10 +105,8 @@ export default function TASettings(props) {
           email: email,
           isAdmin: isAdmin,
         }),
-    ).then((res) => {
-      updateTAs(res.data.tas);
-      handleClose();
-    });
+    );
+    handleClose();
   };
 
   const handleEdit = (event) => {
@@ -122,10 +116,8 @@ export default function TASettings(props) {
           user_id: selectedRow.userId,
           isAdmin: isAdmin,
         }),
-    ).then((res) => {
-      updateTAs(res.data.tas);
-      handleClose();
-    });
+    );
+    handleClose();
   };
 
   const handleDelete = () => {
@@ -133,10 +125,8 @@ export default function TASettings(props) {
         JSON.stringify({
           user_id: selectedRow.userId,
         }),
-    ).then((res) => {
-      updateTAs(res.data.tas);
-      handleClose();
-    });
+    );
+    handleClose();
   };
 
   const handleUpload = (event) => {
@@ -147,11 +137,8 @@ export default function TASettings(props) {
 
     const formData = new FormData();
     formData.append('file', file);
-    SettingsService.uploadTACSV(formData)
-        .then((res) => {
-          updateTAs(res.data.tas);
-          handleClose();
-        });
+    SettingsService.uploadTACSV(formData);
+    handleClose();
   };
 
   return (

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext, useMemo} from 'react';
 import {
   TableCell, Typography,
 } from '@mui/material';
@@ -13,32 +13,22 @@ import CollapsedTable from '../../common/table/CollapsedTable';
 
 import SettingsService from '../../../services/SettingsService';
 import ItemRow from '../../common/table/ItemRow';
+import {QueueDataContext} from '../../../contexts/QueueDataContext';
 
 export default function Locations(props) {
-  const {queueData} = props;
-
+  const {queueData} = useContext(QueueDataContext);
   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-  const [roomDictionary, setRoomDictionary] = useState({}); // dict of location: [days]
-  const [dayDictionary, setDayDictionary] = useState({});
-
-  useEffect(() => {
-    SettingsService.getLocations()
-        .then((res) => {
-          updateRoomDictionary(res.data.roomDictionary);
-        });
-  }, []);
-
-  useEffect(() => {
+  const dayDictionary = useMemo(() => {
     if (queueData != null) {
-      setDayDictionary(queueData.locations);
-    }
-  }, [queueData]);
-
-  const updateRoomDictionary = (newRoomDict) => {
-    if (!newRoomDict) return;
-    setRoomDictionary(newRoomDict);
-  };
+      return queueData.locations.dayDictionary;
+    } else return {};
+  }, [queueData.locations]);
+  const roomDictionary = useMemo(() => {
+    if (queueData != null) {
+      return queueData.locations.roomDictionary;
+    } else return {};
+  }, [queueData.locations]);
 
   const convertIdxToDays = (idxArr) => {
     return idxArr.map((idx) => daysOfWeek[idx]);
@@ -63,10 +53,9 @@ export default function Locations(props) {
         JSON.stringify({
           room: room,
         }),
-    ).then((res) => {
-      handleClose();
-      setRoomDictionary(res.data.roomDictionary);
-    });
+    );
+
+    handleClose();
   };
 
   return (
@@ -75,7 +64,7 @@ export default function Locations(props) {
         title="Location Settings"
       >
         {
-          Object.keys(roomDictionary).map((room, index) => (
+          Object.keys(roomDictionary).sort().map((room, index) => (
             <ItemRow
               key={index}
               index={index}
@@ -93,9 +82,7 @@ export default function Locations(props) {
                   days={roomDictionary[room]}
                   daysOfWeek={daysOfWeek}
                   roomDictionary={roomDictionary}
-                  setRoomDictionary={setRoomDictionary}
                   dayDictionary={dayDictionary}
-                  setDayDictionary={setDayDictionary}
                 />
               </TableCell>
             </ItemRow>

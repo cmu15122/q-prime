@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {
   Typography,
 } from '@mui/material';
@@ -6,9 +6,10 @@ import {
 import AdminMain from './admin/AdminMain';
 import VideoChatSettings from './VideoChatSettings';
 import NotificationSettings from './NotificationSettings';
+import {UserDataContext} from '../../contexts/UserDataContext';
 
 function Main(props) {
-  const {queueData} = props;
+  const {userData} = useContext(UserDataContext);
 
   return (
     <div>
@@ -16,14 +17,14 @@ function Main(props) {
         Settings
       </Typography>
       {
-        !queueData?.isOwner && <VideoChatSettings queueData={queueData}/>
+        !userData.isOwner && <VideoChatSettings/>
       }
       {
-        !queueData?.isOwner && <NotificationSettings queueData={queueData}/>
+        !userData.isOwner && <NotificationSettings/>
       }
 
       {
-        queueData?.isAdmin && <AdminMain queueData={queueData}/>
+        userData.isAdmin && <AdminMain/>
       }
     </div>
   );

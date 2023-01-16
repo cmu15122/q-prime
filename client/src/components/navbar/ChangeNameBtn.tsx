@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import {
   Button, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, TextField,
 } from '@mui/material';
@@ -7,15 +7,10 @@ import EditIcon from '@mui/icons-material/Edit';
 import SettingsService from '../../services/SettingsService';
 
 export default function ChangeNameBtn(props) {
-  const {queueData, setpname, pname} = props;
+  const {setpname, pname} = props;
+
   const [tmpPrefName, setTmpPrefName] = useState(pname);
   const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    if (queueData != null) {
-      setpname(queueData.preferred_name);
-    }
-  }, [queueData, setpname]);
 
   const handleClickOpen = () => {
     setOpen(true);

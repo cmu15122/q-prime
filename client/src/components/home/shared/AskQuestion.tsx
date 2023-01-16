@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useMemo, useContext} from 'react';
 import {
   Typography, Divider, CardContent, CardActions, Stack,
   FormControl, InputLabel, MenuItem, Box, Select, Input, Button,
@@ -8,24 +8,25 @@ import CooldownViolationOverlay from './CooldownViolationOverlay';
 import BaseCard from '../../common/cards/BaseCard';
 
 import HomeService from '../../../services/HomeService';
-import SettingsService from '../../../services/SettingsService';
+import {UserDataContext} from '../../../contexts/UserDataContext';
+import {QueueDataContext} from '../../../contexts/QueueDataContext';
+import {StudentDataContext} from '../../../contexts/StudentDataContext';
 
-function createData(topicId, name) {
-  return {topicId, name};
+function createData(assignment_id, name) {
+  return {assignment_id, name};
 }
 
 const date = new Date();
 
-export default function AskQuestion(props) {
-  const {queueData} = props;
+export default function AskQuestion() {
+  const {userData} = useContext(UserDataContext);
+  const {queueData} = useContext(QueueDataContext);
 
-  const [locations, setLocations] = useState([]);
-  const [topics, setTopics] = useState([]);
-
+  // not changing name or andrewID to use global because this component can also be used by TAs to manually add questions
   const [name, setName] = useState('');
   const [andrewID, setAndrewID] = useState('');
   const [location, setLocation] = useState('');
-  const [topic, setTopic] = useState('');
+  const [topic, setTopic] = useState(null);
   const [question, setQuestion] = useState('');
 
   const [showCooldownOverlay, setShowCooldownOverlay] = useState(false);
@@ -33,49 +34,50 @@ export default function AskQuestion(props) {
 
   const [askDisabled, setAskDisabled] = useState(false);
 
-  useEffect(() => {
+  const {studentData, setStudentData} = useContext(StudentDataContext);
+
+  const locations = useMemo(() => {
     if (queueData != null) {
-      updateTopics(queueData.topics);
-      updateLocations();
+      const day = date.getDay();
+      let newLocations = {};
 
-      if (!queueData.isTA) {
-        setName(queueData.name);
-        setAndrewID(queueData.andrewID);
-      }
-    }
-  }, [queueData]);
-
-  function updateTopics(newTopics) {
-    const newRows = [];
-    newTopics.forEach((topic) => {
-      newRows.push(createData(
-          topic.assignment_id,
-          topic.name,
-      ));
-    });
-    newRows.push(createData(-1, 'Other'));
-    setTopics(newRows);
-
-    if (newRows.length === 1) {
-      setTopic(newRows[0]);
-    }
-  }
-
-  function updateLocations() {
-    const day = date.getDay();
-    let newLocations = {};
-    SettingsService.getLocations().then((res) => {
-      const dayDict = res.data.dayDictionary;
+      const dayDict = queueData.locations.dayDictionary;
       newLocations = dayDict;
 
       const roomsForDay = (newLocations && newLocations[day]) ? newLocations[day] : ['Office Hours'];
-      setLocations(roomsForDay);
 
       if (roomsForDay.length === 1) {
         setLocation(roomsForDay[0]);
       }
-    });
-  }
+
+      return roomsForDay;
+    } else return [];
+  }, [queueData.locations]);
+
+  const topics = useMemo(() => {
+    if (queueData != null) {
+      const newRows = [];
+      queueData.topics.forEach((topic) => {
+        if (new Date(topic.start_date) <= new Date() && new Date(topic.end_date) > new Date()) {
+          newRows.push(topic);
+        }
+      });
+      newRows.push(createData(-1, 'Other'));
+
+      if (newRows.length === 1) {
+        setTopic(newRows[0]);
+      }
+
+      return newRows;
+    } else return [createData(-1, 'Other')];
+  }, [queueData.topics]);
+
+  useEffect(() => {
+    if (!userData.isTA) {
+      setName(userData.preferredName);
+      setAndrewID(userData.andrewID);
+    }
+  }, [userData.isTA, userData.preferredName, userData.andrewID]);
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -108,7 +110,7 @@ export default function AskQuestion(props) {
     setName('');
     setAndrewID('');
     setLocation('');
-    setTopic('');
+    setTopic(null);
     setQuestion('');
   }
 
@@ -123,8 +125,8 @@ export default function AskQuestion(props) {
         <CardContent sx={{mx: 1.5}}>
           <form onSubmit={handleSubmit}>
             {
-              queueData?.isTA &&
-                <Stack direction="row" justifyContent="left" sx={{mb: 2}}>
+              userData.isTA &&
+                <Stack direction='row' justifyContent='left' sx={{mb: 2}}>
                   <Box sx={{minWidth: 120, width: '47%'}}>
                     <FormControl required fullWidth>
                       <Input
@@ -149,15 +151,15 @@ export default function AskQuestion(props) {
                   </Box>
                 </Stack>
             }
-            <Stack direction="row" justifyContent="left">
+            <Stack direction='row' justifyContent='left'>
               <Box sx={{minWidth: 120, width: '47%'}}>
-                <FormControl variant="standard" required fullWidth>
-                  <InputLabel id="location-select">Location</InputLabel>
+                <FormControl variant='standard' required fullWidth>
+                  <InputLabel id='location-select'>Location</InputLabel>
                   <Select
-                    labelId="location-select-label"
-                    id="location-select"
+                    labelId='location-select-label'
+                    id='location-select'
                     value={location ?? ''}
-                    label="Location"
+                    label='Location'
                     onChange={(e)=>setLocation(e.target.value)}
                     style={{textAlign: 'left'}}
                   >
@@ -166,17 +168,17 @@ export default function AskQuestion(props) {
                 </FormControl>
               </Box>
               <Box sx={{minWidth: 120, width: '47%', margin: 'auto', mr: 1}}>
-                <FormControl variant="standard" required fullWidth>
-                  <InputLabel id="topic-select">Topic</InputLabel>
+                <FormControl variant='standard' required fullWidth>
+                  <InputLabel id='topic-select'>Topic</InputLabel>
                   <Select
-                    labelId="topic-select-label"
-                    id="topic-select"
+                    labelId='topic-select-label'
+                    id='topic-select'
                     value={topic ?? ''}
-                    label="Topic"
+                    label='Topic'
                     onChange={(e)=>setTopic(e.target.value)}
                     style={{textAlign: 'left'}}
                   >
-                    {topics.map((top) => <MenuItem value={top} key={top.topicId}>{top.name}</MenuItem>)}
+                    {topics.map((top) => <MenuItem value={top} key={top.assignment_id}>{top.name}</MenuItem>)}
                   </Select>
                 </FormControl>
               </Box>
@@ -190,10 +192,10 @@ export default function AskQuestion(props) {
                 fullWidth
                 multiline
                 inputProps={{maxLength: 256}}
-                type="text"
+                type='text'
               />
             </FormControl>
-            <Button disabled={askDisabled} fullWidth variant="contained" sx={{mt: 3, py: 1, fontSize: '16px', fontWeight: 'bold', alignContent: 'center'}} type="submit">
+            <Button disabled={askDisabled} fullWidth variant='contained' sx={{mt: 3, py: 1, fontSize: '16px', fontWeight: 'bold', alignContent: 'center'}} type='submit'>
               Ask
             </Button>
           </form>
@@ -208,7 +210,6 @@ export default function AskQuestion(props) {
         question={question}
         location={location}
         topic={topic}
-        queueData={queueData}
       />
     </div>
   );

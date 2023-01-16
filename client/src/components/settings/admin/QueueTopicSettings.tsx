@@ -1,4 +1,8 @@
-import React, {useState, useEffect} from 'react';
+// TODO Issues with editing topics, fairly certain not a result of my changes
+// Editing will cause a lot of MUI errors in console and can sometimes just delete the topics?
+// Issue persists after page refresh
+
+import React, {useState, useContext, useMemo} from 'react';
 import {
   Button, TableCell, TableRow, Typography, useTheme,
 } from '@mui/material';
@@ -17,39 +21,35 @@ import SettingsService from '../../../services/SettingsService';
 
 import {DateTime} from 'luxon';
 import download from 'downloadjs';
+import {QueueDataContext} from '../../../contexts/QueueDataContext';
 
-function createData(assignmentId, name, category, startDate, endDate) {
+function createData(assignment_id, name, category, startDate, endDate) {
   startDate = DateTime.fromISO(startDate);
   endDate = DateTime.fromISO(endDate);
-  return {assignmentId, name, category, startDate, endDate};
+  return {assignment_id, name, category, startDate, endDate};
 }
 
 export default function QueueTopicSettings(props) {
-  const {queueData} = props;
+  const {queueData} = useContext(QueueDataContext);
   const theme = useTheme();
 
   const [selectedRow, setSelectedRow] = useState(null);
-  const [rows, setRows] = useState([]);
 
-  useEffect(() => {
+  const rows = useMemo(() => {
     if (queueData != null) {
-      updateTopics(queueData.topics);
-    }
-  }, [queueData]);
-
-  const updateTopics = (newTopics) => {
-    const newRows = [];
-    newTopics.forEach((topic) => {
-      newRows.push(createData(
-          topic.assignment_id,
-          topic.name,
-          topic.category,
-          topic.start_date,
-          topic.end_date,
-      ));
-    });
-    setRows(newRows);
-  };
+      const newRows = [];
+      queueData.topics.forEach((topic) => {
+        newRows.push(createData(
+            topic.assignment_id,
+            topic.name,
+            topic.category,
+            topic.start_date,
+            topic.end_date,
+        ));
+      });
+      return newRows;
+    } else return [];
+  }, [queueData.topics]);
 
   const handleDownload = () => {
     SettingsService.downloadTopicCSV()
@@ -125,37 +125,34 @@ export default function QueueTopicSettings(props) {
           start_date: startDate.toString(),
           end_date: endDate.toString(),
         }),
-    ).then((res) => {
-      updateTopics(res.data.topics);
-      handleClose();
-    });
+    );
+
+    handleClose();
   };
 
   const handleEdit = (event) => {
     event.preventDefault();
     SettingsService.updateTopic(
         JSON.stringify({
-          assignment_id: selectedRow?.assignmentId,
+          assignment_id: selectedRow?.assignment_id,
           name: name,
           category: category,
           start_date: startDate.toString(),
           end_date: endDate.toString(),
         }),
-    ).then((res) => {
-      updateTopics(res.data.topics);
-      handleClose();
-    });
+    );
+
+    handleClose();
   };
 
   const handleDelete = () => {
     SettingsService.deleteTopic(
         JSON.stringify({
-          assignment_id: selectedRow?.assignmentId,
+          assignment_id: selectedRow?.assignment_id,
         }),
-    ).then((res) => {
-      updateTopics(res.data.topics);
-      handleClose();
-    });
+    );
+
+    handleClose();
   };
 
   const handleUpload = (event) => {
@@ -166,11 +163,9 @@ export default function QueueTopicSettings(props) {
 
     const formData = new FormData();
     formData.append('file', file);
-    SettingsService.uploadTopicCSV(formData)
-        .then((res) => {
-          updateTopics(res.data.topics);
-          handleClose();
-        });
+    SettingsService.uploadTopicCSV(formData);
+
+    handleClose();
   };
 
   return (

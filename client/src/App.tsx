@@ -1,6 +1,5 @@
 import React from 'react';
-import {BrowserRouter as Router, Routes, Route}
-  from 'react-router-dom';
+import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 
 import Home from './pages/home';
 import Settings from './pages/settings';
@@ -17,6 +16,11 @@ import {ToastContainer} from 'material-react-toastify';
 
 import 'material-react-toastify/dist/ReactToastify.css';
 import './App.css';
+import {QueueDataContextProvider} from './contexts/QueueDataContext';
+import {AllStudentsContextProvider} from './contexts/AllStudentsContext';
+import {StudentDataContextProvider} from './contexts/StudentDataContext';
+import {AdminSettingsContextProvider} from './contexts/AdminSettingsContext';
+import {UserDataContextProvider} from './contexts/UserDataContext';
 
 function App() {
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
@@ -25,7 +29,6 @@ function App() {
       prefersDarkMode ? darkTheme : lightTheme,
       [prefersDarkMode],
   );
-
   const ThemeContext = React.createContext(theme);
 
   return (
@@ -33,24 +36,34 @@ function App() {
       <LocalizationProvider dateAdapter={AdapterLuxon}>
         <ThemeContext.Provider value={theme}>
           <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
-            <Router basename={process.env.PUBLIC_URL}>
-              <Routes>
-                <Route path='/' element={<Home theme={theme || darkTheme}/>} />
-                <Route path='/settings' element={<Settings/>} />
-                <Route path='/metrics' element={<Metrics/>} />
-              </Routes>
-            </Router>
-            <ToastContainer
-              position="bottom-left"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-            />
+            <UserDataContextProvider>
+              <QueueDataContextProvider>
+                <StudentDataContextProvider>
+                  <AdminSettingsContextProvider>
+                    <AllStudentsContextProvider>
+                      <Router basename={process.env.PUBLIC_URL}>
+                        <Routes>
+                          <Route path='/' element={<Home theme={theme || darkTheme}/>} />
+                          <Route path='/settings' element={<Settings/>} />
+                          <Route path='/metrics' element={<Metrics/>} />
+                        </Routes>
+                      </Router>
+                      <ToastContainer
+                        position="bottom-left"
+                        autoClose={5000}
+                        hideProgressBar={false}
+                        newestOnTop={false}
+                        closeOnClick
+                        rtl={false}
+                        pauseOnFocusLoss
+                        draggable
+                        pauseOnHover
+                      />
+                    </AllStudentsContextProvider>
+                  </AdminSettingsContextProvider>
+                </StudentDataContextProvider>
+              </QueueDataContextProvider>
+            </UserDataContextProvider>
           </GoogleOAuthProvider>
         </ThemeContext.Provider>
       </LocalizationProvider>

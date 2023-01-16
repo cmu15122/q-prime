@@ -1,14 +1,16 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {
   Typography, Button, Dialog, DialogContent, Stack, useTheme,
 } from '@mui/material';
 
 import HomeService from '../../../services/HomeService';
+import {QueueDataContext} from '../../../contexts/QueueDataContext';
 
 export default function CooldownViolationOverlay(props) {
-  const {open, setOpen, andrewID, question, location, topic, queueData, timePassed} = props;
+  const {open, setOpen, andrewID, question, location, topic, timePassed} = props;
   const theme = useTheme();
 
+  const {queueData} = useContext(QueueDataContext);
   function callAddQuestionAPIOverrideCooldown() {
     HomeService.addQuestion(
         JSON.stringify({

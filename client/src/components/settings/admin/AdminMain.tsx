@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import {
   Typography,
 } from '@mui/material';
@@ -8,9 +8,10 @@ import Locations from './Locations';
 import QueueRejoinSettings from './QueueRejoinSettings';
 import QueueTopicSettings from './QueueTopicSettings';
 import TASettings from './TASettings';
+import {AdminSettingsContext} from '../../../contexts/AdminSettingsContext';
 
 function AdminMain(props) {
-  const {queueData} = props;
+  const {adminSettings} = useContext(AdminSettingsContext);
 
   return (
     <div style={{paddingBottom: '80px'}}>
@@ -18,11 +19,11 @@ function AdminMain(props) {
         Admin Settings
       </Typography>
 
-      <ConfigSettings queueData={queueData}></ConfigSettings>
-      <QueueRejoinSettings queueData={queueData}></QueueRejoinSettings>
-      { queueData.adminSettings.currSem && <QueueTopicSettings queueData={queueData}></QueueTopicSettings> }
-      { queueData.adminSettings.currSem && <Locations queueData={queueData}></Locations> }
-      { queueData.adminSettings.currSem && <TASettings queueData={queueData}></TASettings> }
+      <ConfigSettings></ConfigSettings>
+      <QueueRejoinSettings></QueueRejoinSettings>
+      { adminSettings.currSem && <QueueTopicSettings></QueueTopicSettings> }
+      { adminSettings.currSem && <Locations></Locations> }
+      { adminSettings.currSem && <TASettings></TASettings> }
     </div>
   );
 }

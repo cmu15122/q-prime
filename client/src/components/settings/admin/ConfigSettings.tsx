@@ -1,5 +1,5 @@
 
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import {
   Button, CardContent, Typography, TextField, Grid,
 } from '@mui/material';
@@ -7,25 +7,26 @@ import {
 import BaseCard from '../../common/cards/BaseCard';
 
 import SettingsService from '../../../services/SettingsService';
+import {AdminSettingsContext} from '../../../contexts/AdminSettingsContext';
+import {QueueDataContext} from '../../../contexts/QueueDataContext';
 
 export default function ConfigSettings(props) {
-  const {queueData} = props;
+  const {adminSettings} = useContext(AdminSettingsContext);
+  const {queueData} = useContext(QueueDataContext);
 
   const [currSem, setCurrSem] = useState('');
   const [slackURL, setSlackURL] = useState('');
   const [questionsURL, setQuestionsURL] = useState('');
 
   useEffect(() => {
-    if (queueData != null && queueData.adminSettings != null) {
-      setCurrSem(queueData.adminSettings.currSem);
-      setSlackURL(queueData.adminSettings.slackURL);
-      setQuestionsURL(queueData.adminSettings.questionsURL);
-    }
-  }, [queueData]);
+    setCurrSem(adminSettings.currSem);
+    setSlackURL(adminSettings.slackURL);
+    setQuestionsURL(queueData.questionsURL);
+  }, [adminSettings]);
 
   const handleUpdateSemester = (event) => {
     event.preventDefault();
-    if (currSem === queueData.adminSettings.currSem) return;
+    if (currSem === adminSettings.currSem) return;
 
     SettingsService.updateSemester(
         JSON.stringify({
@@ -39,7 +40,7 @@ export default function ConfigSettings(props) {
 
   const handleUpdateSlackURL = (event) => {
     event.preventDefault();
-    if (slackURL === queueData.adminSettings.slackURL) return;
+    if (slackURL === adminSettings.slackURL) return;
 
     SettingsService.updateSlackURL(
         JSON.stringify({
@@ -50,7 +51,7 @@ export default function ConfigSettings(props) {
 
   const handleUpdateQuestionsURL = (event) => {
     event.preventDefault();
-    if (questionsURL === queueData.adminSettings.questionsURL) return;
+    if (questionsURL === queueData.questionsURL) return;
 
     SettingsService.updateQuestionsURL(
         JSON.stringify({

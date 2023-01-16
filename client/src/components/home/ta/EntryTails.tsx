@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  Stack,
+  Stack, useTheme,
 } from '@mui/material';
 
 import YouAreHelping from './TailOptions/YouAreHelping';
@@ -16,11 +16,13 @@ export default function EntryTails(props) {
 
   const status = student.status;
 
+  const themeHook = useTheme();
+
   const getCorrectTail = (status) => {
     switch (status) {
       case StudentStatusValues.BEING_HELPED: {
         if (isHelping && (index === helpIdx)) {
-          return (YouAreHelping(props));
+          return (YouAreHelping({...props, theme: themeHook}));
         } else {
           return (ActionsHelp(props));
         }

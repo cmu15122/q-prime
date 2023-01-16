@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useContext} from 'react';
 import {
   Typography, Divider, CardContent, Stack, IconButton,
 } from '@mui/material';
@@ -10,7 +10,8 @@ import BaseCard from '../../common/cards/BaseCard';
 
 import * as converter from 'number-to-words';
 
-import {socketSubscribeTo} from '../../../services/SocketsService';
+import {StudentDataContext} from '../../../contexts/StudentDataContext';
+import {QueueDataContext} from '../../../contexts/QueueDataContext';
 
 const CustomDivider = styled(Divider)({
   marginTop: '.5em',
@@ -18,34 +19,28 @@ const CustomDivider = styled(Divider)({
 });
 
 export default function YourEntry(props) {
-  const {openRemoveOverlay, frozen, position, location, topic, question} = props;
-
-  const [yourWaitTime, setYourWaitTime] = useState(0);
-
-  useEffect(() => {
-    socketSubscribeTo('waittimes', (data) => {
-      setYourWaitTime(Math.floor(data.minsPerStudent / data.numTAs * position));
-    });
-  }, []);
+  const {openRemoveOverlay} = props;
+  const {queueData} = useContext(QueueDataContext);
+  const {studentData} = useContext(StudentDataContext);
 
   return (
     <BaseCard>
       <CardContent sx={{m: 1, textAlign: 'left'}}>
-        <Stack direction="row" display="flex" alignItems="center">
-          <Typography variant="h5" sx={{fontWeight: 'bold', pr: 1}}>Your Entry:</Typography>
-          <Typography variant="h5">You are <strong>{converter.toOrdinal(position+1)} in line</strong></Typography>
-          <IconButton color="error" sx={{marginLeft: 'auto', marginRight: '.5em'}} onClick={openRemoveOverlay}>
+        <Stack direction='row' display='flex' alignItems='center'>
+          <Typography variant='h5' sx={{fontWeight: 'bold', pr: 1}}>Your Entry:</Typography>
+          <Typography variant='h5'>You are <strong>{converter.toOrdinal(studentData.position+1)} in line</strong></Typography>
+          <IconButton color='error' sx={{marginLeft: 'auto', marginRight: '.5em'}} onClick={openRemoveOverlay}>
             <DeleteIcon />
           </IconButton>
         </Stack>
-        <Typography variant="h6">The estimated time until you are helped is <strong>{yourWaitTime} minutes</strong></Typography>
+        <Typography variant='h6'>The estimated time until you are helped is <strong>{queueData.numTAs * studentData.position === 0 ? 0 : Math.floor(queueData.minsPerStudent / queueData.numTAs * studentData.position)} minutes</strong></Typography>
         {
-          frozen &&
+          studentData.isFrozen &&
             <div>
               <CustomDivider/>
-              <Stack direction="row" display="flex" alignItems="center">
-                <PauseIcon color="error" sx={{pr: 1}} />
-                <Typography color="error" sx={{fontWeight: 'bold'}}>
+              <Stack direction='row' display='flex' alignItems='center'>
+                <PauseIcon color='error' sx={{pr: 1}} />
+                <Typography color='error' sx={{fontWeight: 'bold'}}>
                         You have been frozen in line. This means you will not advance in the queue
                         until a TA approves your entry.
                 </Typography>
@@ -53,11 +48,11 @@ export default function YourEntry(props) {
             </div>
         }
         <CustomDivider/>
-        <Typography variant="h6"><strong>Location:</strong> {location}</Typography>
-        <Typography variant="h6"><strong>Topic:</strong> {topic.name}</Typography>
+        <Typography variant='h6'><strong>Location:</strong> {studentData.location}</Typography>
+        <Typography variant='h6'><strong>Topic:</strong> {studentData.topic.name}</Typography>
         <CustomDivider/>
-        <Typography variant="h6" sx={{fontWeight: 'bold'}}>Question:</Typography>
-        <Typography variant="h6" style={{whiteSpace: 'pre-line'}}>{question}</Typography>
+        <Typography variant='h6' sx={{fontWeight: 'bold'}}>Question:</Typography>
+        <Typography variant='h6' style={{whiteSpace: 'pre-line'}}>{studentData.question}</Typography>
       </CardContent>
     </BaseCard>
   );
