@@ -23,6 +23,8 @@ let interval;
 
 // Start a recurring one-minute timer to check if any TAs need to be reminded
 exports.init = function () {
+  clearInterval(interval);
+
   // Set an interval to run every minute from the time the timer is started
   interval = setInterval(() => {
     let activeQuestions = home.getOHQ().getAllStudentData().filter(studentData => studentData.helpTime !== null)

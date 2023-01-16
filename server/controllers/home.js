@@ -136,6 +136,8 @@ function buildQueueData() {
     });
 }
 
+exports.build_queue_data = buildQueueData;
+
 function emitNewQueueData() {
     buildQueueData().then((data) => {
         sockets.queueData(data);
