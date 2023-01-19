@@ -575,25 +575,15 @@ exports.post_help_student = function (req, res) {
         return
     }
 
-    models.account.findOne({
-        where: {
-            user_id: req.user.ta.ta_id,
-        }
-    }).then((account) => {
-        if (account) {
-            let name = account.preferred_name ? account.preferred_name : account.name;
-            ohq.help(id, req.user.ta.ta_id, req.user.andrewID, name, moment.tz(new Date(), "America/New_York").toDate());
-            sockets.help(id, req.user.account, name);
+    let name = req.user.account.preferred_name ? req.user.account.preferred_name : req.user.account.name;
+    ohq.help(id, req.user.ta.ta_id, req.user.andrewID, name, moment.tz(new Date(), "America/New_York").toDate());
+    sockets.help(id, req.user.account, name);
 
-            emitNewQueueData();
-            emitNewStudentData(id);
-            emitNewAllStudents();
+    emitNewQueueData();
+    emitNewStudentData(id);
+    emitNewAllStudents();
 
-            respond(req, res, 'The student was helped', {}, 200);
-        } else {
-            respond_error(req, res, 'That ta_id does not exist', 400);
-        }
-    })
+    respond(req, res, 'The student was helped', {}, 200);
 }
 
 exports.post_unhelp_student = function (req, res) {
@@ -711,25 +701,16 @@ exports.post_message_student = function (req, res) {
         return;
     }
 
-    models.account.findOne({
-        where: {
-            user_id: req.user.ta.ta_id,
-        }
-    }).then((account) => {
-        if (account) {
-            let name = account.preferred_name ? account.preferred_name : account.name;
+    let name = req.user.account.preferred_name ? req.user.account.preferred_name : req.user.account.name;
 
-            ohq.receiveMessage(id, req.user.ta.ta_id, req.user.andrewID, name, message);
+    ohq.receiveMessage(id, req.user.ta.ta_id, req.user.andrewID, name, message);
 
-            sockets.message(id, name);
-            emitNewStudentData(id);
-            emitNewAllStudents();
+    sockets.message(id, name);
+    emitNewStudentData(id);
+    emitNewAllStudents();
 
-            respond(req, res, 'The student was messaged', {}, 200);
-        } else {
-            respond_error(req, res, 'That ta_id does not exist', 400);
-        }
-    })
+    respond(req, res, 'The student was messaged', {}, 200);
+
 }
 
 exports.post_dismiss_message = function (req, res) {
