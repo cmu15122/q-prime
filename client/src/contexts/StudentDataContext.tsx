@@ -9,8 +9,6 @@ const StudentDataContext = createContext({
   studentData: {
     name: '',
     andrewID: '',
-    taID: -1,
-    taAndrewID: '',
     location: '',
     topic: {
       assignment_id: -1,
@@ -31,8 +29,6 @@ const StudentDataContextProvider = ({children}: {children: React.ReactNode}) => 
   const [studentData, setStudentData] = useState<StudentData>({
     name: '',
     andrewID: '',
-    taID: -1,
-    taAndrewID: '',
     location: '',
     topic: {
       assignment_id: -1,
