@@ -443,13 +443,15 @@ class OHQueue {
     /// Setting status of students ///
 
     /** If found, helps the student with the given id */
-    help(andrewID, taID, taAndrewID, taPrefName, helpTime) {
+    help(andrewID, taID, taAndrewID, taPrefName, taZoomEnabled, taZoomUrl, helpTime) {
         var node = this.queue.find(x => x.andrewID == andrewID);
         if (node != null) {
             node.data.status = StudentStatus.BEING_HELPED;
             node.data.taID = taID;
             node.data.taAndrewID = taAndrewID;
             node.data.taPrefName = taPrefName;
+            node.data.taZoomEnabled = taZoomEnabled;
+            node.data.taZoomUrl = taZoomUrl;
             node.data.helpTime = helpTime;
             node.data.isFrozen = false;
         }
@@ -463,6 +465,8 @@ class OHQueue {
             node.data.taID = null;
             node.data.taAndrewID = null;
             node.data.taPrefName = null;
+            node.data.taZoomEnabled = null;
+            node.data.taZoomUrl = null;
             node.data.helpTime = null;
             node.data.isFrozen = false;
         }

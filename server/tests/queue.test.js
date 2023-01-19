@@ -134,7 +134,7 @@ describe('Queue tests', () => {
         expect(queue.getStatus("stud1")).toBe(StudentStatus.WAITING);
 
         const helpTime = moment.tz(new Date(), "America/New_York").toDate();
-        queue.help("stud1", "ta1", "taAndrew1", "taPrefName", helpTime);
+        queue.help("stud1", "ta1", "taAndrew1", "taPrefName", true, "zoomURL", helpTime);
         expect(queue.getStatus("stud1")).toBe(StudentStatus.BEING_HELPED);
         const student1Data = queue.getData("stud1");
         expect(student1Data.taID).toBe("ta1");
