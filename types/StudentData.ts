@@ -1,9 +1,6 @@
 export type StudentData = {
     name: string,
     andrewID: string,
-    taID: number,
-    taAndrewID: string,
-    taPrefName: string,
     location: string,
     topic: {
         assignment_id: number,
@@ -15,4 +12,12 @@ export type StudentData = {
     messageBuffer: string[],
     status: number,
     position: number,
+    helpingTAInfo?: {
+        taId: number,
+        taAndrewID: string,
+        taName: string,
+
+        taZoomEnabled: boolean,
+        taZoomUrl: string,
+    }
 }

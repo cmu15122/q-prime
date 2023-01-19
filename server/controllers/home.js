@@ -39,9 +39,6 @@ function buildStudentEntryData(student) {
     let studentEntryData = {
         name: student.preferredName,
         andrewID: student.andrewID,
-        taID: student.taID,
-        taAndrewID: student.taAndrewID,
-        taPrefName: student.taPrefName,
         location: student.location,
         topic: student.topic,
         question: student.question,
@@ -50,6 +47,16 @@ function buildStudentEntryData(student) {
         message: student.message,
         messageBuffer: student.messageBuffer,
         position: studentPos,
+    }
+
+    if (studentEntryData.status == StudentStatus.BEING_HELPED) {
+        studentEntryData.helpingTAInfo = {
+            taId: student.taID,
+            taAndrewID: student.taAndrewID,
+            taPrefName: student.taPrefName,
+            taZoomEnabled: student.taZoomEnabled,
+            taZoomUrl: student.taZoomUrl
+        }
     }
 
     return studentEntryData;
@@ -185,9 +192,6 @@ exports.get_student_data = function (req, res) {
     let data = {
         name: '',
         andrewID: req.user.andrewID,
-        taID: -1,
-        taAndrewID: '',
-        taPrefName: '',
         location: '',
         topic: '',
         question: '',
@@ -223,9 +227,6 @@ function emitNewStudentData(studentAndrewID) {
         sockets.studentData({
             name: '',
             andrewID: studentAndrewID,
-            taID: -1,
-            taAndrewID: '',
-            taPrefName: '',
             location: '',
             topic: '',
             question: '',
