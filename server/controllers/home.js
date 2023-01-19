@@ -577,8 +577,8 @@ exports.post_help_student = function (req, res) {
     }
 
     let name = req.user.account.preferred_name ? req.user.account.preferred_name : req.user.account.name;
-    ohq.help(id, req.user.ta.ta_id, req.user.andrewID, name, moment.tz(new Date(), "America/New_York").toDate());
-    sockets.help(id, req.user.account, name);
+    ohq.help(id, req.user.ta.ta_id, req.user.andrewID, name, req.user.account.settings.videoChatEnabled, req.user.ta.zoom_url, moment.tz(new Date(), "America/New_York").toDate());
+    sockets.help(id, name);
 
     emitNewQueueData();
     emitNewStudentData(id);
@@ -608,7 +608,6 @@ exports.post_unhelp_student = function (req, res) {
     }
 
     ohq.unhelp(id);
-    sockets.unhelp(id, req.user.andrewID);
 
     emitNewQueueData();
     emitNewStudentData(id);

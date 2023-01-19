@@ -5,7 +5,7 @@ import {
 import {StudentDataContext} from '../../../contexts/StudentDataContext';
 
 export default function MessageOverlay(props) {
-  const {open, handleClose, helpingTAInfo, removeFromQueue, dismissMessage} = props;
+  const {open, handleClose, messagingTAName, removeFromQueue, dismissMessage} = props;
   const {studentData} = useContext(StudentDataContext);
   const leaveQueue = () => {
     removeFromQueue();
@@ -16,7 +16,7 @@ export default function MessageOverlay(props) {
     <Dialog open={open} maxWidth="sm" fullWidth>
       <DialogContent>
         <Typography variant="h5" sx={{fontWeight: 'bold'}}>
-          TA {helpingTAInfo?.taName} sent you a message
+          TA {messagingTAName} sent you a message
         </Typography>
 
         <TextField

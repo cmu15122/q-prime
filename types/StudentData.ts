@@ -15,7 +15,7 @@ export type StudentData = {
     helpingTAInfo?: {
         taId: number,
         taAndrewID: string,
-        taName: string,
+        taPrefName: string,
 
         taZoomEnabled: boolean,
         taZoomUrl: string,
