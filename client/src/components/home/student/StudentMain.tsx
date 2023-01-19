@@ -16,7 +16,7 @@ import {StudentDataContext} from '../../../contexts/StudentDataContext';
 
 function StudentMain() {
   const [removeConfirm, setRemoveConfirm] = useState(false);
-  const [messagingTAName, setMessagingTAName] = useState(null);
+  const [messagingTAName, setMessagingTAName] = useState('');
 
   const {queueData} = useContext(QueueDataContext);
   const {studentData} = useContext(StudentDataContext);

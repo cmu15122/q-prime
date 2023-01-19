@@ -28,28 +28,12 @@ export default function VideoChatSettings(props) {
     });
   };
 
-  useEffect(() => {
-    const urlTextField: HTMLObjectElement | null = document.getElementById('video-chat-url') as HTMLObjectElement;
-
-    urlTextField?.setCustomValidity('');
-
-    try {
-      const videoURL = new URL(videoChatURL);
-      console.log(videoURL + ' is valid');
-    } catch {
-      console.log('invalid');
-      urlTextField?.setCustomValidity('Invalid URL, please include https:// or http://');
-    }
-  }, [videoChatURL]);
-
   const updateVideoChatURL = (event) => {
     event.preventDefault();
 
-    const videoURL = new URL(videoChatURL);
-
     SettingsService.updateVideoChatSettings({
       enabled: isVideoChatEnabled,
-      url: videoURL.toString(),
+      url: videoChatURL,
     });
   };
 
@@ -86,6 +70,7 @@ export default function VideoChatSettings(props) {
                   fullWidth
                   value={videoChatURL ?? ''}
                   onChange={(e) => setVideoChatURL(e.target.value)}
+                  type="url"
                 />
               </Grid>
               <Grid className="d-flex" item sx={{mt: 1, mx: 1}} xs={2}>
