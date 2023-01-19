@@ -111,8 +111,7 @@ function StudentMain() {
               />
             </div> :
             (queueData.queueFrozen ? null :
-              <AskQuestion
-              />
+              <AskQuestion/>
             )
         }
       </div>
