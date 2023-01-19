@@ -3,6 +3,7 @@ export type StudentData = {
     andrewID: string,
     taID: number,
     taAndrewID: string,
+    taPrefName: string,
     location: string,
     topic: {
         assignment_id: number,

@@ -41,6 +41,7 @@ function buildStudentEntryData(student) {
         andrewID: student.andrewID,
         taID: student.taID,
         taAndrewID: student.taAndrewID,
+        taPrefName: student.taPrefName,
         location: student.location,
         topic: student.topic,
         question: student.question,
@@ -186,6 +187,7 @@ exports.get_student_data = function (req, res) {
         andrewID: req.user.andrewID,
         taID: -1,
         taAndrewID: '',
+        taPrefName: '',
         location: '',
         topic: '',
         question: '',
@@ -223,6 +225,7 @@ function emitNewStudentData(studentAndrewID) {
             andrewID: studentAndrewID,
             taID: -1,
             taAndrewID: '',
+            taPrefName: '',
             location: '',
             topic: '',
             question: '',
@@ -572,8 +575,9 @@ exports.post_help_student = function (req, res) {
         return
     }
 
-    ohq.help(id, req.user.ta.ta_id, req.user.andrewID, moment.tz(new Date(), "America/New_York").toDate());
-    sockets.help(id, req.user.account);
+    let name = req.user.account.preferred_name ? req.user.account.preferred_name : req.user.account.name;
+    ohq.help(id, req.user.ta.ta_id, req.user.andrewID, name, moment.tz(new Date(), "America/New_York").toDate());
+    sockets.help(id, req.user.account, name);
 
     emitNewQueueData();
     emitNewStudentData(id);
@@ -697,13 +701,16 @@ exports.post_message_student = function (req, res) {
         return;
     }
 
-    ohq.receiveMessage(id, req.user.ta.ta_id, req.user.andrewID, message);
+    let name = req.user.account.preferred_name ? req.user.account.preferred_name : req.user.account.name;
 
-    sockets.message(id, req.user.account);
+    ohq.receiveMessage(id, req.user.ta.ta_id, req.user.andrewID, name, message);
+
+    sockets.message(id, name);
     emitNewStudentData(id);
     emitNewAllStudents();
 
     respond(req, res, 'The student was messaged', {}, 200);
+
 }
 
 exports.post_dismiss_message = function (req, res) {
