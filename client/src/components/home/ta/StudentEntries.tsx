@@ -96,7 +96,7 @@ export default function StudentEntries(props) {
   useEffect(() => {
     setIsHelping(false);
     for (const [index, student] of allStudents.entries()) {
-      if (student.status === StudentStatusValues.BEING_HELPED && student.taAndrewID === userData.andrewID) {
+      if (student.status === StudentStatusValues.BEING_HELPED && student.helpingTAInfo?.taAndrewID === userData.andrewID) {
         setHelpIdx(index);
         setIsHelping(true);
       }

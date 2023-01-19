@@ -1,6 +1,6 @@
 import React, {useContext, useState} from 'react';
 import {
-  Button, Dialog, DialogContent, Input, Link, Stack, Typography,
+  Button, Dialog, DialogContent, FormControl, Input, Link, Stack, Typography,
 } from '@mui/material';
 
 import HomeService from '../../../services/HomeService';
@@ -12,9 +12,9 @@ export default function UpdateQuestionOverlay(props) {
   const {studentData} = useContext(StudentDataContext);
   const {queueData} = useContext(QueueDataContext);
 
-  const [tempQuestion, setTempQuestion] = useState(studentData.question);
+  const [tempQuestion, setTempQuestion] = useState('');
 
-  const printAndClose = (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
 
     HomeService.updateQuestion(
@@ -43,18 +43,23 @@ export default function UpdateQuestionOverlay(props) {
           Make sure to review <Link target="_blank" href={queueData.questionsURL}>Question Guidelines</Link> for more help!
         </Typography>
 
-        <Input
-          placeholder="Question (max 256 characters)"
-          multiline
-          fullWidth
-          sx={{my: 2}}
-          onChange={(event) => setTempQuestion(event.target.value)}
-          inputProps={{maxLength: 256}}
-        />
-
-        <Stack alignItems="center" sx={{pt: 2}}>
-          <Button variant="contained" onClick={printAndClose}>Update Question</Button>
-        </Stack>
+        <form onSubmit={handleSubmit}>
+          <FormControl required fullWidth sx={{mt: 0.5}}>
+            <Input
+              placeholder={'Previous Question: ' + studentData.question}
+              value={tempQuestion}
+              multiline
+              fullWidth
+              sx={{my: 2}}
+              onChange={(event) => setTempQuestion(event.target.value)}
+              inputProps={{maxLength: 256}}
+              type='text'
+            />
+          </FormControl>
+          <Button fullWidth variant='contained' sx={{mt: 2, py: 1}} type='submit'>
+            Update Question
+          </Button>
+        </form>
       </DialogContent>
     </Dialog>
   );

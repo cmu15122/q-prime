@@ -17,7 +17,7 @@ export default function StudentStatus(props) {
         if (isHelping && (index === helpIdx)) {
           return 'You are helping';
         } else {
-          return `${student.taPrefName} is Helping`;
+          return `${student?.helpingTAInfo?.taPrefName} is Helping`;
         }
       }
       case StudentStatusValues.FIXING_QUESTION: return 'Updating Question';
