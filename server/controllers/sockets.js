@@ -85,7 +85,7 @@ exports.allStudents = function (allStudents) {
     });
 }
 
-exports.help = function (studentAndrewID, taAccount) {
+exports.help = function (studentAndrewID, taAccount, name) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");
         return;
@@ -96,7 +96,7 @@ exports.help = function (studentAndrewID, taAccount) {
         data: {
             taData: {
                 taId: taAccount.ta.ta_id,
-                taName: taAccount.preferred_name,
+                taName: name,
                 taZoomUrl: taAccount.ta.zoom_url
             }
         }
@@ -147,7 +147,7 @@ exports.updateQRequest = function (studentAndrewID) {
     });
 }
 
-exports.message = function (studentAndrewID, taAccount) {
+exports.message = function (studentAndrewID, name) {
     if (!sio) {
         console.log("ERROR: Socket.io is not initialized yet");
         return;
@@ -157,7 +157,7 @@ exports.message = function (studentAndrewID, taAccount) {
         andrewID: studentAndrewID,
         data: {
             taData: {
-                taName: taAccount.name
+                taName: name
             }
         }
     });

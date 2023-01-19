@@ -443,12 +443,13 @@ class OHQueue {
     /// Setting status of students ///
 
     /** If found, helps the student with the given id */
-    help(andrewID, taID, taAndrewID, helpTime) {
+    help(andrewID, taID, taAndrewID, taPrefName, helpTime) {
         var node = this.queue.find(x => x.andrewID == andrewID);
         if (node != null) {
             node.data.status = StudentStatus.BEING_HELPED;
             node.data.taID = taID;
             node.data.taAndrewID = taAndrewID;
+            node.data.taPrefName = taPrefName;
             node.data.helpTime = helpTime;
             node.data.isFrozen = false;
         }
@@ -461,6 +462,7 @@ class OHQueue {
             node.data.status = StudentStatus.WAITING;
             node.data.taID = null;
             node.data.taAndrewID = null;
+            node.data.taPrefName = null;
             node.data.helpTime = null;
             node.data.isFrozen = false;
         }
@@ -522,7 +524,7 @@ class OHQueue {
     }
 
     /** If found, gives the given student a message and adds to message buffer*/
-    receiveMessage(andrewID, taID, taAndrewID, message) {
+    receiveMessage(andrewID, taID, taAndrewID, taPrefName, message) {
         var node = this.queue.find(x => x.andrewID == andrewID);
         if (node != null) {
             node.data.status = StudentStatus.RECEIVED_MESSAGE;
@@ -530,7 +532,8 @@ class OHQueue {
             node.data.isFrozen = false;
             node.data.taID = taID;
             node.data.taAndrewID = taAndrewID;
-            node.data.messageBuffer.push(`${taAndrewID}: ${message}`);
+            node.data.taPrefName = taPrefName;
+            node.data.messageBuffer.push(`${taPrefName}: ${message}`);
         }
     }
 
@@ -543,6 +546,7 @@ class OHQueue {
             node.data.message = null;
             node.data.taID = null;
             node.data.taAndrewID = null;
+            node.data.taPrefName = null;
         }
     }
 

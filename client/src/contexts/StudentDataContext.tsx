@@ -11,6 +11,7 @@ const StudentDataContext = createContext({
     andrewID: '',
     taID: -1,
     taAndrewID: '',
+    taPrefName: '',
     location: '',
     topic: {
       assignment_id: -1,
@@ -33,6 +34,7 @@ const StudentDataContextProvider = ({children}: {children: React.ReactNode}) => 
     andrewID: '',
     taID: -1,
     taAndrewID: '',
+    taPrefName: '',
     location: '',
     topic: {
       assignment_id: -1,
