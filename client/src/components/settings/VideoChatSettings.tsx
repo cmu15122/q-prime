@@ -24,15 +24,32 @@ export default function VideoChatSettings(props) {
     setVideoChatEnabled(chatEnabled);
     SettingsService.updateVideoChatSettings({
       enabled: chatEnabled,
-      url: chatEnabled ? videoChatURL : '',
+      url: videoChatURL,
     });
   };
 
+  useEffect(() => {
+    const urlTextField: HTMLObjectElement | null = document.getElementById('video-chat-url') as HTMLObjectElement;
+
+    urlTextField?.setCustomValidity('');
+
+    try {
+      const videoURL = new URL(videoChatURL);
+      console.log(videoURL + ' is valid');
+    } catch {
+      console.log('invalid');
+      urlTextField?.setCustomValidity('Invalid URL, please include https:// or http://');
+    }
+  }, [videoChatURL]);
+
   const updateVideoChatURL = (event) => {
     event.preventDefault();
+
+    const videoURL = new URL(videoChatURL);
+
     SettingsService.updateVideoChatSettings({
       enabled: isVideoChatEnabled,
-      url: isVideoChatEnabled ? videoChatURL : '',
+      url: videoURL.toString(),
     });
   };
 
