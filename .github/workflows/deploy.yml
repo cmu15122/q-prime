@@ -29,12 +29,5 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/${{ secrets.SSH_USER }}/q-live
-            export NVM_DIR=~/.nvm
-            source ~/.nvm/nvm.sh
-            fuser -k 8000/tcp
-            tmux kill-session -t queue
-            cd $HOME/q-live/q-prime/client && npm install && npm run build
-            cd $HOME/q-live/q-prime/server
-            tmux new-session -d -s queue 'npm install && npm start'
-            echo `tmux attach`
+            ./restart.sh
             
