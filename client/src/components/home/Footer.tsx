@@ -16,7 +16,7 @@ export default function Footer(props) {
       sx={{py: 4}}
     >
       <Typography color={theme.palette.text.primary}>Created by Carnegie Mellon&apos;s 15-122 Staff Spring 2022, Sponsored by Honk</Typography>
-      <Link href={gitHubLink}>Submit a queue website bug report</Link>
+      <Link href={gitHubLink} target="_blank">Submit a queue website bug report</Link>
     </Stack>
   );
 }
