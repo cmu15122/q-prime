@@ -336,7 +336,6 @@ exports.get_num_students_per_day = (req, res) => {
         for (const row of data) {
             let datecount = row.dataValues;
             datecount.day_of_week = new Date(datecount.day_of_week).toLocaleDateString('en-US', {weekday : 'long'});
-            console.log(datecount);
             numStudentsPerDay.push({'day': datecount.day_of_week, 'students': datecount.count});
         }
 
