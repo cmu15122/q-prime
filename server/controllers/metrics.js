@@ -205,7 +205,17 @@ exports.get_ta_student_ratio_today = (req, res) => {
             return acc;
         }, {});
 
-        respond(req, res, "Got TA:Student ratio today", { taStudentRatio: Object.keys(taCount).length + ":" + Object.keys(studentCount).length }, 200);
+        function reduce(numerator,denominator){
+            var gcd = function gcd(a,b){
+              return b ? gcd(b, a%b) : a;
+            };
+            gcd = gcd(numerator,denominator);
+            return [numerator/gcd, denominator/gcd];
+          }
+
+        const ratio = reduce(Object.keys(taCount).length, Object.keys(studentCount).length);
+
+        respond(req, res, "Got TA:Student ratio today", { taStudentRatio: ratio[0] + ":" + ratio[1] }, 200);
     });
 }
 
