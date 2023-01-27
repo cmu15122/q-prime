@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const Promise = require("bluebird");
+const moment = require("moment-timezone");
 
 const models = require('../models');
 const { sequelize } = require('../models');
@@ -305,6 +306,7 @@ exports.get_num_students_per_day_last_week = (req, res) => {
     });
 }
 
+// number of students per day of the week (final chart)
 exports.get_num_students_per_day = (req, res) => {
     if (!req.user || !req.user.isTA) {
         respond_error(req, res, "You don't have permissions to perform this operation", 403);
@@ -313,17 +315,19 @@ exports.get_num_students_per_day = (req, res) => {
 
     models.question.findAll({
         attributes: [
-            [Sequelize.fn('to_char', Sequelize.col('entry_time'), 'Day'), 'day_of_week'],
+            [Sequelize.fn('date_trunc', 'day', Sequelize.col('entry_time')), 'day_of_week'],
             [Sequelize.fn('count', Sequelize.col('question_id')), 'count']
         ],
-        group: [Sequelize.fn('to_char', Sequelize.col('entry_time'), 'Day')],
+        group: [Sequelize.fn('date_trunc', 'day', Sequelize.col('entry_time')), 'day_of_week'],
         order: [[Sequelize.col('count'), 'DESC']]
     }).then((data) =>  {
         let numStudentsPerDay = [];
 
         for (const row of data) {
             let datecount = row.dataValues;
-            numStudentsPerDay.push({'day': datecount.day_of_week.trim(), 'students': datecount.count});
+            datecount.day_of_week = new Date(datecount.day_of_week).toLocaleDateString('en-US', {weekday : 'long'});
+            console.log(datecount);
+            numStudentsPerDay.push({'day': datecount.day_of_week, 'students': datecount.count});
         }
 
         respond(req, res, "Got number of students per day", { numStudentsPerDay: numStudentsPerDay }, 200);
