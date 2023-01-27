@@ -44,6 +44,7 @@ exports.get_helped_students = (req, res) => {
                 student_andrew: "",
                 start_date: question.help_time,
                 end_date: question.exit_time,
+                question: question.question
             });
 
             accountReqs.push(models.account.findByPk(question.student_id));
