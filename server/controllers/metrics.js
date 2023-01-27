@@ -156,6 +156,9 @@ exports.get_avg_wait_time_today = (req, res) => {
         where: {
             entry_time: {
                 [Sequelize.Op.gte]: today - 4 * 60 * 60 * 1000,
+            },
+            help_time: {
+                [Sequelize.Op.ne]: null,
             }
         }
     }).then(({count, rows}) =>  {
@@ -252,6 +255,9 @@ exports.get_total_avg_wait_time = (req, res) => {
 
     models.question.findAndCountAll({
         where: {
+            help_time: {
+                [Sequelize.Op.ne]: null,
+            }
         }
     }).then(({count, rows}) =>  {
 
