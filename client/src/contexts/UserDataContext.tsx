@@ -5,6 +5,7 @@ import HomeService from '../services/HomeService';
 const UserDataContext = createContext({
   userData: {} as UserData,
   setUserData: ((userData: UserData) => {}) as React.Dispatch<React.SetStateAction<UserData>>,
+  isLoadingUserData: true,
 });
 
 const UserDataContextProvider = ({children}: {children: React.ReactNode}) => {
@@ -17,14 +18,17 @@ const UserDataContextProvider = ({children}: {children: React.ReactNode}) => {
     preferredName: '',
   });
 
+  const [isLoadingUserData, setIsLoadingUserData] = useState<boolean>(true);
+
   useEffect(() => {
     HomeService.getUserData().then((res) => {
       setUserData(res.data.userData);
+      setIsLoadingUserData(false);
     });
   }, []);
 
   return (
-    <UserDataContext.Provider value={{userData, setUserData}}>
+    <UserDataContext.Provider value={{userData, setUserData, isLoadingUserData}}>
       {children}
     </UserDataContext.Provider>
   );

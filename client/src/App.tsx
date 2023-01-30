@@ -6,6 +6,7 @@ import Settings from './pages/settings';
 import Metrics from './pages/metrics';
 
 import {darkTheme, lightTheme} from './themes/base';
+import CssBaseline from '@mui/material/CssBaseline';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import {ThemeProvider} from '@mui/material';
 
@@ -33,6 +34,7 @@ function App() {
 
   return (
     <ThemeProvider theme={theme || darkTheme}>
+      <CssBaseline/>
       <LocalizationProvider dateAdapter={AdapterLuxon}>
         <ThemeContext.Provider value={theme}>
           <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
@@ -41,9 +43,9 @@ function App() {
                 <StudentDataContextProvider>
                   <AdminSettingsContextProvider>
                     <AllStudentsContextProvider>
-                      <Router>
+                      <Router basename={process.env.PUBLIC_URL}>
                         <Routes>
-                          <Route path='/' element={<Home theme={theme || darkTheme}/>} />
+                          <Route path='/' element={<Home/>} />
                           <Route path='/settings' element={<Settings/>} />
                           <Route path='/metrics' element={<Metrics/>} />
                         </Routes>

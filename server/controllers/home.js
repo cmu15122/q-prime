@@ -40,8 +40,6 @@ function buildStudentEntryData(student) {
     let studentEntryData = {
         name: student.preferredName,
         andrewID: student.andrewID,
-        taID: student.taID,
-        taAndrewID: student.taAndrewID,
         location: student.location,
         topic: student.topic,
         question: student.question,
@@ -50,6 +48,16 @@ function buildStudentEntryData(student) {
         message: student.message,
         messageBuffer: student.messageBuffer,
         position: studentPos,
+    }
+
+    if (studentEntryData.status == StudentStatus.BEING_HELPED) {
+        studentEntryData.helpingTAInfo = {
+            taId: student.taID,
+            taAndrewID: student.taAndrewID,
+            taPrefName: student.taPrefName,
+            taZoomEnabled: student.taZoomEnabled,
+            taZoomUrl: student.taZoomUrl
+        }
     }
 
     return studentEntryData;
@@ -187,8 +195,6 @@ exports.get_student_data = function (req, res) {
     let data = {
         name: '',
         andrewID: req.user.andrewID,
-        taID: -1,
-        taAndrewID: '',
         location: '',
         topic: '',
         question: '',
@@ -224,8 +230,6 @@ function emitNewStudentData(studentAndrewID) {
         sockets.studentData({
             name: '',
             andrewID: studentAndrewID,
-            taID: -1,
-            taAndrewID: '',
             location: '',
             topic: '',
             question: '',
@@ -579,8 +583,9 @@ exports.post_help_student = function (req, res) {
         return
     }
 
-    ohq.help(id, req.user.ta.ta_id, req.user.andrewID, moment.tz(new Date(), "America/New_York").toDate());
-    sockets.help(id, req.user.account);
+    let name = req.user.account.preferred_name ? req.user.account.preferred_name : req.user.account.name;
+    ohq.help(id, req.user.ta.ta_id, req.user.andrewID, name, req.user.account.settings.videoChatEnabled, req.user.ta.zoom_url, moment.tz(new Date(), "America/New_York").toDate());
+    sockets.help(id, name);
 
     emitNewQueueData();
     emitNewStudentData(id);
@@ -610,7 +615,6 @@ exports.post_unhelp_student = function (req, res) {
     }
 
     ohq.unhelp(id);
-    sockets.unhelp(id, req.user.andrewID);
 
     emitNewQueueData();
     emitNewStudentData(id);
@@ -704,13 +708,16 @@ exports.post_message_student = function (req, res) {
         return;
     }
 
-    ohq.receiveMessage(id, req.user.ta.ta_id, req.user.andrewID, message);
+    let name = req.user.account.preferred_name ? req.user.account.preferred_name : req.user.account.name;
 
-    sockets.message(id, req.user.account);
+    ohq.receiveMessage(id, req.user.ta.ta_id, req.user.andrewID, name, message);
+
+    sockets.message(id, name);
     emitNewStudentData(id);
     emitNewAllStudents();
 
     respond(req, res, 'The student was messaged', {}, 200);
+
 }
 
 exports.post_dismiss_message = function (req, res) {

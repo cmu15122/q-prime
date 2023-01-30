@@ -28,8 +28,8 @@ httpInstance.interceptors.request.use(
 httpInstance.interceptors.response.use(
     (res) => {
       if (res.data.isOwner && !window.location.href.includes('settings')) {
-      // Redirect owner to settings page
-        window.location.href = '/settings';
+        // Redirect owner to settings page
+        window.location.href = 'settings';
       }
       // COMMENTED OUT SO ONLY TOAST IF ERROR
       // if (res.data.message) {
@@ -38,13 +38,11 @@ httpInstance.interceptors.response.use(
       return res;
     },
     (err) => {
-      if (err.response.status === 404) {
-      // Redirect to homepage
-        window.location.href = '/';
-      }
-      if (err.response.data.message) {
-        const message = err.message + ': ' + err.response.data.message;
+      if (err.response.status >= 500) {
+        const message = 'Server Error: ' + err.response.data.message;
         showErrorToast(message);
+      } else {
+        showErrorToast(err.response.data.message);
       }
       return Promise.reject(err);
     },
