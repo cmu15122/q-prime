@@ -9,16 +9,17 @@ import {DateTime} from 'luxon';
 import MetricsService from '../../services/MetricsService';
 
 const columns = [
-  {id: 'andrewId', label: 'Andrew ID', width: 50},
-  {id: 'name', label: 'Name', width: 75},
+  {id: 'andrewId', label: 'Andrew ID', width: 25},
+  {id: 'name', label: 'Name', width: 25},
+  {id: 'question', label: 'Question', width: 200},
   {id: 'timeStart', label: 'Time Start', width: 100},
   {id: 'timeEnd', label: 'Time End', width: 100},
 ];
 
-function createData(andrewId, name, timeStart, timeEnd) {
+function createData(andrewId, name, timeStart, timeEnd, question) {
   timeStart = DateTime.fromISO(timeStart).toLocaleString(DateTime.DATETIME_MED);
   timeEnd = DateTime.fromISO(timeEnd).toLocaleString(DateTime.DATETIME_MED);
-  return {andrewId, name, timeStart, timeEnd};
+  return {andrewId, name, timeStart, timeEnd, question};
 }
 
 export default function PersonalStats() {
@@ -51,6 +52,7 @@ export default function PersonalStats() {
           helpedStudent.student_name,
           helpedStudent.start_date,
           helpedStudent.end_date,
+          helpedStudent.question,
       ));
     });
     setHelpedStudents(newRows);
