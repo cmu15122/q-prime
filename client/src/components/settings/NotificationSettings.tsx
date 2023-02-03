@@ -44,6 +44,11 @@ export default function NotificationSettings(props) {
                 checked={joinNotifsEnabled ?? false}
                 onChange={(e) => {
                   const isJoinNotifsEnabled = e.target.checked;
+
+                  if (Notification.permission !== 'granted' && isJoinNotifsEnabled) {
+                    Notification.requestPermission();
+                  }
+
                   setJoinNotifsEnabled(isJoinNotifsEnabled);
                   updateNotifSettings(isJoinNotifsEnabled, remindNotifsEnabled, remindTime);
                 }}
@@ -65,6 +70,11 @@ export default function NotificationSettings(props) {
                   checked={remindNotifsEnabled ?? false}
                   onChange={(e) => {
                     const isRemindNotifsEnabled = e.target.checked;
+
+                    if (Notification.permission !== 'granted' && isRemindNotifsEnabled) {
+                      Notification.requestPermission();
+                    }
+
                     setRemindNotifsEnabled(isRemindNotifsEnabled);
                     updateNotifSettings(joinNotifsEnabled, isRemindNotifsEnabled, remindTime);
                   }}
