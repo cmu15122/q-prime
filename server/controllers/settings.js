@@ -598,7 +598,8 @@ exports.post_delete_ta = function (req, res) {
 
     models.semester_user.findOne({
         where: {
-            user_id: user_id
+            user_id: user_id,
+            sem_id: adminSettings.currSem,
         }
     }).then(function (sem_user) {
         return sem_user.update({
