@@ -16,7 +16,7 @@ export default function CumulativeStats(props) {
     });
 
     MetricsService.getAvgTimePerQuestion().then((res) => {
-      setAvgTimePerQuestion(res.data.avgTimePerQuestion);
+      setAvgTimePerQuestion(res.data.averageTime);
     });
 
     MetricsService.getTotalAvgWaitTime().then((res) => {

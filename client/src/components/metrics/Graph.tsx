@@ -48,7 +48,7 @@ export default function Graph() {
               style={{textAnchor: 'middle'}}
             />
           </XAxis>
-          <YAxis dataKey="students">
+          <YAxis dataKey="students" domain={[0, 'dataMax']}>
             <Label
               value={'Number of Students'}
               position="left"
@@ -76,7 +76,7 @@ export default function Graph() {
               style={{textAnchor: 'middle'}}
             />
           </XAxis>
-          <YAxis dataKey="students">
+          <YAxis dataKey="students" domain={[0, 'dataMax']}>
             <Label
               value={'Number of Students'}
               position="left"
@@ -97,7 +97,12 @@ export default function Graph() {
         <BarChart margin={{top: 40, right: 0, bottom: 40, left: 50}} data={numStudentsPerDay}>
           <CartesianGrid stroke="#ccc" />
           <XAxis dataKey="day" />
-          <YAxis dataKey="students">
+          <Label
+            value={'Day'}
+            position="bottom"
+            style={{textAnchor: 'middle'}}
+          />
+          <YAxis dataKey="students" domain={[0, 'dataMax']}>
             <Label
               value={'Number of Students'}
               position="left"

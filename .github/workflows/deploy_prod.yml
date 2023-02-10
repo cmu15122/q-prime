@@ -1,4 +1,4 @@
-name: Deploy Queue
+name: Deploy Queue to Production
 
 on:
   push:

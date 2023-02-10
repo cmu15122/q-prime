@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize');
 const Promise = require("bluebird");
+const moment = require("moment-timezone");
 
 const models = require('../models');
 const { sequelize } = require('../models');
@@ -44,6 +45,7 @@ exports.get_helped_students = (req, res) => {
                 student_andrew: "",
                 start_date: question.help_time,
                 end_date: question.exit_time,
+                question: question.question
             });
 
             accountReqs.push(models.account.findByPk(question.student_id));
@@ -156,6 +158,9 @@ exports.get_avg_wait_time_today = (req, res) => {
         where: {
             entry_time: {
                 [Sequelize.Op.gte]: today - 4 * 60 * 60 * 1000,
+            },
+            help_time: {
+                [Sequelize.Op.ne]: null,
             }
         }
     }).then(({count, rows}) =>  {
@@ -200,7 +205,17 @@ exports.get_ta_student_ratio_today = (req, res) => {
             return acc;
         }, {});
 
-        respond(req, res, "Got TA:Student ratio today", { taStudentRatio: Object.keys(taCount).length + ":" + Object.keys(studentCount).length }, 200);
+        function reduce(numerator,denominator){
+            var gcd = function gcd(a,b){
+              return b ? gcd(b, a%b) : a;
+            };
+            gcd = gcd(numerator,denominator);
+            return [numerator/gcd, denominator/gcd];
+          }
+
+        const ratio = reduce(Object.keys(taCount).length, Object.keys(studentCount).length);
+
+        respond(req, res, "Got TA:Student ratio today", { taStudentRatio: ratio[0] + ":" + ratio[1] }, 200);
     });
 }
 
@@ -252,6 +267,9 @@ exports.get_total_avg_wait_time = (req, res) => {
 
     models.question.findAndCountAll({
         where: {
+            help_time: {
+                [Sequelize.Op.ne]: null,
+            }
         }
     }).then(({count, rows}) =>  {
 
@@ -298,6 +316,7 @@ exports.get_num_students_per_day_last_week = (req, res) => {
     });
 }
 
+// number of students per day of the week (final chart)
 exports.get_num_students_per_day = (req, res) => {
     if (!req.user || !req.user.isTA) {
         respond_error(req, res, "You don't have permissions to perform this operation", 403);
@@ -306,17 +325,18 @@ exports.get_num_students_per_day = (req, res) => {
 
     models.question.findAll({
         attributes: [
-            [Sequelize.fn('to_char', Sequelize.col('entry_time'), 'Day'), 'day_of_week'],
+            [Sequelize.fn('date_trunc', 'day', Sequelize.col('entry_time')), 'day_of_week'],
             [Sequelize.fn('count', Sequelize.col('question_id')), 'count']
         ],
-        group: [Sequelize.fn('to_char', Sequelize.col('entry_time'), 'Day')],
+        group: [Sequelize.fn('date_trunc', 'day', Sequelize.col('entry_time')), 'day_of_week'],
         order: [[Sequelize.col('count'), 'DESC']]
     }).then((data) =>  {
         let numStudentsPerDay = [];
 
         for (const row of data) {
             let datecount = row.dataValues;
-            numStudentsPerDay.push({'day': datecount.day_of_week.trim(), 'students': datecount.count});
+            datecount.day_of_week = new Date(datecount.day_of_week).toLocaleDateString('en-US', {weekday : 'long'});
+            numStudentsPerDay.push({'day': datecount.day_of_week, 'students': datecount.count});
         }
 
         respond(req, res, "Got number of students per day", { numStudentsPerDay: numStudentsPerDay }, 200);
