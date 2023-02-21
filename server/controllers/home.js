@@ -522,7 +522,7 @@ exports.post_remove_student = function (req, res) {
     if (req.body.doneHelping) {
         let minutesDiff = moment.tz(new Date(), "America/New_York").diff(moment(returnedData.helpTime), "minutes")
         sockets.doneHelping(req.user.andrewID, id, minutesDiff);
-    } else {
+
         models.account.findOrCreate({
             where: {
                 email: {
