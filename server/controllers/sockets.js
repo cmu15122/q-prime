@@ -189,3 +189,15 @@ exports.remind = function (taAndrewId) {
 
     sio.emit(`remind/${taAndrewId}`);
 }
+
+exports.doneHelping = function (taAndrewId, studentAndrewId, helpTime) {
+    if (!sio) {
+        console.log("ERROR: Socket.io is not initialized yet");
+        return;
+    }
+
+    sio.emit(`doneHelping/${taAndrewId}`, {
+        studentAndrewId: studentAndrewId,
+        helpTime: helpTime
+    });
+}

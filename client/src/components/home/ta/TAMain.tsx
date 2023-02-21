@@ -11,7 +11,14 @@ export default function TAMain(props) {
     socketSubscribeTo(`remind/${userData.andrewID}`, (res) => {
       new Notification('Time Alert!', {
         'body': `You've been helping for ${userData.taSettings.remindTime} minutes!`,
-        'requireInteraction': true,
+        'requireInteraction': false,
+      });
+    });
+
+    socketSubscribeTo(`doneHelping/${userData.andrewID}`, (data) => {
+      new Notification('Done Helping!', {
+        'body': `You helped ${data.studentAndrewId} for ${data.helpTime} minutes!`,
+        'requireInteraction': false,
       });
     });
   }, []);
