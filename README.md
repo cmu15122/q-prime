@@ -73,6 +73,8 @@ The `server` folder contains our Node.js based server, which is run on Express a
 
 The `client` folder contains our React.js based client. This handles all of the View component of our MVC application.
 
+The `types` folder contains TypeScript definitions for different React Context objects.  Right now these are only used on the frontend but may be used if the backend is transitioned to TypeScript in the future.
+
 The general flow of data is (excuse the incorrect terminology):
 - User accesses client website and visits an endpoint (i.e. [localhost:3000/admin]())
 - In order to render the page correctly, we make a request to the server (i.e. [localhost:8000/admin])
