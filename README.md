@@ -6,6 +6,8 @@
 
 **The Squad (Fall '22):** Pranav Addepalli, Angela Zhang, Amanda Li, Jackson Romero, Arthur Jakobsson, Benjamin Kwabi-Addo, Kevin Wang, Yutian Chen
 
+**The Squad (Spring '23):** Pranav Addepalli, Angela Zhang, Amanda Li, Jackson Romero, Arthur Jakobsson, Mihir Khare, Sherry Wang
+
 ## Getting Started
 1. Download and install [Node.js](https://nodejs.org/en/)
 2. Install Node modules within both `client` and `server` folders. `cd` into each and run:
@@ -75,7 +77,7 @@ The general flow of data is (excuse the incorrect terminology):
 - User accesses client website and visits an endpoint (i.e. [localhost:3000/admin]())
 - In order to render the page correctly, we make a request to the server (i.e. [localhost:8000/admin])
 - The server may grab stuff from the database, or data stored in the application itself and returns it
-- The frontend generates the page render using the data it gets from the server and returns to the browser
+- The frontend generates the page render using the data it gets from the server, stores it in React Contexts, and returns to the browser
 - The browser renders the web page
 
 ## General Server File Structure
@@ -102,15 +104,16 @@ This is the folder structure for the React.js client application (inside of the 
 
 Inside of the `src` folder:
 
-| Folder           | Description |
-| ---------------- | ----------- |
-| `App.js`         | Entry point for the client application, handles routing to the right page |
-| `http-common.js` | Configuring axios to contact the server (i.e. base URL, interceptors, etc) |
-| `components`     | Used to create reusable/large components in the various web pages |
-| `pages`          | Stored the base components for each of the pages |
-| `services`       | Used to keep axios services (used to interact with node server) |
-| `themes`         | Used to create and store global themes (i.e. colors or fonts used on every page) |
-| `tests`          | Used to write unit tests (which are currently using the [Jest](https://jestjs.io/docs/getting-started) framework) |
+| Folder            | Description |
+| ----------------  | ----------- |
+| `App.tsx`         | Entry point for the client application, handles routing to the right page |
+| `http-common.tsx` | Configuring axios to contact the server (i.e. base URL, interceptors, etc) |
+| `components`      | Used to create reusable/large components in the various web pages |
+| `config`          | Used for client-side configuration, like google client app id for OAuth |
+| `contexts`        | Stores different React Contexts that are ingested by the frontend and synced with the backend |
+| `pages`           | Stored the base components for each of the pages |
+| `services`        | Used to keep axios services (used to interact with node server) |
+| `themes`          | Used to create and store global themes (i.e. colors or fonts used on every page) |
 
 ### Client-Side Routes
 Each of these are configured in the main `client/src/App.js` file:
