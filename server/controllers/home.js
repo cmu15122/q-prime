@@ -34,6 +34,9 @@ function respond(req, res, message, data, status) {
     res.json(data);
 }
 
+/**
+ * Build a studentData object for a given student on the queue
+ */
 function buildStudentEntryData(student) {
     let studentPos = ohq.getPosition(student.andrewID); //TODO: Should find cheaper way to grab this
     let studentEntryData = {
@@ -62,6 +65,9 @@ function buildStudentEntryData(student) {
     return studentEntryData;
 }
 
+/**
+ * Build a queueData object
+ */
 function buildQueueData() {
     let adminSettings = settings.get_admin_settings();
 
@@ -143,6 +149,9 @@ function buildQueueData() {
     });
 }
 
+/**
+ * Emit new queue data to all clients
+ */
 function emitNewQueueData() {
     buildQueueData().then((data) => {
         sockets.queueData(data);
@@ -150,6 +159,9 @@ function emitNewQueueData() {
 }
 exports.emit_new_queue_data = emitNewQueueData;
 
+/**
+ * Respond to initial request for queue data
+ */
 exports.get = function (req, res) {
     buildQueueData().then((data) => {
         respond(req, res, 'Successfully retrieved queue data', data, 200);
@@ -159,6 +171,9 @@ exports.get = function (req, res) {
     });
 }
 
+/**
+ * Respond to initial request for user data
+ */
 exports.get_user_data = function (req, res) {
     let data = {
         userData: {
@@ -188,6 +203,9 @@ exports.get_user_data = function (req, res) {
     return;
 }
 
+/**
+ * Respond to initial request for student data
+ */
 exports.get_student_data = function (req, res) {
     let data = {
         name: '',
@@ -215,8 +233,7 @@ exports.get_student_data = function (req, res) {
 }
 
 /**
- *
- * @param {*} studentAndrewID
+ * Emit new student data to all clients (all clients receive data and check if it's for them)
  */
 function emitNewStudentData(studentAndrewID) {
     let data = ohq.getData(studentAndrewID)
@@ -239,6 +256,9 @@ function emitNewStudentData(studentAndrewID) {
     }
 }
 
+/**
+ * Build student entry data for all students
+ */
 function buildAllStudents() {
     // assuming that students at front of queue go first
     let allStudents = ohq.getAllStudentData();
@@ -250,14 +270,23 @@ function buildAllStudents() {
     return allStudents;
 }
 
+/**
+ * Respond to initial request for all student data
+ */
 exports.get_all_students = function (req, res) {
     respond(req, res, 'Successfully retrieved all students', {allStudents: buildAllStudents()}, 200);
 }
 
+/**
+ * Emit all student data to all TAs
+ */
 function emitNewAllStudents() {
     sockets.allStudents(buildAllStudents());
 }
 
+/**
+ * Freeze the queue
+ */
 exports.post_freeze_queue = function (req, res) {
     if (!req.user || !req.user.isTA) {
         respond_error(req, res, 'You do not have permissions to perform this operation', 403);
@@ -269,6 +298,9 @@ exports.post_freeze_queue = function (req, res) {
     respond(req, res, 'Successfully froze queue', {}, 200)
 }
 
+/**
+ * Unfreeze the queue
+ */
 exports.post_unfreeze_queue = function (req, res) {
     if (!req.user || !req.user.isTA) {
         respond_error(req, res, 'You do not have permissions to perform this operation', 403);
@@ -290,6 +322,9 @@ exports.post_unfreeze_queue = function (req, res) {
 let announcements = [];
 let announcementId = 0;
 
+/**
+ * Create a new announcement
+ */
 exports.post_create_announcement = function (req, res) {
     if (!req.user || !req.user.isTA) {
         respond_error(req, res, "You don't have permissions to perform this operation", 403);
@@ -314,6 +349,9 @@ exports.post_create_announcement = function (req, res) {
     respond(req, res, `Announcement created successfully`, { announcements: announcements }, 200);
 }
 
+/**
+ * Update an announcement
+ */
 exports.post_update_announcement = function (req, res) {
     if (!req.user || !req.user.isTA) {
         respond_error(req, res, "You don't have permissions to perform this operation", 403);
@@ -341,6 +379,9 @@ exports.post_update_announcement = function (req, res) {
     respond(req, res, `Announcement updated successfully`, { announcements: announcements }, 200);
 }
 
+/**
+ * Delete an announcement
+ */
 exports.post_delete_announcement = function (req, res) {
     if (!req.user || !req.user.isTA) {
         respond_error(req, res, "You don't have permissions to perform this operation", 403);
@@ -360,6 +401,9 @@ exports.post_delete_announcement = function (req, res) {
 }
 
 /** Questions */
+/**
+ * Add a question to the queue
+ */
 exports.post_add_question = function (req, res) {
     if (!req.user || !req.user.isAuthenticated) {
         respond_error(req, res, "You don't have permissions to perform this operation", 403);
@@ -479,6 +523,9 @@ exports.post_add_question = function (req, res) {
     });
 }
 
+/**
+ * Remove a student from the queue
+ */
 exports.post_remove_student = function (req, res) {
     if (!req.user || !req.user.isAuthenticated) {
         respond_error(req, res, "User data not passed to server", 400);
@@ -555,6 +602,9 @@ exports.post_remove_student = function (req, res) {
     })
 }
 
+/**
+ * From a TA to help a student
+ */
 exports.post_help_student = function (req, res) {
     if (!req.user || !req.user.isAuthenticated) {
         respond_error(req, res, "User data not passed to server", 400);
@@ -587,6 +637,9 @@ exports.post_help_student = function (req, res) {
     respond(req, res, 'The student was helped', {}, 200);
 }
 
+/**
+ * From a TA to unhelp a student
+ */
 exports.post_unhelp_student = function (req, res) {
     if (!req.user || !req.user.isAuthenticated) {
         respond_error(req, res, "User data not passed to server", 400);
@@ -616,6 +669,9 @@ exports.post_unhelp_student = function (req, res) {
     respond(req, res, 'The student was unhelped', {}, 200);
 }
 
+/**
+ * From a student to update their question
+ */
 exports.post_update_question = function (req, res) {
     if (!req.user || !req.user.isAuthenticated) {
         respond_error(req, res, "User data not passed to server", 400);
@@ -651,6 +707,9 @@ exports.post_update_question = function (req, res) {
     respond(req, res, 'Question updated successfully', studentData, 200);
 }
 
+/**
+ * From a TA to request a student to fix their question
+ */
 exports.post_taRequestUpdateQ = function (req, res) {
     if (!req.user || !req.user.isAuthenticated) {
         respond_error(req, res, "User data not passed to server", 400);
@@ -680,6 +739,9 @@ exports.post_taRequestUpdateQ = function (req, res) {
     respond(req, res, 'Update question request sent successfully', req.body, 200);
 }
 
+/**
+ * From a TA to send a message to a student
+ */
 exports.post_message_student = function (req, res) {
     if (!req.user || !req.user.isAuthenticated) {
         respond_error(req, res, "User data not passed to server", 400);
@@ -713,6 +775,9 @@ exports.post_message_student = function (req, res) {
 
 }
 
+/**
+ * From a student to dismiss a message
+ */
 exports.post_dismiss_message = function (req, res) {
     if (!req.user || !req.user.isAuthenticated) {
         respond_error(req, res, "User data not passed to server", 400);
@@ -739,6 +804,9 @@ exports.post_dismiss_message = function (req, res) {
     respond(req, res, 'The message was dismissed', {}, 200);
 }
 
+/**
+ * From a TA to approve a student's cooldown override
+ */
 exports.post_approve_cooldown_override = function (req, res) {
     if (!req.user || !req.user.isAuthenticated) {
         respond_error(req, res, "User data not passed to server", 400);
