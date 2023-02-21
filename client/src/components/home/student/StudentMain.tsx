@@ -16,34 +16,19 @@ import {StudentDataContext} from '../../../contexts/StudentDataContext';
 
 function StudentMain() {
   const [removeConfirm, setRemoveConfirm] = useState(false);
-  const [helpingTAInfo, setHelpingTAInfo] = useState(null);
+  const [messagingTAName, setMessagingTAName] = useState('');
 
   const {queueData} = useContext(QueueDataContext);
   const {studentData} = useContext(StudentDataContext);
   const {userData} = useContext(UserDataContext);
 
   useEffect(() => {
-    if (!('Notification' in window)) {
-      console.log('This browser does not support desktop notification');
-    } else if (Notification.permission !== 'granted') {
-      Notification.requestPermission();
-    }
-  }, []);
-
-  useEffect(() => {
     socketSubscribeTo('help', (res) => {
       if (res.andrewID === userData.andrewID) {
-        setHelpingTAInfo(res.data.taData);
         new Notification('It\'s your turn to get help!', {
           'body': `${res.data.taData.taName} is ready to help you.`,
           'requireInteraction': true,
         });
-      }
-    });
-
-    socketSubscribeTo('unhelp', (res) => {
-      if (res.andrewID === userData.andrewID) {
-        setHelpingTAInfo(null);
       }
     });
 
@@ -57,7 +42,7 @@ function StudentMain() {
 
     socketSubscribeTo('message', (res) => {
       if (res.andrewID === userData.andrewID) {
-        setHelpingTAInfo(res.data.taData);
+        setMessagingTAName(res.data.taName);
 
         new Notification('You\'ve been messaged by a TA', {
           'requireInteraction': true,
@@ -118,8 +103,7 @@ function StudentMain() {
               />
             </div> :
             (queueData.queueFrozen ? null :
-              <AskQuestion
-              />
+              <AskQuestion/>
             )
         }
       </div>
@@ -132,7 +116,6 @@ function StudentMain() {
 
       <TAHelpingOverlay
         open={studentData.status === StudentStatusValues.BEING_HELPED}
-        helpingTAInfo={helpingTAInfo}
       />
 
       <UpdateQuestionOverlay
@@ -142,7 +125,7 @@ function StudentMain() {
 
       <MessageRespond
         open={studentData.status === StudentStatusValues.RECEIVED_MESSAGE}
-        helpingTAInfo={helpingTAInfo}
+        messagingTAName={messagingTAName}
         removeFromQueue={removeFromQueue}
         dismissMessage={dismissMessage}
         handleClose={() => {}}

@@ -64,8 +64,8 @@ export default function Navbar(props) {
     const newPages = [];
 
     if (userData.isAuthenticated && userData.isTA) {
-      newPages.push(createPage('Settings', '/settings'));
-      newPages.push(createPage('Metrics', '/metrics'));
+      newPages.push(createPage('Settings', 'settings'));
+      newPages.push(createPage('Metrics', 'metrics'));
     }
 
     setPages(newPages);
@@ -77,7 +77,7 @@ export default function Navbar(props) {
 
   function handleLogout() {
     removeCookie('user');
-    window.location.href = '/';
+    window.location.href = '';
   }
 
   function openAlert() {

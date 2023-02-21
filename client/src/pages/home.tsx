@@ -1,14 +1,10 @@
-import React, {useContext, useEffect} from 'react';
+import React from 'react';
 import {useTheme} from '@mui/material';
 
 import Navbar from '../components/navbar/Navbar';
 import HomeMain from '../components/home/HomeMain';
 
-import HomeService from '../services/HomeService';
-import {initiateSocket} from '../services/SocketsService';
-
-
-function Home(props) {
+function Home() {
   const theme = useTheme();
 
   return (

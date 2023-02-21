@@ -24,15 +24,16 @@ export default function VideoChatSettings(props) {
     setVideoChatEnabled(chatEnabled);
     SettingsService.updateVideoChatSettings({
       enabled: chatEnabled,
-      url: chatEnabled ? videoChatURL : '',
+      url: videoChatURL,
     });
   };
 
   const updateVideoChatURL = (event) => {
     event.preventDefault();
+
     SettingsService.updateVideoChatSettings({
       enabled: isVideoChatEnabled,
-      url: isVideoChatEnabled ? videoChatURL : '',
+      url: videoChatURL,
     });
   };
 
@@ -69,6 +70,7 @@ export default function VideoChatSettings(props) {
                   fullWidth
                   value={videoChatURL ?? ''}
                   onChange={(e) => setVideoChatURL(e.target.value)}
+                  type="url"
                 />
               </Grid>
               <Grid className="d-flex" item sx={{mt: 1, mx: 1}} xs={2}>

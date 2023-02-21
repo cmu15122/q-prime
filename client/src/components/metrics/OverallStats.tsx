@@ -18,7 +18,7 @@ export default function OverallStats() {
     });
 
     MetricsService.getNumBadQuestions().then((res) => {
-      setNumBadQuestions(res.data.numBadQuestions);
+      setNumBadQuestions(res.data.numBadQuestionsToday);
     });
 
     MetricsService.getAvgWaitTime().then((res) => {
