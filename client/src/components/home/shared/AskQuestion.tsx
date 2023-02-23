@@ -98,7 +98,7 @@ export default function AskQuestion() {
       if (res.status === 200 && res.data.message === 'cooldown_violation') {
         setTimePassed(Math.round(res.data.timePassed));
         setShowCooldownOverlay(true);
-      } else {
+      } else if (res.status === 200) {
         clearValues();
       }
 
