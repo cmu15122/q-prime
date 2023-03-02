@@ -418,76 +418,39 @@ exports.post_add_question = function (req, res) {
     }
 
     let id = req.body.andrewID;
-    let overrideCooldown = req.user.isTA || req.body.overrideCooldown;
+    let overrideCooldown = req.body.overrideCooldown;
 
     if (ohq.getPosition(id) != -1) {
         respond_error(req, res, "Student already on the queue", 400);
         return;
     }
 
-    models.account.findOrCreate({ // TODO: change to findOne after adding permanent students to database
-        where: {
-            email: {
-                [Sequelize.Op.like]: id + '@%'
+    // handle TA created questions
+    if (req.user.isTA) {
+        models.account.findOrCreate({
+            where: {
+                email: {
+                    [Sequelize.Op.like]: id + '@%'
+                }
+            },
+            defaults: {
+                name: req.body.name ? req.body.name : 'No Name',
+                preferred_name: req.body.name ? req.body.name : 'No Name',
+                email: id + '@andrew.cmu.edu'
             }
-        },
-        defaults: {
-            name: req.body.name ? req.body.name : 'No Name',
-            preferred_name: req.body.name ? req.body.name : 'No Name',
-            email: id + '@andrew.cmu.edu'
-        }
-    }).then(([account, created]) => {
-        if (!account) {
-            throw new Error('No existing account with provided andrew ID.');
-        }
+        }).then(([account, created]) => {
+            return Promise.props({
+                student: models.student.findOrCreate({
+                    where: {
+                        student_id: account.user_id
+                    }
+                }),
+                account: account
+            });
+        }).then((result) => {
+            let [student, created] = result.student;
+            let account = result.account;
 
-        return Promise.props({
-            student: models.student.findOrCreate({ // TODO: change to findOne after adding permanent students to database
-                where: {
-                    student_id: account.user_id
-                }
-            }),
-            account: account
-        });
-    }).then((result) => {
-        let [student, created] = result.student;
-        let account = result.account;
-
-        if (!student) {
-            throw new Error('No existing student account with provided andrew ID.');
-        }
-
-        // check for cooldown violation
-        let rejoinTime = settings.get_admin_settings().rejoinTime
-        return Promise.props({
-            questions: models.question.findAll({
-                where: {
-                    exit_time: {
-                        [Sequelize.Op.gte]: moment.tz(new Date(), "America/New_York").subtract(rejoinTime, 'minutes').toDate(),
-                    },
-                    help_time: {
-                        [Sequelize.Op.ne]: null,
-                    },
-                    student_id: student.student_id
-                }
-            }),
-            account: account
-        })
-    }).then((result) => {
-        let questions = result.questions.sort((firstQ, secondQ) => {
-            return moment.tz(firstQ.exit_time, "America/New_York").diff(secondQ.exit_time)
-        })
-
-        let account = result.account
-
-        // fail if cooldown violated
-        if (!overrideCooldown && questions.length > 0) {
-            res.status(200)
-            res.json({
-                message: "cooldown_violation",
-                timePassed: `${moment.tz(new Date(), "America/New_York").diff(questions[questions.length - 1].exit_time, 'minutes')}`
-            })
-        } else {
             ohq.enqueue(
                 id,
                 account.preferred_name,
@@ -508,10 +471,6 @@ exports.post_add_question = function (req, res) {
                 throw new Error('The server was unable to find you on the queue after adding you');
             }
 
-            if (overrideCooldown && !req.user.isTA) {
-                ohq.setCooldownViolation(id)
-            }
-
             respond(req, res, `Successfully added to queue`, data, 200);
 
             sockets.add({
@@ -523,11 +482,112 @@ exports.post_add_question = function (req, res) {
             emitNewQueueData();
             emitNewStudentData(id);
             emitNewAllStudents();
-        }
-    }).catch((err) => {
-        console.log(err);
-        respond__error(req, res, err.message, 500);
-    });
+        }).catch((err) => {
+            console.log(err);
+            respond__error(req, res, err.message, 500);
+        });
+    }
+    // handle Student created questions
+    else {
+        models.account.findOne({
+            where: {
+                email: {
+                    [Sequelize.Op.like]: id + '@%'
+                }
+            },
+        }).then((account) => {
+            if (!account) {
+                throw new Error('No existing account with provided andrew ID.');
+            }
+
+            return Promise.props({
+                student: models.student.findOne({
+                    where: {
+                        student_id: account.user_id
+                    }
+                }),
+                account: account
+            });
+        }).then((result) => {
+            let student = result.student;
+            let account = result.account;
+
+            if (!student) {
+                throw new Error('No existing student account with provided andrew ID.');
+            }
+
+            // check for cooldown violation
+            let rejoinTime = settings.get_admin_settings().rejoinTime
+            return Promise.props({
+                questions: models.question.findAll({
+                    where: {
+                        exit_time: {
+                            [Sequelize.Op.gte]: moment.tz(new Date(), "America/New_York").subtract(rejoinTime, 'minutes').toDate(),
+                        },
+                        help_time: {
+                            [Sequelize.Op.ne]: null,
+                        },
+                        student_id: student.student_id
+                    }
+                }),
+                account: account
+            })
+        }).then((result) => {
+            let questions = result.questions.sort((firstQ, secondQ) => {
+                return moment.tz(firstQ.exit_time, "America/New_York").diff(secondQ.exit_time)
+            })
+
+            let account = result.account
+
+            // fail if cooldown violated
+            if (!overrideCooldown && questions.length > 0) {
+                res.status(200)
+                res.json({
+                    message: "cooldown_violation",
+                    timePassed: `${moment.tz(new Date(), "America/New_York").diff(questions[questions.length - 1].exit_time, 'minutes')}`
+                })
+            } else {
+                ohq.enqueue(
+                    id,
+                    account.preferred_name,
+                    req.body.question,
+                    req.body.location,
+                    req.body.topic,
+                    moment.tz(new Date(), "America/New_York").toDate()
+                );
+
+                let data = {
+                    status: ohq.getStatus(id),
+                    position: ohq.getPosition(id)
+                };
+
+                if (data.status == null || data.position == null) {
+                    throw new Error('The server was unable to add you to the queue');
+                } else if (data.status == -1 || data.position == -1) {
+                    throw new Error('The server was unable to find you on the queue after adding you');
+                }
+
+                if (overrideCooldown) {
+                    ohq.setCooldownViolation(id)
+                }
+
+                respond(req, res, `Successfully added to queue`, data, 200);
+
+                sockets.add({
+                    name: account.preferred_name,
+                    andrewID: id,
+                    topic: req.body.topic,
+                });
+
+                emitNewQueueData();
+                emitNewStudentData(id);
+                emitNewAllStudents();
+            }
+        }).catch((err) => {
+            console.log(err);
+            respond__error(req, res, err.message, 500);
+        });
+    }
 }
 
 /**
