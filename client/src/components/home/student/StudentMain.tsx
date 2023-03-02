@@ -71,6 +71,7 @@ function StudentMain() {
     HomeService.removeStudent(
         JSON.stringify({
           andrewID: userData.andrewID,
+          doneHelping: false,
         }),
     ).then((res) => {
       if (res.status === 200) {

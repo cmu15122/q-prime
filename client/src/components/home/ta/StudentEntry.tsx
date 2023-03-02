@@ -35,7 +35,7 @@ export default function StudentEntry(props) {
   function handleRemoveButton() {
     if (confirmRemove) {
       setConfirmRemove(false);
-      removeStudent(index);
+      removeStudent(index, false);
     } else {
       setConfirmRemove(true);
     }

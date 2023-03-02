@@ -8,6 +8,7 @@ const models = require('../models');
 const sockets = require('./sockets');
 const waittime = require('./waittimes')
 const settings = require('./settings');
+const notify = require('./notify');
 
 const StudentStatus = queue.StudentStatus;
 
@@ -143,6 +144,8 @@ function buildQueueData() {
     });
 }
 
+exports.build_queue_data = buildQueueData;
+
 function emitNewQueueData() {
     buildQueueData().then((data) => {
         sockets.queueData(data);
@@ -264,6 +267,8 @@ exports.post_freeze_queue = function (req, res) {
         return;
     }
 
+    notify.stop();
+
     queueFrozen = true;
     emitNewQueueData()
     respond(req, res, 'Successfully froze queue', {}, 200)
@@ -274,6 +279,8 @@ exports.post_unfreeze_queue = function (req, res) {
         respond_error(req, res, 'You do not have permissions to perform this operation', 403);
         return;
     }
+
+    notify.init();
 
     queueFrozen = false;
     emitNewQueueData()
@@ -512,47 +519,52 @@ exports.post_remove_student = function (req, res) {
     });
 
     // TODO, FIXME: Don't write TA added questions to the database or TA manually removed questions
-    models.account.findOrCreate({
-        where: {
-            email: {
-                [Sequelize.Op.like]: returnedData.andrewID + '@%'
-            }
-        },
-        defaults: {
-            email: returnedData.andrewID + '@andrew.cmu.edu'
-        }
-    }).then(([account,]) => {
-        return Promise.props({
-            account: account,
-            student: models.student.findOrCreate({
-                where: {
-                    student_id: account.user_id
+    if (req.body.doneHelping) {
+        let minutesDiff = moment.tz(new Date(), "America/New_York").diff(moment(returnedData.helpTime), "minutes")
+        sockets.doneHelping(req.user.andrewID, id, minutesDiff);
+
+        models.account.findOrCreate({
+            where: {
+                email: {
+                    [Sequelize.Op.like]: returnedData.andrewID + '@%'
                 }
-            })
-        });
-    }).then((results) => {
-        return Promise.props({
-            account: results.account,
-            student: results.student[0],
-            question: models.question.create({
-                ta_id: taID,
-                student_id: results.student[0].student_id,
-                sem_id: settings.get_admin_settings().currSem,
-                question: returnedData.question,
-                location: returnedData.location,
-                assignment: returnedData.topic.assignment_id,
-                entry_time: returnedData.entryTime,
-                help_time: returnedData.helpTime,
-                exit_time: moment.tz(new Date(), "America/New_York").toDate(),
-                num_asked_to_fix: returnedData.numAskedToFix
-            })
-        });
-    }).then((results) => {
-        respond(req, res, 'The student was successfully removed form the queue and a question record was added to the database', {question_id: results.question.question_id}, 200);
-    }).catch((err) => {
-        console.log(err);
-        respond_error(req, res, 'The student was removed from the queue but an error occurred adding the question to the database', 500);
-    })
+            },
+            defaults: {
+                email: returnedData.andrewID + '@andrew.cmu.edu'
+            }
+        }).then(([account,]) => {
+            return Promise.props({
+                account: account,
+                student: models.student.findOrCreate({
+                    where: {
+                        student_id: account.user_id
+                    }
+                })
+            });
+        }).then((results) => {
+            return Promise.props({
+                account: results.account,
+                student: results.student[0],
+                question: models.question.create({
+                    ta_id: taID,
+                    student_id: results.student[0].student_id,
+                    sem_id: settings.get_admin_settings().currSem,
+                    question: returnedData.question,
+                    location: returnedData.location,
+                    assignment: returnedData.topic.assignment_id,
+                    entry_time: returnedData.entryTime,
+                    help_time: returnedData.helpTime,
+                    exit_time: moment.tz(new Date(), "America/New_York").toDate(),
+                    num_asked_to_fix: returnedData.numAskedToFix
+                })
+            });
+        }).then((results) => {
+            respond(req, res, 'The student was successfully removed form the queue and a question record was added to the database', {question_id: results.question.question_id}, 200);
+        }).catch((err) => {
+            console.log(err);
+            respond_error(req, res, 'The student was removed from the queue but an error occurred adding the question to the database', 500);
+        })
+    }
 }
 
 exports.post_help_student = function (req, res) {
