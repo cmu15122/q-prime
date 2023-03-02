@@ -12,7 +12,8 @@ const app = express();
 const slack = require('./controllers/slack');
 const sockets = require('./controllers/sockets');
 const settingsCtr = require('./controllers/settings');
-const waittimes = require('./controllers/waittimes');
+const homeCtr = require('./controllers/home');
+const notify = require('./controllers/notify');
 
 // Routes
 const home = require("./routes/home");
@@ -119,9 +120,14 @@ app.set('port', port);
 
 const server = http.createServer(app);
 
-// waittimes.init();
 slack.init();
 sockets.init(server);
+
+homeCtr.build_queue_data().then((data) => {
+    if (!data.queueFrozen) {
+        notify.init();
+    }
+})
 
 server.listen(port, () => console.log(`Listening on port ${port}`));
 module.exports = app;

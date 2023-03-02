@@ -1,7 +1,3 @@
-// TODO Issues with editing topics, fairly certain not a result of my changes
-// Editing will cause a lot of MUI errors in console and can sometimes just delete the topics?
-// Issue persists after page refresh
-
 import React, {useState, useContext, useMemo} from 'react';
 import {
   Button, TableCell, TableRow, Typography, useTheme,

@@ -125,9 +125,10 @@ export default function StudentEntries(props) {
     });
   };
 
-  const removeStudent = (index) => {
+  const removeStudent = (index, doneHelping) => {
     HomeService.removeStudent(JSON.stringify({
       andrewID: allStudents[index].andrewID,
+      doneHelping: doneHelping,
     }));
   };
 
