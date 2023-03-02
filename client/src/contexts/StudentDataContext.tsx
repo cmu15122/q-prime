@@ -5,6 +5,13 @@ import HomeService from '../services/HomeService';
 import {socketSubscribeTo} from '../services/SocketsService';
 import {StudentStatusValues} from '../services/StudentStatus';
 
+/**
+ * Context object for student data
+ *
+ * This context will only be loaded for users who are students
+ *
+ * This context is updated via the `studentData` socket
+ */
 const StudentDataContext = createContext({
   studentData: {
     name: '',
@@ -24,6 +31,9 @@ const StudentDataContext = createContext({
   setStudentData: ((studentData: StudentData) => {}) as React.Dispatch<React.SetStateAction<StudentData>>,
 });
 
+/**
+ * Context provider for student data
+ */
 const StudentDataContextProvider = ({children}: {children: React.ReactNode}) => {
   const {userData} = useContext(UserDataContext);
   const [studentData, setStudentData] = useState<StudentData>({
@@ -42,6 +52,7 @@ const StudentDataContextProvider = ({children}: {children: React.ReactNode}) => 
     position: -1,
   });
 
+  // Load student data and subscribe to changes
   useEffect(() => {
     if (userData.isAuthenticated) {
       HomeService.getStudentData().then((res) => {

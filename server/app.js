@@ -40,6 +40,9 @@ models.sequelize.authenticate().then(() => {
     process.exit();
 });
 
+/**
+ * Sets up pipeline for users making requests, such as adding data to req.user as used in all routes
+ */
 app.use(function(req, res, next) {
     let access_token = req.headers['authorization'];
     if (!access_token) {
