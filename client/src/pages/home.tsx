@@ -6,6 +6,7 @@ import HomeMain from '../components/home/HomeMain';
 
 /**
  * Home page
+ * @return {JSX.Element} Home page
  */
 function Home() {
   const theme = useTheme();

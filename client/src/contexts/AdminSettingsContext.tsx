@@ -20,6 +20,7 @@ const AdminSettingsContext = createContext({
 
 /**
  * Context provider for admin settings
+ * @return {React.Provider} Context provider for admin settings
  */
 const AdminSettingsContextProvider = ({children}: {children: React.ReactNode}) => {
   const {userData} = useContext(UserDataContext);

@@ -33,6 +33,7 @@ const StudentDataContext = createContext({
 
 /**
  * Context provider for student data
+ * @return {React.Provider} Context provider for student data
  */
 const StudentDataContextProvider = ({children}: {children: React.ReactNode}) => {
   const {userData} = useContext(UserDataContext);

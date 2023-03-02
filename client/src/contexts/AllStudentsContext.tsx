@@ -18,6 +18,7 @@ const AllStudentsContext = createContext({
 
 /**
  * Context provider for all students on the queue
+ * @return {React.Provider} Context provider for all students
  */
 const AllStudentsContextProvider = ({children}: {children: React.ReactNode}) => {
   const {userData} = useContext(UserDataContext);

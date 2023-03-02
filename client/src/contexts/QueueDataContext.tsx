@@ -17,6 +17,7 @@ const QueueDataContext = createContext({
 
 /**
  * Context provider for queue data
+ * @return {React.Provider} Context provider for queue data
  */
 const QueueDataContextProvider = ({children}: {children: React.ReactNode}) => {
   const [queueData, setQueueData] = useState<QueueData>({

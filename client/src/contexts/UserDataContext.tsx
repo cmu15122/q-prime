@@ -17,6 +17,7 @@ const UserDataContext = createContext({
 
 /**
  * Context provider for user data
+ * @return {React.Provider} Context provider for user data
  */
 const UserDataContextProvider = ({children}: {children: React.ReactNode}) => {
   const [userData, setUserData] = useState<UserData>({
