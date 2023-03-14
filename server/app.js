@@ -12,7 +12,8 @@ const app = express();
 const slack = require('./controllers/slack');
 const sockets = require('./controllers/sockets');
 const settingsCtr = require('./controllers/settings');
-const waittimes = require('./controllers/waittimes');
+const homeCtr = require('./controllers/home');
+const notify = require('./controllers/notify');
 
 // Routes
 const home = require("./routes/home");
@@ -39,6 +40,9 @@ models.sequelize.authenticate().then(() => {
     process.exit();
 });
 
+/**
+ * Sets up pipeline for users making requests, such as adding data to req.user as used in all routes
+ */
 app.use(function(req, res, next) {
     let access_token = req.headers['authorization'];
     if (!access_token) {
@@ -116,9 +120,14 @@ app.set('port', port);
 
 const server = http.createServer(app);
 
-// waittimes.init();
 slack.init();
 sockets.init(server);
+
+homeCtr.build_queue_data().then((data) => {
+    if (!data.queueFrozen) {
+        notify.init();
+    }
+})
 
 server.listen(port, () => console.log(`Listening on port ${port}`));
 module.exports = app;

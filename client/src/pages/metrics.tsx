@@ -9,6 +9,10 @@ import {Navigate} from 'react-router-dom';
 
 import {UserDataContext} from '../contexts/UserDataContext';
 
+/**
+ * Metrics page, only accessible to TAs
+ * @return {JSX.Element} Metrics page
+ */
 function Metrics() {
   const theme = useTheme();
   const {userData, isLoadingUserData} = useContext(UserDataContext);

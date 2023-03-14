@@ -76,7 +76,7 @@ exports.wait_time_data = function () {
 
         if (waitTime > ping_threshold_mins && (last_pinged == null || now.diff(last_pinged, "seconds") >= ping_interval_mins * 60)) {
           slack.send_message(
-            "<!channel> The wait time is " + waitTime + " minutes right now. More TAs might be needed. (<" + config.PROTOCOL + "://" + config.DOMAIN + "/|view»>)"
+            "<!channel> The wait time is " + (Math.round(100 * waitTime) / 100) + " minutes right now. More TAs might be needed. (<" + config.PROTOCOL + "://" + config.DOMAIN + "/|view»>)"
           );
           last_pinged = now;
         }

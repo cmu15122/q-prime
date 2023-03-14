@@ -1,3 +1,6 @@
+/**
+ * Type of a student's own entry on the queue
+ */
 export type StudentData = {
     name: string,
     andrewID: string,

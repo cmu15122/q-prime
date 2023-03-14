@@ -3,6 +3,13 @@ import {AdminSettings} from '../../../types/AdminSettings';
 import {UserDataContext} from './UserDataContext';
 import SettingsService from '../services/SettingsService';
 
+/**
+ * Context object for admin settings
+ *
+ * This context will only be loaded for users who are course administrators
+ *
+ * This context is **not** updated via sockets
+ */
 const AdminSettingsContext = createContext({
   adminSettings: {
     currSem: '',
@@ -11,6 +18,10 @@ const AdminSettingsContext = createContext({
   setAdminSettings: ((adminSettings: AdminSettings) => {}) as React.Dispatch<React.SetStateAction<AdminSettings>>,
 });
 
+/**
+ * Context provider for admin settings
+ * @return {React.Provider} Context provider for admin settings
+ */
 const AdminSettingsContextProvider = ({children}: {children: React.ReactNode}) => {
   const {userData} = useContext(UserDataContext);
   const [adminSettings, setAdminSettings] = useState<AdminSettings>({
@@ -18,6 +29,7 @@ const AdminSettingsContextProvider = ({children}: {children: React.ReactNode}) =
     slackURL: undefined,
   });
 
+  // Load admin settings if user is an admin
   useEffect(() => {
     if (userData.isAdmin) {
       SettingsService.getAdminSettings().then((res) => {

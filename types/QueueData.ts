@@ -1,3 +1,6 @@
+/**
+ * Type of queue data that is visible to all queue users
+ */
 export type QueueData = {
   // most important global data
   title: string,

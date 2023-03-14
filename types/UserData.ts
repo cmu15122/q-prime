@@ -1,3 +1,6 @@
+/**
+ * Type of a queue user's data, where users means all TAs and students
+ */
 export type UserData = {
     // user state
     isOwner: boolean,

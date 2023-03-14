@@ -9,6 +9,10 @@ import {Navigate} from 'react-router-dom';
 
 import {UserDataContext} from '../contexts/UserDataContext';
 
+/**
+ * Settings page, only accessible to TAs and course owners
+ * @return {JSX.Element} Settings page
+ */
 function Settings() {
   const theme = useTheme();
   const {userData, isLoadingUserData} = useContext(UserDataContext);

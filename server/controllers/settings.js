@@ -12,7 +12,7 @@ const home = require('./home');
 // FIXME: some default values are set to simplify testing;
 // In production, these should be cleared
 let adminSettings = {
-    currSem: "W22", // TODO: Set to W22 for testing, fix later
+    currSem: "S23",
     slackURL: null,
     questionsURL: '',
     rejoinTime: 10

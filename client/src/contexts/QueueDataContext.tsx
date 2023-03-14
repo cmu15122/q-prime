@@ -3,11 +3,22 @@ import React, {createContext, useEffect, useState} from 'react';
 import HomeService from '../services/HomeService';
 import {socketSubscribeTo} from '../services/SocketsService';
 
+/**
+ * Context object for queue data
+ *
+ * This context will be loaded for all users
+ *
+ * This context is updated via the `queueData` socket
+ */
 const QueueDataContext = createContext({
   queueData: {} as QueueData,
   setQueueData: ((queueData: QueueData) => {}) as React.Dispatch<React.SetStateAction<QueueData>>,
 });
 
+/**
+ * Context provider for queue data
+ * @return {React.Provider} Context provider for queue data
+ */
 const QueueDataContextProvider = ({children}: {children: React.ReactNode}) => {
   const [queueData, setQueueData] = useState<QueueData>({
     title: '15-122 Office Hours Queue',
@@ -31,6 +42,7 @@ const QueueDataContextProvider = ({children}: {children: React.ReactNode}) => {
     tas: [],
   });
 
+  // Load queue data and subscribe to changes
   useEffect(() => {
     HomeService.getAll().then((res) => {
       setQueueData(res.data);
