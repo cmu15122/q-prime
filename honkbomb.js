@@ -7,7 +7,7 @@ for(let i=0;i<all.length;i++) {
 }
 
 var img = document.createElement("img");
-img.src = "https://raw.githubusercontent.com/cmu15122/q-prime/honkbomb/goose.png";
+img.src = "https://raw.githubusercontent.com/cmu15122/q-prime/d56be7e0a32eee129fd94f0cddc92d664dd92f55/goose.png";
 img.style.position = "absolute";
 document.body.appendChild(img);
 
