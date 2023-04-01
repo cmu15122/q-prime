@@ -11,7 +11,7 @@ for (let i = 0; i < e.length; i++) {
 function replaceText() {
   let anchors = document.getElementsByTagName("a");
   for (let i = 0; i < anchors.length; i++) {
-    if (anchors[i].innerHTML === "15-210 Office Hours Queue") {
+    if (anchors[i].innerHTML === "15-210 Office Hours Queue" || anchors[i].innerHTML == "15-150 Office Hours Queue" || anchors[i].innerHTML == "15-251 Office Hours Queue") {
       anchors[i].innerHTML = "Functions Are Pointers";
     }
   }
