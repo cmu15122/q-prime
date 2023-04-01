@@ -1,4 +1,4 @@
-alert("Hi Daniel :)");
+alert("Omg chonk says hi :)");
 
 let e = document.querySelectorAll('.entry-item.entry-question');
 for (let i = 0; i < e.length; i++) {
