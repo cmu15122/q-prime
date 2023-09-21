@@ -484,7 +484,7 @@ exports.post_add_question = function (req, res) {
             emitNewAllStudents();
         }).catch((err) => {
             console.log(err);
-            respond__error(req, res, err.message, 500);
+            respond_error(req, res, err.message, 500);
         });
     }
     // handle Student created questions
@@ -585,7 +585,7 @@ exports.post_add_question = function (req, res) {
             }
         }).catch((err) => {
             console.log(err);
-            respond__error(req, res, err.message, 500);
+            respond_error(req, res, err.message, 500);
         });
     }
 }
