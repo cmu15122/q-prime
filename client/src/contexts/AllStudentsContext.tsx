@@ -34,6 +34,15 @@ const AllStudentsContextProvider = ({children}: {children: React.ReactNode}) => 
       socketSubscribeTo('allStudents', (data: {allStudents: StudentData[]}) => {
         setAllStudents(data.allStudents);
       });
+
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible') {
+          HomeService.getAllStudents().then((res) => {
+            setAllStudents(res.data.allStudents);
+          });
+        }
+      };
+      document.addEventListener('visibilitychange', handleVisibilityChange);
     }
   }, [userData.isTA]);
 

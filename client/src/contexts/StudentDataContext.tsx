@@ -67,6 +67,17 @@ const StudentDataContextProvider = ({children}: {children: React.ReactNode}) => 
           setStudentData(data);
         }
       });
+
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === 'visible') {
+          HomeService.getStudentData().then((res) => {
+            if (res.status === 200 && res.data.andrewID === userData.andrewID) {
+              setStudentData(res.data);
+            }
+          });
+        }
+      };
+      document.addEventListener('visibilitychange', handleVisibilityChange);
     }
   }, [userData.isAuthenticated]);
 

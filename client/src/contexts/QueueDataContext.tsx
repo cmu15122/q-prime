@@ -52,6 +52,15 @@ const QueueDataContextProvider = ({children}: {children: React.ReactNode}) => {
     socketSubscribeTo('queueData', (data: QueueData) => {
       setQueueData(data);
     });
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        HomeService.getAll().then((res) => {
+          setQueueData(res.data);
+        });
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
   return (
