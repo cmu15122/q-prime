@@ -4,7 +4,7 @@ import Cookies from 'universal-cookie';
 const cookies = new Cookies();
 
 let socket = null;
-const subscriptions = [];
+const subscriptions = {};
 
 const SOCKET_URL = process.env.REACT_APP_PROTOCOL + '://' + process.env.REACT_APP_DOMAIN;
 const SOCKET_PATH = process.env.REACT_APP_SOCKET_PATH;
@@ -28,7 +28,7 @@ export const socketSubscribeTo = (emission, callback) => {
   }
 
   // Add the event and callback to our list of subscriptions
-  subscriptions.push({emission, callback});
+  subscriptions[emission] = callback;
 
   socket.on(emission, (data) => {
     callback(data);
@@ -40,14 +40,18 @@ export const socketUnsubscribeFrom = (emission) => {
     return;
   }
 
+  if (subscriptions.hasOwnProperty(emission)) {
+    delete subscriptions[emission];
+  }
+
   socket.off(emission);
 };
 
 // Function to resubscribe to all events
 const resubscribeAll = () => {
-  subscriptions.forEach(({emission, callback}) => {
+  for (const [emission, callback] of Object.entries(subscriptions)) {
     socketSubscribeTo(emission, callback);
-  });
+  }
 };
 
 // Visibility change listener
