@@ -16,6 +16,7 @@
     ```
 3. You may need to download and install [PostgreSQL](https://www.postgresql.org/download/) and set up the database ([see below](#setting-up-the-database))
 4. Set up environment files ([see below](#configuration))
+5. Log in with the owner email, which is defined in `server/.env`, change "Current Semester" to a new value and click "Save."  This creates the initial database entry for a semester.
 
 ## Running Server
 1. Start the server
@@ -50,7 +51,7 @@
     ```
 
 ## Setting Up the Database
-The server currently uses a PostgreSQL database. For the summer '22 development team, we're currently developing using a database hosted on Heroku - ping Pranav for details.
+The server currently uses a PostgreSQL database. The live database is hosted on our VM - ping Pranav for details.
 
 You can also set up a local database to test. Run the command below:
 ```
@@ -66,6 +67,15 @@ and check the connection information by running:
 ```
 This should print out the following information:
 > You are connected to database "queue_db" as user <db_user> via socket in <db_socket> at port <db_port>.
+
+After creating a local database, make sure to change your `server/.env` file to have the following settings:
+
+```
+POSTGRESQL_DB_HOST=localhost
+POSTGRESQL_DB_USER=<db_user>
+POSTGRESQL_DB_PASSWORD=<db_user>'s password
+POSTGRESQL_DB=queue_db
+```
 
 
 ## General Structure
