@@ -95,17 +95,17 @@ export default function StudentEntries(props) {
 
   useEffect(() => {
     setIsHelping(false);
-    for (const [index, student] of allStudents.entries()) {
+    for (const [index, student] of filteredStudents.entries()) {
       if (student.status === StudentStatusValues.BEING_HELPED && student.helpingTAInfo?.taAndrewID === userData.andrewID) {
         setHelpIdx(index);
         setIsHelping(true);
       }
     }
-  }, [allStudents, userData.andrewID]);
+  }, [filteredStudents, userData.andrewID]);
 
   const handleClickHelp = (index) => {
     HomeService.helpStudent(JSON.stringify({
-      andrewID: allStudents[index].andrewID,
+      andrewID: filteredStudents[index].andrewID,
     })).then((res) => {
       if (res.status === 200) {
         setHelpIdx(index);
@@ -116,7 +116,7 @@ export default function StudentEntries(props) {
 
   const handleCancel = (index) => {
     HomeService.unhelpStudent(JSON.stringify({
-      andrewID: allStudents[index].andrewID,
+      andrewID: filteredStudents[index].andrewID,
     })).then((res) => {
       if (res.status === 200) {
         setHelpIdx(-1);
@@ -127,7 +127,7 @@ export default function StudentEntries(props) {
 
   const removeStudent = (index, doneHelping) => {
     HomeService.removeStudent(JSON.stringify({
-      andrewID: allStudents[index].andrewID,
+      andrewID: filteredStudents[index].andrewID,
       doneHelping: doneHelping,
     }));
   };
@@ -135,7 +135,7 @@ export default function StudentEntries(props) {
   const handleClickUnfreeze = (index) => {
     setIsHelping(false);
     setHelpIdx(-1);
-    allStudents[index].status = StudentStatusValues.WAITING;
+    filteredStudents[index].status = StudentStatusValues.WAITING;
   };
 
   /* END QUEUE LOGIC */
