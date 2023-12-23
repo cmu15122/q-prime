@@ -11,14 +11,36 @@ const home = require('./home');
 // Global admin settings
 // FIXME: some default values are set to simplify testing;
 // In production, these should be cleared
+var fs = require('fs');
 let adminSettings = {
-    currSem: "S23",
+    currSem: "F23",
     slackURL: null,
     questionsURL: '',
-    rejoinTime: 10
+    rejoinTime: 15
 };
+// If no admin setting have been generated, use the above default values
+if (!fs.existsSync('../adminSettings.json')) {
+    var json = JSON.stringify(adminSettings)
+    fs.writeFile('../adminSettings.json', json, 'utf8', function () {
+        console.log('Created admin settings JSON');
+    });
+} 
 
 exports.get_admin_settings = function () {
+
+    let data = fs.readFileSync('../adminSettings.json', 'utf8', flag = 'r+');
+    if (data) {
+        adminSettings = JSON.parse(data);
+    } else {
+        console.log('No admin settings found');
+        adminSettings = {
+            currSem: "F23",
+            slackURL: null,
+            questionsURL: '',
+            rejoinTime: 15
+        };
+    }
+
     return adminSettings;
 }
 
@@ -48,6 +70,13 @@ function respond_success(req, res, message = null) {
     }
 
     respond(req, res, message, {}, 200);
+}
+
+function writeAdminSettings (settings) {
+    var json = JSON.stringify(settings)
+    fs.writeFileSync('../adminSettings.json', json, 'utf8', function () {
+        return;
+    });
 }
 
 /** General Settings **/
@@ -178,6 +207,7 @@ exports.post_update_semester = function (req, res) {
         }
     }).then(function (results) {
         adminSettings.currSem = results[0].sem_id;
+        writeAdminSettings(adminSettings);
         respond_success(req, res, `Current semester set to ${sem_id} successfully`);
     }).catch(err => {
         message = err.message || "An error occurred while updating current semester";
@@ -200,6 +230,7 @@ exports.post_update_slack_url = function (req, res) {
     if (adminSettings.slackURL == slackURL) return;
 
     adminSettings.slackURL = slackURL;
+    writeAdminSettings(adminSettings);
     slack.update_slack();
     respond_success(req, res, `Slack Webhook URL updated successfully`);
 }
@@ -219,6 +250,7 @@ exports.post_update_questions_url = function (req, res) {
     if (adminSettings.questionsURL == questionsURL) return;
 
     adminSettings.questionsURL = questionsURL;
+    writeAdminSettings(adminSettings);
     home.emit_new_queue_data();
     respond_success(req, res, `Questions Guide URL updated successfully`);
 }
@@ -238,6 +270,7 @@ exports.post_update_rejoin_time = function (req, res) {
     if (adminSettings.rejoinTime == rejoinTime) return;
 
     adminSettings.rejoinTime = rejoinTime;
+    writeAdminSettings(adminSettings);
     home.emit_new_queue_data();
     respond_success(req, res, `Rejoin time updated successfully to ${rejoinTime} minutes`);
 }
