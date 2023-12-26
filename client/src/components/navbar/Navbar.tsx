@@ -157,15 +157,15 @@ export default function Navbar(props) {
                   ))
                 }
                 {
+                  userData.isAuthenticated && <ChangeNameBtn mobile={true} pname={pname} setpname={setpname}/>
+                }
+                {
                   userData.isAuthenticated &&
                     <MenuItem onClick={handleLogoutClicked}>
                       <Typography variant='subtitle2' sx={{mx: 2}}>
                             Logout
                       </Typography>
                     </MenuItem>
-                }
-                {
-                  userData.isAuthenticated && <ChangeNameBtn mobile={true} pname={pname} setpname={setpname}/>
                 }
               </Menu>
             </Box>
