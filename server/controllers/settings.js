@@ -16,7 +16,8 @@ let adminSettings = {
     currSem: "F23",
     slackURL: null,
     questionsURL: '',
-    rejoinTime: 15
+    rejoinTime: 15,
+    dayDictionary: {}
 };
 // If no admin setting have been generated, use the above default values
 if (!fs.existsSync('../adminSettings.json')) {
@@ -24,7 +25,7 @@ if (!fs.existsSync('../adminSettings.json')) {
     fs.writeFile('../adminSettings.json', json, 'utf8', function () {
         console.log('Created admin settings JSON');
     });
-} 
+}
 
 exports.get_admin_settings = function () {
 
@@ -37,7 +38,8 @@ exports.get_admin_settings = function () {
             currSem: "F23",
             slackURL: null,
             questionsURL: '',
-            rejoinTime: 15
+            rejoinTime: 15,
+            dayDictionary: {}
         };
     }
 
@@ -747,32 +749,35 @@ exports.post_upload_ta_csv = function (req, res) {
 }
 
 /* BEGIN LOCATIONS */
-let dayDictionary = {}
 // invariant: rooms are held at -1 to make sure they appear in the options, but could be empty days
 // when removing a room, need to remove it from -1 as well
 // mapping is 1-to-1 where Sunday = 0... Saturday = 6
 
 const dayToRoomDictionary = (obj) => {
-    return Object.entries(obj).reduce((ret, entry) => {
-        const [key, rooms] = entry;
-        for (let roomIdx in rooms) {
-            let room = rooms[roomIdx]
-            if (ret[room]) {
-                // seen before
-                let keyInt = parseInt(key)
-                if (keyInt != null) {
-                    ret[room].push(keyInt)
-                }
-            } else {
-                let keyInt = parseInt(key)
-                if (keyInt != null) {
-                    ret[room] = [keyInt]
+    if (obj) {
+        return Object.entries(obj).reduce((ret, entry) => {
+            const [key, rooms] = entry;
+            for (let roomIdx in rooms) {
+                let room = rooms[roomIdx]
+                if (ret[room]) {
+                    // seen before
+                    let keyInt = parseInt(key)
+                    if (keyInt != null) {
+                        ret[room].push(keyInt)
+                    }
+                } else {
+                    let keyInt = parseInt(key)
+                    if (keyInt != null) {
+                        ret[room] = [keyInt]
+                    }
                 }
             }
-        }
 
-        return ret;
-    }, {})
+            return ret;
+        }, {})
+    } else {
+        return {}
+    }
 }
 
 exports.add_location = function (req, res) {
@@ -787,12 +792,13 @@ exports.add_location = function (req, res) {
         return;
     }
 
-    if (dayDictionary["-1"]) {
-        dayDictionary["-1"].push(room)
+    if (adminSettings.dayDictionary["-1"]) {
+        adminSettings.dayDictionary["-1"].push(room)
     } else {
-        dayDictionary["-1"] = [room]
+        adminSettings.dayDictionary["-1"] = [room]
     }
 
+    writeAdminSettings(adminSettings);
     home.emit_new_queue_data();
     respond_success(req, res, `Location added successfully`);
 }
@@ -811,7 +817,7 @@ exports.post_update_locations = function (req, res) {
         return;
     }
 
-    var newDayDictionary = dayDictionary
+    var newDayDictionary = adminSettings.dayDictionary
     for (var day in daysOfWeek) {
         if (days.includes(daysOfWeek[day])) {
             // day is selected for room
@@ -834,16 +840,17 @@ exports.post_update_locations = function (req, res) {
             }
         }
     }
-    dayDictionary = newDayDictionary
+    adminSettings.dayDictionary = newDayDictionary
 
+    writeAdminSettings(adminSettings);
     home.emit_new_queue_data();
     respond_success(req, res, `Location changed successfully`);
 }
 
 exports.internal_get_locations = function () {
     return {
-        dayDictionary: dayDictionary,
-        roomDictionary: dayToRoomDictionary(dayDictionary)
+        dayDictionary: adminSettings.dayDictionary,
+        roomDictionary: dayToRoomDictionary(adminSettings.dayDictionary)
     }
 }
 
@@ -863,25 +870,26 @@ exports.remove_location = function (req, res) {
     for (dayIdx in days) {
         if (dayIdx && dayIdx != null) {
             let dayInt = days[dayIdx]
-            if (!dayDictionary[dayInt].includes(room)) {
+            if (!adminSettings.dayDictionary[dayInt].includes(room)) {
                 console.log("hmm shouldn't really have a day selected for this room")
             } else {
-                let roomArrForDay = dayDictionary[dayInt]
+                let roomArrForDay = adminSettings.dayDictionary[dayInt]
                 // safe because room is in roomArrForDay so idx >= 0
                 roomArrForDay.splice(roomArrForDay.indexOf(room), 1)
-                dayDictionary[dayInt] = roomArrForDay
+                adminSettings.dayDictionary[dayInt] = roomArrForDay
             }
         }
     }
 
     // REMOVE ROOM FROM -1!!
-    let emptyRoomArr = dayDictionary["-1"]
+    let emptyRoomArr = adminSettings.dayDictionary["-1"]
     let idx = emptyRoomArr.indexOf(room)
     if (idx >= 0) {
         emptyRoomArr.splice(idx, 1)
     }
-    dayDictionary["-1"] = emptyRoomArr
+    adminSettings.dayDictionary["-1"] = emptyRoomArr
 
+    writeAdminSettings(adminSettings);
     home.emit_new_queue_data();
     respond_success(req, res, `Location removed successfully`);
 }
