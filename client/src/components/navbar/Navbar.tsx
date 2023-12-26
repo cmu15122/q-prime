@@ -164,6 +164,9 @@ export default function Navbar(props) {
                       </Typography>
                     </MenuItem>
                 }
+                {
+                  userData.isAuthenticated && <ChangeNameBtn mobile={true} pname={pname} setpname={setpname}/>
+                }
               </Menu>
             </Box>
           }
@@ -199,7 +202,7 @@ export default function Navbar(props) {
         </Box>
         <Box sx={{flexGrow: 0, display: 'flex'}}>
           {
-            userData.isAuthenticated && <ChangeNameBtn pname={pname} setpname={setpname}/>
+            userData.isAuthenticated && <ChangeNameBtn mobile={false} pname={pname} setpname={setpname}/>
           }
         </Box>
 
