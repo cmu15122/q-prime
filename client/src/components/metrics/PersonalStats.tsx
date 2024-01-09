@@ -90,7 +90,7 @@ export default function PersonalStats() {
             <Typography variant='h3' sx={{mt: 2}} fontWeight='bold'>{Number(averageHelpTime).toFixed(2)}</Typography>
           </Grid>
           <Stack sx={{width: '100%'}}>
-            <TableContainer sx={{height: 220}}>
+            <TableContainer sx={{height: 300}}>
               <Table stickyHeader aria-label="sticky table">
                 <TableHead>
                   <TableRow>
