@@ -325,17 +325,18 @@ exports.get_num_students_per_day = (req, res) => {
 
     models.question.findAll({
         attributes: [
-            [Sequelize.fn('date_trunc', 'day', Sequelize.col('entry_time')), 'day_of_week'],
+            [Sequelize.fn('date_part', 'dow', Sequelize.col('entry_time')), 'day_of_week'],
             [Sequelize.fn('count', Sequelize.col('question_id')), 'count']
         ],
-        group: [Sequelize.fn('date_trunc', 'day', Sequelize.col('entry_time')), 'day_of_week'],
+        group: [Sequelize.fn('date_part', 'dow', Sequelize.col('entry_time'))],
         order: [[Sequelize.col('count'), 'DESC']]
     }).then((data) =>  {
         let numStudentsPerDay = [];
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
         for (const row of data) {
             let datecount = row.dataValues;
-            datecount.day_of_week = new Date(datecount.day_of_week).toLocaleDateString('en-US', {weekday : 'long'});
+            datecount.day_of_week = days[datecount.day_of_week];
             numStudentsPerDay.push({'day': datecount.day_of_week, 'students': datecount.count});
         }
 
