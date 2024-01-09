@@ -299,7 +299,7 @@ exports.get_num_students_per_day_last_week = (req, res) => {
         ],
         where: {
             entry_time: {
-                [Sequelize.Op.gte]: today - 7 * 24 * 60 * 60 * 1000,
+                [Sequelize.Op.gte]: new Date(today - 7 * 24 * 60 * 60 * 1000),
             }
         },
         group: [Sequelize.fn('date', Sequelize.col('entry_time'))],
