@@ -47,197 +47,206 @@ export default function Graph() {
       <Typography variant="h5" sx={{mt: 4, ml: 10}} fontWeight='bold'>
         Number of Students per Day (in the last week)
       </Typography>
-      <Line
-        datasetIdKey='numStudentsPerDayLastWeek'
-        options={{
-          layout: {
-            padding: {
-              top: 40,
-              right: 100,
-              bottom: 40,
-              left: 50,
-            },
-          },
-          responsive: true,
-          aspectRatio: 3,
-          plugins: {
-            legend: {
-              display: false,
-            },
-          },
-          scales: {
-            x: {
-              ticks: {
-                font: {
-                  size: 16,
-                },
-              },
-              grid: {
-                color: theme.palette.divider,
-              },
-            },
-            y: {
-              title: {
-                display: true,
-                text: 'Number of Students',
-                font: {
-                  size: 16,
-                },
-              },
-              ticks: {
-                autoSkip: true,
-              },
-              grid: {
-                color: theme.palette.divider,
-              },
-            },
-          },
-        }}
 
-        data={{
-          labels: numStudentsPerDayLastWeek.map((day) => dateFormatter(day.day)),
-          datasets: [
-            {
-              label: 'Number of Students',
-              data: numStudentsPerDayLastWeek.map((day) => day.students),
-              fill: false,
-              backgroundColor: theme.palette.primary.main,
-              borderColor: theme.palette.primary.main,
-              borderWidth: 3,
-              tension: 0.3,
+      <div style={{height: '40vh', width: 'auto', position: 'relative'}}>
+        <Line
+          datasetIdKey='numStudentsPerDayLastWeek'
+          options={{
+            layout: {
+              padding: {
+                top: 40,
+                right: 100,
+                bottom: 40,
+                left: 50,
+              },
             },
-          ],
-        }}
-      />
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false,
+              },
+            },
+            scales: {
+              x: {
+                ticks: {
+                  font: {
+                    size: 16,
+                  },
+                },
+                grid: {
+                  color: theme.palette.divider,
+                },
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: 'Number of Students',
+                  font: {
+                    size: 16,
+                  },
+                },
+                ticks: {
+                  autoSkip: true,
+                },
+                grid: {
+                  color: theme.palette.divider,
+                },
+              },
+            },
+          }}
+
+          data={{
+            labels: numStudentsPerDayLastWeek.map((day) => dateFormatter(day.day)),
+            datasets: [
+              {
+                label: 'Number of Students',
+                data: numStudentsPerDayLastWeek.map((day) => day.students),
+                fill: false,
+                backgroundColor: theme.palette.primary.main,
+                borderColor: theme.palette.primary.main,
+                borderWidth: 3,
+                tension: 0.3,
+              },
+            ],
+          }}
+        />
+      </div>
 
       <Typography variant="h5" sx={{mt: 4, ml: 10}} fontWeight='bold'>
         Number of Students per Day (overall)
       </Typography>
-      <Line
-        datasetIdKey='numStudentsPerDayOverall'
-        options={{
-          layout: {
-            padding: {
-              top: 40,
-              right: 100,
-              bottom: 40,
-              left: 50,
-            },
-          },
-          responsive: true,
-          aspectRatio: 3,
-          plugins: {
-            legend: {
-              display: false,
-            },
-          },
-          scales: {
-            x: {
-              ticks: {
-                font: {
-                  size: 16,
-                },
-              },
-              grid: {
-                color: theme.palette.divider,
-              },
-            },
-            y: {
-              title: {
-                display: true,
-                text: 'Number of Students',
-                font: {
-                  size: 16,
-                },
-              },
-              ticks: {
-                autoSkip: true,
-              },
-              grid: {
-                color: theme.palette.divider,
-              },
-            },
-          },
-        }}
 
-        data={{
-          labels: numStudentsOverall.map((day) => dateFormatter(day.day)),
-          datasets: [
-            {
-              label: 'Number of Students',
-              data: numStudentsOverall.map((day) => day.students),
-              fill: false,
-              backgroundColor: theme.palette.primary.main,
-              borderColor: theme.palette.primary.main,
-              borderWidth: 3,
-              tension: 0.3,
+      <div style={{height: '40vh', width: 'auto', position: 'relative'}}>
+        <Line
+          datasetIdKey='numStudentsPerDayOverall'
+          options={{
+            layout: {
+              padding: {
+                top: 40,
+                right: 100,
+                bottom: 40,
+                left: 50,
+              },
             },
-          ],
-        }}
-      />
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false,
+              },
+            },
+            scales: {
+              x: {
+                ticks: {
+                  font: {
+                    size: 16,
+                  },
+                },
+                grid: {
+                  color: theme.palette.divider,
+                },
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: 'Number of Students',
+                  font: {
+                    size: 16,
+                  },
+                },
+                ticks: {
+                  autoSkip: true,
+                },
+                grid: {
+                  color: theme.palette.divider,
+                },
+              },
+            },
+          }}
+
+          data={{
+            labels: numStudentsOverall.map((day) => dateFormatter(day.day)),
+            datasets: [
+              {
+                label: 'Number of Students',
+                data: numStudentsOverall.map((day) => day.students),
+                fill: false,
+                backgroundColor: theme.palette.primary.main,
+                borderColor: theme.palette.primary.main,
+                borderWidth: 3,
+                tension: 0.3,
+              },
+            ],
+          }}
+        />
+      </div>
 
       <Typography variant="h5" sx={{mt: 4, ml: 10}} fontWeight='bold'>
       Number of Students per Day of the Week
       </Typography>
-      <Bar
-        datasetIdKey='numStudentsPerDayOfWeek'
-        options={{
-          layout: {
-            padding: {
-              top: 40,
-              right: 100,
-              bottom: 40,
-              left: 50,
+
+      <div style={{height: '40vh', width: 'auto', position: 'relative'}}>
+        <Bar
+          datasetIdKey='numStudentsPerDayOfWeek'
+          options={{
+            layout: {
+              padding: {
+                top: 40,
+                right: 100,
+                bottom: 40,
+                left: 50,
+              },
             },
-          },
-          responsive: true,
-          aspectRatio: 3,
-          plugins: {
-            legend: {
-              display: false,
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false,
+              },
             },
-          },
-          scales: {
-            x: {
-              ticks: {
-                font: {
-                  size: 16,
+            scales: {
+              x: {
+                ticks: {
+                  font: {
+                    size: 16,
+                  },
+                },
+                grid: {
+                  color: theme.palette.divider,
                 },
               },
-              grid: {
-                color: theme.palette.divider,
-              },
-            },
-            y: {
-              title: {
-                display: true,
-                text: 'Number of Students',
-                font: {
-                  size: 16,
+              y: {
+                title: {
+                  display: true,
+                  text: 'Number of Students',
+                  font: {
+                    size: 16,
+                  },
+                },
+                ticks: {
+                  autoSkip: true,
+                },
+                grid: {
+                  color: theme.palette.divider,
                 },
               },
-              ticks: {
-                autoSkip: true,
-              },
-              grid: {
-                color: theme.palette.divider,
-              },
             },
-          },
-        }}
-        data={{
-          labels: numStudentsPerDay.map((day) => day.day),
-          datasets: [
-            {
-              label: 'Number of Students',
-              data: numStudentsPerDay.map((day) => day.students),
-              backgroundColor: theme.palette.primary.main,
-              borderColor: theme.palette.primary.main,
-              borderWidth: 3,
-            },
-          ],
-        }}
-      />
+          }}
+          data={{
+            labels: numStudentsPerDay.map((day) => day.day),
+            datasets: [
+              {
+                label: 'Number of Students',
+                data: numStudentsPerDay.map((day) => day.students),
+                backgroundColor: theme.palette.primary.main,
+                borderColor: theme.palette.primary.main,
+                borderWidth: 3,
+              },
+            ],
+          }}
+        />
+      </div>
     </div>
   );
 }
