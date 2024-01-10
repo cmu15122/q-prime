@@ -23,7 +23,14 @@ export default function Graph() {
     });
 
     MetricsService.getNumStudentsPerDay().then((res) => {
-      setNumStudentsPerDay(res.data.numStudentsPerDay);
+      const dataBack = res.data.numStudentsPerDay;
+      // sort by day of week
+      dataBack.sort((a, b) => {
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        return days.indexOf(a.day) - days.indexOf(b.day);
+      });
+
+      setNumStudentsPerDay(dataBack);
     });
 
     MetricsService.getNumStudentsOverall().then((res) => {
