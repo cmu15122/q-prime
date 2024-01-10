@@ -119,7 +119,7 @@ exports.get_num_questions_today = (req, res) => {
     models.question.findAndCountAll({
         where: {
             entry_time: {
-                [Sequelize.Op.gte]: today - 4 * 60 * 60 * 1000,
+                [Sequelize.Op.gte]: new Date(today - 8 * 60 * 60 * 1000),
             }
         }
     }).then(({count}) =>  {
@@ -137,7 +137,7 @@ exports.get_num_bad_questions_today = (req, res) => {
     models.question.findAndCountAll({
         where: {
             entry_time: {
-                [Sequelize.Op.gte]: today - 4 * 60 * 60 * 1000,
+                [Sequelize.Op.gte]: new Date(today - 8 * 60 * 60 * 1000),
             },
             num_asked_to_fix: {
                 [Sequelize.Op.gt]: 0
@@ -157,7 +157,7 @@ exports.get_avg_wait_time_today = (req, res) => {
     models.question.findAndCountAll({
         where: {
             entry_time: {
-                [Sequelize.Op.gte]: today - 4 * 60 * 60 * 1000,
+                [Sequelize.Op.gte]: new Date(today - 8 * 60 * 60 * 1000),
             },
             help_time: {
                 [Sequelize.Op.ne]: null,
@@ -187,7 +187,7 @@ exports.get_ta_student_ratio_today = (req, res) => {
     models.question.findAndCountAll({
         where: {
             entry_time: {
-                [Sequelize.Op.gte]: today - 4 * 60 * 60 * 1000,
+                [Sequelize.Op.gte]: new Date(today - 8 * 60 * 60 * 1000),
             }
         }
     }).then(({count, rows}) =>  {
@@ -299,7 +299,7 @@ exports.get_num_students_per_day_last_week = (req, res) => {
         ],
         where: {
             entry_time: {
-                [Sequelize.Op.gte]: today - 7 * 24 * 60 * 60 * 1000,
+                [Sequelize.Op.gte]: new Date(today - 7 * 24 * 60 * 60 * 1000),
             }
         },
         group: [Sequelize.fn('date', Sequelize.col('entry_time'))],
@@ -325,17 +325,18 @@ exports.get_num_students_per_day = (req, res) => {
 
     models.question.findAll({
         attributes: [
-            [Sequelize.fn('date_trunc', 'day', Sequelize.col('entry_time')), 'day_of_week'],
+            [Sequelize.fn('date_part', 'dow', Sequelize.col('entry_time')), 'day_of_week'],
             [Sequelize.fn('count', Sequelize.col('question_id')), 'count']
         ],
-        group: [Sequelize.fn('date_trunc', 'day', Sequelize.col('entry_time')), 'day_of_week'],
+        group: [Sequelize.fn('date_part', 'dow', Sequelize.col('entry_time'))],
         order: [[Sequelize.col('count'), 'DESC']]
     }).then((data) =>  {
         let numStudentsPerDay = [];
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
         for (const row of data) {
             let datecount = row.dataValues;
-            datecount.day_of_week = new Date(datecount.day_of_week).toLocaleDateString('en-US', {weekday : 'long'});
+            datecount.day_of_week = days[datecount.day_of_week];
             numStudentsPerDay.push({'day': datecount.day_of_week, 'students': datecount.count});
         }
 
