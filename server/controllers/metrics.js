@@ -294,7 +294,7 @@ exports.get_num_students_per_day_last_week = (req, res) => {
 
     models.question.findAll({
         attributes: [
-            [Sequelize.fn('date', Sequelize.col('entry_time')), 'day'],
+            [Sequelize.fn('date', Sequelize.literal(`"entry_time" AT TIME ZONE 'EST'`)), 'day'],
             [Sequelize.fn('count', Sequelize.col('question_id')), 'count']
         ],
         where: {
@@ -302,7 +302,7 @@ exports.get_num_students_per_day_last_week = (req, res) => {
                 [Sequelize.Op.gte]: new Date(today - 7 * 24 * 60 * 60 * 1000),
             }
         },
-        group: [Sequelize.fn('date', Sequelize.col('entry_time'))],
+        group: [Sequelize.fn('date', Sequelize.literal(`"entry_time" AT TIME ZONE 'EST'`))],
         order: [[Sequelize.col('day'), 'ASC']]
     }).then((data) =>  {
         let numStudentsPerDayLastWeek = [];
@@ -325,10 +325,10 @@ exports.get_num_students_per_day = (req, res) => {
 
     models.question.findAll({
         attributes: [
-            [Sequelize.fn('date_part', 'dow', Sequelize.col('entry_time')), 'day_of_week'],
+            [Sequelize.fn('date_part', 'dow', Sequelize.literal(`"entry_time" AT TIME ZONE 'EST'`)), 'day_of_week'],
             [Sequelize.fn('count', Sequelize.col('question_id')), 'count']
         ],
-        group: [Sequelize.fn('date_part', 'dow', Sequelize.col('entry_time'))],
+        group: [Sequelize.fn('date_part', 'dow', Sequelize.literal(`"entry_time" AT TIME ZONE 'EST'`))],
         order: [[Sequelize.col('count'), 'DESC']]
     }).then((data) =>  {
         let numStudentsPerDay = [];
@@ -352,10 +352,10 @@ exports.get_num_students_overall = (req, res) => {
 
     models.question.findAll({
         attributes: [
-            [Sequelize.fn('date', Sequelize.col('entry_time')), 'day'],
+            [Sequelize.fn('date', Sequelize.literal(`"entry_time" AT TIME ZONE 'EST'`)), 'day'],
             [Sequelize.fn('count', Sequelize.col('question_id')), 'count']
         ],
-        group: [Sequelize.fn('date', Sequelize.col('entry_time'))],
+        group: [Sequelize.fn('date', Sequelize.literal(`"entry_time" AT TIME ZONE 'EST'`))],
         order: [[Sequelize.col('day'), 'ASC']]
     }).then((data) =>  {
         let numStudentsOverall = [];
