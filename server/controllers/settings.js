@@ -42,7 +42,7 @@ function respond(req, res, message, data, status) {
 }
 
 function respond_success(req, res, message = null) {
-    if (!req.user || !req.user.isTA) {
+    if (!req.user) {
         respond_error(req, res, "You don't have permissions to view this page", 404);
         return;
     }
