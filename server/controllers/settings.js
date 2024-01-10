@@ -13,7 +13,7 @@ const home = require('./home');
 // In production, these should be cleared
 var fs = require('fs');
 let adminSettings = {
-    currSem: "F23",
+    currSem: "S23",
     slackURL: null,
     questionsURL: '',
     rejoinTime: 15,
@@ -35,7 +35,7 @@ exports.get_admin_settings = function () {
     } else {
         console.log('No admin settings found');
         adminSettings = {
-            currSem: "F23",
+            currSem: "S23",
             slackURL: null,
             questionsURL: '',
             rejoinTime: 15,
