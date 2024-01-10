@@ -119,7 +119,7 @@ exports.get_num_questions_today = (req, res) => {
     models.question.findAndCountAll({
         where: {
             entry_time: {
-                [Sequelize.Op.gte]: today - 4 * 60 * 60 * 1000,
+                [Sequelize.Op.gte]: new Date(today - 8 * 60 * 60 * 1000),
             }
         }
     }).then(({count}) =>  {
@@ -137,7 +137,7 @@ exports.get_num_bad_questions_today = (req, res) => {
     models.question.findAndCountAll({
         where: {
             entry_time: {
-                [Sequelize.Op.gte]: today - 4 * 60 * 60 * 1000,
+                [Sequelize.Op.gte]: new Date(today - 8 * 60 * 60 * 1000),
             },
             num_asked_to_fix: {
                 [Sequelize.Op.gt]: 0
@@ -157,7 +157,7 @@ exports.get_avg_wait_time_today = (req, res) => {
     models.question.findAndCountAll({
         where: {
             entry_time: {
-                [Sequelize.Op.gte]: today - 4 * 60 * 60 * 1000,
+                [Sequelize.Op.gte]: new Date(today - 8 * 60 * 60 * 1000),
             },
             help_time: {
                 [Sequelize.Op.ne]: null,
@@ -187,7 +187,7 @@ exports.get_ta_student_ratio_today = (req, res) => {
     models.question.findAndCountAll({
         where: {
             entry_time: {
-                [Sequelize.Op.gte]: today - 4 * 60 * 60 * 1000,
+                [Sequelize.Op.gte]: new Date(today - 8 * 60 * 60 * 1000),
             }
         }
     }).then(({count, rows}) =>  {
