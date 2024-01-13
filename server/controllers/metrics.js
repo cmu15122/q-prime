@@ -33,7 +33,8 @@ exports.get_helped_students = (req, res) => {
             ta_id: req.user.ta.ta_id,
             help_time: {
                 [Sequelize.Op.ne]: null
-            }
+            },
+            sem_id: settings.get_admin_settings().currSem,
         },
         order: [['entry_time', 'DESC']]
     }).then((questionModels) =>  {
@@ -77,7 +78,8 @@ exports.get_num_questions_answered = (req, res) => {
             ta_id: req.user.ta.ta_id,
             help_time: {
                 [Sequelize.Op.ne]: null
-            }
+            },
+            sem_id: settings.get_admin_settings().currSem,
         }
     }).then(({count, rows}) =>  {
         respond(req, res, "Got number of questions answered", { numQuestions: count }, 200);
@@ -95,7 +97,8 @@ exports.get_avg_time_per_question = (req, res) => {
             ta_id: req.user.ta.ta_id,
             help_time: {
                 [Sequelize.Op.ne]: null,
-            }
+            },
+            sem_id: settings.get_admin_settings().currSem,
         }
     }).then(({count, rows}) =>  {
         let averageTime = 0;
@@ -121,7 +124,7 @@ exports.get_num_questions_today = (req, res) => {
         where: {
             entry_time: {
                 [Sequelize.Op.gte]: new Date(today - 8 * 60 * 60 * 1000),
-            }
+            },
         }
     }).then(({count}) =>  {
         respond(req, res, "Got number of questions today", { numQuestionsToday: count }, 200);
@@ -228,6 +231,10 @@ exports.get_total_num_questions = (req, res) => {
 
     models.question.findAndCountAll({
         where: {
+            sem_id: settings.get_admin_settings().currSem,
+            help_time: {
+                [Sequelize.Op.ne]: null
+            },
         }
     }).then(({count}) =>  {
         respond(req, res, "Got number of questions answered", { numQuestions: count }, 200);
@@ -244,7 +251,8 @@ exports.get_total_avg_time_per_question = (req, res) => {
         where: {
             help_time: {
                 [Sequelize.Op.ne]: null,
-            }
+            },
+            sem_id: settings.get_admin_settings().currSem,
         }
     }).then(({count, rows}) =>  {
         let averageTime = 0;
@@ -270,7 +278,8 @@ exports.get_total_avg_wait_time = (req, res) => {
         where: {
             help_time: {
                 [Sequelize.Op.ne]: null,
-            }
+            },
+            sem_id: settings.get_admin_settings().currSem,
         }
     }).then(({count, rows}) =>  {
 
@@ -301,7 +310,11 @@ exports.get_num_students_per_day_last_week = (req, res) => {
         where: {
             entry_time: {
                 [Sequelize.Op.gte]: new Date(today - 7 * 24 * 60 * 60 * 1000),
-            }
+            },
+            help_time: {
+                [Sequelize.Op.ne]: null
+            },
+            sem_id: settings.get_admin_settings().currSem,
         },
         group: [Sequelize.fn('date', Sequelize.literal(`"entry_time" AT TIME ZONE 'EST'`))],
         order: [[Sequelize.col('day'), 'ASC']]
@@ -329,6 +342,12 @@ exports.get_num_students_per_day = (req, res) => {
             [Sequelize.fn('date_part', 'dow', Sequelize.literal(`"entry_time" AT TIME ZONE 'EST'`)), 'day_of_week'],
             [Sequelize.fn('count', Sequelize.col('question_id')), 'count']
         ],
+        where: {
+            sem_id: settings.get_admin_settings().currSem,
+            help_time: {
+                [Sequelize.Op.ne]: null
+            },
+        },
         group: [Sequelize.fn('date_part', 'dow', Sequelize.literal(`"entry_time" AT TIME ZONE 'EST'`))],
         order: [[Sequelize.col('count'), 'DESC']]
     }).then((data) =>  {
@@ -356,6 +375,12 @@ exports.get_num_students_overall = (req, res) => {
             [Sequelize.fn('date', Sequelize.literal(`"entry_time" AT TIME ZONE 'EST'`)), 'day'],
             [Sequelize.fn('count', Sequelize.col('question_id')), 'count']
         ],
+        where: {
+            sem_id: settings.get_admin_settings().currSem,
+            help_time: {
+                [Sequelize.Op.ne]: null
+            },
+        },
         group: [Sequelize.fn('date', Sequelize.literal(`"entry_time" AT TIME ZONE 'EST'`))],
         order: [[Sequelize.col('day'), 'ASC']]
     }).then((data) =>  {
@@ -386,8 +411,10 @@ exports.get_ranked_students = (req, res) => {
         }
     }).then((questionModels) => {
 
+
         for (const questionModel of questionModels) {
             let question = questionModel.dataValues;
+            console.log(question);
 
             if (question.student_id in studentMap) {
                 studentMap[question.student_id].count++;
