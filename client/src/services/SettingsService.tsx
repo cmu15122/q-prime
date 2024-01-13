@@ -60,6 +60,9 @@ class SettingsDataService {
   updateRejoinTime(data) {
     return http.post('/settings/config/rejoin/update', data);
   }
+  updateEnforceCmuEmail(data) {
+    return http.post('/settings/config/enforcecmuemail/update', data);
+  }
   updatePreferredName(data) {
     return http.post('/settings/preferredname/update', data);
   }
