@@ -77,7 +77,7 @@ export default function AdminMetrics() {
         <Stack
           direction={{xs: 'column', md: 'row'}}
           justifyContent="space-evenly"
-          alignItems="center"
+          alignItems="start"
           divider={<Divider orientation="vertical" flexItem/>}
           spacing={2}
           sx={{m: 2}}
