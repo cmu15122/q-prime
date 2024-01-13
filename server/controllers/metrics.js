@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const Promise = require("bluebird");
 const moment = require("moment-timezone");
+let settings = require('./settings');
 
 const models = require('../models');
 const { sequelize } = require('../models');
@@ -366,5 +367,133 @@ exports.get_num_students_overall = (req, res) => {
         }
 
         respond(req, res, "Got number of students overall", { numStudentsOverall: numStudentsOverall }, 200);
+    });
+}
+
+exports.get_ranked_students = (req, res) => {
+    if (!req.user || !req.user.isTA || !req.user.isAdmin) {
+        respond_error(req, res, "You don't have permission to perform this operation", 403);
+        return;
+    }
+
+    let studentMap = {};
+    models.question.findAll({
+        where: {
+            sem_id: settings.get_admin_settings().currSem,
+            help_time: {
+                [Sequelize.Op.ne]: null
+            }
+        }
+    }).then((questionModels) => {
+
+        for (const questionModel of questionModels) {
+            let question = questionModel.dataValues;
+
+            if (question.student_id in studentMap) {
+                studentMap[question.student_id].count++;
+                studentMap[question.student_id].timeHelped += (question.exit_time - question.help_time) / 1000 / 60;
+            } else {
+                studentMap[question.student_id] = {
+                    count: 1,
+                    timeHelped: (question.exit_time - question.help_time) / 1000 / 60,
+                };
+            }
+        }
+
+        let accountReqs = [];
+        for (const student_id in studentMap) {
+            accountReqs.push(models.account.findByPk(student_id));
+        }
+
+        return Promise.all(accountReqs);
+    }).then((accounts) => {
+        let rankedStudents = [];
+
+        for (const account of accounts) {
+            let accountData = account.dataValues;
+            let user_id = accountData.user_id;
+
+            if (user_id in studentMap) {
+                rankedStudents.push({
+                    student_name: accountData.preferred_name,
+                    student_andrew: accountData.email.split("@")[0],
+                    count: studentMap[user_id].count,
+                    timeHelped: Math.round(studentMap[user_id].timeHelped * 10) / 10,
+                });
+            }
+        }
+
+        rankedStudents.sort((a, b) => {
+            if (a.count != b.count) {
+                return b.count - a.count;
+            } else {
+                return b.timeHelped - a.timeHelped;
+            }
+        });
+        respond(req, res, "Got ranked students", { rankedStudents: rankedStudents }, 200);
+    });
+}
+
+exports.get_ranked_tas = (req, res) => {
+    if (!req.user || !req.user.isTA || !req.user.isAdmin) {
+        respond_error(req, res, "You don't have permission to perform this operation", 403);
+        return;
+    }
+
+    let taMap = {};
+    models.question.findAll({
+        where: {
+            sem_id: settings.get_admin_settings().currSem,
+            help_time: {
+                [Sequelize.Op.ne]: null
+            }
+        }
+    }).then((questionModels) => {
+
+        for (const questionModel of questionModels) {
+            let question = questionModel.dataValues;
+
+            if (question.ta_id in taMap) {
+                taMap[question.ta_id].count++;
+                taMap[question.ta_id].timeHelping += (question.exit_time - question.help_time) / 1000 / 60;
+            } else {
+                taMap[question.ta_id] = {
+                    count: 1,
+                    timeHelping: (question.exit_time - question.help_time) / 1000 / 60,
+                };
+            }
+        }
+
+        let accountReqs = [];
+        for (const ta_id in taMap) {
+            accountReqs.push(models.account.findByPk(ta_id));
+        }
+
+        return Promise.all(accountReqs);
+    }).then((accounts) => {
+        let rankedTAs = [];
+
+        for (const account of accounts) {
+            let accountData = account.dataValues;
+            let user_id = accountData.user_id;
+
+            if (user_id in taMap) {
+                rankedTAs.push({
+                    ta_name: accountData.preferred_name,
+                    ta_andrew: accountData.email.split("@")[0],
+                    count: taMap[user_id].count,
+                    timeHelping: Math.round(taMap[user_id].timeHelping * 10) / 10,
+                });
+            }
+        }
+
+        rankedTAs.sort((a, b) => {
+            if (a.count != b.count) {
+                return b.count - a.count;
+            } else {
+                return b.timeHelped - a.timeHelped;
+            }
+        });
+        respond(req, res, "Got ranked TAs", { rankedTAs: rankedTAs }, 200);
     });
 }

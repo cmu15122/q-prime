@@ -1,6 +1,12 @@
 import http from '../http-common';
 
 class MetricsDataService {
+  getRankedTAs() {
+    return http.get('/metrics/rankedTAs');
+  }
+  getRankedStudents() {
+    return http.get('/metrics/rankedStudents');
+  }
   getHelpedStudents() {
     return http.get('/metrics/helpedStudents');
   }
