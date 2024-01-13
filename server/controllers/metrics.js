@@ -418,7 +418,6 @@ exports.get_ranked_students = (req, res) => {
 
         for (const questionModel of questionModels) {
             let question = questionModel.dataValues;
-            console.log(question);
 
             if (question.student_id in studentMap) {
                 studentMap[question.student_id].count++;
