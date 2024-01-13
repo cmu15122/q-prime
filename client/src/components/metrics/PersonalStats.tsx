@@ -107,9 +107,9 @@ export default function PersonalStats() {
                 <TableBody>
                   {helpedStudents
                       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                      .map((row) => {
+                      .map((row, i) => {
                         return (
-                          <TableRow hover role="checkbox" tabIndex={-1} key={row.andrewId}>
+                          <TableRow hover role="checkbox" tabIndex={-1} key={row.andrewId + i}>
                             {columns.map((column) => {
                               const value = row[column.id];
                               return (
