@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext, useMemo} from 'react';
+import React, {useState, useContext, useMemo} from 'react';
 import {
   TableCell, Typography,
 } from '@mui/material';

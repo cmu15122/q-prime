@@ -10,7 +10,6 @@ import BaseCard from '../../common/cards/BaseCard';
 import HomeService from '../../../services/HomeService';
 import {UserDataContext} from '../../../contexts/UserDataContext';
 import {QueueDataContext} from '../../../contexts/QueueDataContext';
-import {StudentDataContext} from '../../../contexts/StudentDataContext';
 
 function createData(assignment_id, name) {
   return {assignment_id, name};
@@ -33,8 +32,6 @@ export default function AskQuestion() {
   const [timePassed, setTimePassed] = useState(0);
 
   const [askDisabled, setAskDisabled] = useState(false);
-
-  const {studentData, setStudentData} = useContext(StudentDataContext);
 
   const locations = useMemo(() => {
     if (queueData != null) {

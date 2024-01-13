@@ -8,7 +8,7 @@ import {Delete as DeleteIcon} from '@mui/icons-material';
 import SettingsService from '../../../services/SettingsService';
 
 export default function DayPicker(props) {
-  const {convertIdxToDays, daysOfWeek, room, roomDictionary, setRoomDictionary} = props;
+  const {convertIdxToDays, daysOfWeek, room, roomDictionary} = props;
   const [newDays, setNewDays] = useState(convertIdxToDays(roomDictionary[room]));
 
   const convertDaysToIdx = (daysArr) => {
