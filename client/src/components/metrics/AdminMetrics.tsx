@@ -103,7 +103,7 @@ export default function AdminMetrics() {
                       .slice(studentPage * rowsPerStudentPage, studentPage * rowsPerStudentPage + rowsPerStudentPage)
                       .map((row) => {
                         return (
-                          <TableRow hover role="checkbox" tabIndex={-1} key={row.andrewId}>
+                          <TableRow hover role="checkbox" tabIndex={-1} key={row.student_andrew}>
                             {studentCols.map((column) => {
                               const value = row[column.id];
                               return (
@@ -149,7 +149,7 @@ export default function AdminMetrics() {
                       .slice(taPage * rowsPerTAPage, taPage * rowsPerTAPage + rowsPerTAPage)
                       .map((row) => {
                         return (
-                          <TableRow hover role="checkbox" tabIndex={-1} key={row.andrewId}>
+                          <TableRow hover role="checkbox" tabIndex={-1} key={row.ta_andrew}>
                             {taCols.map((column) => {
                               const value = row[column.id];
                               return (
