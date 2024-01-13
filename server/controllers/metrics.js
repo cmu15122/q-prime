@@ -125,6 +125,7 @@ exports.get_num_questions_today = (req, res) => {
             entry_time: {
                 [Sequelize.Op.gte]: new Date(today - 8 * 60 * 60 * 1000),
             },
+            sem_id: settings.get_admin_settings().currSem,
         }
     }).then(({count}) =>  {
         respond(req, res, "Got number of questions today", { numQuestionsToday: count }, 200);
@@ -145,7 +146,8 @@ exports.get_num_bad_questions_today = (req, res) => {
             },
             num_asked_to_fix: {
                 [Sequelize.Op.gt]: 0
-            }
+            },
+            sem_id: settings.get_admin_settings().currSem,
         }
     }).then(({count}) =>  {
         respond(req, res, "Got number of bad questions today", { numBadQuestionsToday: count }, 200);
@@ -165,7 +167,8 @@ exports.get_avg_wait_time_today = (req, res) => {
             },
             help_time: {
                 [Sequelize.Op.ne]: null,
-            }
+            },
+            sem_id: settings.get_admin_settings().currSem,
         }
     }).then(({count, rows}) =>  {
 
@@ -192,7 +195,8 @@ exports.get_ta_student_ratio_today = (req, res) => {
         where: {
             entry_time: {
                 [Sequelize.Op.gte]: new Date(today - 8 * 60 * 60 * 1000),
-            }
+            },
+            sem_id: settings.get_admin_settings().currSem,
         }
     }).then(({count, rows}) =>  {
         const taCount = rows.reduce((acc, questionModel) => {
