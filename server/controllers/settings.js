@@ -12,18 +12,42 @@ const home = require('./home');
 // FIXME: some default values are set to simplify testing;
 // In production, these should be cleared
 var fs = require('fs');
-let adminSettings = {
+const defaultAdminSettings = {
     currSem: "S23",
     slackURL: null,
     questionsURL: '',
     rejoinTime: 15,
+    enforceCMUEmail: true,
     dayDictionary: {}
 };
+
+let adminSettings = defaultAdminSettings
+
+function haveSameKeys(obj1, obj2) {
+  const obj1Keys = Object.keys(obj1).sort();
+  const obj2Keys = Object.keys(obj2).sort();
+  return JSON.stringify(obj1Keys) === JSON.stringify(obj2Keys);
+}
+
 // If no admin setting have been generated, use the above default values
 if (!fs.existsSync('../adminSettings.json')) {
     var json = JSON.stringify(adminSettings)
     fs.writeFile('../adminSettings.json', json, 'utf8', function () {
         console.log('Created admin settings JSON');
+    });
+}
+// If admin settings have been generated, but the keys don't match, update the missing keys
+else if (fs.existsSync("../adminSettings.json") && !haveSameKeys(adminSettings, JSON.parse(fs.readFileSync('../adminSettings.json', 'utf8')))) {
+    let currAdminSettings = fs.readFileSync('../adminSettings.json', 'utf8', flag = 'r+');
+    let newAdminSettings = JSON.parse(currAdminSettings);
+    for (let key in adminSettings) {
+        if (!newAdminSettings.hasOwnProperty(key)) {
+            newAdminSettings[key] = adminSettings[key];
+        }
+    }
+    var json = JSON.stringify(newAdminSettings)
+    fs.writeFileSync('../adminSettings.json', json, 'utf8', function () {
+        console.log('Updated admin settings JSON');
     });
 }
 
@@ -34,13 +58,7 @@ exports.get_admin_settings = function () {
         adminSettings = JSON.parse(data);
     } else {
         console.log('No admin settings found');
-        adminSettings = {
-            currSem: "S23",
-            slackURL: null,
-            questionsURL: '',
-            rejoinTime: 15,
-            dayDictionary: {}
-        };
+        adminSettings = defaultAdminSettings
     }
 
     return adminSettings;
@@ -275,6 +293,26 @@ exports.post_update_rejoin_time = function (req, res) {
     writeAdminSettings(adminSettings);
     home.emit_new_queue_data();
     respond_success(req, res, `Rejoin time updated successfully to ${rejoinTime} minutes`);
+}
+
+exports.post_update_enforce_cmu_email = function (req, res) {
+    if (!req.user || !req.user.isAdmin) {
+        respond_error(req, res, "You don't have permissions to perform this operation", 403);
+        return;
+    }
+
+    var enforceCMUEmail = req.body.enforceCMUEmail;
+
+    if (enforceCMUEmail == null || enforceCMUEmail == undefined) {
+        respond_error(req, res, "Invalid/missing parameters in request", 400);
+        return;
+    }
+
+    if (adminSettings.enforceCMUEmail == enforceCMUEmail) return;
+
+    adminSettings.enforceCMUEmail = enforceCMUEmail;
+    writeAdminSettings(adminSettings);
+    respond_success(req, res, `Enforcing CMU email updated successfully to: ${enforceCMUEmail}`);
 }
 
 /** Topics Functions **/
