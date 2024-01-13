@@ -45,7 +45,7 @@ export default function Graph() {
   return (
     <div>
       <Typography variant="h5" sx={{mt: 4, ml: 10}} fontWeight='bold'>
-        Number of Students per Day (in the last week)
+        Number of Questions per Day (in the last week)
       </Typography>
 
       <div style={{height: '40vh', width: 'auto', position: 'relative'}}>
@@ -114,7 +114,7 @@ export default function Graph() {
       </div>
 
       <Typography variant="h5" sx={{mt: 4, ml: 10}} fontWeight='bold'>
-        Number of Students per Day (overall)
+        Number of Questions per Day (semester)
       </Typography>
 
       <div style={{height: '40vh', width: 'auto', position: 'relative'}}>
@@ -183,7 +183,7 @@ export default function Graph() {
       </div>
 
       <Typography variant="h5" sx={{mt: 4, ml: 10}} fontWeight='bold'>
-      Number of Students per Day of the Week
+      Number of Questions per Day of the Week
       </Typography>
 
       <div style={{height: '40vh', width: 'auto', position: 'relative'}}>

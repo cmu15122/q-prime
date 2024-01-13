@@ -1,6 +1,6 @@
 import React, {useContext, useState} from 'react';
 import {
-  Button, Dialog, DialogContent, FormControl, Input, Link, Stack, Typography,
+  Button, Dialog, DialogContent, FormControl, Input, Link, Typography,
 } from '@mui/material';
 
 import HomeService from '../../../services/HomeService';
