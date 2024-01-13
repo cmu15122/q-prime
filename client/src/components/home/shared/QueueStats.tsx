@@ -1,4 +1,4 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext} from 'react';
 import {
   CardContent, Divider, Stack, Typography, useTheme,
 } from '@mui/material';

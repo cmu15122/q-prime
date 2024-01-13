@@ -1,13 +1,13 @@
 import React, {useState} from 'react';
 import {
-  Button, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, TextField,
+  Button, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, TextField, Typography, MenuItem,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 
 import SettingsService from '../../services/SettingsService';
 
 export default function ChangeNameBtn(props) {
-  const {setpname, pname} = props;
+  const {setpname, pname, mobile} = props;
 
   const [tmpPrefName, setTmpPrefName] = useState(pname);
   const [open, setOpen] = useState(false);
@@ -28,9 +28,15 @@ export default function ChangeNameBtn(props) {
 
   return (
     <div>
-      <Button variant="text" onClick={handleClickOpen} sx={{color: '#FFFFFF'}}>
-        <EditIcon/>
-      </Button>
+      {
+        mobile ?
+          <MenuItem onClick={handleClickOpen}>
+            <Typography variant='subtitle2' sx={{mx: 2}}> Change Name </Typography>
+          </MenuItem> :
+          <Button variant="text" onClick={handleClickOpen} sx={{color: '#FFFFFF'}}>
+            <EditIcon/>
+          </Button>
+      }
       <Dialog open={open} onClose={handleClose}>
         <form onSubmit={handleSubmit}>
           <DialogTitle>Change Name</DialogTitle>

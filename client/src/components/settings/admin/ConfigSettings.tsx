@@ -1,7 +1,7 @@
 
 import React, {useState, useEffect, useContext} from 'react';
 import {
-  Button, CardContent, Typography, TextField, Grid,
+  Button, CardContent, Typography, TextField, Grid, Checkbox,
 } from '@mui/material';
 
 import BaseCard from '../../common/cards/BaseCard';
@@ -17,12 +17,14 @@ export default function ConfigSettings(props) {
   const [currSem, setCurrSem] = useState('');
   const [slackURL, setSlackURL] = useState('');
   const [questionsURL, setQuestionsURL] = useState('');
+  const [enforceCMUEmail, setEnforceCMUEmail] = useState(true);
 
   useEffect(() => {
     setCurrSem(adminSettings.currSem);
     setSlackURL(adminSettings.slackURL);
+    setEnforceCMUEmail(adminSettings.enforceCMUEmail);
     setQuestionsURL(queueData.questionsURL);
-  }, [adminSettings]);
+  }, [adminSettings, queueData]);
 
   const handleUpdateSemester = (event) => {
     event.preventDefault();
@@ -60,6 +62,16 @@ export default function ConfigSettings(props) {
     );
   };
 
+  const handleUpdateCmuEmailEnabled = (event) => {
+    event.preventDefault();
+
+    SettingsService.updateEnforceCmuEmail(
+        JSON.stringify({
+          enforceCMUEmail: enforceCMUEmail,
+        }),
+    );
+  };
+
   return (
     <BaseCard>
       <CardContent>
@@ -87,8 +99,26 @@ export default function ConfigSettings(props) {
             </Grid>
           </Grid>
         </form>
-        <form onSubmit={handleUpdateSlackURL}>
+        <form onSubmit={handleUpdateCmuEmailEnabled}>
           <Grid container spacing={2} sx={{mb: 2}}>
+            <Grid className="d-flex" item sx={{mt: 1, ml: 1}}>
+              Enforce CMU Email:
+              <Checkbox
+                size="small"
+                sx={{ml: 1}}
+                checked={enforceCMUEmail}
+                onChange={(e) => {
+                  setEnforceCMUEmail(e.target.checked);
+                }}
+              />
+            </Grid>
+            <Grid className="d-flex" item sx={{mt: 1, mr: 2}}>
+              <Button type="submit" variant="contained">Save</Button>
+            </Grid>
+          </Grid>
+        </form>
+        <form onSubmit={handleUpdateSlackURL}>
+          <Grid container spacing={2} sx={{mt: 1, mb: 2}}>
             <Grid className="d-flex" item sx={{mx: 1}} xs={10}>
               <TextField
                 id="slack-url"

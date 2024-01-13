@@ -157,6 +157,9 @@ export default function Navbar(props) {
                   ))
                 }
                 {
+                  userData.isAuthenticated && <ChangeNameBtn mobile={true} pname={pname} setpname={setpname}/>
+                }
+                {
                   userData.isAuthenticated &&
                     <MenuItem onClick={handleLogoutClicked}>
                       <Typography variant='subtitle2' sx={{mx: 2}}>
@@ -199,7 +202,7 @@ export default function Navbar(props) {
         </Box>
         <Box sx={{flexGrow: 0, display: 'flex'}}>
           {
-            userData.isAuthenticated && <ChangeNameBtn pname={pname} setpname={setpname}/>
+            userData.isAuthenticated && <ChangeNameBtn mobile={false} pname={pname} setpname={setpname}/>
           }
         </Box>
 

@@ -1,10 +1,9 @@
-import React, {useState, useEffect, useContext, useMemo} from 'react';
+import React, {useContext, useMemo} from 'react';
 
 import {List, ListSubheader, ListItem,
   ListItemButton, ListItemIcon, ListItemText, Checkbox,
 } from '@mui/material';
 
-import SettingsService from '../../../../services/SettingsService';
 import {QueueDataContext} from '../../../../contexts/QueueDataContext';
 
 function createData(assignment_id, name) {

@@ -90,7 +90,7 @@ export default function PersonalStats() {
             <Typography variant='h3' sx={{mt: 2}} fontWeight='bold'>{Number(averageHelpTime).toFixed(2)}</Typography>
           </Grid>
           <Stack sx={{width: '100%'}}>
-            <TableContainer sx={{height: 220}}>
+            <TableContainer sx={{height: 300}}>
               <Table stickyHeader aria-label="sticky table">
                 <TableHead>
                   <TableRow>
@@ -107,9 +107,9 @@ export default function PersonalStats() {
                 <TableBody>
                   {helpedStudents
                       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                      .map((row) => {
+                      .map((row, i) => {
                         return (
-                          <TableRow hover role="checkbox" tabIndex={-1} key={row.andrewId}>
+                          <TableRow hover role="checkbox" tabIndex={-1} key={row.andrewId + i}>
                             {columns.map((column) => {
                               const value = row[column.id];
                               return (

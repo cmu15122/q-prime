@@ -57,6 +57,10 @@ exports.post_login = async (req, res) => {
             res.status(500);
             res.json({ message: "Queue has not been initialized; must log in with owner email" });
             return;
+        } else if (adminSettings.enforceCMUEmail && !(email.endsWith("@andrew.cmu.edu") || email.endsWith("@cmu.edu"))) {
+            res.status(500);
+            res.json({ message: "Must log in with a CMU email" });
+            return;
         }
 
         Promise.props({

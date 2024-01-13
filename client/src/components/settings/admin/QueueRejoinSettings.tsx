@@ -1,5 +1,5 @@
 
-import React, {useContext} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   Button, CardContent, Typography, TextField, Grid,
 } from '@mui/material';
@@ -11,17 +11,22 @@ import {QueueDataContext} from '../../../contexts/QueueDataContext';
 
 export default function QueueRejoinSettings(props) {
   const {queueData} = useContext(QueueDataContext);
+
+  const [rejoinTime, setRejoinTime] = useState(15);
+
+  useEffect(() => {
+    setRejoinTime(queueData.rejoinTime);
+  }, [queueData]);
+
   const onSubmit = (event) => {
     event.preventDefault();
 
     SettingsService.updateRejoinTime(
         JSON.stringify({
-          rejoinTime: rejoinTimeInput,
+          rejoinTime: rejoinTime,
         }),
     );
   };
-
-  let rejoinTimeInput = queueData.rejoinTime;
 
   return (
     <BaseCard>
@@ -39,9 +44,9 @@ export default function QueueRejoinSettings(props) {
                 variant="standard"
                 sx={{mx: 1, mt: -1}}
                 style={{width: '50px'}}
-                defaultValue={queueData.rejoinTime ? queueData.rejoinTime : 10}
+                value={rejoinTime}
                 onChange={(e) => {
-                  rejoinTimeInput = parseInt(e.target.value, 10);
+                  setRejoinTime(parseInt(e.target.value, 10));
                 }}
                 inputProps={{min: 0, style: {textAlign: 'center'}}}
               />
