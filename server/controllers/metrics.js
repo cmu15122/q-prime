@@ -423,10 +423,12 @@ exports.get_ranked_students = (req, res) => {
             if (question.student_id in studentMap) {
                 studentMap[question.student_id].count++;
                 studentMap[question.student_id].timeHelped += (question.exit_time - question.help_time) / 1000 / 60;
+                studentMap[question.student_id].badCount += parseInt(question.num_asked_to_fix);
             } else {
                 studentMap[question.student_id] = {
                     count: 1,
                     timeHelped: (question.exit_time - question.help_time) / 1000 / 60,
+                    badCount: parseInt(question.num_asked_to_fix)
                 };
             }
         }
@@ -449,6 +451,7 @@ exports.get_ranked_students = (req, res) => {
                     student_name: accountData.preferred_name,
                     student_andrew: accountData.email.split("@")[0],
                     count: studentMap[user_id].count,
+                    badCount: studentMap[user_id].badCount,
                     timeHelped: Math.round(studentMap[user_id].timeHelped * 10) / 10,
                 });
             }
