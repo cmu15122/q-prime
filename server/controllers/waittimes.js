@@ -8,6 +8,9 @@ let last_pinged = null;
 const ping_threshold_mins = 30;
 const ping_interval_mins = 15;
 
+let minute_ago_waittime = null;
+let minute_ago_time = null;
+
 const models = require("../models");
 const { Sequelize } = require("../models");
 const moment = require("moment-timezone");
@@ -74,11 +77,24 @@ exports.wait_time_data = function () {
 
         const waitTime = numUnhelped * minsPerStudent / numTAs;
 
-        if (waitTime > ping_threshold_mins && (last_pinged == null || now.diff(last_pinged, "seconds") >= ping_interval_mins * 60)) {
-          slack.send_message(
-            "<!channel> The wait time is " + (Math.round(100 * waitTime) / 100) + " minutes right now. More TAs might be needed. (<" + config.PROTOCOL + "://" + config.DOMAIN + "/|view»>)"
-          );
-          last_pinged = now;
+        if (minute_ago_time == null) {
+          minute_ago_time = now;
+          minute_ago_waittime = waitTime;
+        }
+        else {
+          if (last_pinged == null || now.diff(last_pinged, "seconds") >= ping_interval_mins * 60) {
+            if (waitTime > ping_threshold_mins && minute_ago_waittime > ping_threshold_mins) {
+              slack.send_message(
+                "<!channel> The wait time is " + (Math.round(waitTime)) + " minutes right now. More TAs might be needed. (<" + config.PROTOCOL + "://" + config.DOMAIN + "/|view»>)"
+                );
+              last_pinged = now;
+            }
+          }
+
+          if (now.diff(minute_ago_time, "minutes") >= 1) {
+            minute_ago_time = now;
+            minute_ago_waittime = waitTime;
+          }
         }
 
         return {
