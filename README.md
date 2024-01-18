@@ -158,10 +158,8 @@ Create a `.env` file in the `client` folder with the following fields:
 
 Add them to the `.env` file like so:
 ```
-{
-    name=value,
-    name=value,
-}
+name=value
+name=value
 ```
 
 ### Server-Side
