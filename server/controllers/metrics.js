@@ -5,7 +5,6 @@ let settings = require('./settings');
 
 const models = require('../models');
 const { sequelize } = require('../models');
-const today = new Date();
 
 /** Helper Functions **/
 function respond_error(req, res, message, status) {
@@ -120,10 +119,17 @@ exports.get_num_questions_today = (req, res) => {
         return;
     }
 
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+
     models.question.findAndCountAll({
         where: {
             entry_time: {
-                [Sequelize.Op.gte]: new Date(today - 8 * 60 * 60 * 1000),
+                [Sequelize.Op.between]: [startOfDay, endOfDay],
             },
             sem_id: settings.get_admin_settings().currSem,
         }
@@ -139,10 +145,16 @@ exports.get_num_bad_questions_today = (req, res) => {
         return;
     }
 
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
     models.question.findAndCountAll({
         where: {
             entry_time: {
-                [Sequelize.Op.gte]: new Date(today - 8 * 60 * 60 * 1000),
+                [Sequelize.Op.between]: [startOfDay, endOfDay],
             },
             num_asked_to_fix: {
                 [Sequelize.Op.gt]: 0
@@ -160,10 +172,16 @@ exports.get_avg_wait_time_today = (req, res) => {
         return;
     }
 
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
     models.question.findAndCountAll({
         where: {
             entry_time: {
-                [Sequelize.Op.gte]: new Date(today - 8 * 60 * 60 * 1000),
+                [Sequelize.Op.between]: [startOfDay, endOfDay],
             },
             help_time: {
                 [Sequelize.Op.ne]: null,
@@ -191,10 +209,16 @@ exports.get_ta_student_ratio_today = (req, res) => {
         return;
     }
 
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
     models.question.findAndCountAll({
         where: {
             entry_time: {
-                [Sequelize.Op.gte]: new Date(today - 8 * 60 * 60 * 1000),
+                [Sequelize.Op.between]: [startOfDay, endOfDay],
             },
             sem_id: settings.get_admin_settings().currSem,
         }
@@ -306,6 +330,10 @@ exports.get_num_students_per_day_last_week = (req, res) => {
         return;
     }
 
+    const today = new Date();
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(today.getDate() - 7);
+
     models.question.findAll({
         attributes: [
             [Sequelize.fn('date', Sequelize.literal(`"entry_time" AT TIME ZONE 'EST'`)), 'day'],
@@ -313,7 +341,7 @@ exports.get_num_students_per_day_last_week = (req, res) => {
         ],
         where: {
             entry_time: {
-                [Sequelize.Op.gte]: new Date(today - 7 * 24 * 60 * 60 * 1000),
+                [Sequelize.Op.gte]: sevenDaysAgo,
             },
             help_time: {
                 [Sequelize.Op.ne]: null
