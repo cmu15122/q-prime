@@ -8,6 +8,8 @@
 
 **The Squad (Spring '23):** Pranav Addepalli, Angela Zhang, Amanda Li, Jackson Romero, Arthur Jakobsson, Mihir Khare, Sherry Wang
 
+**Post S23 Contributors** Jackson Romero, Alex Blass
+
 ## Getting Started
 1. Download and install [Node.js](https://nodejs.org/en/)
 2. Install Node modules within both `client` and `server` folders. `cd` into each and run:
