@@ -71,7 +71,7 @@ server {
 Be sure to replace <YOUR_DOMAINS>, e.g. "cs122.andrew.cmu.edu www.cs122.andrew.cmu.edu" and replace <YOUR_DOMAIN> with the folder path we'll create in a few steps, e.g. "cs122.andrew.cmu.edu"
 
 4. Install certbot, `sudo snap install --classic certbot` and then `sudo ln -s /snap/bin/certbot /usr/bin/certbot`
-5. Use certbot to generate SSL certificates.  **THIS MAY REQUIRE DIFFERENT STEPS DEPENDING ON HOW AND WHERE YOUR DOMAIN IS HOSTED.** You will have to research this on your own.  Ideally, your certificates will be created at `/etc/letsencrypt/live/<YOUR_DOMAIN>/fullchain.pem` and `/etc/letsencrypt/live/<YOUR_DOMAIN>/privkey.pem`, but if they're created in different places, you will have to modify these lines of the nginx config.
+5. Use certbot to generate SSL certificates.  **THIS MAY REQUIRE DIFFERENT STEPS DEPENDING ON HOW AND WHERE YOUR DOMAIN IS HOSTED.** You will have to research this on your own.  Ideally, your certificates will be created at `/etc/letsencrypt/live/<YOUR_DOMAIN>/fullchain.pem` and `/etc/letsencrypt/live/<YOUR_DOMAIN>/privkey.pem`, but if they're created in different places, you will have to modify these lines of the nginx config.  **BE AWARE THAT YOU MAY HAVE TO SETUP CERTIFICATE ROTATION**
 6. You can validate your nginx config with `sudo nginx -t`
 7. Start nginx with `sudo systemctl start nginx`
 8. Depending on your domain hosting provider, there may be built-in ways to do this.  However, if manually configuring your website, you should be able to add a .A record to your domain and going to it should show a 502 error page from nginx!
