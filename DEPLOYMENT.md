@@ -156,3 +156,4 @@ OWNER_EMAIL=<YOUR_ADMIN_EMAIL>
   % sudo npm install --global serve
   % serve -s build -l 4000 -n
 ```
+8. We have GitHub actions set up now to automatically push new queue updates.  This isn't required to deploy the queue and is **optional**, but it's a nice to have.  We use tmux to manage the client and server sessions.  If you aren't doing this, I'd recommend **deleting the .github folder**.
