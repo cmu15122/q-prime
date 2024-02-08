@@ -1,5 +1,5 @@
 require('dotenv').config()
- 
+
 module.exports = {
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
@@ -8,7 +8,7 @@ module.exports = {
   DB_HOST: process.env.POSTGRESQL_DB_HOST,
   DB_USER: process.env.POSTGRESQL_DB_USER,
   DB_PASSWORD: process.env.POSTGRESQL_DB_PASSWORD,
-  DB_PORT: 5432,
+  DB_PORT: process.env.DB_PORT,
   DB_DIALECT: 'postgres',
   PROTOCOL: process.env.PROTOCOL,
   DOMAIN: process.env.DOMAIN,
