@@ -58,6 +58,10 @@ class MetricsDataService {
   getNumStudentsOverall() {
     return http.get('/metrics/numStudentsOverall');
   }
+
+  getNumQuestionsPerTopic() {
+    return http.get('/metrics/numQuestionsPerTopic');
+  }
 }
 
 export default new MetricsDataService();
