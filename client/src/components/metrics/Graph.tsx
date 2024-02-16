@@ -16,6 +16,7 @@ export default function Graph() {
   const [numQuestionsPerDayLastWeek, setNumQuestionsPerDayLastWeek] = useState([]);
   const [numQuestionsPerDay, setNumQuestionsPerDay] = useState([]);
   const [numQuestionsOverall, setNumQuestionsOverall] = useState([]);
+  const [numQuestionsPerTopic, setNumQuestionsPerTopic] = useState([]);
 
   useEffect(() => {
     MetricsService.getNumStudentsPerDayLastWeek().then((res) => {
@@ -35,6 +36,11 @@ export default function Graph() {
 
     MetricsService.getNumStudentsOverall().then((res) => {
       setNumQuestionsOverall(res.data.numStudentsOverall);
+    });
+
+    MetricsService.getNumQuestionsPerTopic().then((res) => {
+      console.log(res.data.numQuestionsPerTopic);
+      setNumQuestionsPerTopic(res.data.numQuestionsPerTopic);
     });
   }, []);
 
@@ -239,6 +245,72 @@ export default function Graph() {
               {
                 label: 'Number of Questions',
                 data: numQuestionsPerDay.map((day) => day.students),
+                backgroundColor: theme.palette.primary.main,
+                borderColor: theme.palette.primary.main,
+                borderWidth: 3,
+              },
+            ],
+          }}
+        />
+      </div>
+
+      <Typography variant="h5" sx={{mt: 4, ml: 10}} fontWeight='bold'>
+      Number of Questions per Topic
+      </Typography>
+
+      <div style={{height: '40vh', width: 'auto', position: 'relative'}}>
+        <Bar
+          datasetIdKey='numQuestionsPerTopic'
+          options={{
+            layout: {
+              padding: {
+                top: 40,
+                right: 100,
+                bottom: 40,
+                left: 50,
+              },
+            },
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false,
+              },
+            },
+            scales: {
+              x: {
+                ticks: {
+                  font: {
+                    size: 16,
+                  },
+                },
+                grid: {
+                  color: theme.palette.divider,
+                },
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: 'Number of Questions',
+                  font: {
+                    size: 16,
+                  },
+                },
+                ticks: {
+                  autoSkip: true,
+                },
+                grid: {
+                  color: theme.palette.divider,
+                },
+              },
+            },
+          }}
+          data={{
+            labels: numQuestionsPerTopic.map((topic) => topic.name),
+            datasets: [
+              {
+                label: 'Number of Questions',
+                data: numQuestionsPerTopic.map((topic) => topic.count),
                 backgroundColor: theme.palette.primary.main,
                 borderColor: theme.palette.primary.main,
                 borderWidth: 3,
