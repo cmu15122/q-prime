@@ -13,14 +13,13 @@ import MetricsService from '../../services/MetricsService';
 
 export default function Graph() {
   const theme = useTheme();
-  const [numQuestionsPerDayLastWeek, setNumQuestionsPerDayLastWeek] = useState([]);
-  const [numQuestionsPerDay, setNumQuestionsPerDay] = useState([]);
-  const [numQuestionsOverall, setNumQuestionsOverall] = useState([]);
-  const [numQuestionsPerTopic, setNumQuestionsPerTopic] = useState([]);
+  const [numStudentsPerDayLastWeek, setNumStudentsPerDayLastWeek] = useState([]);
+  const [numStudentsPerDay, setNumStudentsPerDay] = useState([]);
+  const [numStudentsOverall, setNumStudentsOverall] = useState([]);
 
   useEffect(() => {
     MetricsService.getNumStudentsPerDayLastWeek().then((res) => {
-      setNumQuestionsPerDayLastWeek(res.data.numStudentsPerDayLastWeek);
+      setNumStudentsPerDayLastWeek(res.data.numStudentsPerDayLastWeek);
     });
 
     MetricsService.getNumStudentsPerDay().then((res) => {
@@ -31,16 +30,11 @@ export default function Graph() {
         return days.indexOf(a.day) - days.indexOf(b.day);
       });
 
-      setNumQuestionsPerDay(dataBack);
+      setNumStudentsPerDay(dataBack);
     });
 
     MetricsService.getNumStudentsOverall().then((res) => {
-      setNumQuestionsOverall(res.data.numStudentsOverall);
-    });
-
-    MetricsService.getNumQuestionsPerTopic().then((res) => {
-      console.log(res.data.numQuestionsPerTopic);
-      setNumQuestionsPerTopic(res.data.numQuestionsPerTopic);
+      setNumStudentsOverall(res.data.numStudentsOverall);
     });
   }, []);
 
@@ -56,7 +50,7 @@ export default function Graph() {
 
       <div style={{height: '40vh', width: 'auto', position: 'relative'}}>
         <Line
-          datasetIdKey='numQuestionsPerDayLastWeek'
+          datasetIdKey='numStudentsPerDayLastWeek'
           options={{
             layout: {
               padding: {
@@ -87,7 +81,7 @@ export default function Graph() {
               y: {
                 title: {
                   display: true,
-                  text: 'Number of Questions',
+                  text: 'Number of Students',
                   font: {
                     size: 16,
                   },
@@ -103,11 +97,11 @@ export default function Graph() {
           }}
 
           data={{
-            labels: numQuestionsPerDayLastWeek.map((day) => dateFormatter(day.day)),
+            labels: numStudentsPerDayLastWeek.map((day) => dateFormatter(day.day)),
             datasets: [
               {
-                label: 'Number of Questions',
-                data: numQuestionsPerDayLastWeek.map((day) => day.students),
+                label: 'Number of Students',
+                data: numStudentsPerDayLastWeek.map((day) => day.students),
                 fill: false,
                 backgroundColor: theme.palette.primary.main,
                 borderColor: theme.palette.primary.main,
@@ -125,7 +119,7 @@ export default function Graph() {
 
       <div style={{height: '40vh', width: 'auto', position: 'relative'}}>
         <Line
-          datasetIdKey='numQuestionsPerDayOverall'
+          datasetIdKey='numStudentsPerDayOverall'
           options={{
             layout: {
               padding: {
@@ -156,7 +150,7 @@ export default function Graph() {
               y: {
                 title: {
                   display: true,
-                  text: 'Number of Questions',
+                  text: 'Number of Students',
                   font: {
                     size: 16,
                   },
@@ -172,11 +166,11 @@ export default function Graph() {
           }}
 
           data={{
-            labels: numQuestionsOverall.map((day) => dateFormatter(day.day)),
+            labels: numStudentsOverall.map((day) => dateFormatter(day.day)),
             datasets: [
               {
-                label: 'Number of Questions',
-                data: numQuestionsOverall.map((day) => day.students),
+                label: 'Number of Students',
+                data: numStudentsOverall.map((day) => day.students),
                 fill: false,
                 backgroundColor: theme.palette.primary.main,
                 borderColor: theme.palette.primary.main,
@@ -194,7 +188,7 @@ export default function Graph() {
 
       <div style={{height: '40vh', width: 'auto', position: 'relative'}}>
         <Bar
-          datasetIdKey='numQuestionsPerDayOfWeek'
+          datasetIdKey='numStudentsPerDayOfWeek'
           options={{
             layout: {
               padding: {
@@ -225,7 +219,7 @@ export default function Graph() {
               y: {
                 title: {
                   display: true,
-                  text: 'Number of Questions',
+                  text: 'Number of Students',
                   font: {
                     size: 16,
                   },
@@ -240,77 +234,11 @@ export default function Graph() {
             },
           }}
           data={{
-            labels: numQuestionsPerDay.map((day) => day.day),
+            labels: numStudentsPerDay.map((day) => day.day),
             datasets: [
               {
-                label: 'Number of Questions',
-                data: numQuestionsPerDay.map((day) => day.students),
-                backgroundColor: theme.palette.primary.main,
-                borderColor: theme.palette.primary.main,
-                borderWidth: 3,
-              },
-            ],
-          }}
-        />
-      </div>
-
-      <Typography variant="h5" sx={{mt: 4, ml: 10}} fontWeight='bold'>
-      Number of Questions per Topic
-      </Typography>
-
-      <div style={{height: '40vh', width: 'auto', position: 'relative'}}>
-        <Bar
-          datasetIdKey='numQuestionsPerTopic'
-          options={{
-            layout: {
-              padding: {
-                top: 40,
-                right: 100,
-                bottom: 40,
-                left: 50,
-              },
-            },
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                display: false,
-              },
-            },
-            scales: {
-              x: {
-                ticks: {
-                  font: {
-                    size: 16,
-                  },
-                },
-                grid: {
-                  color: theme.palette.divider,
-                },
-              },
-              y: {
-                title: {
-                  display: true,
-                  text: 'Number of Questions',
-                  font: {
-                    size: 16,
-                  },
-                },
-                ticks: {
-                  autoSkip: true,
-                },
-                grid: {
-                  color: theme.palette.divider,
-                },
-              },
-            },
-          }}
-          data={{
-            labels: numQuestionsPerTopic.map((topic) => topic.name),
-            datasets: [
-              {
-                label: 'Number of Questions',
-                data: numQuestionsPerTopic.map((topic) => topic.count),
+                label: 'Number of Students',
+                data: numStudentsPerDay.map((day) => day.students),
                 backgroundColor: theme.palette.primary.main,
                 borderColor: theme.palette.primary.main,
                 borderWidth: 3,

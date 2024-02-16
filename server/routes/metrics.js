@@ -16,7 +16,6 @@ router.get('/totalAvgWaitTime', metrics.get_total_avg_wait_time);
 router.get('/numStudentsPerDayLastWeek', metrics.get_num_students_per_day_last_week);
 router.get('/numStudentsPerDay', metrics.get_num_students_per_day);
 router.get('/numStudentsOverall', metrics.get_num_students_overall);
-router.get('/numQuestionsPerTopic', metrics.get_num_questions_per_topic);
 router.get('/rankedStudents', metrics.get_ranked_students);
 router.get('/rankedTAs', metrics.get_ranked_tas);
 module.exports = router;

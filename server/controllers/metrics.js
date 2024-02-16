@@ -427,67 +427,6 @@ exports.get_num_students_overall = (req, res) => {
     });
 }
 
-exports.get_num_questions_per_topic = (req, res) => {
-    if (!req.user || !req.user.isTA) {
-        respond_error(req, res, "You don't have permissions to perform this operation", 403);
-        return;
-    }
-
-    let assignmentsSet = {};
-
-    assignmentsSet[-1] = {
-        name: "Other",
-        start_date: new Date("1/1/2000"),
-        end_date: new Date("1/1/3000")
-    }
-
-    models.assignment_semester.findAll({
-        where: {
-            sem_id: settings.get_admin_settings().currSem,
-        },
-        order: [['start_date', 'ASC']],
-        include: models.assignment
-    }).then((assignments) => {
-
-        for (const assignmentSem of assignments) {
-            let assignment = assignmentSem.assignment;
-            assignmentsSet[assignment.assignment_id] = {
-                name: assignment.name,
-                start_date: assignmentSem.start_date,
-                end_date: assignmentSem.end_date
-            };
-        }
-
-        return models.question.findAll({
-            attributes: [
-                'assignment',
-                [Sequelize.fn('count', Sequelize.col('question_id')), 'count']
-            ],
-            where: {
-                sem_id: settings.get_admin_settings().currSem,
-                help_time: {
-                    [Sequelize.Op.ne]: null
-                },
-            },
-            group: [[Sequelize.col('assignment')]],
-        })
-    }).then((data) => {
-        for (const row of data) {
-            let assnCount = row.dataValues;
-            assignmentsSet[assnCount.assignment].count = assnCount.count;
-        }
-
-        let result = [];
-
-        for (const [id, assn] of Object.entries(assignmentsSet)) {
-            result.push(assn)
-        }
-        result.sort((a, b) => a.start_date - b.start_date)
-
-        respond(req, res, "Got number of questions per topic", { numQuestionsPerTopic: result }, 200);
-    });
-}
-
 exports.get_ranked_students = (req, res) => {
     if (!req.user || !req.user.isTA || !req.user.isAdmin) {
         respond_error(req, res, "You don't have permission to perform this operation", 403);
