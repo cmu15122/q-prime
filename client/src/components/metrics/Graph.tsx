@@ -13,13 +13,13 @@ import MetricsService from '../../services/MetricsService';
 
 export default function Graph() {
   const theme = useTheme();
-  const [numStudentsPerDayLastWeek, setNumStudentsPerDayLastWeek] = useState([]);
-  const [numStudentsPerDay, setNumStudentsPerDay] = useState([]);
-  const [numStudentsOverall, setNumStudentsOverall] = useState([]);
+  const [numQuestionsPerDayLastWeek, setNumQuestionsPerDayLastWeek] = useState([]);
+  const [numQuestionsPerDay, setNumQuestionsPerDay] = useState([]);
+  const [numQuestionsOverall, setNumQuestionsOverall] = useState([]);
 
   useEffect(() => {
     MetricsService.getNumStudentsPerDayLastWeek().then((res) => {
-      setNumStudentsPerDayLastWeek(res.data.numStudentsPerDayLastWeek);
+      setNumQuestionsPerDayLastWeek(res.data.numStudentsPerDayLastWeek);
     });
 
     MetricsService.getNumStudentsPerDay().then((res) => {
@@ -30,11 +30,11 @@ export default function Graph() {
         return days.indexOf(a.day) - days.indexOf(b.day);
       });
 
-      setNumStudentsPerDay(dataBack);
+      setNumQuestionsPerDay(dataBack);
     });
 
     MetricsService.getNumStudentsOverall().then((res) => {
-      setNumStudentsOverall(res.data.numStudentsOverall);
+      setNumQuestionsOverall(res.data.numStudentsOverall);
     });
   }, []);
 
@@ -50,7 +50,7 @@ export default function Graph() {
 
       <div style={{height: '40vh', width: 'auto', position: 'relative'}}>
         <Line
-          datasetIdKey='numStudentsPerDayLastWeek'
+          datasetIdKey='numQuestionsPerDayLastWeek'
           options={{
             layout: {
               padding: {
@@ -81,7 +81,7 @@ export default function Graph() {
               y: {
                 title: {
                   display: true,
-                  text: 'Number of Students',
+                  text: 'Number of Questions',
                   font: {
                     size: 16,
                   },
@@ -97,11 +97,11 @@ export default function Graph() {
           }}
 
           data={{
-            labels: numStudentsPerDayLastWeek.map((day) => dateFormatter(day.day)),
+            labels: numQuestionsPerDayLastWeek.map((day) => dateFormatter(day.day)),
             datasets: [
               {
-                label: 'Number of Students',
-                data: numStudentsPerDayLastWeek.map((day) => day.students),
+                label: 'Number of Questions',
+                data: numQuestionsPerDayLastWeek.map((day) => day.students),
                 fill: false,
                 backgroundColor: theme.palette.primary.main,
                 borderColor: theme.palette.primary.main,
@@ -119,7 +119,7 @@ export default function Graph() {
 
       <div style={{height: '40vh', width: 'auto', position: 'relative'}}>
         <Line
-          datasetIdKey='numStudentsPerDayOverall'
+          datasetIdKey='numQuestionsPerDayOverall'
           options={{
             layout: {
               padding: {
@@ -150,7 +150,7 @@ export default function Graph() {
               y: {
                 title: {
                   display: true,
-                  text: 'Number of Students',
+                  text: 'Number of Questions',
                   font: {
                     size: 16,
                   },
@@ -166,11 +166,11 @@ export default function Graph() {
           }}
 
           data={{
-            labels: numStudentsOverall.map((day) => dateFormatter(day.day)),
+            labels: numQuestionsOverall.map((day) => dateFormatter(day.day)),
             datasets: [
               {
-                label: 'Number of Students',
-                data: numStudentsOverall.map((day) => day.students),
+                label: 'Number of Questions',
+                data: numQuestionsOverall.map((day) => day.students),
                 fill: false,
                 backgroundColor: theme.palette.primary.main,
                 borderColor: theme.palette.primary.main,
@@ -188,7 +188,7 @@ export default function Graph() {
 
       <div style={{height: '40vh', width: 'auto', position: 'relative'}}>
         <Bar
-          datasetIdKey='numStudentsPerDayOfWeek'
+          datasetIdKey='numQuestionsPerDayOfWeek'
           options={{
             layout: {
               padding: {
@@ -219,7 +219,7 @@ export default function Graph() {
               y: {
                 title: {
                   display: true,
-                  text: 'Number of Students',
+                  text: 'Number of Questions',
                   font: {
                     size: 16,
                   },
@@ -234,11 +234,11 @@ export default function Graph() {
             },
           }}
           data={{
-            labels: numStudentsPerDay.map((day) => day.day),
+            labels: numQuestionsPerDay.map((day) => day.day),
             datasets: [
               {
-                label: 'Number of Students',
-                data: numStudentsPerDay.map((day) => day.students),
+                label: 'Number of Questions',
+                data: numQuestionsPerDay.map((day) => day.students),
                 backgroundColor: theme.palette.primary.main,
                 borderColor: theme.palette.primary.main,
                 borderWidth: 3,
