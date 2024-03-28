@@ -18,11 +18,13 @@ export default function ConfigSettings(props) {
   const [slackURL, setSlackURL] = useState('');
   const [questionsURL, setQuestionsURL] = useState('');
   const [enforceCMUEmail, setEnforceCMUEmail] = useState(true);
+  const [allowCDOverride, setAllowCDOverride] = useState(true);
 
   useEffect(() => {
     setCurrSem(adminSettings.currSem);
     setSlackURL(adminSettings.slackURL);
     setEnforceCMUEmail(adminSettings.enforceCMUEmail);
+    setAllowCDOverride(adminSettings.allowCDOverride);
     setQuestionsURL(queueData.questionsURL);
   }, [adminSettings, queueData]);
 
@@ -72,6 +74,16 @@ export default function ConfigSettings(props) {
     );
   };
 
+  const handleCooldownOverrideEnabled = (event) => {
+    event.preventDefault();
+
+    SettingsService.updateAllowCDOverride(
+        JSON.stringify({
+          allowCDOverride: allowCDOverride,
+        }),
+    );
+  };
+
   return (
     <BaseCard>
       <CardContent>
@@ -109,6 +121,24 @@ export default function ConfigSettings(props) {
                 checked={enforceCMUEmail}
                 onChange={(e) => {
                   setEnforceCMUEmail(e.target.checked);
+                }}
+              />
+            </Grid>
+            <Grid className="d-flex" item sx={{mt: 1, mr: 2}}>
+              <Button type="submit" variant="contained">Save</Button>
+            </Grid>
+          </Grid>
+        </form>
+        <form onSubmit={handleCooldownOverrideEnabled}>
+          <Grid container spacing={2} sx={{mb: 2}}>
+            <Grid className="d-flex" item sx={{mt: 1, ml: 1}}>
+              Allow Cooldown Override:
+              <Checkbox
+                size="small"
+                sx={{ml: 1}}
+                checked={allowCDOverride}
+                onChange={(e) => {
+                  setAllowCDOverride(e.target.checked);
                 }}
               />
             </Grid>
