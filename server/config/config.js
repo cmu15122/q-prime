@@ -1,4 +1,4 @@
-require('dotenv').config()
+require('dotenv').config();
 
 module.exports = {
   GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
@@ -15,5 +15,7 @@ module.exports = {
   CLIENT_PORT: process.env.CLIENT_PORT,
   TOKEN_KEY: process.env.TOKEN_KEY,
   OWNER_EMAIL: process.env.OWNER_EMAIL,
-  OWNER_ACCESS_TOKEN: ''
-}
+  SOCKET_ADMIN_MODE: process.env.SOCKET_ADMIN_MODE,
+  SOCKET_ADMIN_PASSWORD: process.env.SOCKET_ADMIN_PASSWORD,
+  OWNER_ACCESS_TOKEN: '',
+};
