@@ -1,7 +1,8 @@
 import axios from 'axios';
 import Cookies from 'universal-cookie';
 
-import {showErrorToast} from './services/ToastService';
+import { showErrorToast } from './services/ToastService';
+import { ensureSocketConnected } from './services/SocketsService';
 
 const cookies = new Cookies();
 
@@ -18,6 +19,9 @@ httpInstance.interceptors.request.use(
       if (userCookies != null) {
         req.headers['Authorization'] = userCookies['access_token'];
       }
+
+      ensureSocketConnected();
+
       return req;
     },
     (err) => {
@@ -28,7 +32,7 @@ httpInstance.interceptors.request.use(
 httpInstance.interceptors.response.use(
     (res) => {
       if (res.data.isOwner && !window.location.href.includes('settings')) {
-        // Redirect owner to settings page
+      // Redirect owner to settings page
         window.location.href = 'settings';
       }
       // COMMENTED OUT SO ONLY TOAST IF ERROR
