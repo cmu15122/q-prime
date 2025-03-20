@@ -3,8 +3,8 @@ let models = require('../models');
 let settings = require('./settings');
 
 let config = require('../config/config');
-const { instrument } = require('@socket.io/admin-ui');
-const bcrypt = require('bcryptjs');
+// const { instrument } = require('@socket.io/admin-ui');
+// const bcrypt = require('bcryptjs');
 
 let sio;
 
@@ -22,7 +22,7 @@ exports.init = function (server) {
     cors: {
       origin: [
         config.PROTOCOL + '://' + config.DOMAIN + ':' + config.CLIENT_PORT,
-        'https://admin.socket.io',
+        // 'https://admin.socket.io',
       ],
       methods: ['GET', 'POST'],
       credentials: true,
@@ -34,14 +34,14 @@ exports.init = function (server) {
     },
   });
 
-  instrument(sio, {
-    auth: {
-      type: 'basic',
-      username: 'admin',
-      password: bcrypt.hashSync(config.SOCKET_ADMIN_PASSWORD, 10),
-    },
-    mode: config.SOCKET_ADMIN_MODE,
-  });
+  // instrument(sio, {
+  //   auth: {
+  //     type: 'basic',
+  //     username: 'admin',
+  //     password: bcrypt.hashSync(config.SOCKET_ADMIN_PASSWORD, 10),
+  //   },
+  //   mode: config.SOCKET_ADMIN_MODE,
+  // });
 
   sio.on('connection', (socket) => {
     console.log('New client connected');
