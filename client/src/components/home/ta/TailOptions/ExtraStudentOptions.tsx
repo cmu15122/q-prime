@@ -1,14 +1,15 @@
-import React, {useState} from 'react';
-import {Divider, Menu, MenuItem, IconButton, Typography} from '@mui/material';
+import React, { useState } from 'react';
+import { Divider, Menu, MenuItem, IconButton, Typography } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
-import {Help} from '@mui/icons-material';
+import { Help } from '@mui/icons-material';
 import ChatIcon from '@mui/icons-material/Chat';
 import HomeService from '../../../../services/HomeService';
 
 import MessageDialog from '../dialogs/MessageDialog';
+import { StudentStatusValues } from '../../../../services/StudentStatus';
 
 export default function ExtraStudentOptions(props) {
-  const {student, handleClickUpdateQ, index} = props;
+  const { student, handleClickUpdateQ, index } = props;
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -24,9 +25,11 @@ export default function ExtraStudentOptions(props) {
   };
 
   function handleFix() {
-    HomeService.taRequestUpdateQ(JSON.stringify({
-      andrewID: student.andrewID,
-    }));
+    HomeService.taRequestUpdateQ(
+        JSON.stringify({
+          andrewID: student.andrewID,
+        }),
+    );
     handleClickUpdateQ(index);
   }
 
@@ -64,38 +67,61 @@ export default function ExtraStudentOptions(props) {
           horizontal: 'left',
         }}
       >
-        <MenuItem onClick={() => {
-          handleClose(); handleFix();
-        }}>
-          <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+        <MenuItem
+          disabled={student.status !== StudentStatusValues.WAITING}
+          onClick={() => {
+            handleClose();
+            handleFix();
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
             <div>
               <IconButton color="error">
                 <Help />
               </IconButton>
             </div>
             <div>
-              <Typography variant="body1">
-                Ask to Fix
-              </Typography>
+              <Typography variant="body1">Ask to Fix</Typography>
             </div>
           </div>
         </MenuItem>
 
-        <Divider sx={{my: 0.5}} />
+        <Divider sx={{ my: 0.5 }} />
 
-        <MenuItem onClick={() => {
-          handleClose(); handleMessage();
-        }}>
-          <div style={{display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+        <MenuItem
+          onClick={() => {
+            handleClose();
+            handleMessage();
+          }}
+          disabled={
+            !(
+              student.status === StudentStatusValues.WAITING ||
+              student.status === StudentStatusValues.RECEIVED_MESSAGE
+            )
+          }
+        >
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
             <div>
               <IconButton color="primary">
                 <ChatIcon />
               </IconButton>
             </div>
             <div>
-              <Typography variant="body1">
-                Message
-              </Typography>
+              <Typography variant="body1">Message</Typography>
             </div>
           </div>
         </MenuItem>
