@@ -31,6 +31,8 @@ export default function YourEntry(props) {
     'You have been frozen in line. This means you will not advance in the queue until a TA approves your entry.' :
     'You have been frozen in line. You will not advance in the queue! Please wait for your cooldown to end before joining the queue again.';
 
+  // we do this here instead of by changing studentData.position because we want this
+  // to update as queueData updates
   const position = Math.max(
       studentData.position + 1 - (queueData.numStudents - queueData.numUnhelped),
       1,
