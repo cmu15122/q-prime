@@ -1,21 +1,22 @@
-import React, {useState, useEffect, useContext, useMemo} from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 
 import BaseTable from '../../common/table/BaseTable';
 import StudentEntry from './StudentEntry';
 
 import FilterOptions from './dialogs/FilterOptions';
-import {Button, Popover} from '@mui/material';
+import { Button, Popover } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 
 import HomeService from '../../../services/HomeService';
-import {StudentStatusValues} from '../../../services/StudentStatus';
-import {UserDataContext} from '../../../contexts/UserDataContext';
-import {AllStudentsContext} from '../../../contexts/AllStudentsContext';
-import {socketSubscribeTo} from '../../../services/SocketsService';
-
+import { StudentStatusValues } from '../../../services/StudentStatus';
+import { UserDataContext } from '../../../contexts/UserDataContext';
+import { AllStudentsContext } from '../../../contexts/AllStudentsContext';
+import { socketSubscribeTo } from '../../../services/SocketsService';
+import { QueueDataContext } from '../../../contexts/QueueDataContext';
 export default function StudentEntries(props) {
-  const {userData} = useContext(UserDataContext);
-  const {allStudents} = useContext(AllStudentsContext);
+  const { setQueueData } = useContext(QueueDataContext);
+  const { userData } = useContext(UserDataContext);
+  const { allStudents, setAllStudents } = useContext(AllStudentsContext);
 
   /* BEGIN FILTER LOGIC */
   const [isHelping, setIsHelping] = useState(false);
@@ -27,10 +28,14 @@ export default function StudentEntries(props) {
   const filteredStudents = useMemo(() => {
     let newFiltered = allStudents;
     if (filteredLocations.length > 0) {
-      newFiltered = newFiltered.filter((student) => filteredLocations.includes(student.location));
+      newFiltered = newFiltered.filter((student) =>
+        filteredLocations.includes(student.location),
+      );
     }
     if (filteredTopics.length > 0) {
-      newFiltered = newFiltered.filter((student) => filteredTopics.includes(student.topic.name));
+      newFiltered = newFiltered.filter((student) =>
+        filteredTopics.includes(student.topic.name),
+      );
     }
     return newFiltered;
   }, [allStudents, filteredLocations, filteredTopics]);
@@ -51,7 +56,7 @@ export default function StudentEntries(props) {
         <Button
           variant="contained"
           startIcon={<FilterListIcon />}
-          sx={{fontWeight: 'bold', mr: 1}}
+          sx={{ fontWeight: 'bold', mr: 1 }}
           onClick={handleFilterDialog}
           aria-describedby={'popover'}
         >
@@ -77,7 +82,7 @@ export default function StudentEntries(props) {
       </div>
     );
   };
-    /* END FILTER LOGIC (the actual filtering is in QUEUE LOGIC)*/
+  /* END FILTER LOGIC (the actual filtering is in QUEUE LOGIC)*/
 
   /* BEGIN QUEUE LOGIC */
 
@@ -85,9 +90,15 @@ export default function StudentEntries(props) {
     socketSubscribeTo('add', (res) => {
       if (userData.taSettings?.joinNotifsEnabled) {
         new Notification('New Queue Entry', {
-          'body': 'Name: ' + res.studentData.name + '\n' +
-                  'Andrew ID: ' + res.studentData.andrewID + '\n' +
-                  'Topic: ' + res.studentData.topic.name,
+          body:
+            'Name: ' +
+            res.studentData.name +
+            '\n' +
+            'Andrew ID: ' +
+            res.studentData.andrewID +
+            '\n' +
+            'Topic: ' +
+            res.studentData.topic.name,
         });
       }
     });
@@ -96,40 +107,68 @@ export default function StudentEntries(props) {
   useEffect(() => {
     setIsHelping(false);
     for (const [index, student] of filteredStudents.entries()) {
-      if (student.status === StudentStatusValues.BEING_HELPED && student.helpingTAInfo?.taAndrewID === userData.andrewID) {
+      if (
+        student.status === StudentStatusValues.BEING_HELPED &&
+        student.helpingTAInfo?.taAndrewID === userData.andrewID
+      ) {
         setHelpIdx(index);
         setIsHelping(true);
       }
     }
   }, [filteredStudents, userData.andrewID]);
 
+  const manuallyGetNewData = () => {
+    // because people are mainly interacting with the student management buttons,
+    // just just just *in case* the websockets don't update (or send update before connection reestablished)
+    // we just manually refresh the queue data
+
+    HomeService.getAll().then((res) => {
+      setQueueData(res.data);
+    });
+    HomeService.getAllStudents().then((res) => {
+      setAllStudents(res.data.allStudents);
+    });
+  };
+
   const handleClickHelp = (index) => {
-    HomeService.helpStudent(JSON.stringify({
-      andrewID: filteredStudents[index].andrewID,
-    })).then((res) => {
+    HomeService.helpStudent(
+        JSON.stringify({
+          andrewID: filteredStudents[index].andrewID,
+        }),
+    ).then((res) => {
       if (res.status === 200) {
         setHelpIdx(index);
         setIsHelping(true);
+        manuallyGetNewData();
       }
     });
   };
 
   const handleCancel = (index) => {
-    HomeService.unhelpStudent(JSON.stringify({
-      andrewID: filteredStudents[index].andrewID,
-    })).then((res) => {
+    HomeService.unhelpStudent(
+        JSON.stringify({
+          andrewID: filteredStudents[index].andrewID,
+        }),
+    ).then((res) => {
       if (res.status === 200) {
         setHelpIdx(-1);
         setIsHelping(false);
+        manuallyGetNewData();
       }
     });
   };
 
   const removeStudent = (index, doneHelping) => {
-    HomeService.removeStudent(JSON.stringify({
-      andrewID: filteredStudents[index].andrewID,
-      doneHelping: doneHelping,
-    }));
+    HomeService.removeStudent(
+        JSON.stringify({
+          andrewID: filteredStudents[index].andrewID,
+          doneHelping: doneHelping,
+        }),
+    ).then((res) => {
+      if (res.status === 200) {
+        manuallyGetNewData();
+      }
+    });
   };
 
   const handleClickUnfreeze = (index) => {
@@ -142,21 +181,19 @@ export default function StudentEntries(props) {
 
   return (
     <BaseTable title="Students" HeaderTailComp={Filter}>
-      {
-        filteredStudents.map((student, index) => (
-          <StudentEntry
-            key={student.andrewID}
-            student={student}
-            index={index}
-            isHelping={isHelping}
-            helpIdx={helpIdx}
-            handleClickHelp={handleClickHelp}
-            handleCancel={handleCancel}
-            removeStudent={removeStudent}
-            handleClickUnfreeze={handleClickUnfreeze}
-          />
-        ))
-      }
+      {filteredStudents.map((student, index) => (
+        <StudentEntry
+          key={student.andrewID}
+          student={student}
+          index={index}
+          isHelping={isHelping}
+          helpIdx={helpIdx}
+          handleClickHelp={handleClickHelp}
+          handleCancel={handleCancel}
+          removeStudent={removeStudent}
+          handleClickUnfreeze={handleClickUnfreeze}
+        />
+      ))}
     </BaseTable>
   );
 }
