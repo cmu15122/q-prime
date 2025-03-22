@@ -36,6 +36,15 @@ export default function StudentEntries(props) {
 
   const [tempDisabled, setTempDisabled] = useState(false);
 
+  useEffect(() => {
+    // only disable for max five seconds
+    if (tempDisabled) {
+      setTimeout(() => {
+        setTempDisabled(false);
+      }, 5000);
+    }
+  }, [tempDisabled, setTempDisabled]);
+
   const [filteredLocations, setFilteredLocations] = useState([]);
   const [filteredTopics, setFilteredTopics] = useState([]);
 
