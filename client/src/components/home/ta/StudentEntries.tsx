@@ -13,14 +13,28 @@ import { UserDataContext } from '../../../contexts/UserDataContext';
 import { AllStudentsContext } from '../../../contexts/AllStudentsContext';
 import { socketSubscribeTo } from '../../../services/SocketsService';
 import { QueueDataContext } from '../../../contexts/QueueDataContext';
+
 export default function StudentEntries(props) {
   const { setQueueData } = useContext(QueueDataContext);
   const { userData } = useContext(UserDataContext);
   const { allStudents, setAllStudents } = useContext(AllStudentsContext);
 
   /* BEGIN FILTER LOGIC */
+
   const [isHelping, setIsHelping] = useState(false);
-  const [helpIdx, setHelpIdx] = useState(-1); // idx of student that you are helping, only valid when isHelping is true
+  useEffect(() => {
+    setIsHelping(false);
+    for (const student of allStudents) {
+      if (
+        student.status === StudentStatusValues.BEING_HELPED &&
+        student.helpingTAInfo?.taAndrewID === userData.andrewID
+      ) {
+        setIsHelping(true);
+      }
+    }
+  }, [allStudents, userData.andrewID]);
+
+  const [tempDisabled, setTempDisabled] = useState(false);
 
   const [filteredLocations, setFilteredLocations] = useState([]);
   const [filteredTopics, setFilteredTopics] = useState([]);
@@ -104,24 +118,10 @@ export default function StudentEntries(props) {
     });
   }, []);
 
-  useEffect(() => {
-    setIsHelping(false);
-    for (const [index, student] of filteredStudents.entries()) {
-      if (
-        student.status === StudentStatusValues.BEING_HELPED &&
-        student.helpingTAInfo?.taAndrewID === userData.andrewID
-      ) {
-        setHelpIdx(index);
-        setIsHelping(true);
-      }
-    }
-  }, [filteredStudents, userData.andrewID]);
-
   const manuallyGetNewData = () => {
     // because people are mainly interacting with the student management buttons,
     // just just just *in case* the websockets don't update (or send update before connection reestablished)
     // we just manually refresh the queue data
-
     HomeService.getAll().then((res) => {
       setQueueData(res.data);
     });
@@ -131,50 +131,77 @@ export default function StudentEntries(props) {
   };
 
   const handleClickHelp = (index) => {
+    setTempDisabled(true);
     HomeService.helpStudent(
         JSON.stringify({
           andrewID: filteredStudents[index].andrewID,
         }),
-    ).then((res) => {
-      if (res.status === 200) {
-        setHelpIdx(index);
-        setIsHelping(true);
-        manuallyGetNewData();
-      }
-    });
+    )
+        .then((res) => {
+          if (res.status === 200) {
+            manuallyGetNewData();
+          }
+        })
+        .finally(() => {
+          setTempDisabled(false);
+        });
   };
 
   const handleCancel = (index) => {
+    setTempDisabled(true);
     HomeService.unhelpStudent(
         JSON.stringify({
           andrewID: filteredStudents[index].andrewID,
         }),
-    ).then((res) => {
-      if (res.status === 200) {
-        setHelpIdx(-1);
-        setIsHelping(false);
-        manuallyGetNewData();
-      }
-    });
+    )
+        .then((res) => {
+          if (res.status === 200) {
+            manuallyGetNewData();
+          }
+        })
+        .finally(() => {
+          setTempDisabled(false);
+        });
   };
 
+  function handleFix(index) {
+    setTempDisabled(true);
+    HomeService.taRequestUpdateQ(
+        JSON.stringify({
+          andrewID: filteredStudents[index].andrewID,
+        }),
+    )
+        .then((res) => {
+          if (res.status === 200) {
+            manuallyGetNewData();
+          }
+        })
+        .finally(() => {
+          setTempDisabled(false);
+        });
+  }
+
+  // used for both removing and done helping
   const removeStudent = (index, doneHelping) => {
+    setTempDisabled(true);
     HomeService.removeStudent(
         JSON.stringify({
           andrewID: filteredStudents[index].andrewID,
           doneHelping: doneHelping,
         }),
-    ).then((res) => {
-      if (res.status === 200) {
-        manuallyGetNewData();
-      }
-    });
+    )
+        .then((res) => {
+          if (res.status === 200) {
+            manuallyGetNewData();
+          }
+        })
+        .finally(() => {
+          setTempDisabled(false);
+        });
   };
 
   const handleClickUnfreeze = (index) => {
-    setIsHelping(false);
-    setHelpIdx(-1);
-    filteredStudents[index].status = StudentStatusValues.WAITING;
+    new Error('Unfreeze not implemented');
   };
 
   /* END QUEUE LOGIC */
@@ -183,13 +210,14 @@ export default function StudentEntries(props) {
     <BaseTable title="Students" HeaderTailComp={Filter}>
       {filteredStudents.map((student, index) => (
         <StudentEntry
+          isHelping={isHelping}
+          tempDisabled={tempDisabled}
           key={student.andrewID}
           student={student}
           index={index}
-          isHelping={isHelping}
-          helpIdx={helpIdx}
           handleClickHelp={handleClickHelp}
           handleCancel={handleCancel}
+          handleFix={handleFix}
           removeStudent={removeStudent}
           handleClickUnfreeze={handleClickUnfreeze}
         />

@@ -9,7 +9,7 @@ import MessageDialog from '../dialogs/MessageDialog';
 import { StudentStatusValues } from '../../../../services/StudentStatus';
 
 export default function ExtraStudentOptions(props) {
-  const { student, handleClickUpdateQ, index } = props;
+  const { student, handleFix, index } = props;
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -23,15 +23,6 @@ export default function ExtraStudentOptions(props) {
   const handleClose = () => {
     setAnchorEl(null);
   };
-
-  function handleFix() {
-    HomeService.taRequestUpdateQ(
-        JSON.stringify({
-          andrewID: student.andrewID,
-        }),
-    );
-    handleClickUpdateQ(index);
-  }
 
   const handleMessage = () => {
     setOpenMessage(true);
@@ -71,7 +62,7 @@ export default function ExtraStudentOptions(props) {
           disabled={student.status !== StudentStatusValues.WAITING}
           onClick={() => {
             handleClose();
-            handleFix();
+            handleFix(index);
           }}
         >
           <div

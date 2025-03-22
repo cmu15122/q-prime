@@ -1,18 +1,21 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Typography, useTheme } from '@mui/material';
 
 import { StudentStatusValues } from '../../../../services/StudentStatus';
+import { UserDataContext } from '../../../../contexts/UserDataContext';
 
 export default function StudentStatus(props) {
-  const { student, index, isHelping, helpIdx } = props;
+  const { student } = props;
   const theme = useTheme();
+
+  const { userData } = useContext(UserDataContext);
 
   const status = student.status;
 
   const chooseText = (status) => {
     switch (status) {
       case StudentStatusValues.BEING_HELPED: {
-        if (isHelping && index === helpIdx) {
+        if (student.helpingTAInfo?.taAndrewID === userData.andrewID) {
           return 'You are helping';
         } else {
           return `${student?.helpingTAInfo?.taPrefName} is Helping`;

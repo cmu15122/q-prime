@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { Box, Stack, TableCell, Typography } from '@mui/material';
+import { Stack, TableCell, Typography } from '@mui/material';
 import PauseIcon from '@mui/icons-material/Pause';
 
 import EntryTails from './EntryTails';
@@ -9,8 +9,6 @@ import { QueueDataContext } from '../../../contexts/QueueDataContext';
 
 import HomeService from '../../../services/HomeService';
 import { StudentStatusValues } from '../../../services/StudentStatus';
-import { Settings } from '@mui/icons-material';
-import { debug } from 'util';
 
 export default function StudentEntry(props) {
   const { queueData } = useContext(QueueDataContext);
@@ -20,6 +18,7 @@ export default function StudentEntry(props) {
     handleClickHelp,
     removeStudent,
     handleClickUnfreeze,
+    handleFix,
   } = props;
 
   const [confirmRemove, setConfirmRemove] = useState(false);
@@ -60,10 +59,6 @@ export default function StudentEntry(props) {
       setConfirmRemove(true);
     }
   }
-
-  const handleClickUpdateQ = () => {
-    student['status'] = StudentStatusValues.FIXING_QUESTION;
-  };
 
   const approveCooldownOverride = () => {
     HomeService.approveCooldownOverride(
@@ -113,9 +108,9 @@ export default function StudentEntry(props) {
           removeStudent: removeStudent,
           handleClickHelp: handleClickHelp,
           handleClickUnfreeze: handleClickUnfreeze,
+          handleFix: handleFix,
           showCooldownApproval: showCooldownApproval,
           approveCooldownOverride: approveCooldownOverride,
-          handleClickUpdateQ: handleClickUpdateQ,
         })}
       </TableCell>
     </ItemRow>
