@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useMemo, useState} from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 
 import YourEntry from './YourEntry';
 import RemoveQOverlay from './RemoveQConfirm';
@@ -8,26 +8,26 @@ import MessageRespond from './MessageOverlay';
 import AskQuestion from '../shared/AskQuestion';
 
 import HomeService from '../../../services/HomeService';
-import {StudentStatusValues} from '../../../services/StudentStatus';
-import {socketSubscribeTo} from '../../../services/SocketsService';
-import {UserDataContext} from '../../../contexts/UserDataContext';
-import {QueueDataContext} from '../../../contexts/QueueDataContext';
-import {StudentDataContext} from '../../../contexts/StudentDataContext';
+import { StudentStatusValues } from '../../../services/StudentStatus';
+import { socketSubscribeTo } from '../../../services/SocketsService';
+import { UserDataContext } from '../../../contexts/UserDataContext';
+import { QueueDataContext } from '../../../contexts/QueueDataContext';
+import { StudentDataContext } from '../../../contexts/StudentDataContext';
 
 function StudentMain() {
   const [removeConfirm, setRemoveConfirm] = useState(false);
   const [messagingTAName, setMessagingTAName] = useState('');
 
-  const {queueData} = useContext(QueueDataContext);
-  const {studentData} = useContext(StudentDataContext);
-  const {userData} = useContext(UserDataContext);
+  const { queueData } = useContext(QueueDataContext);
+  const { studentData, setStudentData } = useContext(StudentDataContext);
+  const { userData } = useContext(UserDataContext);
 
   useEffect(() => {
     socketSubscribeTo('help', (res) => {
       if (res.andrewID === userData.andrewID) {
         new Notification('It\'s your turn to get help!', {
-          'body': `${res.data.taData.taName} is ready to help you.`,
-          'requireInteraction': true,
+          body: `${res.data.taData.taName} is ready to help you.`,
+          requireInteraction: true,
         });
       } else {
         console.log('Received help for other student');
@@ -37,7 +37,7 @@ function StudentMain() {
     socketSubscribeTo('updateQRequest', (res) => {
       if (res.andrewID === userData.andrewID) {
         new Notification('Please update your question', {
-          'requireInteraction': true,
+          requireInteraction: true,
         });
       } else {
         console.log('Received updateQRequest for other student');
@@ -49,7 +49,7 @@ function StudentMain() {
         setMessagingTAName(res.data.taName);
 
         new Notification('You\'ve been messaged by a TA', {
-          'requireInteraction': true,
+          requireInteraction: true,
         });
       } else {
         console.log('Received message for other student');
@@ -59,7 +59,7 @@ function StudentMain() {
     socketSubscribeTo('remove', (res) => {
       if (res.andrewID === userData.andrewID) {
         new Notification('You\'ve been removed from the queue', {
-          'requireInteraction': true,
+          requireInteraction: true,
         });
       } else {
         console.log('Received remove for other student');
@@ -69,7 +69,7 @@ function StudentMain() {
     socketSubscribeTo('approveCooldown', (res) => {
       if (res.andrewID === userData.andrewID) {
         new Notification('Your entry been approved by a TA', {
-          'requireInteraction': true,
+          requireInteraction: true,
         });
       } else {
         console.log('Received approveCooldown for other student');
@@ -85,6 +85,11 @@ function StudentMain() {
         }),
     ).then((res) => {
       if (res.status === 200) {
+        HomeService.getStudentData().then((res) => {
+          if (res.status === 200 && res.data.andrewID === userData.andrewID) {
+            setStudentData(res.data);
+          }
+        });
         setRemoveConfirm(false);
       }
     });
@@ -95,28 +100,32 @@ function StudentMain() {
         JSON.stringify({
           andrewID: userData.andrewID,
         }),
-    );
+    ).then((res) => {
+      if (res.status === 200) {
+        HomeService.getStudentData().then((res) => {
+          if (res.status === 200 && res.data.andrewID === userData.andrewID) {
+            setStudentData(res.data);
+          }
+        });
+      }
+    });
   };
 
   const statusDependentComponents = useMemo(() => {
     return (
       <div>
-        {
-          (studentData.status !== StudentStatusValues.OFF_QUEUE) ?
-            <div>
-              <YourEntry
-                openRemoveOverlay={() => setRemoveConfirm(true)}
-              />
-              <RemoveQOverlay
-                open={removeConfirm}
-                removeFromQueue={() => removeFromQueue()}
-                handleClose={() => setRemoveConfirm(false)}
-              />
-            </div> :
-            (queueData.queueFrozen ? null :
-              <AskQuestion/>
-            )
-        }
+        {studentData.status !== StudentStatusValues.OFF_QUEUE ? (
+          <div>
+            <YourEntry openRemoveOverlay={() => setRemoveConfirm(true)} />
+            <RemoveQOverlay
+              open={removeConfirm}
+              removeFromQueue={() => removeFromQueue()}
+              handleClose={() => setRemoveConfirm(false)}
+            />
+          </div>
+        ) : queueData.queueFrozen ? null : (
+          <AskQuestion />
+        )}
       </div>
     );
   }, [studentData.status, queueData.queueFrozen, removeConfirm]);

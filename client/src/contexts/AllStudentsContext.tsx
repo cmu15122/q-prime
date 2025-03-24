@@ -1,8 +1,11 @@
-import React, {createContext, useEffect, useState, useContext} from 'react';
-import {StudentData} from '../../../types/StudentData';
-import {UserDataContext} from '../contexts/UserDataContext';
+import React, { createContext, useEffect, useState, useContext } from 'react';
+import { StudentData } from '../../../types/StudentData';
+import { UserDataContext } from '../contexts/UserDataContext';
 import HomeService from '../services/HomeService';
-import {ensureSocketConnected, socketSubscribeTo} from '../services/SocketsService';
+import {
+  ensureSocketConnected,
+  socketSubscribeTo,
+} from '../services/SocketsService';
 
 /**
  * Context object for all students on the queue
@@ -13,15 +16,21 @@ import {ensureSocketConnected, socketSubscribeTo} from '../services/SocketsServi
  */
 const AllStudentsContext = createContext({
   allStudents: [] as StudentData[],
-  setAllStudents: ((allStudents: StudentData[]) => {}) as React.Dispatch<React.SetStateAction<StudentData[]>>,
+  setAllStudents: ((allStudents: StudentData[]) => {}) as React.Dispatch<
+    React.SetStateAction<StudentData[]>
+  >,
 });
 
 /**
  * Context provider for all students on the queue
  * @return {React.Provider} Context provider for all students
  */
-const AllStudentsContextProvider = ({children}: {children: React.ReactNode}) => {
-  const {userData} = useContext(UserDataContext);
+const AllStudentsContextProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const { userData } = useContext(UserDataContext);
   const [allStudents, setAllStudents] = useState<StudentData[]>([]);
 
   // Load all students if user is a TA and subscribe to changes
@@ -31,9 +40,12 @@ const AllStudentsContextProvider = ({children}: {children: React.ReactNode}) => 
         setAllStudents(res.data.allStudents);
       });
 
-      socketSubscribeTo('allStudents', (data: {allStudents: StudentData[]}) => {
-        setAllStudents(data.allStudents);
-      });
+      socketSubscribeTo(
+          'allStudents',
+          (data: { allStudents: StudentData[] }) => {
+            setAllStudents(data.allStudents);
+          },
+      );
 
       const handleVisibilityChange = () => {
         if (document.visibilityState === 'visible') {
@@ -48,10 +60,10 @@ const AllStudentsContextProvider = ({children}: {children: React.ReactNode}) => 
   }, [userData.isTA]);
 
   return (
-    <AllStudentsContext.Provider value={{allStudents, setAllStudents}}>
+    <AllStudentsContext.Provider value={{ allStudents, setAllStudents }}>
       {children}
     </AllStudentsContext.Provider>
   );
 };
 
-export {AllStudentsContext, AllStudentsContextProvider};
+export { AllStudentsContext, AllStudentsContextProvider };
