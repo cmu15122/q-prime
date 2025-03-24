@@ -1,7 +1,10 @@
 import { QueueData } from '../../../types/QueueData';
 import React, { createContext, useEffect, useState } from 'react';
 import HomeService from '../services/HomeService';
-import { ensureSocketConnected, socketSubscribeTo } from '../services/SocketsService';
+import {
+  ensureSocketConnected,
+  socketSubscribeTo,
+} from '../services/SocketsService';
 
 /**
  * Context object for queue data

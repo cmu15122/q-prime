@@ -1,9 +1,12 @@
-import React, {createContext, useEffect, useState, useContext} from 'react';
-import {StudentData} from '../../../types/StudentData';
-import {UserDataContext} from '../contexts/UserDataContext';
+import React, { createContext, useEffect, useState, useContext } from 'react';
+import { StudentData } from '../../../types/StudentData';
+import { UserDataContext } from '../contexts/UserDataContext';
 import HomeService from '../services/HomeService';
-import {ensureSocketConnected, socketSubscribeTo} from '../services/SocketsService';
-import {StudentStatusValues} from '../services/StudentStatus';
+import {
+  ensureSocketConnected,
+  socketSubscribeTo,
+} from '../services/SocketsService';
+import { StudentStatusValues } from '../services/StudentStatus';
 
 /**
  * Context object for student data
@@ -28,15 +31,21 @@ const StudentDataContext = createContext({
     status: StudentStatusValues.OFF_QUEUE as number,
     position: -1,
   } as StudentData,
-  setStudentData: ((studentData: StudentData) => {}) as React.Dispatch<React.SetStateAction<StudentData>>,
+  setStudentData: ((studentData: StudentData) => {}) as React.Dispatch<
+    React.SetStateAction<StudentData>
+  >,
 });
 
 /**
  * Context provider for student data
  * @return {React.Provider} Context provider for student data
  */
-const StudentDataContextProvider = ({children}: {children: React.ReactNode}) => {
-  const {userData} = useContext(UserDataContext);
+const StudentDataContextProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const { userData } = useContext(UserDataContext);
   const [studentData, setStudentData] = useState<StudentData>({
     name: '',
     andrewID: '',
@@ -87,10 +96,10 @@ const StudentDataContextProvider = ({children}: {children: React.ReactNode}) => 
   }, [userData.isAuthenticated]);
 
   return (
-    <StudentDataContext.Provider value={{studentData, setStudentData}}>
+    <StudentDataContext.Provider value={{ studentData, setStudentData }}>
       {children}
     </StudentDataContext.Provider>
   );
 };
 
-export {StudentDataContext, StudentDataContextProvider};
+export { StudentDataContext, StudentDataContextProvider };
