@@ -3,7 +3,6 @@ import { Divider, Menu, MenuItem, IconButton, Typography } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { Help } from '@mui/icons-material';
 import ChatIcon from '@mui/icons-material/Chat';
-import HomeService from '../../../../services/HomeService';
 
 import MessageDialog from '../dialogs/MessageDialog';
 import { StudentStatusValues } from '../../../../services/StudentStatus';
