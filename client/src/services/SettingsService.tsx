@@ -10,6 +10,9 @@ class SettingsDataService {
   updateNotifSettings(data) {
     return http.post('/settings/notifs/update', data);
   }
+  updateTimerSettings(data) {
+    return http.post('/settings/timer/update', data);
+  }
   createTopic(data) {
     return http.post('/settings/topics/create', data);
   }
@@ -80,6 +83,9 @@ class SettingsDataService {
   }
   removeLocation(data) {
     return http.post('/settings/locations/remove', data);
+  }
+  updateAllowShowOthersTimer(data) {
+    return http.post('/settings/config/allowshowotherstimer/update', data);
   }
 }
 

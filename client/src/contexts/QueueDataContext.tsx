@@ -35,6 +35,7 @@ const QueueDataContextProvider = ({
     uninitializedSem: false,
     queueFrozen: true,
     allowCDOverride: true,
+    allowShowOthersTimer: false,
 
     numStudents: 0,
     rejoinTime: 15,

@@ -19,6 +19,7 @@ export default function StudentEntry(props) {
     removeStudent,
     handleClickUnfreeze,
     handleFix,
+    currentTime,
   } = props;
 
   const [confirmRemove, setConfirmRemove] = useState(false);
@@ -111,6 +112,7 @@ export default function StudentEntry(props) {
           handleFix: handleFix,
           showCooldownApproval: showCooldownApproval,
           approveCooldownOverride: approveCooldownOverride,
+          currentTime: currentTime,
         })}
       </TableCell>
     </ItemRow>

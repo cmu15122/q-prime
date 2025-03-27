@@ -8,6 +8,7 @@ router.get('/adminSettings', settings.get_queue_settings);
 router.post('/videoChat/update', settings.post_update_video_chat);
 router.post('/notifs/update', settings.post_update_notifs);
 router.post('/preferredname/update', settings.post_update_preferredname);
+router.post('/timer/update', settings.post_update_timer_settings);
 
 router.post('/topics/create', settings.post_create_topic);
 router.post('/topics/update', settings.post_update_topic);
@@ -26,9 +27,18 @@ router.post('/config/sem/update', settings.post_update_semester);
 router.post('/config/slack/update', settings.post_update_slack_url);
 router.post('/config/questions/update', settings.post_update_questions_url);
 router.post('/config/rejoin/update', settings.post_update_rejoin_time);
-router.post('/config/enforcecmuemail/update', settings.post_update_enforce_cmu_email);
-router.post('/config/allowcdoverride/update', settings.post_update_allow_cooldown_override);
-
+router.post(
+  '/config/enforcecmuemail/update',
+  settings.post_update_enforce_cmu_email
+);
+router.post(
+  '/config/allowcdoverride/update',
+  settings.post_update_allow_cooldown_override
+);
+router.post(
+  '/config/allowshowotherstimer/update',
+  settings.post_update_allow_show_others_timer
+);
 router.post('/locations/update', settings.post_update_locations);
 router.post('/locations/add', settings.add_location);
 router.post('/locations/remove', settings.remove_location);

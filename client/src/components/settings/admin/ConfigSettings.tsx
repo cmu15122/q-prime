@@ -27,12 +27,14 @@ export default function ConfigSettings(props) {
   const [enforceCMUEmail, setEnforceCMUEmail] = useState(true);
   const [allowCDOverride, setAllowCDOverride] = useState(true);
   const [courseName, setCourseName] = useState('');
+  const [allowShowOthersTimer, setAllowShowOthersTimer] = useState(false);
 
   useEffect(() => {
     setCurrSem(adminSettings.currSem);
     setSlackURL(adminSettings.slackURL);
     setEnforceCMUEmail(adminSettings.enforceCMUEmail);
     setCourseName(adminSettings.courseName);
+    setAllowShowOthersTimer(adminSettings.allowShowOthersTimer);
   }, [adminSettings]);
   useEffect(() => {
     setAllowCDOverride(queueData.allowCDOverride);
@@ -102,6 +104,16 @@ export default function ConfigSettings(props) {
     SettingsService.updateAllowCDOverride(
         JSON.stringify({
           allowCDOverride: allowCDOverride,
+        }),
+    );
+  };
+
+  const handleUpdateAllowShowOthersTimer = (event) => {
+    event.preventDefault();
+
+    SettingsService.updateAllowShowOthersTimer(
+        JSON.stringify({
+          allowShowOthersTimer: allowShowOthersTimer,
         }),
     );
   };
@@ -243,6 +255,24 @@ export default function ConfigSettings(props) {
               </Button>
               <Typography variant="caption" color="text.secondary">
                 URL for questions guide
+              </Typography>
+            </Stack>
+          </form>
+
+          <form onSubmit={handleUpdateAllowShowOthersTimer}>
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Typography>
+                Allow Users to Show Others&apos; Helping Time:
+              </Typography>
+              <Checkbox
+                checked={allowShowOthersTimer}
+                onChange={(e) => setAllowShowOthersTimer(e.target.checked)}
+              />
+              <Button type="submit" variant="contained">
+                Save
+              </Button>
+              <Typography variant="caption" color="text.secondary">
+                Allow TAs to see how long other TAs have been helping students
               </Typography>
             </Stack>
           </form>

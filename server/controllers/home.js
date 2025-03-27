@@ -61,6 +61,7 @@ function buildStudentEntryData(student) {
       taPrefName: student.taPrefName,
       taZoomEnabled: student.taZoomEnabled,
       taZoomUrl: student.taZoomUrl,
+      helpStartTime: student.helpTime,
     };
   }
 
@@ -79,6 +80,7 @@ function buildQueueData() {
     uninitializedSem: adminSettings.currSem == null,
     queueFrozen: queueFrozen,
     allowCDOverride: adminSettings.allowCDOverride,
+    allowShowOthersTimer: adminSettings.allowShowOthersTimer,
     ownerEmail: config.OWNER_EMAIL,
 
     // global stats
@@ -216,6 +218,8 @@ exports.get_user_data = function (req, res) {
         remindNotifsEnabled:
           req.user.account.dataValues.settings.remindNotifsEnabled,
         remindTime: req.user.account.dataValues.settings.remindTime,
+        showSelfTimer: req.user.account.dataValues.settings.showSelfTimer,
+        showOthersTimer: req.user.account.dataValues.settings.showOthersTimer,
       },
     };
   }
@@ -798,6 +802,14 @@ exports.post_remove_student = function (req, res) {
           500
         );
       });
+  } else {
+    respond(
+      req,
+      res,
+      'The student was successfully removed from the queue',
+      {},
+      200
+    );
   }
 };
 

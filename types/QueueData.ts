@@ -8,6 +8,7 @@ export type QueueData = {
   queueFrozen: boolean;
   allowCDOverride: boolean;
   ownerEmail: string;
+  allowShowOthersTimer: boolean;
 
   // global stats
   numStudents: number;
