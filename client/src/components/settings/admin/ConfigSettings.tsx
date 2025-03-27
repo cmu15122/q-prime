@@ -109,12 +109,15 @@ export default function ConfigSettings(props) {
   return (
     <BaseCard>
       <CardContent>
-        <Typography variant="h5" gutterBottom>
+        <Typography
+          sx={{ fontWeight: 'bold', ml: 1, mt: 1 }}
+          variant="body1"
+          gutterBottom
+        >
           Configuration Settings
         </Typography>
 
-        <Stack spacing={3}>
-          {/* Course Name */}
+        <Stack spacing={2} sx={{ mt: 2 }}>
           <form onSubmit={handleUpdateCourseName}>
             <Stack direction="row" alignItems="center" spacing={2}>
               <Typography>Course Name:</Typography>
@@ -133,7 +136,6 @@ export default function ConfigSettings(props) {
             </Stack>
           </form>
 
-          {/* Current Semester */}
           <form onSubmit={handleUpdateSemester}>
             <Stack direction="row" alignItems="center" spacing={2}>
               <Typography>Current Semester:</Typography>
@@ -145,43 +147,38 @@ export default function ConfigSettings(props) {
                 inputProps={{ maxLength: 3 }}
                 sx={{ width: 80 }}
               />
-              {!userData.isOwner ?
-                (
-                  <Typography variant="caption" color="text.secondary">
-                    Only {queueData.ownerEmail} can change semester
-                  </Typography>
-                ) :
-                (
-                  <Tooltip
-                    title={
-                      <Typography>
-                        Update Current Semester First, this initializes your semester!
-                      </Typography>
-                    }
-                    placement="right"
-                    arrow
-                    open={currSem != undefined && adminSettings.currSem === ''}
-                    enterDelay={1000}
+              {!userData.isOwner ? null : (
+                <Tooltip
+                  title={
+                    <Typography>
+                      Update Current Semester First, this initializes your
+                      semester!
+                    </Typography>
+                  }
+                  placement="right"
+                  arrow
+                  open={currSem != undefined && adminSettings.currSem === ''}
+                  enterDelay={1000}
+                >
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    disabled={!userData.isOwner}
                   >
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      disabled={!userData.isOwner}
-                    >
-                      Save
-                    </Button>
-                  </Tooltip>
-                )
-              }
+                    Save
+                  </Button>
+                </Tooltip>
+              )}
               <Typography variant="caption" color="text.secondary">
-                Each semester has its own settings and stats
+                {!userData.isOwner ?
+                  `Only ${queueData.ownerEmail} can change semester` :
+                  'Each semester has its own settings and stats'}
               </Typography>
             </Stack>
           </form>
 
-          {/* Enforce CMU Email */}
           <form onSubmit={handleUpdateCmuEmailEnabled}>
-            <Stack direction="row" alignItems="center" spacing={2}>
+            <Stack direction="row" alignItems="center" spacing={1}>
               <Typography>Enforce CMU Email:</Typography>
               <Checkbox
                 checked={enforceCMUEmail}
@@ -196,9 +193,8 @@ export default function ConfigSettings(props) {
             </Stack>
           </form>
 
-          {/* Allow Cooldown Override */}
           <form onSubmit={handleCooldownOverrideEnabled}>
-            <Stack direction="row" alignItems="center" spacing={2}>
+            <Stack direction="row" alignItems="center" spacing={1}>
               <Typography>Allow Cooldown Override:</Typography>
               <Checkbox
                 checked={allowCDOverride}
@@ -213,7 +209,6 @@ export default function ConfigSettings(props) {
             </Stack>
           </form>
 
-          {/* Slack Webhook URL */}
           <form onSubmit={handleUpdateSlackURL}>
             <Stack direction="row" alignItems="center" spacing={2}>
               <Typography>Slack Webhook URL:</Typography>
@@ -233,7 +228,6 @@ export default function ConfigSettings(props) {
             </Stack>
           </form>
 
-          {/* Questions Guide URL */}
           <form onSubmit={handleUpdateQuestionsURL}>
             <Stack direction="row" alignItems="center" spacing={2}>
               <Typography>Questions Guide URL:</Typography>
@@ -248,7 +242,7 @@ export default function ConfigSettings(props) {
                 Save
               </Button>
               <Typography variant="caption" color="text.secondary">
-                Link to question guidelines
+                URL for questions guide
               </Typography>
             </Stack>
           </form>
