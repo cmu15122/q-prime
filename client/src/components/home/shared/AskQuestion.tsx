@@ -109,20 +109,22 @@ export default function AskQuestion() {
           location: location,
           topic: topic,
         }),
-    ).then((res) => {
-      if (res.status === 200 && res.data.message === 'cooldown_violation') {
-        setTimePassed(Math.round(res.data.timePassed));
-        setShowCooldownOverlay(true);
-      } else {
-        clearValues();
-      }
+    )
+        .then((res) => {
+          if (res.status === 200 && res.data.message === 'cooldown_violation') {
+            setTimePassed(Math.round(res.data.timePassed));
+            setShowCooldownOverlay(true);
+          } else {
+            clearValues();
+          }
 
-      if (res.status === 200) {
-        manuallyGetNewData();
-      }
-
-      setAskDisabled(false);
-    });
+          if (res.status === 200) {
+            manuallyGetNewData();
+          }
+        })
+        .finally(() => {
+          setAskDisabled(false);
+        });
   }
 
   const manuallyGetNewData = () => {

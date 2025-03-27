@@ -1,6 +1,6 @@
-import React, {createContext, useEffect, useState, useContext} from 'react';
-import {AdminSettings} from '../../../types/AdminSettings';
-import {UserDataContext} from './UserDataContext';
+import React, { createContext, useEffect, useState, useContext } from 'react';
+import { AdminSettings } from '../../../types/AdminSettings';
+import { UserDataContext } from './UserDataContext';
 import SettingsService from '../services/SettingsService';
 
 /**
@@ -16,21 +16,29 @@ const AdminSettingsContext = createContext({
     slackURL: undefined,
     enforceCMUEmail: true,
     courseName: '',
+    allowShowOthersTimer: false,
   },
-  setAdminSettings: ((adminSettings: AdminSettings) => {}) as React.Dispatch<React.SetStateAction<AdminSettings>>,
+  setAdminSettings: ((adminSettings: AdminSettings) => {}) as React.Dispatch<
+    React.SetStateAction<AdminSettings>
+  >,
 });
 
 /**
  * Context provider for admin settings
  * @return {React.Provider} Context provider for admin settings
  */
-const AdminSettingsContextProvider = ({children}: {children: React.ReactNode}) => {
-  const {userData} = useContext(UserDataContext);
+const AdminSettingsContextProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const { userData } = useContext(UserDataContext);
   const [adminSettings, setAdminSettings] = useState<AdminSettings>({
     currSem: '',
     slackURL: undefined,
     enforceCMUEmail: true,
     courseName: '',
+    allowShowOthersTimer: false,
   });
 
   // Load admin settings if user is an admin
@@ -43,10 +51,10 @@ const AdminSettingsContextProvider = ({children}: {children: React.ReactNode}) =
   }, [userData.isAdmin]);
 
   return (
-    <AdminSettingsContext.Provider value={{adminSettings, setAdminSettings}}>
+    <AdminSettingsContext.Provider value={{ adminSettings, setAdminSettings }}>
       {children}
     </AdminSettingsContext.Provider>
   );
 };
 
-export {AdminSettingsContext, AdminSettingsContextProvider};
+export { AdminSettingsContext, AdminSettingsContextProvider };
