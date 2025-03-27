@@ -1,15 +1,16 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 
 import SharedMain from './shared/SharedMain';
 import StudentMain from './student/StudentMain';
 import TAMain from './ta/TAMain';
 import Footer from './Footer';
-import {Container} from '@mui/material';
+import { Container } from '@mui/material';
 
-import {UserDataContext} from '../../contexts/UserDataContext';
+import { UserDataContext } from '../../contexts/UserDataContext';
+import { ensureSocketConnected } from '../../services/SocketsService';
 
 function HomeMain() {
-  const {userData} = useContext(UserDataContext);
+  const { userData } = useContext(UserDataContext);
 
   const gitHubLink = 'https://github.com/cmu15122/q-issues/issues';
 
@@ -26,9 +27,10 @@ function HomeMain() {
   useEffect(() => {
     if (userData.isAuthenticated) {
       if (userData.isTA) {
-        setMainPage(<TAMain/>);
-      } else { // is student
-        setMainPage(<StudentMain/>);
+        setMainPage(<TAMain />);
+      } else {
+        // is student
+        setMainPage(<StudentMain />);
       }
     } else {
       // you are not logged in
@@ -36,11 +38,23 @@ function HomeMain() {
     }
   }, [userData.isAuthenticated, userData.isTA]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      ensureSocketConnected();
+    }, 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
   return (
-    <Container sx={{display: 'flex', minHeight: '100vh', flexDirection: 'column'}}>
-      <SharedMain/>
+    <Container
+      sx={{ display: 'flex', minHeight: '100vh', flexDirection: 'column' }}
+    >
+      <SharedMain />
       {mainPage}
-      <Footer gitHubLink={gitHubLink}/>
+      <Footer gitHubLink={gitHubLink} />
     </Container>
   );
 }
