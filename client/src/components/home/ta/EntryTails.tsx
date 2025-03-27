@@ -11,7 +11,7 @@ import { StudentStatusValues } from '../../../services/StudentStatus';
 import { UserDataContext } from '../../../contexts/UserDataContext';
 
 export default function EntryTails(props) {
-  const { student } = props;
+  const { student, currentTime } = props;
   const { userData } = useContext(UserDataContext);
 
   const showApproval = props.showCooldownApproval;
@@ -53,7 +53,7 @@ export default function EntryTails(props) {
       alignItems="center"
       sx={{ mr: { xs: 1, sm: 2, lg: 3 }, ml: { xs: 1, sm: 2 }, my: 1.5 }}
     >
-      <StudentStatus student={student} />
+      <StudentStatus student={student} currentTime={currentTime} />
       {getCorrectTail(status)}
     </Stack>
   );

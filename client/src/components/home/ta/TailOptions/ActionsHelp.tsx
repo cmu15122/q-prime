@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button, Stack } from '@mui/material';
 
 import PersistentOptions from './PersistentOptions';

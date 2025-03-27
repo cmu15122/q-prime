@@ -22,6 +22,7 @@ const defaultAdminSettings = {
   enforceCMUEmail: true,
   allowCDOverride: false,
   dayDictionary: {},
+  allowShowOthersTimer: false,
 };
 
 const adminSettingsPath = path.join(
@@ -1221,4 +1222,73 @@ exports.remove_location = function (req, res) {
   writeAdminSettings(adminSettings);
   home.emit_new_queue_data();
   respond_success(req, res, `Location removed successfully`);
+};
+
+exports.post_update_allow_show_others_timer = function (req, res) {
+  if (!req.user || !req.user.isAdmin) {
+    respond_error(
+      req,
+      res,
+      "You don't have permissions to perform this operation",
+      403
+    );
+    return;
+  }
+
+  var allowShowOthersTimer = req.body.allowShowOthersTimer;
+
+  if (allowShowOthersTimer == null || allowShowOthersTimer == undefined) {
+    respond_error(req, res, 'Invalid/missing parameters in request', 400);
+    return;
+  }
+
+  if (adminSettings.allowShowOthersTimer == allowShowOthersTimer) return;
+
+  adminSettings.allowShowOthersTimer = allowShowOthersTimer;
+  writeAdminSettings(adminSettings);
+  home.emit_new_queue_data();
+  respond_success(
+    req,
+    res,
+    `Show Others Timer setting updated successfully to: ${allowShowOthersTimer}`
+  );
+};
+
+exports.post_update_timer_settings = function (req, res) {
+  if (!req.user) {
+    respond_error(
+      req,
+      res,
+      "You don't have permissions to perform this operation",
+      403
+    );
+    return;
+  }
+
+  var showSelfTimer = req.body.showSelfTimer;
+  var showOthersTimer = req.body.showOthersTimer;
+
+  let account = req.user.account;
+  let settings = {};
+  if (account.settings) {
+    settings = account.settings;
+  }
+
+  settings['showSelfTimer'] = showSelfTimer;
+  settings['showOthersTimer'] = showOthersTimer;
+  account.settings = settings;
+  account.changed('settings', true); // JSON fields need to be explictly marked as changed
+
+  Promise.props({
+    account: account.save(),
+  })
+    .then(function (results) {
+      req.user.account = results.account;
+      respond_success(req, res, 'Timer settings updated successfully');
+    })
+    .catch((err) => {
+      console.log(err);
+      message = err.message || 'An error occurred while updating settings';
+      respond_error(req, res, message, 500);
+    });
 };

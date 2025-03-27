@@ -19,6 +19,18 @@ export default function StudentEntries(props) {
   const { userData } = useContext(UserDataContext);
   const { allStudents, setAllStudents } = useContext(AllStudentsContext);
 
+  // Add a current time state that will be passed to all StudentStatus components
+  const [currentTime, setCurrentTime] = useState(Date.now());
+
+  // Update the current time every second
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
   /* BEGIN FILTER LOGIC */
 
   const [isHelping, setIsHelping] = useState(false);
@@ -229,6 +241,7 @@ export default function StudentEntries(props) {
           handleFix={handleFix}
           removeStudent={removeStudent}
           handleClickUnfreeze={handleClickUnfreeze}
+          currentTime={currentTime}
         />
       ))}
     </BaseTable>

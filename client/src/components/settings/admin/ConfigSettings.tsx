@@ -27,12 +27,14 @@ export default function ConfigSettings(props) {
   const [enforceCMUEmail, setEnforceCMUEmail] = useState(true);
   const [allowCDOverride, setAllowCDOverride] = useState(true);
   const [courseName, setCourseName] = useState('');
+  const [allowShowOthersTimer, setAllowShowOthersTimer] = useState(false);
 
   useEffect(() => {
     setCurrSem(adminSettings.currSem);
     setSlackURL(adminSettings.slackURL);
     setEnforceCMUEmail(adminSettings.enforceCMUEmail);
     setCourseName(adminSettings.courseName);
+    setAllowShowOthersTimer(adminSettings.allowShowOthersTimer);
   }, [adminSettings]);
   useEffect(() => {
     setAllowCDOverride(queueData.allowCDOverride);
@@ -106,15 +108,28 @@ export default function ConfigSettings(props) {
     );
   };
 
+  const handleUpdateAllowShowOthersTimer = (event) => {
+    event.preventDefault();
+
+    SettingsService.updateAllowShowOthersTimer(
+        JSON.stringify({
+          allowShowOthersTimer: allowShowOthersTimer,
+        }),
+    );
+  };
+
   return (
     <BaseCard>
       <CardContent>
-        <Typography variant="h5" gutterBottom>
+        <Typography
+          sx={{ fontWeight: 'bold', ml: 1, mt: 1 }}
+          variant="body1"
+          gutterBottom
+        >
           Configuration Settings
         </Typography>
 
-        <Stack spacing={3}>
-          {/* Course Name */}
+        <Stack spacing={2} sx={{ mt: 2 }}>
           <form onSubmit={handleUpdateCourseName}>
             <Stack direction="row" alignItems="center" spacing={2}>
               <Typography>Course Name:</Typography>
@@ -133,7 +148,6 @@ export default function ConfigSettings(props) {
             </Stack>
           </form>
 
-          {/* Current Semester */}
           <form onSubmit={handleUpdateSemester}>
             <Stack direction="row" alignItems="center" spacing={2}>
               <Typography>Current Semester:</Typography>
@@ -145,43 +159,38 @@ export default function ConfigSettings(props) {
                 inputProps={{ maxLength: 3 }}
                 sx={{ width: 80 }}
               />
-              {!userData.isOwner ?
-                (
-                  <Typography variant="caption" color="text.secondary">
-                    Only {queueData.ownerEmail} can change semester
-                  </Typography>
-                ) :
-                (
-                  <Tooltip
-                    title={
-                      <Typography>
-                        Update Current Semester First, this initializes your semester!
-                      </Typography>
-                    }
-                    placement="right"
-                    arrow
-                    open={currSem != undefined && adminSettings.currSem === ''}
-                    enterDelay={1000}
+              {!userData.isOwner ? null : (
+                <Tooltip
+                  title={
+                    <Typography>
+                      Update Current Semester First, this initializes your
+                      semester!
+                    </Typography>
+                  }
+                  placement="right"
+                  arrow
+                  open={currSem != undefined && adminSettings.currSem === ''}
+                  enterDelay={1000}
+                >
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    disabled={!userData.isOwner}
                   >
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      disabled={!userData.isOwner}
-                    >
-                      Save
-                    </Button>
-                  </Tooltip>
-                )
-              }
+                    Save
+                  </Button>
+                </Tooltip>
+              )}
               <Typography variant="caption" color="text.secondary">
-                Each semester has its own settings and stats
+                {!userData.isOwner ?
+                  `Only ${queueData.ownerEmail} can change semester` :
+                  'Each semester has its own settings and stats'}
               </Typography>
             </Stack>
           </form>
 
-          {/* Enforce CMU Email */}
           <form onSubmit={handleUpdateCmuEmailEnabled}>
-            <Stack direction="row" alignItems="center" spacing={2}>
+            <Stack direction="row" alignItems="center" spacing={1}>
               <Typography>Enforce CMU Email:</Typography>
               <Checkbox
                 checked={enforceCMUEmail}
@@ -196,9 +205,8 @@ export default function ConfigSettings(props) {
             </Stack>
           </form>
 
-          {/* Allow Cooldown Override */}
           <form onSubmit={handleCooldownOverrideEnabled}>
-            <Stack direction="row" alignItems="center" spacing={2}>
+            <Stack direction="row" alignItems="center" spacing={1}>
               <Typography>Allow Cooldown Override:</Typography>
               <Checkbox
                 checked={allowCDOverride}
@@ -213,7 +221,6 @@ export default function ConfigSettings(props) {
             </Stack>
           </form>
 
-          {/* Slack Webhook URL */}
           <form onSubmit={handleUpdateSlackURL}>
             <Stack direction="row" alignItems="center" spacing={2}>
               <Typography>Slack Webhook URL:</Typography>
@@ -233,7 +240,6 @@ export default function ConfigSettings(props) {
             </Stack>
           </form>
 
-          {/* Questions Guide URL */}
           <form onSubmit={handleUpdateQuestionsURL}>
             <Stack direction="row" alignItems="center" spacing={2}>
               <Typography>Questions Guide URL:</Typography>
@@ -248,7 +254,25 @@ export default function ConfigSettings(props) {
                 Save
               </Button>
               <Typography variant="caption" color="text.secondary">
-                Link to question guidelines
+                URL for questions guide
+              </Typography>
+            </Stack>
+          </form>
+
+          <form onSubmit={handleUpdateAllowShowOthersTimer}>
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Typography>
+                Allow Users to Show Others&apos; Helping Time:
+              </Typography>
+              <Checkbox
+                checked={allowShowOthersTimer}
+                onChange={(e) => setAllowShowOthersTimer(e.target.checked)}
+              />
+              <Button type="submit" variant="contained">
+                Save
+              </Button>
+              <Typography variant="caption" color="text.secondary">
+                Allow TAs to see how long other TAs have been helping students
               </Typography>
             </Stack>
           </form>
