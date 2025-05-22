@@ -1292,3 +1292,129 @@ exports.post_update_timer_settings = function (req, res) {
       respond_error(req, res, message, 500);
     });
 };
+
+/* BEGIN WHITELIST/BLACKLIST SETTINGS */
+
+exports.post_update_whitelist_settings = function (req, res) {
+  if (!req.user || !req.user.isAdmin) {
+    respond_error(
+      req,
+      res,
+      "You don't have permissions to perform this operation",
+      403
+    );
+    return;
+  }
+
+  var enableWhitelist = req.body.enableWhitelist;
+
+  if (enableWhitelist == null || enableWhitelist == undefined) {
+    respond_error(req, res, 'Invalid/missing parameters in request', 400);
+    return;
+  }
+
+  models.semester.findOne({
+    where: {
+      sem_id: adminSettings.currSem,
+    },
+  }).then((sem) => {
+    return sem.update({
+      enable_whitelist: enableWhitelist,
+    })
+  }).then((sem) => {
+    respond_success(req, res, `The whitelist for semester ${sem.sem_id} now ${sem.enable_whitelist ? 'enabled' : 'disabled'}`);
+  }).catch((err) => {
+    message = err.message || 'An error occurred while updating whitelist settings';
+    respond_error(req, res, message, 500);
+  });
+}
+
+exports.post_update_blacklist_settings = function (req, res) {
+  if (!req.user || !req.user.isAdmin) {
+    respond_error(
+      req,
+      res,
+      "You don't have permissions to perform this operation",
+      403
+    );
+    return;
+  }
+
+  var enableBlacklist = req.body.enableBlacklist;
+
+  if (enableBlacklist == null || enableBlacklist == undefined) {
+    respond_error(req, res, 'Invalid/missing parameters in request', 400);
+    return;
+  }
+
+  models.semester.findOne({
+    where: {
+      sem_id: adminSettings.currSem,
+    },
+  }).then((sem) => {
+    return sem.update({
+      enable_blacklist: enableBlacklist,
+    })
+  }).then((sem) => {
+    respond_success(req, res, `The blacklist for semester ${sem.sem_id} now ${sem.enable_blacklist ? 'enabled' : 'disabled'}`);
+  }).catch((err) => {
+    message = err.message || 'An error occurred while updating blacklist settings';
+    respond_error(req, res, message, 500);
+  });
+}
+
+exports.post_update_access_controlled_user = function (req, res) {
+  if (!req.user || !req.user.isAdmin) {
+    respond_error(
+      req,
+      res,
+      "You don't have permissions to perform this operation",
+      403
+    );
+    return;
+  }
+
+  var listType = req.body.listType;
+  var updateType = req.body.updateType;
+  var email = req.body.email;
+  if (!listType || !updateType || !email) {
+    respond_error(req, res, 'Invalid/missing parameters in request', 400);
+    return;
+  }
+
+  var onList = false;
+
+  if (updateType == 'add') {
+    onList = true;
+  } else if (updateType == 'remove') {
+    onList = false;
+  } else {
+    respond_error(req, res, 'Invalid update type, must be add or remove', 400);
+  }
+
+  var updateField = null;
+  if (listType == 'whitelist') {
+    updateField = 'is_whitelisted';
+  } else if (listType == 'blacklist') {
+    updateField = 'is_blacklisted';
+  } else {
+    respond_error(req, res, 'Invalid list type, must be whitelist or blacklist', 400);
+  }
+
+  models.access_controlled_user.findOrCreate({
+    where: {
+      sem_id: adminSettings.currSem,
+      email: email,
+    }
+  }).then(([ac_usr, ac_usr_created]) => {
+    return ac_usr.update({
+      [updateField]: onList,
+    })
+  }).then(() => {
+    respond_success(req, res, `User ${email} has been ${onList ? 'added' : 'removed'} from the ${listType}`);
+  })
+  .catch((err) => {
+    message = err.message || 'An error occurred while updating whitelist settings';
+    respond_error(req, res, message, 500);
+  });
+}
