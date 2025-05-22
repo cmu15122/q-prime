@@ -37,7 +37,7 @@ export default function AskQuestion() {
   const [name, setName] = useState('');
   const [andrewID, setAndrewID] = useState('');
   const [location, setLocation] = useState('');
-  const [topic, setTopic] = useState(null);
+  const [topicId, setTopicId] = useState('');
   const [question, setQuestion] = useState('');
 
   const [showCooldownOverlay, setShowCooldownOverlay] = useState(false);
@@ -68,23 +68,24 @@ export default function AskQuestion() {
 
   const topics = useMemo(() => {
     if (queueData != null) {
-      const newRows = [];
+      const shownTopics = new Map();
       queueData.topics.forEach((topic) => {
         if (
           new Date(topic.start_date) <= new Date() &&
           new Date(topic.end_date) > new Date()
         ) {
-          newRows.push(topic);
+          shownTopics.set(topic.assignment_id, topic);
         }
       });
-      newRows.push(createData(-1, 'Other'));
 
-      if (newRows.length === 1) {
-        setTopic(newRows[0]);
+      shownTopics.set(-1, createData(-1, 'Other'));
+
+      if (shownTopics.size === 1) {
+        setTopicId(shownTopics.keys().next().value);
       }
 
-      return newRows;
-    } else return [createData(-1, 'Other')];
+      return shownTopics;
+    } else return new Map([[-1, createData(-1, 'Other')]]);
   }, [queueData.topics]);
 
   useEffect(() => {
@@ -107,7 +108,7 @@ export default function AskQuestion() {
           andrewID: andrewID,
           question: question,
           location: location,
-          topic: topic,
+          topic: topics.get(topicId),
         }),
     )
         .then((res) => {
@@ -144,7 +145,7 @@ export default function AskQuestion() {
     setName('');
     setAndrewID('');
     setLocation('');
-    setTopic(null);
+    setTopicId('');
     setQuestion('');
   }
 
@@ -214,14 +215,14 @@ export default function AskQuestion() {
                   <Select
                     labelId="topic-select-label"
                     id="topic-select"
-                    value={topic ?? ''}
+                    value={topicId ?? ''}
                     label="Topic"
-                    onChange={(e) => setTopic(e.target.value)}
+                    onChange={(e) => setTopicId(e.target.value)}
                     style={{ textAlign: 'left' }}
                   >
-                    {topics.map((top) => (
-                      <MenuItem value={top} key={top.assignment_id}>
-                        {top.name}
+                    {Array.from(topics.values()).map((topic) => (
+                      <MenuItem value={topic.assignment_id} key={topic.assignment_id}>
+                        {topic.name}
                       </MenuItem>
                     ))}
                   </Select>
@@ -271,7 +272,7 @@ export default function AskQuestion() {
         andrewID={andrewID}
         question={question}
         location={location}
-        topic={topic}
+        topic={topics.get(topicId)}
       />
     </div>
   );
