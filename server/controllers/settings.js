@@ -182,7 +182,7 @@ exports.post_update_video_chat = function (req, res) {
     })
     .catch((err) => {
       console.log(err);
-      message = err.message || 'An error occurred while updating settings';
+      let message = err.message || 'An error occurred while updating settings';
       respond_error(req, res, message, 500);
     });
 };
@@ -211,7 +211,7 @@ exports.post_update_preferredname = function (req, res) {
     })
     .catch((err) => {
       console.log(err);
-      message = err.message || 'An error occurred while updating settings';
+      let message = err.message || 'An error occurred while updating settings';
       respond_error(req, res, message, 500);
     });
 };
@@ -258,7 +258,7 @@ exports.post_update_notifs = function (req, res) {
     })
     .catch((err) => {
       console.log(err);
-      message = err.message || 'An error occurred while updating settings';
+      let message = err.message || 'An error occurred while updating settings';
       respond_error(req, res, message, 500);
     });
 };
@@ -527,7 +527,7 @@ exports.post_create_topic = function (req, res) {
       respond_success(req, res, `Assignment ${name} created successfully`);
     })
     .catch((err) => {
-      message = err.message || 'An error occurred while creating topic';
+      let message = err.message || 'An error occurred while creating topic';
       respond_error(req, res, message, 500);
     });
 };
@@ -606,7 +606,7 @@ exports.post_update_topic = function (req, res) {
       respond_success(req, res, `Assignment ${name} updated successfully`);
     })
     .catch((err) => {
-      message = err.message || 'An error occurred while updating topic';
+      let message = err.message || 'An error occurred while updating topic';
       respond_error(req, res, message, 500);
     });
 };
@@ -639,7 +639,7 @@ exports.post_delete_topic = function (req, res) {
       respond_success(req, res, `Assignment deleted successfully`);
     })
     .catch((err) => {
-      message = err.message || 'An error occurred while deleting topic';
+      let message = err.message || 'An error occurred while deleting topic';
       respond_error(req, res, message, 500);
     });
 };
@@ -660,7 +660,7 @@ exports.post_download_topic_csv = function (req, res) {
     res.download(file);
   } catch (err) {
     console.log(err);
-    message = err.message || 'An error occurred while downloading CSV';
+    let message = err.message || 'An error occurred while downloading CSV';
     respond_error(req, res, message, 500);
   }
 };
@@ -828,7 +828,7 @@ exports.post_create_ta = function (req, res) {
     })
     .catch((err) => {
       console.log(err);
-      message = err.message || 'An error occurred while creating topic';
+      let message = err.message || 'An error occurred while creating topic';
       respond_error(req, res, message, 500);
     });
 };
@@ -901,7 +901,7 @@ exports.post_update_ta = function (req, res) {
       respond_success(req, res, `TA ${results.name} updated successfully`);
     })
     .catch((err) => {
-      message = err.message || 'An error occurred while updating TA';
+      let message = err.message || 'An error occurred while updating TA';
       respond_error(req, res, message, 500);
     });
 };
@@ -940,7 +940,7 @@ exports.post_delete_ta = function (req, res) {
       respond_success(req, res, `TA deleted successfully`);
     })
     .catch((err) => {
-      message = err.message || 'An error occurred while deleting TA';
+      let message = err.message || 'An error occurred while deleting TA';
       respond_error(req, res, message, 500);
     });
 };
@@ -961,7 +961,7 @@ exports.post_download_ta_csv = function (req, res) {
     res.download(file);
   } catch (err) {
     console.log(err);
-    message = err.message || 'An error occurred while downloading CSV';
+    let message = err.message || 'An error occurred while downloading CSV';
     respond_error(req, res, message, 500);
   }
 };
@@ -1058,7 +1058,7 @@ exports.post_upload_ta_csv = function (req, res) {
     })
     .catch((err) => {
       console.log(err);
-      message = err.message || 'An error occurred while creating uploaded tas';
+      let message = err.message || 'An error occurred while creating uploaded tas';
       respond_error(req, res, message, 500);
     });
 };
@@ -1288,7 +1288,7 @@ exports.post_update_timer_settings = function (req, res) {
     })
     .catch((err) => {
       console.log(err);
-      message = err.message || 'An error occurred while updating settings';
+      let message = err.message || 'An error occurred while updating settings';
       respond_error(req, res, message, 500);
     });
 };
@@ -1324,7 +1324,7 @@ exports.post_update_whitelist_settings = function (req, res) {
   }).then((sem) => {
     respond_success(req, res, `The whitelist for semester ${sem.sem_id} now ${sem.enable_whitelist ? 'enabled' : 'disabled'}`);
   }).catch((err) => {
-    message = err.message || 'An error occurred while updating whitelist settings';
+    let message = err.message || 'An error occurred while updating whitelist settings';
     respond_error(req, res, message, 500);
   });
 }
@@ -1358,7 +1358,7 @@ exports.post_update_blacklist_settings = function (req, res) {
   }).then((sem) => {
     respond_success(req, res, `The blacklist for semester ${sem.sem_id} now ${sem.enable_blacklist ? 'enabled' : 'disabled'}`);
   }).catch((err) => {
-    message = err.message || 'An error occurred while updating blacklist settings';
+    let message = err.message || 'An error occurred while updating blacklist settings';
     respond_error(req, res, message, 500);
   });
 }
@@ -1414,7 +1414,7 @@ exports.post_update_access_controlled_user = function (req, res) {
     respond_success(req, res, `User ${email} has been ${onList ? 'added' : 'removed'} from the ${listType}`);
   })
   .catch((err) => {
-    message = err.message || 'An error occurred while updating whitelist settings';
+    let message = err.message || 'An error occurred while updating whitelist settings';
     respond_error(req, res, message, 500);
   });
 }
