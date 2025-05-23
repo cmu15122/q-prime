@@ -97,15 +97,15 @@ class SettingsDataService {
     return http.post('/settings/blacklist/update', data);
   }
   updateAccessControlUser(data) {
-    return http.post('/settings/access-control/user/update', data);
+    return http.post('/settings/accessControl/user/update', data);
   }
   downloadAccessControlCSV() {
-    return http.post('/settings/access-control/downloadCSV', {}, {
+    return http.post('/settings/accessControl/downloadCSV', {}, {
       responseType: 'blob',
     });
   }
   uploadAccessControlCSV(data) {
-    return http.post('/settings/access-control/uploadCSV', data, {
+    return http.post('/settings/accessControl/uploadCSV', data, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

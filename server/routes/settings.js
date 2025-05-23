@@ -46,8 +46,8 @@ router.post('/locations/remove', settings.remove_location);
 
 router.post('/whitelist/update', settings.post_update_whitelist_settings);
 router.post('/blacklist/update', settings.post_update_blacklist_settings);
-router.post('/access-control/user/update', settings.post_update_access_controlled_user);
-router.post('/access-control/downloadCSV', settings.post_download_access_control_csv);
-router.post('/access-control/uploadCSV', settings.post_upload_access_control_csv);
+router.post('/accessControl/user/update', settings.post_update_access_controlled_user);
+router.post('/accessControl/downloadCSV', settings.post_download_access_control_csv);
+router.post('/accessControl/uploadCSV', settings.post_upload_access_control_csv);
 
 module.exports = router;
