@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
-     */ 
+     */
     static associate(models) {
       // define association here
       Semester.hasMany(models.assignment_semester, {
@@ -20,7 +20,10 @@ module.exports = (sequelize, DataTypes) => {
       });
       Semester.hasMany(models.question, {
         foreignKey: "sem_id"
-      })
+      });
+      Semester.hasMany(models.access_controlled_user, {
+        foreignKey: "sem_id"
+      });
     }
   }
   Semester.init({
@@ -29,6 +32,14 @@ module.exports = (sequelize, DataTypes) => {
       unique: true,
       defaultValue: false,
       primaryKey: true
+    },
+    enable_whitelist: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    enable_blacklist: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     },
   }, {
     sequelize,

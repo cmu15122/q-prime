@@ -507,6 +507,8 @@ exports.post_add_question = function (req, res) {
     return;
   }
 
+  let adminSettings = settings.get_admin_settings();
+
   // handle TA created questions
   if (req.user.isTA) {
     models.account
@@ -609,12 +611,55 @@ exports.post_add_question = function (req, res) {
           );
         }
 
-        let allowCDOverride = settings.get_admin_settings().allowCDOverride;
+        return Promise.props({
+          student: student,
+          account: account,
+          allowed:
+            // check if user is on whitelist or blacklist
+            models.semester.findOne({ where: { sem_id: adminSettings.currSem }}).then((sem) => {
+              return Promise.props({
+                sem: sem,
+                ac_usr: models.access_controlled_user.findOne({
+                  where: {
+                    email: account.email,
+                    sem_id: adminSettings.currSem
+                  }
+                })
+              })
+            }).then((results) => {
+              let sem = results.sem;
+              let ac_usr = results.ac_usr;
+
+              if (sem.enable_whitelist) {
+                if (!ac_usr || !ac_usr.is_whitelisted) {
+                  throw new Error("User is not permitted to access the OHQ (not on allow list)");
+                }
+              }
+              if (sem.enable_blacklist) {
+                if (ac_usr && ac_usr.is_blacklisted) {
+                  throw new Error("User is not permitted to access the OHQ");
+                }
+              }
+
+              return true;
+            })
+        })
+      }).then((result) => {
+
+        let student = result.student;
+        let account = result.account;
+        let allowed = result.allowed;
+
+        if (!allowed) {
+          throw new Error("User is not permitted to access the OHQ");
+        }
+
+        let allowCDOverride = adminSettings.allowCDOverride;
         // check for cooldown violation
         if (overrideCooldown && !allowCDOverride) {
           throw new Error('Cooldown override is disabled');
         }
-        let rejoinTime = settings.get_admin_settings().rejoinTime;
+        let rejoinTime = adminSettings.rejoinTime;
         return Promise.props({
           questions: models.question.findAll({
             where: {

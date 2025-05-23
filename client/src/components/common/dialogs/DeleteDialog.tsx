@@ -18,8 +18,6 @@ export default function DeleteDialog(props) {
         </Typography>
         <Typography sx={{textAlign: 'center'}}>
           Are you sure you want to remove <strong>{itemName}</strong>?
-          <br/>
-          This action cannot be undone.
         </Typography>
         <Box textAlign='center' sx={{pt: 5}}>
           <Button onClick={handleDelete} variant="contained" color="error" sx={{alignSelf: 'center'}}>Delete</Button>
