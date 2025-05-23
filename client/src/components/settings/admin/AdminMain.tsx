@@ -7,6 +7,7 @@ import QueueRejoinSettings from './QueueRejoinSettings';
 import QueueTopicSettings from './QueueTopicSettings';
 import TASettings from './TASettings';
 import { AdminSettingsContext } from '../../../contexts/AdminSettingsContext';
+import AccessControlSettings from './AccessControlSettings';
 
 function AdminMain(props) {
   const { adminSettings } = useContext(AdminSettingsContext);
@@ -27,6 +28,7 @@ function AdminMain(props) {
       {adminSettings.currSem && <QueueTopicSettings></QueueTopicSettings>}
       {adminSettings.currSem && <Locations></Locations>}
       {adminSettings.currSem && <TASettings></TASettings>}
+      {adminSettings.currSem && <AccessControlSettings></AccessControlSettings>}
     </div>
   );
 }

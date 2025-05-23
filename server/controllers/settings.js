@@ -1295,6 +1295,55 @@ exports.post_update_timer_settings = function (req, res) {
 
 /* BEGIN WHITELIST/BLACKLIST SETTINGS */
 
+exports.get_access_control_settings = function (req, res) {
+  if (!req.user || !req.user.isAdmin) {
+    respond_error(
+      req,
+      res,
+      "You don't have permissions to perform this operation",
+      403
+    );
+    return;
+  }
+
+  let data = {
+    whitelistEnabled: false,
+    blacklistEnabled: false,
+    whitelistEmails: [],
+    blacklistEmails: [],
+  }
+
+  models.semester.findOne({
+    where: {
+      sem_id: adminSettings.currSem,
+    },
+  }).then((sem) => {
+    if (sem) {
+      data.whitelistEnabled = sem.enable_whitelist;
+      data.blacklistEnabled = sem.enable_blacklist;
+    }
+
+    // look up whitelist and blacklist emails from access_controlled_user table
+    return models.access_controlled_user.findAll({
+      where: {
+        sem_id: adminSettings.currSem,
+      },
+    })
+  }).then((acl_users) => {
+    whitelist_emails = acl_users.filter((user) => user.is_whitelisted).map((user) => user.email);
+    blacklist_emails = acl_users.filter((user) => user.is_blacklisted).map((user) => user.email);
+    data.whitelistEmails = whitelist_emails;
+    data.blacklistEmails = blacklist_emails;
+  }).then(() => {
+    respond(req, res, 'Successfully retrieved access control settings', data, 200);
+  }).catch((err) => {
+    let message = err.message || 'An error occurred while fetching access control settings';
+    respond_error(req, res, message, 500);
+  });
+
+  return;
+}
+
 exports.post_update_whitelist_settings = function (req, res) {
   if (!req.user || !req.user.isAdmin) {
     respond_error(
@@ -1390,6 +1439,7 @@ exports.post_update_access_controlled_user = function (req, res) {
     onList = false;
   } else {
     respond_error(req, res, 'Invalid update type, must be add or remove', 400);
+    return;
   }
 
   var updateField = null;
@@ -1407,6 +1457,14 @@ exports.post_update_access_controlled_user = function (req, res) {
       email: email,
     }
   }).then(([ac_usr, ac_usr_created]) => {
+
+    // check we're not setting both lists to true
+    var otherField = listType == 'whitelist' ? 'is_blacklisted' : 'is_whitelisted';
+
+    if (onList && ac_usr[otherField]) {
+      throw new Error(`User ${email} ${otherField} and cannot be added to the ${listType}`);
+    }
+
     return ac_usr.update({
       [updateField]: onList,
     })
@@ -1416,5 +1474,96 @@ exports.post_update_access_controlled_user = function (req, res) {
   .catch((err) => {
     let message = err.message || 'An error occurred while updating whitelist settings';
     respond_error(req, res, message, 500);
+    return;
   });
+}
+
+exports.post_download_access_control_csv = function (req, res) {
+  if (!req.user || !req.user.isAdmin) {
+    respond_error(
+      req,
+      res,
+      "You don't have permissions to perform this operation",
+      403
+    );
+    return;
+  }
+
+  try {
+    const file = `${__dirname}/../public/files/access_control_template.csv`;
+    res.download(file);
+  } catch (err) {
+    console.log(err);
+    let message = err.message || 'An error occurred while downloading CSV';
+    respond_error(req, res, message, 500);
+  }
+}
+
+exports.post_upload_access_control_csv = function (req, res) {
+  if (!req.user || !req.user.isAdmin) {
+    respond_error(
+      req,
+      res,
+      "You don't have permissions to perform this operation",
+      403
+    );
+    return;
+  }
+
+  const file = req.file;
+  if (!file) {
+    respond_error(req, res, 'No CSV file was uploaded', 400);
+    return;
+  }
+
+  let csvData = file.buffer.toString('utf8');
+  csvtojson()
+    .fromString(csvData)
+    .then(async (data) => {
+      // Validate CSV data structure
+      if (!Array.isArray(data) || data.length === 0) {
+        throw new Error('Invalid CSV format or empty file');
+      }
+
+      // Validate required fields
+      const requiredFields = ['email', 'is_whitelisted', 'is_blacklisted'];
+      const missingFields = data.some(row =>
+        !requiredFields.every(field => row[field] !== undefined)
+      );
+      if (missingFields) {
+        throw new Error('CSV must contain email, is_whitelisted, and is_blacklisted columns');
+      }
+
+      await Promise.all(
+        data.map((acl_usr) => {
+          const isWhitelisted = acl_usr.is_whitelisted.toLowerCase() === 'true';
+          const isBlacklisted = acl_usr.is_blacklisted.toLowerCase() === 'true';
+
+          if (isWhitelisted && isBlacklisted) {
+            throw new Error(`User ${acl_usr.email} cannot be both whitelisted and blacklisted`);
+          }
+
+          return models.access_controlled_user.findOrCreate({
+            where: {
+              sem_id: adminSettings.currSem,
+              email: acl_usr.email,
+            },
+          }).then(([ac_usr, ac_usr_created]) => {
+            return ac_usr.update({
+              is_whitelisted: isWhitelisted,
+              is_blacklisted: isBlacklisted
+            })
+          })
+        })
+      );
+
+      return;
+    })
+    .then(() => {
+      respond_success(req, res, 'Access control settings updated successfully');
+    })
+    .catch((err) => {
+      let message = err.message || 'An error occurred while updating access control settings';
+      respond_error(req, res, message, 500);
+    });
 }

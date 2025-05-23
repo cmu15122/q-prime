@@ -1,0 +1,2 @@
+email,is_whitelisted,is_blacklisted
+example@andrew.cmu.edu,false,false

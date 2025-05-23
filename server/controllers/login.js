@@ -41,6 +41,7 @@ exports.post_login = async (req, res) => {
 
         adminSettings = settings.get_admin_settings();
 
+
         const { name, email } = ticket.getPayload();
         if (email == config.OWNER_EMAIL) {
             const access_token = jwt.sign(
@@ -63,8 +64,35 @@ exports.post_login = async (req, res) => {
             return;
         }
 
-        Promise.props({
-            semester: models.semester.findByPk(adminSettings.currSem),
+        // check if user is on whitelist or blacklist
+        models.semester.findOne({ where: { sem_id: adminSettings.currSem }}).then((sem) => {
+            return Promise.props({
+                sem: sem,
+                ac_usr: models.access_controlled_user.findOne({
+                    where: {
+                        email: email,
+                        sem_id: adminSettings.currSem
+                    }
+                })
+            })
+        }).then((results) => {
+            let sem = results.sem;
+            let ac_usr = results.ac_usr;
+
+            if (sem.enable_whitelist) {
+                if (!ac_usr || !ac_usr.is_whitelisted) {
+                    throw new Error("User is not permitted to access the OHQ (not on allow list)");
+                }
+            }
+            if (sem.enable_blacklist) {
+                if (ac_usr && ac_usr.is_blacklisted) {
+                    throw new Error("User is not permitted to access the OHQ");
+                }
+            }
+        }).then(() => {
+            return Promise.props({
+                semester: models.semester.findByPk(adminSettings.currSem),
+            })
         }).then((result) => {
             if (result.semester == null) {
                 res.status(500);

@@ -87,6 +87,30 @@ class SettingsDataService {
   updateAllowShowOthersTimer(data) {
     return http.post('/settings/config/allowshowotherstimer/update', data);
   }
+  getACLSettings() {
+    return http.get('/settings/accessControlSettings');
+  }
+  updateWhitelistSettings(data) {
+    return http.post('/settings/whitelist/update', data);
+  }
+  updateBlacklistSettings(data) {
+    return http.post('/settings/blacklist/update', data);
+  }
+  updateAccessControlUser(data) {
+    return http.post('/settings/access-control/user/update', data);
+  }
+  downloadAccessControlCSV() {
+    return http.post('/settings/access-control/downloadCSV', {}, {
+      responseType: 'blob',
+    });
+  }
+  uploadAccessControlCSV(data) {
+    return http.post('/settings/access-control/uploadCSV', data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  }
 }
 
 export default new SettingsDataService();
