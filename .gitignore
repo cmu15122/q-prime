@@ -118,3 +118,5 @@ dist
 # Config Files
 config.json
 adminSettings.json
+
+.env.local
