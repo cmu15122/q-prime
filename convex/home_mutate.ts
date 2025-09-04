@@ -175,7 +175,7 @@ export const addQuestion = mutation({
         student_id: student._id,
         created_by: 'TA',
         assignment_id: args.assignment_id,
-        statuses: ['waiting'],
+        status: 'waiting',
         question: args.question,
         location: args.location,
         entry_time_ms: Date.now(),
@@ -251,7 +251,7 @@ export const addQuestion = mutation({
         student_id: student._id,
         created_by: 'student',
         assignment_id: args.assignment_id,
-        statuses: ['waiting'],
+        status: 'waiting',
         question: args.question,
         location: args.location,
         entry_time_ms: Date.now(),
@@ -333,29 +333,16 @@ export const helpStudent = mutation({
 
     if (
       existing_entry.helping_ta_id !== undefined ||
-      existing_entry.statuses.includes('being_helped')
+      existing_entry.status === 'being_helped'
     ) {
       throw new ConvexError('Student is already being helped');
     }
 
     const ta = (await getTA(ctx, user_data.sem_user_id))!;
 
-    let new_statuses = [...existing_entry.statuses, 'being_helped'];
-    new_statuses.filter(
-      (status) => !['waiting', 'fixing_question', 'frozen'].includes(status)
-    );
-
     await ctx.db.patch(existing_entry._id, {
       helping_ta_id: ta._id,
-      statuses: new_statuses as (
-        | 'being_helped'
-        | 'waiting'
-        | 'fixing_question'
-        | 'frozen'
-        | 'cooldown_violation'
-        | 'received_message'
-        | 'error'
-      )[],
+      status: 'being_helped',
       help_start_time_ms: Date.now(),
     });
   },
@@ -382,13 +369,10 @@ export const unhelpStudent = mutation({
       throw new ConvexError('TA is not helping this student');
     }
 
-    // TODO COME BACK HERE - don't actually like the idea of array of statuses
     await ctx.db.patch(existing_entry._id, {
       helping_ta_id: undefined,
-      statuses: existing_entry.statuses.filter(
-        (status) => status !== 'being_helped'
-      ),
       help_start_time_ms: undefined,
+      status: 'waiting',
     });
   },
 });

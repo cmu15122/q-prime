@@ -114,14 +114,13 @@ export default defineSchema({
     student_id: v.id('students'),
     created_by: v.union(v.literal('student'), v.literal('TA')),
     assignment_id: v.id('assignments'),
-    statuses: v.array(
+    status: v.union(
       v.union(
         v.literal('being_helped'),
         v.literal('waiting'),
         v.literal('fixing_question'),
         v.literal('frozen'),
         v.literal('cooldown_violation'),
-        v.literal('received_message'),
         v.literal('error')
       )
     ),

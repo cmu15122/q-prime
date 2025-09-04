@@ -107,7 +107,7 @@ export const removeQueueEntry = internalMutation({
     // we're gonna operate on the array and then use it to write data back to the DB
     let prev_num_frozen = 0;
     for (const q of all_greater_queue_entries) {
-      if (q.statuses.includes('frozen')) {
+      if (q.status === 'frozen') {
         prev_num_frozen++;
       } else {
         await ctx.db.patch(q._id, {
@@ -121,7 +121,7 @@ export const removeQueueEntry = internalMutation({
     if (prev_num_frozen > 0) {
       // dealing with all_greater_queue_entries[-prev_num_frozen:]
       for (const q of all_greater_queue_entries.slice(-prev_num_frozen)) {
-        if (!q.statuses.includes('frozen')) {
+        if (q.status !== 'frozen') {
           throw new ConvexError(
             'non-frozen student found at the end of the queue with prev_num_frozen > 0'
           );
