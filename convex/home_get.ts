@@ -1,14 +1,14 @@
 import { query, QueryCtx } from './_generated/server';
 import { ConvexError, v } from 'convex/values';
 import { Doc } from './_generated/dataModel';
-import { getCurrentSemester, getCurrentUser } from './common';
+import { getCurrentSemester, getCurrentUser, getQueueLength } from './common';
 
 export const getQueueStatus = query({
   args: {},
   handler: async (ctx, args) => {
     const globalSettings = (await ctx.db.query('globalSettings').first())!;
 
-    const ohq = await ctx.db.query('ohq').collect();
+    const queue_length = await getQueueLength(ctx);
 
     const current_day_of_week = new Date().getDay();
     const current_locations =
@@ -24,7 +24,7 @@ export const getQueueStatus = query({
       allow_tas_show_others_timer: globalSettings.allow_tas_show_others_timer,
       rejoin_time_ms: globalSettings.rejoin_time_ms,
 
-      num_students: ohq.length,
+      num_students: queue_length,
 
       questions_policy_url: globalSettings.questions_policy_url,
 
@@ -43,8 +43,8 @@ async function addTADataToQueueEntry(ctx: QueryCtx, x: Doc<'ohq'> | null) {
     ta_data: null,
   };
 
-  if (x.ta_id) {
-    const ta = (await ctx.db.get(x.ta_id))!;
+  if (x.helping_ta_id) {
+    const ta = (await ctx.db.get(x.helping_ta_id))!;
     const ta_prefs = (await ctx.db.get(ta.user_prefs_id))!;
 
     return {

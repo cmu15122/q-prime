@@ -38,8 +38,8 @@ export default defineSchema({
 
     enable_whitelist: v.boolean(),
     enable_blacklist: v.boolean(),
-    whitelist: v.array(v.string()),
-    blacklist: v.array(v.string()),
+    whitelist: v.array(v.id('users')),
+    blacklist: v.array(v.id('users')),
   }),
 
   assignments: defineTable({
@@ -64,7 +64,9 @@ export default defineSchema({
     num_questions: v.number(),
     time_on_queue_ms: v.number(),
     num_asked_to_fix: v.number(),
-  }).index('by_semuser', ['semester_user_id']),
+  })
+    .index('by_semuser', ['semester_user_id'])
+    .index('by_user', ['user_id']),
 
   tas: defineTable({
     user_id: v.id('users'),
@@ -90,23 +92,27 @@ export default defineSchema({
   questions: defineTable({
     semester_id: v.id('semesters'),
     assignment_id: v.id('assignments'),
-    student_id: v.id('users'),
+    student_id: v.id('students'),
     ta_id: v.id('tas'),
 
     question: v.string(),
     location: v.string(),
+
+    created_by: v.union(v.literal('student'), v.literal('TA')),
+    finished_by: v.union(v.literal('helped'), v.literal('removed')),
 
     entry_time_ms: v.number(),
     exit_time_ms: v.number(),
     help_time_ms: v.number(),
 
     num_asked_to_fix: v.number(),
-  }),
+  }).index('by_student_and_exit_time', ['student_id', 'exit_time_ms']),
 
   // use a table as the actual queue lol
   // each row in the table is a student on the queue
   ohq: defineTable({
     student_id: v.id('students'),
+    created_by: v.union(v.literal('student'), v.literal('TA')),
     assignment_id: v.id('assignments'),
     statuses: v.array(
       v.union(
@@ -119,12 +125,16 @@ export default defineSchema({
         v.literal('error')
       )
     ),
+    position: v.number(),
     question: v.string(),
     location: v.string(),
+
     entry_time_ms: v.number(),
 
-    ta_id: v.optional(v.id('tas')),
-    help_time_ms: v.optional(v.number()),
+    help_start_time_ms: v.optional(v.number()),
+    helping_ta_id: v.optional(v.id('tas')),
+
+    num_asked_to_fix: v.number(),
 
     messages_from_tas: v.array(
       v.object({
@@ -133,5 +143,7 @@ export default defineSchema({
         sent_time_ms: v.number(),
       })
     ),
-  }).index('by_student', ['student_id']),
+  })
+    .index('by_student', ['student_id'])
+    .index('by_position', ['position']),
 });
