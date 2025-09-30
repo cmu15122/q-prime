@@ -14,8 +14,8 @@ import type {
   FunctionReference,
 } from "convex/server";
 import type * as common from "../common.js";
-import type * as home_get from "../home_get.js";
-import type * as home_mutate from "../home_mutate.js";
+import type * as home_home_get from "../home/home_get.js";
+import type * as home_home_mutate from "../home/home_mutate.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -27,8 +27,8 @@ import type * as home_mutate from "../home_mutate.js";
  */
 declare const fullApi: ApiFromModules<{
   common: typeof common;
-  home_get: typeof home_get;
-  home_mutate: typeof home_mutate;
+  "home/home_get": typeof home_home_get;
+  "home/home_mutate": typeof home_home_mutate;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

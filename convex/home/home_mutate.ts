@@ -1,6 +1,6 @@
 import { ConvexError, v } from 'convex/values';
-import { mutation } from './_generated/server';
-import { internal } from './_generated/api';
+import { mutation } from '../_generated/server';
+import { internal } from '../_generated/api';
 import {
   getCurrentSemester,
   getCurrentUser,
@@ -8,8 +8,8 @@ import {
   getQueueLength,
   getStudent,
   getTA,
-} from './common';
-import { Doc } from './_generated/dataModel';
+} from '../common';
+import { Doc } from '../_generated/dataModel';
 
 export const freezeQueue = mutation({
   args: {},
@@ -322,6 +322,27 @@ export const removeStudent = mutation({
     let removal_ta = undefined;
     if (user_data.kind == 'TA') {
       removal_ta = await getTA(ctx, user_data.sem_user_id);
+    }
+
+    if (args.reason === 'helped') {
+      if (existing_entry.status !== 'being_helped') {
+        throw new ConvexError(
+          'Student is not being helped but reason is helped'
+        );
+      }
+      if (existing_entry.help_start_time_ms === undefined) {
+        throw new ConvexError(
+          'Student is being helped but help start time is undefined'
+        );
+      }
+      if (existing_entry.helping_ta_id !== removal_ta?._id) {
+        throw new ConvexError(
+          'Student is being helped by a different TA than the one removing them, but reason is helped'
+        );
+      }
+      if (user_data.kind !== 'TA') {
+        throw new ConvexError('Removing user is not a TA but reason is helped');
+      }
     }
 
     await ctx.db.insert('questions', {

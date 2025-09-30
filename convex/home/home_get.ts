@@ -1,7 +1,7 @@
-import { query, QueryCtx } from './_generated/server';
+import { query, QueryCtx } from '../_generated/server';
 import { ConvexError, v } from 'convex/values';
-import { Doc } from './_generated/dataModel';
-import { getCurrentSemester, getCurrentUser, getQueueLength } from './common';
+import { Doc } from '../_generated/dataModel';
+import { getCurrentSemester, getCurrentUser, getQueueLength } from '../common';
 
 export const getQueueStatus = query({
   args: {},
@@ -133,7 +133,11 @@ export const getUserData = query({
 export const getAllStudents = query({
   args: {},
   handler: async (ctx, args) => {
-    const ohq = await ctx.db.query('ohq').collect();
+    const ohq = await ctx.db
+      .query('ohq')
+      .withIndex('by_position')
+      .order('asc')
+      .collect();
 
     const ohq_with_ta_data = await Promise.all(
       ohq.map(async (x) => addTADataToQueueEntry(ctx, x))
