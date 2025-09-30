@@ -135,6 +135,12 @@ export const removeQueueEntry = internalMutation({
   },
 });
 
+/**
+ * Get a TA from their sem_user_id
+ * @param ctx
+ * @param sem_user_id
+ * @returns
+ */
 export async function getTA(ctx: QueryCtx, sem_user_id: Id<'semesterUsers'>) {
   const ta = await ctx.db
     .query('tas')
@@ -142,4 +148,22 @@ export async function getTA(ctx: QueryCtx, sem_user_id: Id<'semesterUsers'>) {
     .first();
 
   return ta;
+}
+
+/**
+ * Get a student from their sem_user_id
+ * @param ctx
+ * @param sem_user_id
+ * @returns
+ */
+export async function getStudent(
+  ctx: QueryCtx,
+  sem_user_id: Id<'semesterUsers'>
+) {
+  const student = await ctx.db
+    .query('students')
+    .withIndex('by_semuser', (q) => q.eq('semester_user_id', sem_user_id))
+    .first();
+
+  return student;
 }

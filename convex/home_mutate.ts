@@ -6,12 +6,14 @@ import {
   getCurrentUser,
   getQueueEntry,
   getQueueLength,
+  getStudent,
   getTA,
 } from './common';
 import { Doc } from './_generated/dataModel';
 
 export const freezeQueue = mutation({
   args: {},
+  returns: v.null(),
   handler: async (ctx, args) => {
     const user_data = (await getCurrentUser(ctx))!;
 
@@ -29,6 +31,7 @@ export const freezeQueue = mutation({
 
 export const unfreezeQueue = mutation({
   args: {},
+  returns: v.null(),
   handler: async (ctx, args) => {
     const user_data = (await getCurrentUser(ctx))!;
 
@@ -48,6 +51,7 @@ export const createAnnouncement = mutation({
   args: {
     content: v.string(),
   },
+  returns: v.null(),
   handler: async (ctx, args) => {
     const user_data = (await getCurrentUser(ctx))!;
 
@@ -68,6 +72,7 @@ export const updateAnnouncement = mutation({
     idx: v.number(),
     content: v.string(),
   },
+  returns: v.null(),
   handler: async (ctx, args) => {
     const user_data = (await getCurrentUser(ctx))!;
 
@@ -76,6 +81,10 @@ export const updateAnnouncement = mutation({
     }
 
     const globalSettings = (await ctx.db.query('globalSettings').first())!;
+
+    if (args.idx < 0 || args.idx >= globalSettings.announcements.length) {
+      throw new ConvexError('Invalid announcement index');
+    }
 
     const curr_announcements = globalSettings.announcements;
     curr_announcements[args.idx] = args.content;
@@ -90,6 +99,7 @@ export const deleteAnnouncement = mutation({
   args: {
     idx: v.number(),
   },
+  returns: v.null(),
   handler: async (ctx, args) => {
     const user_data = (await getCurrentUser(ctx))!;
 
@@ -98,6 +108,10 @@ export const deleteAnnouncement = mutation({
     }
 
     const globalSettings = (await ctx.db.query('globalSettings').first())!;
+
+    if (args.idx < 0 || args.idx >= globalSettings.announcements.length) {
+      throw new ConvexError('Invalid announcement index');
+    }
 
     const curr_announcements = globalSettings.announcements;
     curr_announcements.splice(args.idx, 1);
@@ -109,7 +123,6 @@ export const deleteAnnouncement = mutation({
 });
 
 export const addQuestion = mutation({
-  // TODO COME BACK EHRE
   args: {
     question: v.string(),
     location: v.string(),
@@ -117,6 +130,7 @@ export const addQuestion = mutation({
     overrideCooldown: v.boolean(),
     email: v.optional(v.string()), // only used for TA created questions
   },
+  returns: v.null(),
   handler: async (ctx, args) => {
     const user_data = (await getCurrentUser(ctx))!;
 
@@ -182,10 +196,18 @@ export const addQuestion = mutation({
         messages_from_tas: [],
         position: queue_length,
         num_asked_to_fix: 0,
+        has_unread_messages: false,
       });
     }
     // handle student created questions
     else {
+      const globalSettings = (await ctx.db.query('globalSettings').first())!;
+
+      // check queue not frozen
+      if (globalSettings.is_frozen) {
+        throw new ConvexError('Queue is frozen');
+      }
+
       const student = (await ctx.db
         .query('students')
         .withIndex('by_user', (q) => q.eq('user_id', user_data._id))
@@ -213,7 +235,6 @@ export const addQuestion = mutation({
       }
 
       // check for cooldown override
-      const globalSettings = (await ctx.db.query('globalSettings').first())!;
 
       // if override disabled, throw error
       if (args.overrideCooldown && !globalSettings.allow_cooldown_override) {
@@ -230,6 +251,7 @@ export const addQuestion = mutation({
           .withIndex('by_student_and_exit_time', (q) =>
             q.eq('student_id', student._id)
           )
+          .filter((q) => q.neq(q.field('help_time_ms'), -1))
           .order('desc')
           .first();
 
@@ -258,6 +280,7 @@ export const addQuestion = mutation({
         messages_from_tas: [],
         position: queue_length,
         num_asked_to_fix: 0,
+        has_unread_messages: false,
       });
     }
   },
@@ -269,22 +292,21 @@ export const removeStudent = mutation({
     student_id: v.id('students'),
     reason: v.union(v.literal('helped'), v.literal('removed')),
   },
+  returns: v.null(),
   handler: async (ctx, args) => {
     const user_data = (await getCurrentUser(ctx))!;
-    const student_to_remove = (await ctx.db.get(args.student_id))!;
 
-    // must be a TA
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User must be a TA to finish helping');
-    }
+    const existing_entry = (await getQueueEntry(ctx, args.student_id))!;
 
-    // must be same TA that was helping the student
-    const ta = (await getTA(ctx, user_data.sem_user_id))!;
+    // If student is removing, must be removing themselves
+    if (user_data.kind == 'student') {
+      const student = (await getStudent(ctx, user_data.sem_user_id))!;
 
-    const existing_entry = (await getQueueEntry(ctx, student_to_remove._id))!;
-
-    if (existing_entry.helping_ta_id !== ta._id) {
-      throw new ConvexError('TA is not helping this student');
+      if (args.student_id !== student._id) {
+        throw new ConvexError('Student is not removing themselves');
+      }
+    } else if (user_data.kind != 'TA') {
+      throw new ConvexError('User is not a student or TA');
     }
 
     // remove from OHQ
@@ -292,14 +314,21 @@ export const removeStudent = mutation({
       queue_entry_id: existing_entry._id,
     });
 
+    const student_to_remove = (await ctx.db.get(args.student_id))!;
+
     // add question to database
     const curr_sem = await getCurrentSemester(ctx);
+
+    let removal_ta = undefined;
+    if (user_data.kind == 'TA') {
+      removal_ta = await getTA(ctx, user_data.sem_user_id);
+    }
 
     await ctx.db.insert('questions', {
       semester_id: curr_sem._id,
       assignment_id: existing_entry.assignment_id,
       student_id: student_to_remove._id,
-      ta_id: ta._id,
+      ta_id: removal_ta?._id,
 
       question: existing_entry.question,
       location: existing_entry.location,
@@ -309,7 +338,11 @@ export const removeStudent = mutation({
 
       entry_time_ms: existing_entry.entry_time_ms,
       exit_time_ms: Date.now(),
-      help_time_ms: Date.now() - existing_entry.help_start_time_ms!,
+      // if they were being helped, store help duration, otherwise -1
+      help_time_ms:
+        args.reason === 'helped'
+          ? Date.now() - existing_entry.help_start_time_ms!
+          : -1,
 
       num_asked_to_fix: existing_entry.num_asked_to_fix,
     });
@@ -320,14 +353,16 @@ export const helpStudent = mutation({
   args: {
     student_id: v.id('students'),
   },
+  returns: v.null(),
   handler: async (ctx, args) => {
     const user_data = (await getCurrentUser(ctx))!;
-    const student_to_help = (await ctx.db.get(args.student_id))!;
 
-    // must be a TA
     if (user_data.kind !== 'TA') {
-      throw new ConvexError('User must be a TA to help');
+      throw new ConvexError('User is not a TA');
     }
+
+    const student_to_help = (await ctx.db.get(args.student_id))!;
+    const ta = (await getTA(ctx, user_data.sem_user_id))!;
 
     const existing_entry = (await getQueueEntry(ctx, student_to_help._id))!;
 
@@ -337,8 +372,6 @@ export const helpStudent = mutation({
     ) {
       throw new ConvexError('Student is already being helped');
     }
-
-    const ta = (await getTA(ctx, user_data.sem_user_id))!;
 
     await ctx.db.patch(existing_entry._id, {
       helping_ta_id: ta._id,
@@ -352,18 +385,22 @@ export const unhelpStudent = mutation({
   args: {
     student_id: v.id('students'),
   },
+  returns: v.null(),
   handler: async (ctx, args) => {
     const user_data = (await getCurrentUser(ctx))!;
-    const student_to_unhelp = (await ctx.db.get(args.student_id))!;
 
-    // must be a TA
     if (user_data.kind !== 'TA') {
-      throw new ConvexError('User must be a TA to unhelp');
+      throw new ConvexError('User is not a TA');
     }
+
+    const student_to_unhelp = (await ctx.db.get(args.student_id))!;
+    const ta = (await getTA(ctx, user_data.sem_user_id))!;
 
     const existing_entry = (await getQueueEntry(ctx, student_to_unhelp._id))!;
 
-    const ta = (await getTA(ctx, user_data.sem_user_id))!;
+    if (existing_entry.status !== 'being_helped') {
+      throw new ConvexError('Student is not being helped');
+    }
 
     if (existing_entry.helping_ta_id !== ta._id) {
       throw new ConvexError('TA is not helping this student');
@@ -372,6 +409,135 @@ export const unhelpStudent = mutation({
     await ctx.db.patch(existing_entry._id, {
       helping_ta_id: undefined,
       help_start_time_ms: undefined,
+      status: 'waiting',
+    });
+  },
+});
+
+export const updateQuestion = mutation({
+  args: {
+    question: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const user_data = (await getCurrentUser(ctx))!;
+    const student = (await getStudent(ctx, user_data.sem_user_id))!;
+
+    const existing_entry = (await getQueueEntry(ctx, student._id))!;
+
+    if (existing_entry.question == args.question) {
+      throw new ConvexError('Question is the same');
+    }
+
+    await ctx.db.patch(existing_entry._id, {
+      question: args.question,
+      status: 'waiting',
+    });
+  },
+});
+
+export const askToFixQuestion = mutation({
+  args: {
+    student_id: v.id('students'),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const user_data = (await getCurrentUser(ctx))!;
+
+    if (user_data.kind !== 'TA') {
+      throw new ConvexError('User is not a TA');
+    }
+
+    const existing_entry = (await getQueueEntry(ctx, args.student_id))!;
+
+    await ctx.db.patch(existing_entry._id, {
+      status: 'fixing_question',
+      num_asked_to_fix: existing_entry.num_asked_to_fix + 1,
+    });
+  },
+});
+
+export const messageStudent = mutation({
+  args: {
+    student_id: v.id('students'),
+    message: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const user_data = (await getCurrentUser(ctx))!;
+
+    if (user_data.kind !== 'TA') {
+      throw new ConvexError('User is not a TA');
+    }
+
+    const ta = (await getTA(ctx, user_data.sem_user_id))!;
+
+    const existing_entry = (await getQueueEntry(ctx, args.student_id))!;
+
+    if (existing_entry.status == 'being_helped') {
+      throw new ConvexError(
+        'You cannot message a student while they are being helped'
+      );
+    }
+
+    await ctx.db.patch(existing_entry._id, {
+      messages_from_tas: [
+        ...existing_entry.messages_from_tas,
+        {
+          from_ta_id: ta._id,
+          message: args.message,
+          sent_time_ms: Date.now(),
+        },
+      ],
+      has_unread_messages: true,
+    });
+  },
+});
+
+export const dismissMessage = mutation({
+  args: {},
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const user_data = (await getCurrentUser(ctx))!;
+
+    if (user_data.kind !== 'student') {
+      throw new ConvexError('User is not a student');
+    }
+
+    const student = (await getStudent(ctx, user_data.sem_user_id))!;
+
+    const existing_entry = (await getQueueEntry(ctx, student._id))!;
+
+    await ctx.db.patch(existing_entry._id, {
+      has_unread_messages: false,
+    });
+  },
+});
+
+export const approveCooldownOverride = mutation({
+  args: {
+    student_id: v.id('students'),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const user_data = (await getCurrentUser(ctx))!;
+    const existing_entry = (await getQueueEntry(ctx, args.student_id))!;
+
+    if (user_data.kind !== 'TA') {
+      throw new ConvexError('User is not a TA');
+    }
+
+    const adminSettings = (await ctx.db.query('globalSettings').first())!;
+
+    if (!adminSettings.allow_cooldown_override) {
+      throw new ConvexError('Cooldown override is disabled');
+    }
+
+    if (existing_entry.status !== 'cooldown_violation') {
+      throw new ConvexError('Student is not on cooldown violation');
+    }
+
+    await ctx.db.patch(existing_entry._id, {
       status: 'waiting',
     });
   },

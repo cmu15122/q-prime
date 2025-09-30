@@ -93,7 +93,7 @@ export default defineSchema({
     semester_id: v.id('semesters'),
     assignment_id: v.id('assignments'),
     student_id: v.id('students'),
-    ta_id: v.id('tas'),
+    ta_id: v.optional(v.id('tas')),
 
     question: v.string(),
     location: v.string(),
@@ -103,7 +103,7 @@ export default defineSchema({
 
     entry_time_ms: v.number(),
     exit_time_ms: v.number(),
-    help_time_ms: v.number(),
+    help_time_ms: v.number(), // -1 if removed, not helped
 
     num_asked_to_fix: v.number(),
   }).index('by_student_and_exit_time', ['student_id', 'exit_time_ms']),
@@ -142,6 +142,7 @@ export default defineSchema({
         sent_time_ms: v.number(),
       })
     ),
+    has_unread_messages: v.boolean(),
   })
     .index('by_student', ['student_id'])
     .index('by_position', ['position']),
