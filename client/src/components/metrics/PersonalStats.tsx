@@ -87,7 +87,7 @@ export default function PersonalStats() {
           </Grid>
           <Grid sx={{textAlign: 'center'}}>
             <Typography variant='h6' fontWeight='bold'>Avg. Time Spent Per Question (min)</Typography>
-            <Typography variant='h3' sx={{mt: 2}} fontWeight='bold'>{Number(averageHelpTime).toFixed(2)}</Typography>
+            <Typography variant='h3' sx={{mt: 2}} fontWeight='bold'>{(averageHelpTime)}</Typography>
           </Grid>
           <Stack sx={{width: '100%'}}>
             <TableContainer sx={{height: 300}}>

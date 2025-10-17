@@ -59,7 +59,7 @@ export default function OverallStats() {
         <Divider orientation="vertical" variant="middle" flexItem />
         <Grid sx={{px: 4, py: 4, alignItems: 'center', textAlign: 'center'}}>
           <Typography variant='h6' fontWeight='bold'>Average Waiting Time (min)</Typography>
-          <Typography variant='h3' sx={{mt: 2}} fontWeight='bold'>{Number(avgWaitTime).toFixed(2)}</Typography>
+          <Typography variant='h3' sx={{mt: 2}} fontWeight='bold'>{avgWaitTime}</Typography>
         </Grid>
         <Divider orientation="vertical" variant="middle" flexItem />
         <Grid sx={{px: 4, py: 4, alignItems: 'center', textAlign: 'center'}}>
