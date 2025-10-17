@@ -93,7 +93,7 @@ export default function StudentEntry(props) {
           {student.isFrozen && <PauseIcon fontSize="inherit" />}
           {<Typography variant="body2">[{student.topic.name}]</Typography>}
           {
-            <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>
+            <Typography variant="body2" sx={{ whiteSpace: 'pre-line', wordBreak: 'break-word' }}>
               {' '}
               {student.question}{' '}
             </Typography>
