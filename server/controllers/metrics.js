@@ -110,7 +110,6 @@ exports.get_avg_time_per_question = (req, res) => {
         if (count != 0) averageTime /= count;
 
         const minutes = Math.floor(averageTime);
-        console.log(minutes);
         const seconds = Math.round((averageTime - minutes) * 60);
         averageTime = minutes + ":" + seconds.toString().padStart(2, '0');
 
