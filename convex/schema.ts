@@ -18,6 +18,7 @@ export default defineSchema({
     questions_policy_url: v.optional(v.string()),
     rejoin_time_ms: v.number(),
     allowed_email_domains: v.array(v.string()),
+    enforce_email_domain: v.boolean(),
     allow_cooldown_override: v.boolean(),
     day_to_location_dict: v.record(v.string(), v.array(v.string())),
     allow_tas_show_others_timer: v.boolean(),
@@ -38,12 +39,13 @@ export default defineSchema({
 
     enable_whitelist: v.boolean(),
     enable_blacklist: v.boolean(),
-    whitelist: v.array(v.id('users')),
-    blacklist: v.array(v.id('users')),
+    whitelist: v.array(v.string()),
+    blacklist: v.array(v.string()),
   }),
 
   assignments: defineTable({
     name: v.string(),
+    semester_id: v.id('semesters'),
     assignment_type: v.optional(v.string()),
     start_date_ms: v.number(),
     end_date_ms: v.number(),

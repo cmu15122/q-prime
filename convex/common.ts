@@ -3,8 +3,16 @@ import { ConvexError, v } from 'convex/values';
 import { getAuthUserId } from '@convex-dev/auth/server';
 import { Doc, Id } from './_generated/dataModel';
 
+export async function getGlobalSettings(ctx: QueryCtx) {
+  const globalSettings = await ctx.db.query('globalSettings').first();
+  if (!globalSettings) {
+    throw new ConvexError('Global settings not found');
+  }
+  return globalSettings;
+}
+
 export async function getCurrentSemester(ctx: QueryCtx) {
-  const globalSettings = (await ctx.db.query('globalSettings').first())!;
+  const globalSettings = await getGlobalSettings(ctx);
   const curr_sem = (await ctx.db.get(globalSettings.curr_sem))!;
   return curr_sem;
 }
@@ -48,6 +56,10 @@ export async function getQueueEntry(ctx: QueryCtx, student_id: Id<'students'>) {
     .query('ohq')
     .withIndex('by_student', (q) => q.eq('student_id', student_id))
     .first();
+
+  if (!queue_entry) {
+    throw new ConvexError('Queue entry not found');
+  }
 
   return queue_entry;
 }
@@ -155,7 +167,48 @@ export async function getTA(ctx: QueryCtx, sem_user_id: Id<'semesterUsers'>) {
     .withIndex('by_semuser', (q) => q.eq('semester_user_id', sem_user_id))
     .first();
 
+  if (!ta) {
+    throw new ConvexError('TA not found');
+  }
+
   return ta;
+}
+
+export async function ensureAuthAndTA(
+  ctx: QueryCtx
+): Promise<{ user_data: Doc<'users'>; ta: Doc<'tas'> }> {
+  const user_data = await getCurrentUser(ctx);
+
+  if (!user_data) {
+    throw new ConvexError('User not authenticated');
+  }
+
+  if (user_data.kind !== 'TA') {
+    throw new ConvexError('User is not a TA');
+  }
+
+  const ta = await getTA(ctx, user_data.sem_user_id);
+
+  if (!ta) {
+    throw new ConvexError('TA not found');
+  }
+
+  return {
+    user_data: user_data,
+    ta: ta,
+  };
+}
+
+export async function ensureAuthAndAdmin(
+  ctx: QueryCtx
+): Promise<{ user_data: Doc<'users'>; ta: Doc<'tas'> }> {
+  const { user_data, ta } = await ensureAuthAndTA(ctx);
+
+  if (!ta.is_admin) {
+    throw new ConvexError('User is not an admin');
+  }
+
+  return { user_data: user_data, ta: ta };
 }
 
 /**
@@ -173,5 +226,34 @@ export async function getStudent(
     .withIndex('by_semuser', (q) => q.eq('semester_user_id', sem_user_id))
     .first();
 
+  if (!student) {
+    throw new ConvexError('Student not found');
+  }
+
   return student;
+}
+
+export async function ensureAuthAndStudent(
+  ctx: QueryCtx
+): Promise<{ user_data: Doc<'users'>; student: Doc<'students'> }> {
+  const user_data = await getCurrentUser(ctx);
+
+  if (!user_data) {
+    throw new ConvexError('User not authenticated');
+  }
+
+  if (user_data.kind !== 'student') {
+    throw new ConvexError('User is not a student');
+  }
+
+  const student = await getStudent(ctx, user_data.sem_user_id);
+
+  if (!student) {
+    throw new ConvexError('Student not found');
+  }
+
+  return {
+    user_data: user_data,
+    student: student,
+  };
 }

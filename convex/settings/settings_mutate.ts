@@ -1,6 +1,12 @@
 import { ConvexError, v } from 'convex/values';
 import { mutation } from '../_generated/server';
-import { getCurrentSemester, getCurrentUser, getTA } from '../common';
+import {
+  ensureAuthAndAdmin,
+  ensureAuthAndTA,
+  getCurrentSemester,
+  getCurrentUser,
+  getGlobalSettings,
+} from '../common';
 
 /** General Settings (User-specific) **/
 
@@ -11,13 +17,7 @@ export const updateVideoChat = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
-
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
-
-    const ta = (await getTA(ctx, user_data.sem_user_id))!;
+    const { ta } = await ensureAuthAndTA(ctx);
 
     await ctx.db.patch(ta._id, {
       zoom_enabled: args.enabled,
@@ -57,17 +57,11 @@ export const updateNotifications = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
-
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
+    const { ta } = await ensureAuthAndTA(ctx);
 
     if (args.remindTime < 0) {
       throw new ConvexError('Remind time must be non-negative');
     }
-
-    const ta = (await getTA(ctx, user_data.sem_user_id))!;
 
     await ctx.db.patch(ta._id, {
       join_notifs_enabled: args.joinEnabled,
@@ -86,13 +80,7 @@ export const updateTimerSettings = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
-
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
-
-    const ta = (await getTA(ctx, user_data.sem_user_id))!;
+    const { ta } = await ensureAuthAndTA(ctx);
 
     await ctx.db.patch(ta._id, {
       show_self_timer: args.showSelfTimer,
@@ -111,23 +99,13 @@ export const updateCourseName = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
-
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
-
-    const ta = (await getTA(ctx, user_data.sem_user_id))!;
-
-    if (!ta.is_admin) {
-      throw new ConvexError('User is not an admin');
-    }
+    await ensureAuthAndAdmin(ctx);
 
     if (!args.courseName) {
       throw new ConvexError('Course name cannot be empty');
     }
 
-    const globalSettings = (await ctx.db.query('globalSettings').first())!;
+    const globalSettings = await getGlobalSettings(ctx);
 
     await ctx.db.patch(globalSettings._id, {
       course_name: args.courseName,
@@ -143,23 +121,13 @@ export const updateQuestionsURL = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
-
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
-
-    const ta = (await getTA(ctx, user_data.sem_user_id))!;
-
-    if (!ta.is_admin) {
-      throw new ConvexError('User is not an admin');
-    }
+    await ensureAuthAndAdmin(ctx);
 
     if (!args.questionsURL) {
       throw new ConvexError('Questions URL cannot be empty');
     }
 
-    const globalSettings = (await ctx.db.query('globalSettings').first())!;
+    const globalSettings = await getGlobalSettings(ctx);
 
     await ctx.db.patch(globalSettings._id, {
       questions_policy_url: args.questionsURL,
@@ -175,26 +143,34 @@ export const updateRejoinTime = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
-
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
-
-    const ta = (await getTA(ctx, user_data.sem_user_id))!;
-
-    if (!ta.is_admin) {
-      throw new ConvexError('User is not an admin');
-    }
+    await ensureAuthAndAdmin(ctx);
 
     if (isNaN(args.rejoinTime) || args.rejoinTime < 0) {
       throw new ConvexError('Rejoin time must be a non-negative number');
     }
 
-    const globalSettings = (await ctx.db.query('globalSettings').first())!;
+    const globalSettings = await getGlobalSettings(ctx);
 
     await ctx.db.patch(globalSettings._id, {
       rejoin_time_ms: args.rejoinTime * 60000, // convert minutes to ms
+    });
+
+    return null;
+  },
+});
+
+export const updateEnforceEmailDomain = mutation({
+  args: {
+    enforceEmailDomain: v.boolean(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    await ensureAuthAndAdmin(ctx);
+
+    const globalSettings = await getGlobalSettings(ctx);
+
+    await ctx.db.patch(globalSettings._id, {
+      enforce_email_domain: args.enforceEmailDomain,
     });
 
     return null;
@@ -207,19 +183,9 @@ export const updateAllowCooldownOverride = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
+    await ensureAuthAndAdmin(ctx);
 
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
-
-    const ta = (await getTA(ctx, user_data.sem_user_id))!;
-
-    if (!ta.is_admin) {
-      throw new ConvexError('User is not an admin');
-    }
-
-    const globalSettings = (await ctx.db.query('globalSettings').first())!;
+    const globalSettings = await getGlobalSettings(ctx);
 
     await ctx.db.patch(globalSettings._id, {
       allow_cooldown_override: args.allowCDOverride,
@@ -235,19 +201,9 @@ export const updateAllowShowOthersTimer = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
+    await ensureAuthAndAdmin(ctx);
 
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
-
-    const ta = (await getTA(ctx, user_data.sem_user_id))!;
-
-    if (!ta.is_admin) {
-      throw new ConvexError('User is not an admin');
-    }
-
-    const globalSettings = (await ctx.db.query('globalSettings').first())!;
+    const globalSettings = await getGlobalSettings(ctx);
 
     await ctx.db.patch(globalSettings._id, {
       allow_tas_show_others_timer: args.allowShowOthersTimer,
@@ -257,9 +213,9 @@ export const updateAllowShowOthersTimer = mutation({
   },
 });
 
-/** Topics Functions **/
+/** Assignment Functions **/
 
-export const createTopic = mutation({
+export const createAssignment = mutation({
   args: {
     name: v.string(),
     category: v.optional(v.string()),
@@ -268,24 +224,13 @@ export const createTopic = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
+    await ensureAuthAndAdmin(ctx);
 
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
-
-    const ta = (await getTA(ctx, user_data.sem_user_id))!;
-
-    if (!ta.is_admin) {
-      throw new ConvexError('User is not an admin');
-    }
-
-    if (!args.name || !args.start_date_ms || !args.end_date_ms) {
-      throw new ConvexError('Invalid/missing parameters in request');
-    }
+    const curr_sem = await getCurrentSemester(ctx);
 
     await ctx.db.insert('assignments', {
       name: args.name,
+      semester_id: curr_sem._id,
       assignment_type: args.category,
       start_date_ms: args.start_date_ms,
       end_date_ms: args.end_date_ms,
@@ -295,7 +240,7 @@ export const createTopic = mutation({
   },
 });
 
-export const updateTopic = mutation({
+export const updateAssignment = mutation({
   args: {
     assignment_id: v.id('assignments'),
     name: v.string(),
@@ -305,21 +250,7 @@ export const updateTopic = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
-
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
-
-    const ta = (await getTA(ctx, user_data.sem_user_id))!;
-
-    if (!ta.is_admin) {
-      throw new ConvexError('User is not an admin');
-    }
-
-    if (!args.name || !args.start_date_ms || !args.end_date_ms) {
-      throw new ConvexError('Invalid/missing parameters in request');
-    }
+    await ensureAuthAndAdmin(ctx);
 
     const assignment = await ctx.db.get(args.assignment_id);
 
@@ -338,23 +269,13 @@ export const updateTopic = mutation({
   },
 });
 
-export const deleteTopic = mutation({
+export const deleteAssignment = mutation({
   args: {
     assignment_id: v.id('assignments'),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
-
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
-
-    const ta = (await getTA(ctx, user_data.sem_user_id))!;
-
-    if (!ta.is_admin) {
-      throw new ConvexError('User is not an admin');
-    }
+    await ensureAuthAndAdmin(ctx);
 
     const assignment = await ctx.db.get(args.assignment_id);
 
@@ -376,23 +297,14 @@ export const addLocation = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
-
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
-
-    const ta = (await getTA(ctx, user_data.sem_user_id))!;
-
-    if (!ta.is_admin) {
-      throw new ConvexError('User is not an admin');
-    }
+    await ensureAuthAndAdmin(ctx);
 
     if (!args.room) {
       throw new ConvexError('Room name cannot be empty');
     }
 
-    const globalSettings = (await ctx.db.query('globalSettings').first())!;
+    const globalSettings = await getGlobalSettings(ctx);
+
     const dayDictionary = { ...globalSettings.day_to_location_dict };
 
     if (!dayDictionary['-1']) {
@@ -417,23 +329,10 @@ export const updateLocations = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
+    await ensureAuthAndAdmin(ctx);
 
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
+    const globalSettings = await getGlobalSettings(ctx);
 
-    const ta = (await getTA(ctx, user_data.sem_user_id))!;
-
-    if (!ta.is_admin) {
-      throw new ConvexError('User is not an admin');
-    }
-
-    if (!args.room || !args.days || !args.daysOfWeek) {
-      throw new ConvexError('Invalid/missing parameters in request');
-    }
-
-    const globalSettings = (await ctx.db.query('globalSettings').first())!;
     const newDayDictionary = { ...globalSettings.day_to_location_dict };
 
     for (const day in args.daysOfWeek) {
@@ -469,23 +368,8 @@ export const removeLocation = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
-
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
-
-    const ta = (await getTA(ctx, user_data.sem_user_id))!;
-
-    if (!ta.is_admin) {
-      throw new ConvexError('User is not an admin');
-    }
-
-    if (!args.room || !args.days) {
-      throw new ConvexError('Invalid/missing parameters in request');
-    }
-
-    const globalSettings = (await ctx.db.query('globalSettings').first())!;
+    await ensureAuthAndAdmin(ctx);
+    const globalSettings = await getGlobalSettings(ctx);
     const dayDictionary = { ...globalSettings.day_to_location_dict };
 
     for (const dayInt of args.days) {
@@ -516,17 +400,7 @@ export const updateWhitelistSettings = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
-
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
-
-    const ta = (await getTA(ctx, user_data.sem_user_id))!;
-
-    if (!ta.is_admin) {
-      throw new ConvexError('User is not an admin');
-    }
+    await ensureAuthAndAdmin(ctx);
 
     const curr_sem = await getCurrentSemester(ctx);
 
@@ -544,17 +418,7 @@ export const updateBlacklistSettings = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
-
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
-
-    const ta = (await getTA(ctx, user_data.sem_user_id))!;
-
-    if (!ta.is_admin) {
-      throw new ConvexError('User is not an admin');
-    }
+    await ensureAuthAndAdmin(ctx);
 
     const curr_sem = await getCurrentSemester(ctx);
 
@@ -574,75 +438,51 @@ export const updateAccessControlledUser = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
-
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
-
-    const ta = (await getTA(ctx, user_data.sem_user_id))!;
-
-    if (!ta.is_admin) {
-      throw new ConvexError('User is not an admin');
-    }
-
-    if (!args.email) {
-      throw new ConvexError('Email cannot be empty');
-    }
-
-    // Find user by email
-    const user = await ctx.db
-      .query('users')
-      .filter((q) => q.eq(q.field('email'), args.email))
-      .first();
-
-    if (!user) {
-      throw new ConvexError(`User with email ${args.email} not found`);
-    }
+    await ensureAuthAndAdmin(ctx);
 
     const curr_sem = await getCurrentSemester(ctx);
 
     if (args.listType === 'whitelist') {
       if (args.updateType === 'add') {
         // Check if already on blacklist
-        if (curr_sem.blacklist.includes(user._id)) {
+        if (curr_sem.blacklist.includes(args.email)) {
           throw new ConvexError(
             'User is on the blacklist and cannot be added to the whitelist'
           );
         }
 
         // Add to whitelist if not already there
-        if (!curr_sem.whitelist.includes(user._id)) {
+        if (!curr_sem.whitelist.includes(args.email)) {
           await ctx.db.patch(curr_sem._id, {
-            whitelist: [...curr_sem.whitelist, user._id],
+            whitelist: [...curr_sem.whitelist, args.email],
           });
         }
       } else {
         // Remove from whitelist
         await ctx.db.patch(curr_sem._id, {
-          whitelist: curr_sem.whitelist.filter((id) => id !== user._id),
+          whitelist: curr_sem.whitelist.filter((email) => email !== args.email),
         });
       }
     } else {
       // blacklist
       if (args.updateType === 'add') {
         // Check if already on whitelist
-        if (curr_sem.whitelist.includes(user._id)) {
+        if (curr_sem.whitelist.includes(args.email)) {
           throw new ConvexError(
             'User is on the whitelist and cannot be added to the blacklist'
           );
         }
 
         // Add to blacklist if not already there
-        if (!curr_sem.blacklist.includes(user._id)) {
+        if (!curr_sem.blacklist.includes(args.email)) {
           await ctx.db.patch(curr_sem._id, {
-            blacklist: [...curr_sem.blacklist, user._id],
+            blacklist: [...curr_sem.blacklist, args.email],
           });
         }
       } else {
         // Remove from blacklist
         await ctx.db.patch(curr_sem._id, {
-          blacklist: curr_sem.blacklist.filter((id) => id !== user._id),
+          blacklist: curr_sem.blacklist.filter((id) => id !== args.email),
         });
       }
     }
@@ -753,4 +593,3 @@ export const updateSlackURL = mutation({
 // - uploadTACSV
 // - downloadAccessControlCSV
 // - uploadAccessControlCSV
-

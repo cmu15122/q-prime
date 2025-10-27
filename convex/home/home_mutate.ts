@@ -2,8 +2,11 @@ import { ConvexError, v } from 'convex/values';
 import { mutation } from '../_generated/server';
 import { internal } from '../_generated/api';
 import {
+  ensureAuthAndStudent,
+  ensureAuthAndTA,
   getCurrentSemester,
   getCurrentUser,
+  getGlobalSettings,
   getQueueEntry,
   getQueueLength,
   getStudent,
@@ -15,13 +18,9 @@ export const freezeQueue = mutation({
   args: {},
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
+    await ensureAuthAndTA(ctx);
 
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
-
-    const globalSettings = (await ctx.db.query('globalSettings').first())!;
+    const globalSettings = await getGlobalSettings(ctx);
 
     await ctx.db.patch(globalSettings._id, {
       is_frozen: true,
@@ -33,13 +32,9 @@ export const unfreezeQueue = mutation({
   args: {},
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
+    await ensureAuthAndTA(ctx);
 
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
-
-    const globalSettings = (await ctx.db.query('globalSettings').first())!;
+    const globalSettings = await getGlobalSettings(ctx);
 
     await ctx.db.patch(globalSettings._id, {
       is_frozen: false,
@@ -53,13 +48,9 @@ export const createAnnouncement = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
+    await ensureAuthAndTA(ctx);
 
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
-
-    const globalSettings = (await ctx.db.query('globalSettings').first())!;
+    const globalSettings = await getGlobalSettings(ctx);
 
     await ctx.db.patch(globalSettings._id, {
       announcements: [...globalSettings.announcements, args.content],
@@ -74,13 +65,9 @@ export const updateAnnouncement = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
+    await ensureAuthAndTA(ctx);
 
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
-
-    const globalSettings = (await ctx.db.query('globalSettings').first())!;
+    const globalSettings = await getGlobalSettings(ctx);
 
     if (args.idx < 0 || args.idx >= globalSettings.announcements.length) {
       throw new ConvexError('Invalid announcement index');
@@ -101,13 +88,9 @@ export const deleteAnnouncement = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
+    await ensureAuthAndTA(ctx);
 
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
-
-    const globalSettings = (await ctx.db.query('globalSettings').first())!;
+    const globalSettings = await getGlobalSettings(ctx);
 
     if (args.idx < 0 || args.idx >= globalSettings.announcements.length) {
       throw new ConvexError('Invalid announcement index');
@@ -201,7 +184,7 @@ export const addQuestion = mutation({
     }
     // handle student created questions
     else {
-      const globalSettings = (await ctx.db.query('globalSettings').first())!;
+      const globalSettings = await getGlobalSettings(ctx);
 
       // check queue not frozen
       if (globalSettings.is_frozen) {
@@ -376,16 +359,9 @@ export const helpStudent = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
-
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
-
+    const { ta } = await ensureAuthAndTA(ctx);
     const student_to_help = (await ctx.db.get(args.student_id))!;
-    const ta = (await getTA(ctx, user_data.sem_user_id))!;
-
-    const existing_entry = (await getQueueEntry(ctx, student_to_help._id))!;
+    const existing_entry = await getQueueEntry(ctx, student_to_help._id);
 
     if (
       existing_entry.helping_ta_id !== undefined ||
@@ -408,16 +384,9 @@ export const unhelpStudent = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
-
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
-
+    const { ta } = await ensureAuthAndTA(ctx);
     const student_to_unhelp = (await ctx.db.get(args.student_id))!;
-    const ta = (await getTA(ctx, user_data.sem_user_id))!;
-
-    const existing_entry = (await getQueueEntry(ctx, student_to_unhelp._id))!;
+    const existing_entry = await getQueueEntry(ctx, student_to_unhelp._id);
 
     if (existing_entry.status !== 'being_helped') {
       throw new ConvexError('Student is not being helped');
@@ -463,13 +432,8 @@ export const askToFixQuestion = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
-
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
-
-    const existing_entry = (await getQueueEntry(ctx, args.student_id))!;
+    await ensureAuthAndTA(ctx);
+    const existing_entry = await getQueueEntry(ctx, args.student_id);
 
     await ctx.db.patch(existing_entry._id, {
       status: 'fixing_question',
@@ -485,15 +449,8 @@ export const messageStudent = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
-
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
-
-    const ta = (await getTA(ctx, user_data.sem_user_id))!;
-
-    const existing_entry = (await getQueueEntry(ctx, args.student_id))!;
+    const { ta } = await ensureAuthAndTA(ctx);
+    const existing_entry = await getQueueEntry(ctx, args.student_id);
 
     if (existing_entry.status == 'being_helped') {
       throw new ConvexError(
@@ -519,15 +476,9 @@ export const dismissMessage = mutation({
   args: {},
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
+    const { student } = await ensureAuthAndStudent(ctx);
 
-    if (user_data.kind !== 'student') {
-      throw new ConvexError('User is not a student');
-    }
-
-    const student = (await getStudent(ctx, user_data.sem_user_id))!;
-
-    const existing_entry = (await getQueueEntry(ctx, student._id))!;
+    const existing_entry = await getQueueEntry(ctx, student._id);
 
     await ctx.db.patch(existing_entry._id, {
       has_unread_messages: false,
@@ -541,14 +492,11 @@ export const approveCooldownOverride = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
-    const existing_entry = (await getQueueEntry(ctx, args.student_id))!;
+    await ensureAuthAndTA(ctx);
 
-    if (user_data.kind !== 'TA') {
-      throw new ConvexError('User is not a TA');
-    }
+    const existing_entry = await getQueueEntry(ctx, args.student_id);
 
-    const adminSettings = (await ctx.db.query('globalSettings').first())!;
+    const adminSettings = await getGlobalSettings(ctx);
 
     if (!adminSettings.allow_cooldown_override) {
       throw new ConvexError('Cooldown override is disabled');
