@@ -126,7 +126,7 @@ export default function StudentEntries(props) {
   }, [allStudents, filteredLocations, filteredTopics]);
 
   const FilterWithProps = useMemo(() => {
-    return (props) => (
+    const Component = (props) => (
       <Filter
         filteredLocations={filteredLocations}
         filteredTopics={filteredTopics}
@@ -135,7 +135,10 @@ export default function StudentEntries(props) {
         {...props}
       />
     );
+    Component.displayName = 'FilterWithProps';
+    return Component;
   }, [filteredLocations, filteredTopics, setFilteredLocations, setFilteredTopics]);
+
 
   /* END FILTER LOGIC (the actual filtering is in QUEUE LOGIC)*/
 
