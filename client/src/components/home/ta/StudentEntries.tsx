@@ -14,6 +14,56 @@ import { AllStudentsContext } from '../../../contexts/AllStudentsContext';
 import { socketSubscribeTo } from '../../../services/SocketsService';
 import { QueueDataContext } from '../../../contexts/QueueDataContext';
 
+const Filter = ({
+  filteredLocations,
+  filteredTopics,
+  setFilteredLocations,
+  setFilteredTopics,
+}) => {
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleFilterDialog = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleFilterClose = () => {
+    setAnchorEl(null);
+  };
+
+  const openFilterDialog = Boolean(anchorEl);
+
+  return (
+    <div>
+      <Button
+        variant="contained"
+        startIcon={<FilterListIcon />}
+        sx={{ fontWeight: 'bold', mr: 1 }}
+        onClick={handleFilterDialog}
+        aria-describedby={'popover'}
+      >
+        Filter
+      </Button>
+      <Popover
+        id={'popover'}
+        open={openFilterDialog}
+        anchorEl={anchorEl}
+        onClose={handleFilterClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+      >
+        <FilterOptions
+          filteredLocations={filteredLocations}
+          filteredTopics={filteredTopics}
+          setFilteredLocations={setFilteredLocations}
+          setFilteredTopics={setFilteredTopics}
+        />
+      </Popover>
+    </div>
+  );
+};
+
 export default function StudentEntries(props) {
   const { setQueueData } = useContext(QueueDataContext);
   const { userData } = useContext(UserDataContext);
@@ -75,48 +125,21 @@ export default function StudentEntries(props) {
     return newFiltered;
   }, [allStudents, filteredLocations, filteredTopics]);
 
-  const Filter = () => {
-    const handleFilterDialog = (event) => {
-      setAnchorEl(event.currentTarget);
-    };
-
-    const [anchorEl, setAnchorEl] = useState(null);
-    const handleFilterClose = () => {
-      setAnchorEl(null);
-    };
-    const openFilterDialog = Boolean(anchorEl);
-
-    return (
-      <div>
-        <Button
-          variant="contained"
-          startIcon={<FilterListIcon />}
-          sx={{ fontWeight: 'bold', mr: 1 }}
-          onClick={handleFilterDialog}
-          aria-describedby={'popover'}
-        >
-          Filter
-        </Button>
-        <Popover
-          id={'popover'}
-          open={openFilterDialog}
-          anchorEl={anchorEl}
-          onClose={handleFilterClose}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'left',
-          }}
-        >
-          <FilterOptions
-            filteredLocations={filteredLocations}
-            filteredTopics={filteredTopics}
-            setFilteredLocations={setFilteredLocations}
-            setFilteredTopics={setFilteredTopics}
-          />
-        </Popover>
-      </div>
+  const FilterWithProps = useMemo(() => {
+    const Component = (props) => (
+      <Filter
+        filteredLocations={filteredLocations}
+        filteredTopics={filteredTopics}
+        setFilteredLocations={setFilteredLocations}
+        setFilteredTopics={setFilteredTopics}
+        {...props}
+      />
     );
-  };
+    Component.displayName = 'FilterWithProps';
+    return Component;
+  }, [filteredLocations, filteredTopics, setFilteredLocations, setFilteredTopics]);
+
+
   /* END FILTER LOGIC (the actual filtering is in QUEUE LOGIC)*/
 
   /* BEGIN QUEUE LOGIC */
@@ -167,7 +190,6 @@ export default function StudentEntries(props) {
           setTempDisabled(false);
         });
   };
-
   const handleCancel = (index) => {
     setTempDisabled(true);
     HomeService.unhelpStudent(
@@ -228,7 +250,7 @@ export default function StudentEntries(props) {
   /* END QUEUE LOGIC */
 
   return (
-    <BaseTable title="Students" HeaderTailComp={Filter}>
+    <BaseTable title="Students" HeaderTailComp={FilterWithProps}>
       {filteredStudents.map((student, index) => (
         <StudentEntry
           isHelping={isHelping}

@@ -335,8 +335,8 @@ const StudentStatus = Object.freeze({
  *      helpTime: Moment object,
  *      isFrozen: bool,
  *      numAskedToFix: int,
- *      message: string,                Current message to the student (if any)
- *      messageBuffer: string[]         Buffer of previous TA messages to the student
+ *      taMessage: string,                Current message to the student (if any)
+ *      taMessageBuffer: string[]         Buffer of previous TA messages to the student
  * }
  */
 
@@ -370,8 +370,8 @@ class OHQueue {
             helpTime: null,
             isFrozen: false,
             numAskedToFix: 0,
-            message: "",
-            messageBuffer: []
+            taMessage: "",
+            taMessageBuffer: []
         }
         this.queue.addLast(data);
     }
@@ -532,12 +532,12 @@ class OHQueue {
         var node = this.queue.find(x => x.andrewID == andrewID);
         if (node != null) {
             node.data.status = StudentStatus.RECEIVED_MESSAGE;
-            node.data.message = message;
+            node.data.taMessage = message;
             node.data.isFrozen = false;
             node.data.taID = taID;
             node.data.taAndrewID = taAndrewID;
             node.data.taPrefName = taPrefName;
-            node.data.messageBuffer.push(`${taPrefName}: ${message}`);
+            node.data.taMessageBuffer.push(`${taPrefName}: ${message}`);
         }
     }
 
@@ -547,7 +547,7 @@ class OHQueue {
         if (node != null) {
             node.data.status = StudentStatus.WAITING;
             node.data.isFrozen = false;
-            node.data.message = null;
+            node.data.taMessage = null;
             node.data.taID = null;
             node.data.taAndrewID = null;
             node.data.taPrefName = null;

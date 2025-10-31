@@ -46,6 +46,9 @@ export default function UpdateQuestionOverlay(props) {
             handleClose();
             setIsSubmitting(false);
           });
+    }).catch((error) => {
+      handleClose();
+      setIsSubmitting(false);
     });
   };
 

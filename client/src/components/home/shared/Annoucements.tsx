@@ -7,6 +7,8 @@ import {
   Edit, Delete,
 } from '@mui/icons-material';
 
+import Linkify from 'linkify-react';
+
 import AnnouncementDialogBody from './dialogs/AnnouncementDialogBody';
 import AddDialog from '../../common/dialogs/AddDialog';
 import EditDialog from '../../common/dialogs/EditDialog';
@@ -130,8 +132,17 @@ export default function Announcements(props) {
               {rows.slice().reverse().map((row, index) => (
                 <ItemRow key={row.id} index={index} rowKey={row.id}>
                   <TableCell component='th' scope='row' sx={{pl: 3.25}}>
-                    <Typography sx={{fontWeight: 'bold', whiteSpace: 'pre-line'}}>
-                      {row.content}
+                    <Typography
+                      sx={{
+                        'fontWeight': 'bold',
+                        'whiteSpace': 'pre-line',
+                        '& a': {
+                          color: 'primary.main',
+                          cursor: 'pointer',
+                        },
+                      }}
+                    >
+                      <Linkify options={{target: '_blank'}}>{row.content}</Linkify>
                     </Typography>
                   </TableCell>
                   <TableCell>

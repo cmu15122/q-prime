@@ -109,6 +109,10 @@ exports.get_avg_time_per_question = (req, res) => {
 
         if (count != 0) averageTime /= count;
 
+        const minutes = Math.floor(averageTime);
+        const seconds = Math.round((averageTime - minutes) * 60);
+        averageTime = minutes + ":" + seconds.toString().padStart(2, '0');
+
         respond(req, res, "Got average time per question", { averageTime: averageTime }, 200);
     });
 }
@@ -198,6 +202,10 @@ exports.get_avg_wait_time_today = (req, res) => {
         }
 
         if (count != 0) avgWaitTime /= count;
+
+        const minutes = Math.floor(avgWaitTime);
+        const seconds = Math.round((avgWaitTime - minutes) * 60);
+        avgWaitTime = minutes + ":" + seconds.toString().padStart(2, '0');
 
         respond(req, res, "Got average wait time today", { avgWaitTime: avgWaitTime }, 200);
     });
@@ -292,6 +300,10 @@ exports.get_total_avg_time_per_question = (req, res) => {
 
         if (count != 0) averageTime /= count;
 
+        const minutes = Math.floor(averageTime);
+        const seconds = Math.round((averageTime - minutes) * 60);
+        averageTime = minutes + ":" + seconds.toString().padStart(2, '0');
+
         respond(req, res, "Got average time per question", { averageTime: averageTime }, 200);
     });
 }
@@ -319,6 +331,10 @@ exports.get_total_avg_wait_time = (req, res) => {
         }
 
         if (count != 0) avgWaitTime /= count;
+
+        const minutes = Math.floor(avgWaitTime);
+        const seconds = Math.round((avgWaitTime - minutes) * 60);
+        avgWaitTime = minutes + ":" + seconds.toString().padStart(2, '0');
 
         respond(req, res, "Got average wait time", { totalAvgWaitTime: avgWaitTime }, 200);
     });
