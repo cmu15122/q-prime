@@ -2,11 +2,12 @@ import React, {useState, useEffect, useContext} from 'react';
 import {
   Box, Button, CardActions, IconButton, Divider, Stack,
   Typography, Table, TableCell, TableBody, TableContainer,
-  Link,
 } from '@mui/material';
 import {
   Edit, Delete,
 } from '@mui/icons-material';
+
+import Linkify from 'linkify-react';
 
 import AnnouncementDialogBody from './dialogs/AnnouncementDialogBody';
 import AddDialog from '../../common/dialogs/AddDialog';
@@ -110,20 +111,6 @@ export default function Announcements(props) {
     });
   };
 
-  const addHyperlinks = (content) => {
-    const urlRegex = /(https?:\/\/[^\s<>(){}|\\^`[\]]+)/g;
-    return content.split(urlRegex).map((part, index) => {
-      if (part.match(urlRegex)) {
-        return (
-          <Link key={index} href={part} target="_blank" rel="noopener noreferrer" color="primary">
-            {part}
-          </Link>
-        );
-      }
-      return part;
-    });
-  };
-
   return (
     <div style={{paddingTop: '10px'}}>
       <BaseCard>
@@ -146,7 +133,7 @@ export default function Announcements(props) {
                 <ItemRow key={row.id} index={index} rowKey={row.id}>
                   <TableCell component='th' scope='row' sx={{pl: 3.25}}>
                     <Typography sx={{fontWeight: 'bold', whiteSpace: 'pre-line'}}>
-                      {addHyperlinks(row.content)}
+                      <Linkify options={{target: '_blank'}}>{row.content}</Linkify>
                     </Typography>
                   </TableCell>
                   <TableCell>
