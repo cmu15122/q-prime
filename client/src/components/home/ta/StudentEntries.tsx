@@ -190,7 +190,6 @@ export default function StudentEntries(props) {
           setTempDisabled(false);
         });
   };
-
   const handleCancel = (index) => {
     setTempDisabled(true);
     HomeService.unhelpStudent(
