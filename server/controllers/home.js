@@ -49,8 +49,8 @@ function buildStudentEntryData(student) {
     question: student.question,
     status: student.status,
     isFrozen: student.isFrozen,
-    message: student.message,
-    messageBuffer: student.messageBuffer,
+    taMessage: student.taMessage,
+    taMessageBuffer: student.taMessageBuffer,
     position: studentPos,
   };
 
@@ -239,8 +239,8 @@ exports.get_student_data = function (req, res) {
     topic: '',
     question: '',
     isFrozen: false,
-    message: '',
-    messageBuffer: [],
+    taMessage: '',
+    taMessageBuffer: [],
     status: -1,
     position: -1,
   };
@@ -257,7 +257,7 @@ exports.get_student_data = function (req, res) {
       res,
       'Successfully retrieved student data',
       buildStudentEntryData(ohq.queue.get(studentPos)),
-      200
+      200,
     );
     return;
   }
@@ -279,8 +279,8 @@ function emitNewStudentData(studentAndrewID) {
       topic: '',
       question: '',
       isFrozen: false,
-      message: '',
-      messageBuffer: [],
+      taMessage: '',
+      taMessageBuffer: [],
       status: -1,
       position: -1,
     });

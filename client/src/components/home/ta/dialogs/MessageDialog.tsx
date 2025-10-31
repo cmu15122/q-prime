@@ -43,7 +43,7 @@ export default function MessageDialog(props) {
           {student.status === StudentStatusValues.RECEIVED_MESSAGE &&
             'Note: Student has already been messaged. Sending a message here will overwrite the existing message'}
         </Typography>
-        {student.messageBuffer && student.messageBuffer.length > 0 && (
+        {student.taMessageBuffer && student.taMessageBuffer.length > 0 && (
           <Box
             bgcolor="background.paper"
             sx={{
@@ -65,7 +65,7 @@ export default function MessageDialog(props) {
             >
               Previous Messages:
             </Typography>
-            {student.messageBuffer.map((message, index) => (
+            {student.taMessageBuffer.map((message, index) => (
               <Typography
                 key={index}
                 variant="body2"
