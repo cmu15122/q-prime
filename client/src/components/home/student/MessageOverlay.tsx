@@ -24,7 +24,7 @@ export default function MessageOverlay(props) {
           multiline
           fullWidth
           rows={4}
-          value={studentData.message}
+          value={studentData.taMessage}
           InputProps={{readOnly: true}}
         />
 

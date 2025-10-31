@@ -11,8 +11,8 @@ export type StudentData = {
   };
   question: string;
   isFrozen: boolean;
-  message: string;
-  messageBuffer: string[];
+  taMessage: string;
+  taMessageBuffer: string[];
   status: number;
   position: number;
   helpingTAInfo?: {
