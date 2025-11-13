@@ -1,12 +1,14 @@
-import { ConvexError, v } from 'convex/values';
-import { mutation } from '../_generated/server';
+import { ConvexError, v } from "convex/values";
+import { mutation } from "../_generated/server";
 import {
   ensureAuthAndAdmin,
   ensureAuthAndTA,
   getCurrentSemester,
   getCurrentUser,
   getGlobalSettings,
-} from '../common';
+  getQueueLength,
+} from "../common";
+import { createAccount } from "@convex-dev/auth/server";
 
 /** General Settings (User-specific) **/
 
@@ -37,8 +39,8 @@ export const updatePreferredName = mutation({
     const user_data = (await getCurrentUser(ctx))!;
 
     const user_prefs = (await ctx.db
-      .query('userPreferences')
-      .withIndex('by_user_id', (q) => q.eq('user_id', user_data._id))
+      .query("userPreferences")
+      .withIndex("by_user_id", (q) => q.eq("user_id", user_data._id))
       .first())!;
 
     await ctx.db.patch(user_prefs._id, {
@@ -60,7 +62,7 @@ export const updateNotifications = mutation({
     const { ta } = await ensureAuthAndTA(ctx);
 
     if (args.remindTime < 0) {
-      throw new ConvexError('Remind time must be non-negative');
+      throw new ConvexError("Remind time must be non-negative");
     }
 
     await ctx.db.patch(ta._id, {
@@ -102,7 +104,7 @@ export const updateCourseName = mutation({
     await ensureAuthAndAdmin(ctx);
 
     if (!args.courseName) {
-      throw new ConvexError('Course name cannot be empty');
+      throw new ConvexError("Course name cannot be empty");
     }
 
     const globalSettings = await getGlobalSettings(ctx);
@@ -124,7 +126,7 @@ export const updateQuestionsURL = mutation({
     await ensureAuthAndAdmin(ctx);
 
     if (!args.questionsURL) {
-      throw new ConvexError('Questions URL cannot be empty');
+      throw new ConvexError("Questions URL cannot be empty");
     }
 
     const globalSettings = await getGlobalSettings(ctx);
@@ -146,7 +148,7 @@ export const updateRejoinTime = mutation({
     await ensureAuthAndAdmin(ctx);
 
     if (isNaN(args.rejoinTime) || args.rejoinTime < 0) {
-      throw new ConvexError('Rejoin time must be a non-negative number');
+      throw new ConvexError("Rejoin time must be a non-negative number");
     }
 
     const globalSettings = await getGlobalSettings(ctx);
@@ -228,7 +230,7 @@ export const createAssignment = mutation({
 
     const curr_sem = await getCurrentSemester(ctx);
 
-    await ctx.db.insert('assignments', {
+    await ctx.db.insert("assignments", {
       name: args.name,
       semester_id: curr_sem._id,
       assignment_type: args.category,
@@ -242,7 +244,7 @@ export const createAssignment = mutation({
 
 export const updateAssignment = mutation({
   args: {
-    assignment_id: v.id('assignments'),
+    assignment_id: v.id("assignments"),
     name: v.string(),
     category: v.optional(v.string()),
     start_date_ms: v.number(),
@@ -255,7 +257,7 @@ export const updateAssignment = mutation({
     const assignment = await ctx.db.get(args.assignment_id);
 
     if (!assignment) {
-      throw new ConvexError('Assignment not found');
+      throw new ConvexError("Assignment not found");
     }
 
     await ctx.db.patch(args.assignment_id, {
@@ -271,7 +273,7 @@ export const updateAssignment = mutation({
 
 export const deleteAssignment = mutation({
   args: {
-    assignment_id: v.id('assignments'),
+    assignment_id: v.id("assignments"),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
@@ -280,7 +282,7 @@ export const deleteAssignment = mutation({
     const assignment = await ctx.db.get(args.assignment_id);
 
     if (!assignment) {
-      throw new ConvexError('Assignment not found');
+      throw new ConvexError("Assignment not found");
     }
 
     await ctx.db.delete(args.assignment_id);
@@ -300,18 +302,18 @@ export const addLocation = mutation({
     await ensureAuthAndAdmin(ctx);
 
     if (!args.room) {
-      throw new ConvexError('Room name cannot be empty');
+      throw new ConvexError("Room name cannot be empty");
     }
 
     const globalSettings = await getGlobalSettings(ctx);
 
     const dayDictionary = { ...globalSettings.day_to_location_dict };
 
-    if (!dayDictionary['-1']) {
-      dayDictionary['-1'] = [];
+    if (!dayDictionary["-1"]) {
+      dayDictionary["-1"] = [];
     }
 
-    dayDictionary['-1'].push(args.room);
+    dayDictionary["-1"].push(args.room);
 
     await ctx.db.patch(globalSettings._id, {
       day_to_location_dict: dayDictionary,
@@ -380,8 +382,8 @@ export const removeLocation = mutation({
     }
 
     // Remove from -1 (all rooms list)
-    if (dayDictionary['-1']) {
-      dayDictionary['-1'] = dayDictionary['-1'].filter((r) => r !== args.room);
+    if (dayDictionary["-1"]) {
+      dayDictionary["-1"] = dayDictionary["-1"].filter((r) => r !== args.room);
     }
 
     await ctx.db.patch(globalSettings._id, {
@@ -433,8 +435,8 @@ export const updateBlacklistSettings = mutation({
 export const updateAccessControlledUser = mutation({
   args: {
     email: v.string(),
-    listType: v.union(v.literal('whitelist'), v.literal('blacklist')),
-    updateType: v.union(v.literal('add'), v.literal('remove')),
+    listType: v.union(v.literal("whitelist"), v.literal("blacklist")),
+    updateType: v.union(v.literal("add"), v.literal("remove")),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
@@ -442,12 +444,12 @@ export const updateAccessControlledUser = mutation({
 
     const curr_sem = await getCurrentSemester(ctx);
 
-    if (args.listType === 'whitelist') {
-      if (args.updateType === 'add') {
+    if (args.listType === "whitelist") {
+      if (args.updateType === "add") {
         // Check if already on blacklist
         if (curr_sem.blacklist.includes(args.email)) {
           throw new ConvexError(
-            'User is on the blacklist and cannot be added to the whitelist'
+            "User is on the blacklist and cannot be added to the whitelist",
           );
         }
 
@@ -465,11 +467,11 @@ export const updateAccessControlledUser = mutation({
       }
     } else {
       // blacklist
-      if (args.updateType === 'add') {
+      if (args.updateType === "add") {
         // Check if already on whitelist
         if (curr_sem.whitelist.includes(args.email)) {
           throw new ConvexError(
-            'User is on the whitelist and cannot be added to the blacklist'
+            "User is on the whitelist and cannot be added to the blacklist",
           );
         }
 
@@ -504,63 +506,269 @@ export const createTA = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    // Cannot implement without understanding the full user creation flow
-    // and how it integrates with the auth system. This would require:
-    // 1. Creating or finding a user in the users table (managed by auth)
-    // 2. Creating userPreferences
-    // 3. Creating a semesterUser
-    // 4. Creating a TA record
-    // The auth system integration makes this unsafe to implement without more context.
-    throw new ConvexError('Not implemented - requires auth system integration');
+    await ensureAuthAndAdmin(ctx);
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("email", (x) => x.eq("email", args.email))
+      .first();
+
+    const curr_sem = await getCurrentSemester(ctx);
+    // if a user already exists, link to that user
+    if (user != null) {
+      // if they don't have a sem user yet, make one
+      const curr_sem_user = await ctx.db
+        .query("semesterUsers")
+        .withIndex("by_sem_and_user", (q) =>
+          q.eq("semester_id", curr_sem._id).eq("user_id", user._id),
+        )
+        .first();
+
+      let curr_sem_user_id = null;
+      let user_prefs_id = null;
+
+      if (curr_sem_user == null) {
+        const user_prefs = await ctx.db
+          .query("userPreferences")
+          .withIndex("by_user_id", (q) => q.eq("user_id", user._id))
+          .first();
+
+        if (!user_prefs) {
+          throw new ConvexError(
+            "User preferences not found when creating semester user",
+          );
+        }
+
+        user_prefs_id = user_prefs._id;
+
+        curr_sem_user_id = await ctx.db.insert("semesterUsers", {
+          user_id: user._id,
+          user_prefs_id: user_prefs._id,
+          semester_id: curr_sem._id,
+          kind: "TA",
+        });
+      } else {
+        // make the sem user a TA
+        await ctx.db.patch(curr_sem_user._id, {
+          kind: "TA",
+        });
+
+        curr_sem_user_id = curr_sem_user._id;
+        user_prefs_id = curr_sem_user.user_prefs_id;
+      }
+
+      // Now make a TA entry
+      await ctx.db.insert("tas", {
+        user_id: user._id,
+        user_prefs_id: user_prefs_id,
+        semester_user_id: curr_sem_user_id,
+        is_admin: args.isAdmin,
+        zoom_enabled: false,
+        zoom_url: "",
+        join_notifs_enabled: false,
+        remind_notifs_enabled: false,
+        remind_time_mins: 10,
+        show_self_timer: false,
+        show_others_timer: false,
+        num_helped: 0,
+        time_helped_ms: 0,
+      });
+    }
+    // otherwise log that we want to make this TA when the user logs in
+    else {
+      await ctx.db.insert("future_tas", {
+        semester_id: curr_sem._id,
+        email: args.email,
+        name: args.name,
+        is_admin: args.isAdmin,
+      });
+    }
   },
 });
 
+/**
+ * Can only update whether a TA is an admin or not
+ */
 export const updateTA = mutation({
   args: {
-    user_id: v.id('users'),
+    email: v.id("users"),
     isAdmin: v.boolean(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    // Cannot implement without understanding how to safely look up and update
-    // TAs across semesters. Need to ensure we're updating the correct TA record
-    // for the current semester and validating permissions properly.
-    throw new ConvexError('Not implemented - requires careful TA lookup logic');
+    await ensureAuthAndAdmin(ctx);
+
+    // check if the ta object exists
+    const user = await ctx.db
+      .query("users")
+      .withIndex("email", (x) => x.eq("email", args.email))
+      .first();
+
+    const curr_sem = await getCurrentSemester(ctx);
+
+    if (!user) {
+      // check in future_tas
+      const future_ta = await ctx.db
+        .query("future_tas")
+        .withIndex("by_sem_and_email", (x) =>
+          x.eq("semester_id", curr_sem._id).eq("email", args.email),
+        )
+        .first();
+
+      if (!future_ta) {
+        throw new ConvexError(
+          "User does not exist in the current or future semesters",
+        );
+      }
+
+      await ctx.db.patch(future_ta._id, {
+        is_admin: args.isAdmin,
+      });
+    } else {
+      const sem_user = await ctx.db
+        .query("semesterUsers")
+        .withIndex("by_sem_and_user", (x) =>
+          x.eq("semester_id", curr_sem._id).eq("user_id", user._id),
+        )
+        .first();
+
+      if (!sem_user) {
+        throw new ConvexError(
+          "TA user exists but does not have a sem_user entry",
+        );
+      }
+
+      const ta = await ctx.db
+        .query("tas")
+        .withIndex("by_semuser", (x) => x.eq("semester_user_id", sem_user._id))
+        .first();
+
+      if (!ta) {
+        throw new ConvexError("TA user exists but does not have a ta entry");
+      }
+
+      await ctx.db.patch(ta._id, {
+        is_admin: args.isAdmin,
+      });
+    }
   },
 });
 
+/**
+ * Removes TA entry for a user with this email
+ */
 export const deleteTA = mutation({
   args: {
-    user_id: v.id('users'),
+    email: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    // Cannot implement without understanding whether this should:
-    // 1. Delete the TA record entirely
-    // 2. Just remove TA status from semesterUser
-    // 3. Soft-delete or archive the TA
-    // The original code modifies semesterUser.is_ta which doesn't exist in our schema.
-    throw new ConvexError('Not implemented - schema mismatch on TA deletion');
+    await ensureAuthAndAdmin(ctx);
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("email", (x) => x.eq("email", args.email))
+      .first();
+
+    const curr_sem = await getCurrentSemester(ctx);
+
+    if (!user) {
+      // check in future_tas
+      const future_ta = await ctx.db
+        .query("future_tas")
+        .withIndex("by_sem_and_email", (x) =>
+          x.eq("semester_id", curr_sem._id).eq("email", args.email),
+        )
+        .first();
+
+      if (!future_ta) {
+        throw new ConvexError(
+          "User does not exist in the current or future semesters",
+        );
+      }
+
+      await ctx.db.delete(future_ta._id);
+    } else {
+      const sem_user = await ctx.db
+        .query("semesterUsers")
+        .withIndex("by_sem_and_user", (x) =>
+          x.eq("semester_id", curr_sem._id).eq("user_id", user._id),
+        )
+        .first();
+
+      if (!sem_user) {
+        throw new ConvexError(
+          "TA user exists but does not have a sem_user entry",
+        );
+      }
+
+      const ta = await ctx.db
+        .query("tas")
+        .withIndex("by_semuser", (x) => x.eq("semester_user_id", sem_user._id))
+        .first();
+
+      if (!ta) {
+        throw new ConvexError("TA user exists but does not have a ta entry");
+      }
+
+      await ctx.db.patch(sem_user._id, {
+        kind: "student",
+      });
+      await ctx.db.delete(ta._id);
+    }
   },
 });
 
 /** Semester Management **/
 
-export const updateSemester = mutation({
+export const changeSemester = mutation({
   args: {
-    sem_id: v.id('semesters'),
+    new_sem_name: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    // Cannot implement without understanding:
-    // 1. How semester transitions should work
-    // 2. What happens to existing queue data
-    // 3. User migration between semesters
-    // 4. Permission requirements (owner-only in original)
-    // This is a complex operation that affects the entire system.
-    throw new ConvexError(
-      'Not implemented - requires complex semester transition logic'
-    );
+    const { user_data } = await ensureAuthAndAdmin(ctx);
+
+    const queue_length = await getQueueLength(ctx);
+    if (queue_length > 0) {
+      throw new ConvexError("Queue is not empty");
+    }
+
+    const curr_sem = await getCurrentSemester(ctx);
+    const curr_owners = curr_sem.owner_emails;
+
+    if (!curr_owners.includes(user_data.email!)) {
+      throw new ConvexError("User is not an owner of the current semester");
+    }
+
+    // try looking up next sem by name
+    const existing_sem = await ctx.db
+      .query("semesters")
+      .withIndex("by_name", (x) => x.eq("name", args.new_sem_name))
+      .first();
+
+    let new_sem_id;
+    if (existing_sem) {
+      new_sem_id = existing_sem._id;
+    } else {
+      const new_sem = await ctx.db.insert("semesters", {
+        name: args.new_sem_name,
+        owner_emails: curr_owners,
+
+        enable_whitelist: false,
+        enable_blacklist: false,
+        whitelist: [],
+        blacklist: [],
+      });
+
+      new_sem_id = new_sem;
+    }
+
+    const globalSettings = await getGlobalSettings(ctx);
+
+    await ctx.db.patch(globalSettings._id, {
+      curr_sem: new_sem_id,
+    });
   },
 });
 
@@ -572,14 +780,14 @@ export const updateSlackURL = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    // Cannot implement without understanding:
-    // 1. How to properly validate webhook URLs
-    // 2. What the slack.update_slack() function does
-    // 3. Whether there are external side effects that need to be triggered
-    // The original triggers an external slack controller update.
-    throw new ConvexError(
-      'Not implemented - requires external slack integration'
-    );
+    // TODO - need to make a hook that actually runs slackbot
+    await ensureAuthAndAdmin(ctx);
+
+    const globalSettings = await getGlobalSettings(ctx);
+
+    await ctx.db.patch(globalSettings._id, {
+      slackbot_webhook_url: args.slackURL,
+    });
   },
 });
 
