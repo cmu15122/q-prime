@@ -220,7 +220,7 @@ export const updateAllowShowOthersTimer = mutation({
 export const createAssignment = mutation({
   args: {
     name: v.string(),
-    category: v.optional(v.string()),
+    assignment_type: v.optional(v.string()),
     start_date_ms: v.number(),
     end_date_ms: v.number(),
   },
@@ -233,7 +233,7 @@ export const createAssignment = mutation({
     await ctx.db.insert("assignments", {
       name: args.name,
       semester_id: curr_sem._id,
-      assignment_type: args.category,
+      assignment_type: args.assignment_type,
       start_date_ms: args.start_date_ms,
       end_date_ms: args.end_date_ms,
     });
@@ -246,7 +246,7 @@ export const updateAssignment = mutation({
   args: {
     assignment_id: v.id("assignments"),
     name: v.string(),
-    category: v.optional(v.string()),
+    assignment_type: v.optional(v.string()),
     start_date_ms: v.number(),
     end_date_ms: v.number(),
   },
@@ -262,7 +262,7 @@ export const updateAssignment = mutation({
 
     await ctx.db.patch(args.assignment_id, {
       name: args.name,
-      assignment_type: args.category,
+      assignment_type: args.assignment_type,
       start_date_ms: args.start_date_ms,
       end_date_ms: args.end_date_ms,
     });
@@ -435,8 +435,8 @@ export const updateBlacklistSettings = mutation({
 export const updateAccessControlledUser = mutation({
   args: {
     email: v.string(),
-    listType: v.union(v.literal("whitelist"), v.literal("blacklist")),
-    updateType: v.union(v.literal("add"), v.literal("remove")),
+    is_whitelisted: v.boolean(),
+    is_blacklisted: v.boolean(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
@@ -444,49 +444,50 @@ export const updateAccessControlledUser = mutation({
 
     const curr_sem = await getCurrentSemester(ctx);
 
-    if (args.listType === "whitelist") {
-      if (args.updateType === "add") {
-        // Check if already on blacklist
-        if (curr_sem.blacklist.includes(args.email)) {
-          throw new ConvexError(
-            "User is on the blacklist and cannot be added to the whitelist",
-          );
-        }
+    if (args.is_blacklisted && args.is_whitelisted) {
+      throw new ConvexError("User cannot be both blacklisted and whitelisted");
+    }
 
-        // Add to whitelist if not already there
-        if (!curr_sem.whitelist.includes(args.email)) {
-          await ctx.db.patch(curr_sem._id, {
-            whitelist: [...curr_sem.whitelist, args.email],
-          });
-        }
-      } else {
-        // Remove from whitelist
+    if (args.is_whitelisted) {
+      // Check if already on blacklist
+      if (curr_sem.blacklist.includes(args.email)) {
+        throw new ConvexError(
+          "User is on the blacklist and cannot be added to the whitelist",
+        );
+      }
+
+      // Add to whitelist if not already there
+      if (!curr_sem.whitelist.includes(args.email)) {
         await ctx.db.patch(curr_sem._id, {
-          whitelist: curr_sem.whitelist.filter((email) => email !== args.email),
+          whitelist: [...curr_sem.whitelist, args.email],
         });
       }
     } else {
-      // blacklist
-      if (args.updateType === "add") {
-        // Check if already on whitelist
-        if (curr_sem.whitelist.includes(args.email)) {
-          throw new ConvexError(
-            "User is on the whitelist and cannot be added to the blacklist",
-          );
-        }
+      // Remove from whitelist if they're on it
+      await ctx.db.patch(curr_sem._id, {
+        whitelist: curr_sem.whitelist.filter((email) => email !== args.email),
+      });
+    }
 
-        // Add to blacklist if not already there
-        if (!curr_sem.blacklist.includes(args.email)) {
-          await ctx.db.patch(curr_sem._id, {
-            blacklist: [...curr_sem.blacklist, args.email],
-          });
-        }
-      } else {
-        // Remove from blacklist
+    if (args.is_blacklisted) {
+      // Check if already on whitelist
+      if (curr_sem.whitelist.includes(args.email)) {
+        throw new ConvexError(
+          "User is on the whitelist and cannot be added to the blacklist",
+        );
+      }
+
+      // Add to blacklist if not already there
+      if (!curr_sem.blacklist.includes(args.email)) {
         await ctx.db.patch(curr_sem._id, {
-          blacklist: curr_sem.blacklist.filter((id) => id !== args.email),
+          blacklist: [...curr_sem.blacklist, args.email],
         });
       }
+    } else {
+      // Remove from blacklist if they're on it
+      await ctx.db.patch(curr_sem._id, {
+        blacklist: curr_sem.blacklist.filter((id) => id !== args.email),
+      });
     }
 
     return null;
