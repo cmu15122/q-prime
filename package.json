@@ -2,7 +2,7 @@
   "dependencies": {
     "@auth/core": "^0.37.0",
     "@convex-dev/auth": "^0.0.87",
-    "convex": "^1.28.0",
+    "convex": "^1.29.0",
     "csvtojson": "^2.0.14"
   },
   "devDependencies": {

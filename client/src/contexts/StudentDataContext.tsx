@@ -71,13 +71,13 @@ const StudentDataContextProvider = ({
         }
       });
 
-      socketSubscribeTo('studentData', (data: StudentData) => {
-        if (data.andrewID === userData.andrewID) {
-          setStudentData(data);
-        } else {
-          console.log('Student data id doesn\'t match andrewID');
-        }
-      });
+      // socketSubscribeTo('studentData', (data: StudentData) => {
+      //   if (data.andrewID === userData.andrewID) {
+      //     setStudentData(data);
+      //   } else {
+      //     console.log('Student data id doesn\'t match andrewID');
+      //   }
+      // });
 
       const handleVisibilityChange = () => {
         if (document.visibilityState === 'visible') {
@@ -87,7 +87,7 @@ const StudentDataContextProvider = ({
             } else if (res.data.andrewID === userData.andrewID) {
               console.log('Student data id doesn\'t match andrewID');
             }
-            ensureSocketConnected();
+            // ensureSocketConnected();
           });
         }
       };

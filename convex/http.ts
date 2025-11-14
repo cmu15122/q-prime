@@ -3,8 +3,11 @@ import { httpAction, internalMutation } from "./_generated/server";
 import { api, internal } from "./_generated/api";
 import { getCurrentSemester } from "./common";
 import { ConvexError, v } from "convex/values";
+import { auth } from "./auth";
 
 const http = httpRouter();
+
+auth.addHttpRoutes(http);
 
 http.route({
   path: "/download_assignment_csv",

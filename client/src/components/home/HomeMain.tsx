@@ -38,15 +38,15 @@ function HomeMain() {
     }
   }, [userData.isAuthenticated, userData.isTA]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      ensureSocketConnected();
-    }, 1000);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     ensureSocketConnected();
+  //   }, 1000);
 
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
+  //   return () => {
+  //     clearInterval(interval);
+  //   };
+  // }, []);
 
   return (
     <Container

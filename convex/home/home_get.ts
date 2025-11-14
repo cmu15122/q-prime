@@ -78,7 +78,7 @@ export const getUserData = query({
       return null;
     }
 
-    const is_owner = curr_sem.owners.includes(user_data._id);
+    const is_owner = curr_sem.owner_emails.includes(user_data._id);
 
     let student_data = null;
     let ta_data = null;

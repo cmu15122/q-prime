@@ -61,16 +61,16 @@ const QueueDataContextProvider = ({
       document.title = res.data.title;
     });
 
-    socketSubscribeTo('queueData', (data: QueueData) => {
-      setQueueData(data);
-    });
+    // socketSubscribeTo('queueData', (data: QueueData) => {
+    //   setQueueData(data);
+    // });
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         HomeService.getAll().then((res) => {
           setQueueData(res.data);
         });
-        ensureSocketConnected();
+        // ensureSocketConnected();
       }
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);

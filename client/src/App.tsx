@@ -37,36 +37,36 @@ function App() {
       <CssBaseline/>
       <LocalizationProvider dateAdapter={AdapterLuxon}>
         <ThemeContext.Provider value={theme}>
-          <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
-            <UserDataContextProvider>
-              <QueueDataContextProvider>
-                <StudentDataContextProvider>
-                  <AdminSettingsContextProvider>
-                    <AllStudentsContextProvider>
-                      <Router basename={process.env.PUBLIC_URL}>
-                        <Routes>
-                          <Route path='/' element={<Home/>} />
-                          <Route path='/settings' element={<Settings/>} />
-                          <Route path='/metrics' element={<Metrics/>} />
-                        </Routes>
-                      </Router>
-                      <ToastContainer
-                        position="bottom-left"
-                        autoClose={5000}
-                        hideProgressBar={false}
-                        newestOnTop={false}
-                        closeOnClick
-                        rtl={false}
-                        pauseOnFocusLoss
-                        draggable
-                        pauseOnHover
-                      />
-                    </AllStudentsContextProvider>
-                  </AdminSettingsContextProvider>
-                </StudentDataContextProvider>
-              </QueueDataContextProvider>
-            </UserDataContextProvider>
-          </GoogleOAuthProvider>
+          {/* <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>*/}
+          <UserDataContextProvider>
+            <QueueDataContextProvider>
+              <StudentDataContextProvider>
+                <AdminSettingsContextProvider>
+                  <AllStudentsContextProvider>
+                    <Router basename={process.env.PUBLIC_URL}>
+                      <Routes>
+                        <Route path='/' element={<Home/>} />
+                        <Route path='/settings' element={<Settings/>} />
+                        <Route path='/metrics' element={<Metrics/>} />
+                      </Routes>
+                    </Router>
+                    <ToastContainer
+                      position="bottom-left"
+                      autoClose={5000}
+                      hideProgressBar={false}
+                      newestOnTop={false}
+                      closeOnClick
+                      rtl={false}
+                      pauseOnFocusLoss
+                      draggable
+                      pauseOnHover
+                    />
+                  </AllStudentsContextProvider>
+                </AdminSettingsContextProvider>
+              </StudentDataContextProvider>
+            </QueueDataContextProvider>
+          </UserDataContextProvider>
+          {/* </GoogleOAuthProvider>*/}
         </ThemeContext.Provider>
       </LocalizationProvider>
     </ThemeProvider>

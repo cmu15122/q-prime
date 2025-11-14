@@ -40,19 +40,19 @@ const AllStudentsContextProvider = ({
         setAllStudents(res.data.allStudents);
       });
 
-      socketSubscribeTo(
-          'allStudents',
-          (data: { allStudents: StudentData[] }) => {
-            setAllStudents(data.allStudents);
-          },
-      );
+      // socketSubscribeTo(
+      //     'allStudents',
+      //     (data: { allStudents: StudentData[] }) => {
+      //       setAllStudents(data.allStudents);
+      //     },
+      // );
 
       const handleVisibilityChange = () => {
         if (document.visibilityState === 'visible') {
           HomeService.getAllStudents().then((res) => {
             setAllStudents(res.data.allStudents);
           });
-          ensureSocketConnected();
+          // ensureSocketConnected();
         }
       };
       document.addEventListener('visibilitychange', handleVisibilityChange);

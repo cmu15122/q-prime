@@ -20,7 +20,7 @@ httpInstance.interceptors.request.use(
         req.headers['Authorization'] = userCookies['access_token'];
       }
 
-      ensureSocketConnected();
+      // ensureSocketConnected();
 
       return req;
     },

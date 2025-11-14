@@ -4,10 +4,19 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+import { ConvexReactClient, ConvexProvider } from 'convex/react';
+import { ConvexAuthProvider } from '@convex-dev/auth/react';
+
+const convex = new ConvexReactClient(
+    process.env.REACT_APP_CONVEX_URL,
+);
+
 const rootElement = document.getElementById('root');
 const root = ReactDOM.createRoot(rootElement as Element);
 root.render(
-    <App />,
+    <ConvexAuthProvider client={convex}>
+      <App />
+    </ConvexAuthProvider>,
 );
 
 // If you want to start measuring performance in your app, pass a function
