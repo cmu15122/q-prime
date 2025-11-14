@@ -8,7 +8,7 @@ import { ConvexReactClient, ConvexProvider } from 'convex/react';
 import { ConvexAuthProvider } from '@convex-dev/auth/react';
 
 const convex = new ConvexReactClient(
-    process.env.REACT_APP_CONVEX_URL,
+    import.meta.env.VITE_APP_CONVEX_URL as string,
 );
 
 const rootElement = document.getElementById('root');

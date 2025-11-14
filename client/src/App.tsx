@@ -12,10 +12,9 @@ import {ThemeProvider} from '@mui/material';
 
 import {AdapterLuxon} from '@mui/x-date-pickers/AdapterLuxon';
 import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
-import {GoogleOAuthProvider} from '@react-oauth/google';
-import {ToastContainer} from 'material-react-toastify';
+// import {GoogleOAuthProvider} from '@react-oauth/google';
+import {ToastContainer} from 'react-toastify';
 
-import 'material-react-toastify/dist/ReactToastify.css';
 import './App.css';
 import {QueueDataContextProvider} from './contexts/QueueDataContext';
 import {AllStudentsContextProvider} from './contexts/AllStudentsContext';
