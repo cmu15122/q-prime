@@ -60,9 +60,19 @@ export default function Announcements() {
     setOpenDelete(false);
   };
 
+  const createAnnouncementMutation = useMutation(
+    api.home.home_mutate.createAnnouncement,
+  );
+  const updateAnnouncementMutation = useMutation(
+    api.home.home_mutate.updateAnnouncement,
+  );
+  const deleteAnnouncementMutation = useMutation(
+    api.home.home_mutate.deleteAnnouncement,
+  );
+
   const handleAdd = async (event) => {
     event.preventDefault();
-    await useMutation(api.home.home_mutate.createAnnouncement)({
+    await createAnnouncementMutation({
       content: content,
     }).then(() => {
       handleClose();
@@ -71,7 +81,7 @@ export default function Announcements() {
 
   const handleEdit = async (event) => {
     event.preventDefault();
-    await useMutation(api.home.home_mutate.updateAnnouncement)({
+    await updateAnnouncementMutation({
       idx: selectedIdx!,
       content: content,
     });
@@ -79,7 +89,7 @@ export default function Announcements() {
 
   const handleDelete = async (event) => {
     event.preventDefault();
-    await useMutation(api.home.home_mutate.deleteAnnouncement)({
+    await deleteAnnouncementMutation({
       idx: selectedIdx!,
     });
   };

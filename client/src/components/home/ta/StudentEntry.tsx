@@ -61,8 +61,11 @@ export default function StudentEntry(props) {
     }
   }
 
+  const approveCooldownOverrideMutation = useMutation(
+    api.home.home_mutate.approveCooldownOverride,
+  );
   const approveCooldownOverride = async () => {
-    await useMutation(api.home.home_mutate.approveCooldownOverride)({
+    await approveCooldownOverrideMutation({
       student_id: student["andrewID"],
     });
   };

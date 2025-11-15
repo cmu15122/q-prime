@@ -142,10 +142,17 @@ export default function StudentEntries() {
   //   });
   // }, []);
 
+  const helpStudentMutation = useMutation(api.home.home_mutate.helpStudent);
+  const unhelpStudentMutation = useMutation(api.home.home_mutate.unhelpStudent);
+  const askToFixQuestionMutation = useMutation(
+    api.home.home_mutate.askToFixQuestion,
+  );
+  const removeStudentMutation = useMutation(api.home.home_mutate.removeStudent);
+
   const handleClickHelp = async (index) => {
     setTempDisabled(true);
 
-    await useMutation(api.home.home_mutate.helpStudent)({
+    await helpStudentMutation({
       student_id: filteredStudents[index].student_id,
     }).finally(() => {
       setTempDisabled(false);
@@ -155,7 +162,7 @@ export default function StudentEntries() {
   const handleCancel = async (index) => {
     setTempDisabled(true);
 
-    await useMutation(api.home.home_mutate.unhelpStudent)({
+    await unhelpStudentMutation({
       student_id: filteredStudents[index].student_id,
     }).finally(() => {
       setTempDisabled(false);
@@ -165,7 +172,7 @@ export default function StudentEntries() {
   const handleFix = async (index) => {
     setTempDisabled(true);
 
-    await useMutation(api.home.home_mutate.askToFixQuestion)({
+    await askToFixQuestionMutation({
       student_id: filteredStudents[index].student_id,
     }).finally(() => {
       setTempDisabled(false);
@@ -176,7 +183,7 @@ export default function StudentEntries() {
   const removeStudent = async (index, doneHelping) => {
     setTempDisabled(true);
 
-    await useMutation(api.home.home_mutate.removeStudent)({
+    await removeStudentMutation({
       student_id: filteredStudents[index].student_id,
       reason: doneHelping ? "helped" : "removed",
     }).finally(() => {

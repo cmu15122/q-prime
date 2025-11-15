@@ -76,8 +76,9 @@ function StudentMain() {
   //   });
   // }, [userData.andrewID]);
 
+  const removeStudentMutation = useMutation(api.home.home_mutate.removeStudent);
   const removeFromQueue = async () => {
-    await useMutation(api.home.home_mutate.removeStudent)({
+    await removeStudentMutation({
       reason: "removed",
       student_id: userData!.student_data!.student_id,
     }).finally(() => {
@@ -86,8 +87,11 @@ function StudentMain() {
   };
 
   // CONVEX TODO USE HAS_UNREAD_MESSAGES FIELD (I think I deleted frontend that handeld this lol so have to bring it back)
+  const dismissMessageMutation = useMutation(
+    api.home.home_mutate.dismissMessage,
+  );
   const dismissMessage = async () => {
-    await useMutation(api.home.home_mutate.dismissMessage)();
+    await dismissMessageMutation();
   };
 
   const statusDependentComponents = useMemo(() => {

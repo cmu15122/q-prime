@@ -18,9 +18,10 @@ export default function CooldownViolationOverlay(props) {
 
   const queueData = useQuery(api.home.home_get.getQueueData);
 
+  const addQuestionMutation = useMutation(api.home.home_mutate.addQuestion);
   async function callAddQuestionAPIOverrideCooldown() {
     if (queueData?.allow_cooldown_override) {
-      await useMutation(api.home.home_mutate.addQuestion)({
+      await addQuestionMutation({
         question: question,
         location: location,
         assignment_id: assignmentId,

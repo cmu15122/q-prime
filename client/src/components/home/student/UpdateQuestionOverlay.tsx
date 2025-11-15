@@ -22,12 +22,15 @@ export default function UpdateQuestionOverlay(props) {
   const [tempQuestion, setTempQuestion] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const updateQuestionMutation = useMutation(
+    api.home.home_mutate.updateQuestion,
+  );
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     setIsSubmitting(true);
 
-    await useMutation(api.home.home_mutate.updateQuestion)({
+    await updateQuestionMutation({
       question: tempQuestion,
     }).finally(() => {
       handleClose();

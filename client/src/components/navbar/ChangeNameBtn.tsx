@@ -29,9 +29,12 @@ export default function ChangeNameBtn(props) {
     setOpen(false);
   };
 
+  const updatePreferredNameMutation = useMutation(
+    api.settings.settings_mutate.updatePreferredName,
+  );
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await useMutation(api.settings.settings_mutate.updatePreferredName)({
+    await updatePreferredNameMutation({
       preferred_name: tmpPrefName,
     });
     handleClose();

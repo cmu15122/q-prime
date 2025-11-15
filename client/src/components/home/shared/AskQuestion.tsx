@@ -69,8 +69,9 @@ export default function AskQuestion() {
     callAddQuestionAPI();
   }
 
+  const addQuestionMutation = useMutation(api.home.home_mutate.addQuestion);
   async function callAddQuestionAPI() {
-    await useMutation(api.home.home_mutate.addQuestion)({
+    await addQuestionMutation({
       question: question,
       location: location,
       assignment_id: assignmentId!,

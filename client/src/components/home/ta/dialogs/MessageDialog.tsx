@@ -18,10 +18,13 @@ export default function MessageDialog(props) {
 
   const [message, setMessage] = useState("");
 
+  const messageStudentMutation = useMutation(
+    api.home.home_mutate.messageStudent,
+  );
   const onSubmit = async (event) => {
     event.preventDefault();
 
-    await useMutation(api.home.home_mutate.messageStudent)({
+    await messageStudentMutation({
       message: message,
       student_id: student.student_id,
     }).then(() => {

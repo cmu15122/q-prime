@@ -98,12 +98,14 @@ export default function Navbar(props: { isHome: boolean }) {
     }
   }
 
+  const freezeQueueMutation = useMutation(api.home.home_mutate.freezeQueue);
   const freezeQueue = async () => {
-    await useMutation(api.home.home_mutate.freezeQueue)();
+    await freezeQueueMutation();
   };
 
+  const unfreezeQueueMutation = useMutation(api.home.home_mutate.unfreezeQueue);
   const unfreezeQueue = async () => {
-    await useMutation(api.home.home_mutate.unfreezeQueue)();
+    await unfreezeQueueMutation();
   };
 
   const defaultNotificationPermission =
