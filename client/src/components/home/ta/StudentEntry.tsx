@@ -1,19 +1,19 @@
-import React, { useState, useEffect, useRef, useContext } from 'react';
-import { Stack, TableCell, Typography } from '@mui/material';
-import PauseIcon from '@mui/icons-material/Pause';
+import React, { useState, useEffect, useRef } from "react";
+import { Stack, TableCell, Typography } from "@mui/material";
+import PauseIcon from "@mui/icons-material/Pause";
 
-import EntryTails from './EntryTails';
-import ItemRow from '../../common/table/ItemRow';
+import EntryTails from "./EntryTails";
+import ItemRow from "../../common/table/ItemRow";
 
-import { QueueDataContext } from '../../../contexts/QueueDataContext';
-
-import HomeService from '../../../services/HomeService';
-import { StudentStatusValues } from '../../../services/StudentStatus';
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../../../convex/_generated/api";
+import { Doc } from "../../../../../convex/_generated/dataModel";
 
 export default function StudentEntry(props) {
-  const { queueData } = useContext(QueueDataContext);
+  const queueData = useQuery(api.home.home_get.getQueueData);
+  const student: Doc<"ohq"> = props["student"];
+
   const {
-    student,
     index,
     handleClickHelp,
     removeStudent,
@@ -26,8 +26,8 @@ export default function StudentEntry(props) {
   const removeRef = useRef();
 
   const [showCooldownApproval, setShowCooldownApproval] = useState(
-      queueData.allowCDOverride &&
-      student['status'] === StudentStatusValues.COOLDOWN_VIOLATION,
+    queueData?.allow_cooldown_override &&
+      student.status === "cooldown_violation",
   );
 
   useEffect(() => {
@@ -38,19 +38,19 @@ export default function StudentEntry(props) {
       }
     };
 
-    document.body.addEventListener('click', closeExpanded);
+    document.body.addEventListener("click", closeExpanded);
     return () => {
-      document.body.removeEventListener('click', closeExpanded);
+      document.body.removeEventListener("click", closeExpanded);
     };
   }, []);
 
   // Update showCooldownApproval when allowCDOverride changes
   useEffect(() => {
     setShowCooldownApproval(
-        queueData.allowCDOverride &&
-        student['status'] === StudentStatusValues.COOLDOWN_VIOLATION,
+      queueData?.allow_cooldown_override &&
+        student.status === "cooldown_violation",
     );
-  }, [queueData.allowCDOverride, student['status']]);
+  }, [queueData?.allow_cooldown_override, student.status]);
 
   function handleRemoveButton() {
     if (confirmRemove) {
@@ -61,46 +61,41 @@ export default function StudentEntry(props) {
     }
   }
 
-  const approveCooldownOverride = () => {
-    HomeService.approveCooldownOverride(
-        JSON.stringify({
-          andrewID: student['andrewID'],
-        }),
-    ).then((res) => {
-      if (res.status === 200) {
-        setShowCooldownApproval(false);
-        student.status = StudentStatusValues.WAITING;
-        student.isFrozen = false;
-      }
+  const approveCooldownOverride = async () => {
+    await useMutation(api.home.home_mutate.approveCooldownOverride)({
+      student_id: student["andrewID"],
     });
   };
   return (
-    <ItemRow index={index} rowKey={student.andrewID}>
+    <ItemRow index={index} rowKey={student._id}>
       <TableCell
         padding="none"
         component="th"
         scope="row"
-        sx={{ py: 2, pl: 3.25, pr: 2, width: '20%' }}
+        sx={{ py: 2, pl: 3.25, pr: 2, width: "20%" }}
       >
-        {student.name} ({student.andrewID})<br />[{student.location}]
+        {student.student_name} ({student.student_email})<br />[
+        {student.location}]
       </TableCell>
       <TableCell
         padding="none"
         align="left"
-        sx={{ py: 2, pr: 2, width: '55%' }}
+        sx={{ py: 2, pr: 2, width: "55%" }}
       >
         <Stack direction="row" alignItems="center" spacing={1}>
-          {student.isFrozen && <PauseIcon fontSize="inherit" />}
-          {<Typography variant="body2">[{student.topic.name}]</Typography>}
+          {(student.status === "cooldown_violation" ||
+            student.status === "fixing_question" ||
+            student.status === "frozen") && <PauseIcon fontSize="inherit" />}
+          {<Typography variant="body2">[{student.assignment_name}]</Typography>}
           {
-            <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>
-              {' '}
-              {student.question}{' '}
+            <Typography variant="body2" sx={{ whiteSpace: "pre-line" }}>
+              {" "}
+              {student.question}{" "}
             </Typography>
           }
         </Stack>
       </TableCell>
-      <TableCell padding="none" sx={{ width: '25%' }}>
+      <TableCell padding="none" sx={{ width: "25%" }}>
         {EntryTails({
           ...props,
           removeRef: removeRef,

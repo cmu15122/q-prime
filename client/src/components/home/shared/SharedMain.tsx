@@ -1,23 +1,23 @@
-import React, {useContext} from 'react';
+import React from "react";
 
-import Announcements from './Annoucements';
-import QueueStats from './QueueStats';
-import UninitializedDialog from './dialogs/UninitializedDialog';
-import {QueueDataContext} from '../../../contexts/QueueDataContext';
+import Announcements from "./Annoucements";
+import QueueStats from "./QueueStats";
+// import UninitializedDialog from "./dialogs/UninitializedDialog";
 
 function SharedMain() {
-  const {queueData} = useContext(QueueDataContext);
+  // const { queueData } = useContext(QueueDataContext);
   return (
     <div>
       {
-        queueData?.uninitializedSem ?
-        <UninitializedDialog /> :
-        (
-          <div>
-            <Announcements/>
-            <QueueStats/>
-          </div>
-        )
+        // TODO CONVEX HANDLE UNINITIALIZED SEM
+        // queueData?.uninitializedSem ?
+        // <UninitializedDialog /> :
+        // (
+        <div>
+          <Announcements />
+          <QueueStats />
+        </div>
+        // )
       }
     </div>
   );

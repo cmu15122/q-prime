@@ -1,22 +1,28 @@
-import { query, QueryCtx } from '../_generated/server';
-import { ConvexError, v } from 'convex/values';
-import { Doc } from '../_generated/dataModel';
+import { query, QueryCtx } from "../_generated/server";
+import { ConvexError, v } from "convex/values";
+import { Doc } from "../_generated/dataModel";
 import {
   getCurrentSemester,
   getCurrentUser,
   getGlobalSettings,
   getQueueEntry,
   getQueueLength,
+  getNumUnhelped,
+  getMinsPerStudent,
+  getNumTAs,
   getStudent,
   getTA,
-} from '../common';
+} from "../common";
 
-export const getQueueStatus = query({
+export const getQueueData = query({
   args: {},
   handler: async (ctx, args) => {
     const globalSettings = await getGlobalSettings(ctx);
 
     const queue_length = await getQueueLength(ctx);
+    const num_unhelped = await getNumUnhelped(ctx);
+    const num_tas = await getNumTAs(ctx);
+    const mins_per_student = await getMinsPerStudent(ctx);
 
     const current_day_of_week = new Date().getDay();
     const current_locations =
@@ -26,6 +32,7 @@ export const getQueueStatus = query({
       title: globalSettings.course_name,
       is_frozen: globalSettings.is_frozen,
       announcements: globalSettings.announcements,
+      // TODO CONVEX MAKE SURE "
       current_locations: current_locations,
 
       allow_cooldown_override: globalSettings.allow_cooldown_override,
@@ -36,37 +43,12 @@ export const getQueueStatus = query({
 
       questions_policy_url: globalSettings.questions_policy_url,
 
-      // TODO WAIT TIMES DATA
+      num_unhelped: num_unhelped,
+      num_tas: num_tas,
+      mins_per_student: mins_per_student,
     };
   },
 });
-
-async function addTADataToQueueEntry(ctx: QueryCtx, x: Doc<'ohq'> | null) {
-  if (!x) {
-    return null;
-  }
-
-  let res = {
-    ...x,
-    ta_data: null,
-  };
-
-  if (x.helping_ta_id) {
-    const ta = (await ctx.db.get(x.helping_ta_id))!;
-    const ta_prefs = (await ctx.db.get(ta.user_prefs_id))!;
-
-    return {
-      ...res,
-      ta_data: {
-        pref_name: ta_prefs.preferred_name,
-        zoom_enabled: ta.zoom_enabled,
-        zoom_url: ta.zoom_url,
-      },
-    };
-  } else {
-    return res;
-  }
-}
 
 export const getUserData = query({
   args: {},
@@ -80,10 +62,22 @@ export const getUserData = query({
 
     const is_owner = curr_sem.owner_emails.includes(user_data._id);
 
-    let student_data = null;
-    let ta_data = null;
+    type TAData = {
+      ta_id: string;
+      is_admin: boolean;
+      zoom_enabled: boolean;
+      zoom_url: string | undefined;
+      join_notifs_enabled: boolean;
+      remind_notifs_enabled: boolean;
+      remind_time_mins: number;
+      show_self_timer: boolean;
+      show_others_timer: boolean;
+    } | null;
 
-    if (user_data.kind === 'TA') {
+    let student_data: Doc<"ohq"> | null = null;
+    let ta_data: TAData = null;
+
+    if (user_data.kind === "TA") {
       const ta = await getTA(ctx, user_data.sem_user_id);
 
       ta_data = {
@@ -97,30 +91,21 @@ export const getUserData = query({
         show_self_timer: ta.show_self_timer,
         show_others_timer: ta.show_others_timer,
       };
-    } else if (user_data.kind === 'student') {
+    } else if (user_data.kind === "student") {
       const student = await getStudent(ctx, user_data.sem_user_id);
 
-      const queue_entry = await getQueueEntry(ctx, student._id);
-
-      const queue_entry_with_ta_data = await addTADataToQueueEntry(
-        ctx,
-        queue_entry
-      );
-
-      student_data = {
-        student_id: student._id,
-        queue_entry: queue_entry_with_ta_data,
-      };
+      student_data = await getQueueEntry(ctx, student._id);
     }
 
     return {
       user_id: user_data._id,
+      email: user_data.email!,
       sem_user_id: user_data.sem_user_id,
       is_owner: is_owner,
       preferred_name: user_data.preferred_name,
       user_kind: user_data.kind,
-      ta_data: ta_data,
-      student_data: student_data,
+      ta_data: ta_data as typeof ta_data | null,
+      student_data: student_data as typeof student_data | null,
     };
   },
 });
@@ -128,16 +113,47 @@ export const getUserData = query({
 export const getAllStudents = query({
   args: {},
   handler: async (ctx, args) => {
-    const ohq = await ctx.db
-      .query('ohq')
-      .withIndex('by_position')
-      .order('asc')
+    return await ctx.db
+      .query("ohq")
+      .withIndex("by_position")
+      .order("asc")
+      .collect();
+  },
+});
+
+export const getCurrentAssignments = query({
+  args: {},
+  handler: async (ctx, args) => {
+    const curr_sem = await getCurrentSemester(ctx);
+
+    const curr_date = new Date().getTime();
+
+    // CONVEX TODO ADD OTHER ASSIGNMENT TO ALL SEMESTERS
+    // if "other" assignment doesn't exist, make it
+    // const other_assignment = await ctx.db
+    //   .query("assignments")
+    //   .withIndex("by_sem_name", (x) =>
+    //     x.eq("semester_id", curr_sem._id).eq("name", "other"),
+    //   )
+    //   .first();
+
+    // if (!other_assignment) {
+    //   await ctx.db.insert("assignments", {
+    //     semester_id: curr_sem._id,
+    //     name: "other",
+    //     start_date_ms: 0,
+    //     end_date_ms: Number.MAX_SAFE_INTEGER,
+    //   });
+    // }
+
+    const all_assignments = await ctx.db
+      .query("assignments")
+      .withIndex("by_sem_end", (x) =>
+        x.eq("semester_id", curr_sem._id).gt("end_date_ms", curr_date),
+      )
+      .filter((x) => x.lt(x.field("start_date_ms"), curr_date))
       .collect();
 
-    const ohq_with_ta_data = await Promise.all(
-      ohq.map(async (x) => addTADataToQueueEntry(ctx, x))
-    );
-
-    return ohq_with_ta_data;
+    return all_assignments;
   },
 });

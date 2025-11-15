@@ -1,13 +1,14 @@
-import React, {useContext} from 'react';
+import React from "react";
 
-import Navbar from '../components/navbar/Navbar';
-import SettingsMain from '../components/settings/SettingsMain';
+import Navbar from "../components/navbar/Navbar";
+import SettingsMain from "../components/settings/SettingsMain";
 
-import {useTheme} from '@mui/material/styles';
-import {CircularProgress} from '@mui/material';
-import {Navigate} from 'react-router-dom';
+import { useTheme } from "@mui/material/styles";
+import { CircularProgress } from "@mui/material";
+import { Navigate } from "react-router-dom";
 
-import {UserDataContext} from '../contexts/UserDataContext';
+import { useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 
 /**
  * Settings page, only accessible to TAs and course owners
@@ -15,22 +16,24 @@ import {UserDataContext} from '../contexts/UserDataContext';
  */
 function Settings() {
   const theme = useTheme();
-  const {userData, isLoadingUserData} = useContext(UserDataContext);
+  const userData = useQuery(api.home.home_get.getUserData);
 
-  return (
-    (isLoadingUserData) ? (
-      <CircularProgress />
-    ) :
-    (
-      (userData.isAuthenticated && (userData.isTA || userData.isOwner)) ? (
-        <div className="Settings" style={{backgroundColor: theme.palette.background.default}}>
-          <Navbar/>
-          <SettingsMain/>
-        </div>
-      ) : (
-        <Navigate to={{pathname: '/'}} />
-      )
-    )
+  const isLoadingUserData = userData === n;
+  const isAuthenticated = userData !== null && userData !== undefined;
+  const isTA = isAuthenticated && userData.user_kind === "TA";
+
+  return isLoadingUserData ? (
+    <CircularProgress />
+  ) : isAuthenticated && (isTA || userData.is_owner) ? (
+    <div
+      className="Settings"
+      style={{ backgroundColor: theme.palette.background.default }}
+    >
+      <Navbar isHome={false} />
+      <SettingsMain />
+    </div>
+  ) : (
+    <Navigate to={{ pathname: "/" }} />
   );
 }
 

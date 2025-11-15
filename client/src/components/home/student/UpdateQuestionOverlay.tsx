@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from "react";
 import {
   Button,
   Dialog,
@@ -7,55 +7,41 @@ import {
   Input,
   Link,
   Typography,
-} from '@mui/material';
+} from "@mui/material";
 
-import HomeService from '../../../services/HomeService';
-import { StudentDataContext } from '../../../contexts/StudentDataContext';
-import { QueueDataContext } from '../../../contexts/QueueDataContext';
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../../../convex/_generated/api";
 
 export default function UpdateQuestionOverlay(props) {
   const { open, handleClose } = props;
-  const { studentData, setStudentData } = useContext(StudentDataContext);
-  const { queueData } = useContext(QueueDataContext);
 
-  const [tempQuestion, setTempQuestion] = useState('');
+  const queueData = useQuery(api.home.home_get.getQueueData);
+  const userData = useQuery(api.home.home_get.getUserData);
+  const studentData = userData?.student_data;
+
+  const [tempQuestion, setTempQuestion] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     setIsSubmitting(true);
 
-    HomeService.updateQuestion(
-        JSON.stringify({
-          id: studentData.andrewID,
-          content: tempQuestion,
-        }),
-    ).then(() => {
-      // fetch new student data
-      HomeService.getStudentData()
-          .then((res) => {
-            if (
-              res.status === 200 &&
-            res.data.andrewID === studentData.andrewID
-            ) {
-              setStudentData(res.data);
-            }
-          })
-          .finally(() => {
-            handleClose();
-            setIsSubmitting(false);
-          });
+    await useMutation(api.home.home_mutate.updateQuestion)({
+      question: tempQuestion,
+    }).finally(() => {
+      handleClose();
+      setIsSubmitting(false);
     });
   };
 
   return (
     <Dialog open={open} maxWidth="sm" fullWidth>
       <DialogContent>
-        <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+        <Typography variant="h5" sx={{ fontWeight: "bold" }}>
           Please update your question!
         </Typography>
-        <Typography variant="body1" sx={{ fontStyle: 'italic' }}>
+        <Typography variant="body1" sx={{ fontStyle: "italic" }}>
           Your entry has been frozen on the queue.
         </Typography>
 
@@ -63,17 +49,17 @@ export default function UpdateQuestionOverlay(props) {
           A TA has requested that you update your question. Before we can help
           you, we need more details from you. More specifically, we need to know
           what you&apos;ve tried and already understand in addition to your
-          question. Make sure to review{' '}
-          <Link target="_blank" href={queueData.questionsURL}>
+          question. Make sure to review{" "}
+          <Link target="_blank" href={queueData?.questions_policy_url || ""}>
             Question Guidelines
-          </Link>{' '}
+          </Link>{" "}
           for more help!
         </Typography>
 
         <form onSubmit={handleSubmit}>
           <FormControl required fullWidth sx={{ mt: 0.5 }}>
             <Input
-              placeholder={'Previous Question: ' + studentData.question}
+              placeholder={"Previous Question: " + studentData?.question || ""}
               value={tempQuestion}
               multiline
               fullWidth

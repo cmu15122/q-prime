@@ -1,32 +1,39 @@
-import React, {useContext, useEffect} from 'react';
-import {UserDataContext} from '../../../contexts/UserDataContext';
-import {socketSubscribeTo} from '../../../services/SocketsService';
-import AskQuestion from '../shared/AskQuestion';
-import StudentEntries from './StudentEntries';
+import React, { useEffect } from "react";
+import { socketSubscribeTo } from "../../../services/SocketsService";
+import AskQuestion from "../shared/AskQuestion";
+import StudentEntries from "./StudentEntries";
 
-export default function TAMain(props) {
-  const {userData} = useContext(UserDataContext);
+import { useQuery } from "convex/react";
+import { api } from "../../../../../convex/_generated/api";
+
+export default function TAMain() {
+  const userData = useQuery(api.home.home_get.getUserData);
 
   useEffect(() => {
-    socketSubscribeTo(`remind/${userData.andrewID}`, (res) => {
-      new Notification('Time Alert!', {
-        'body': `You've been helping for ${userData.taSettings.remindTime} minutes!`,
-        'requireInteraction': false,
-      });
-    });
+    if (!userData) {
+      return;
+    }
 
-    socketSubscribeTo(`doneHelping/${userData.andrewID}`, (data) => {
-      new Notification('Done Helping!', {
-        'body': `You helped ${data.studentAndrewId} for ${data.helpTime} minutes!`,
-        'requireInteraction': false,
-      });
-    });
-  }, []);
+    // TODO CONVEX MAKE SOCKETS WORK
+    // socketSubscribeTo(`remind/${userData.user_id}`, (res) => {
+    //   new Notification("Time Alert!", {
+    //     body: `You've been helping for ${userData.ta_data!.remind_time_mins} minutes!`,
+    //     requireInteraction: false,
+    //   });
+    // });
+
+    // socketSubscribeTo(`doneHelping/${userData.user_id}`, (data) => {
+    //   new Notification("Done Helping!", {
+    //     body: `You helped ${data.studentAndrewId} for ${data.helpTime} minutes!`,
+    //     requireInteraction: false,
+    //   });
+    // });
+  }, [userData]);
 
   return (
     <div>
-      <StudentEntries/>
-      <AskQuestion/>
+      <StudentEntries />
+      <AskQuestion />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useContext } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Typography,
   Divider,
@@ -12,88 +12,56 @@ import {
   Select,
   Input,
   Button,
-} from '@mui/material';
+} from "@mui/material";
 
-import CooldownViolationOverlay from './CooldownViolationOverlay';
-import BaseCard from '../../common/cards/BaseCard';
+import CooldownViolationOverlay from "./CooldownViolationOverlay";
+import BaseCard from "../../common/cards/BaseCard";
 
-import HomeService from '../../../services/HomeService';
-import { UserDataContext } from '../../../contexts/UserDataContext';
-import { QueueDataContext } from '../../../contexts/QueueDataContext';
-import { StudentDataContext } from '../../../contexts/StudentDataContext';
-
-function createData(assignment_id, name) {
-  return { assignment_id, name };
-}
-
-const date = new Date();
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../../../convex/_generated/api";
+import { Id } from "../../../../../convex/_generated/dataModel";
+import { ConvexError } from "convex/values";
 
 export default function AskQuestion() {
-  const { userData } = useContext(UserDataContext);
-  const { queueData, setQueueData } = useContext(QueueDataContext);
-  const { setStudentData } = useContext(StudentDataContext);
+  const queueData = useQuery(api.home.home_get.getQueueData);
+  const userData = useQuery(api.home.home_get.getUserData);
+  const currAssignments = useQuery(api.home.home_get.getCurrentAssignments);
 
-  // not changing name or andrewID to use global because this component can also be used by TAs to manually add questions
-  const [name, setName] = useState('');
-  const [andrewID, setAndrewID] = useState('');
-  const [location, setLocation] = useState('');
-  const [topicId, setTopicId] = useState('');
-  const [question, setQuestion] = useState('');
+  // not changing name or email to use global because this component can also be used by TAs to manually add questions
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [location, setLocation] = useState("");
+  const [assignmentId, setAssignmentId] = useState<Id<"assignments"> | null>(
+    null,
+  );
+  const [question, setQuestion] = useState("");
 
   const [showCooldownOverlay, setShowCooldownOverlay] = useState(false);
   const [timePassed, setTimePassed] = useState(0);
 
   const [askDisabled, setAskDisabled] = useState(false);
 
-  const locations = useMemo(() => {
-    if (queueData != null) {
-      const day = date.getDay();
-      let newLocations = {};
-
-      const dayDict = queueData.locations.dayDictionary;
-      newLocations = dayDict;
-
-      const roomsForDay =
-        newLocations && newLocations[day] ?
-          newLocations[day] :
-          ['Office Hours'];
-
-      if (roomsForDay.length === 1) {
-        setLocation(roomsForDay[0]);
-      }
-
-      return roomsForDay;
-    } else return [];
-  }, [queueData.locations]);
-
-  const topics = useMemo(() => {
-    if (queueData != null) {
-      const shownTopics = new Map();
-      queueData.topics.forEach((topic) => {
-        if (
-          new Date(topic.start_date) <= new Date() &&
-          new Date(topic.end_date) > new Date()
-        ) {
-          shownTopics.set(topic.assignment_id, topic);
-        }
-      });
-
-      shownTopics.set(-1, createData(-1, 'Other'));
-
-      if (shownTopics.size === 1) {
-        setTopicId(shownTopics.keys().next().value);
-      }
-
-      return shownTopics;
-    } else return new Map([[-1, createData(-1, 'Other')]]);
-  }, [queueData.topics]);
+  const [locations, setLocations] = useState<string[]>([]);
 
   useEffect(() => {
-    if (!userData.isTA) {
-      setName(userData.preferredName);
-      setAndrewID(userData.andrewID);
+    if (queueData) {
+      setLocations(queueData.current_locations);
     }
-  }, [userData.isTA, userData.preferredName, userData.andrewID]);
+
+    if (locations.length === 0) {
+      setLocations(["Office Hours"]);
+      setLocation("Office Hours");
+    } else if (locations.length === 1) {
+      setLocation(locations[0]);
+    }
+  }, [queueData]);
+
+  useEffect(() => {
+    if (userData && userData.user_kind === "student") {
+      setName(userData.preferred_name);
+      setEmail(userData.email);
+    }
+  }, [userData]);
 
   function handleSubmit(event) {
     event.preventDefault();
@@ -101,59 +69,48 @@ export default function AskQuestion() {
     callAddQuestionAPI();
   }
 
-  function callAddQuestionAPI() {
-    HomeService.addQuestion(
-        JSON.stringify({
-          name: name,
-          andrewID: andrewID,
-          question: question,
-          location: location,
-          topic: topics.get(topicId),
-        }),
-    )
-        .then((res) => {
-          if (res.status === 200 && res.data.message === 'cooldown_violation') {
-            setTimePassed(Math.round(res.data.timePassed));
+  async function callAddQuestionAPI() {
+    await useMutation(api.home.home_mutate.addQuestion)({
+      question: question,
+      location: location,
+      assignment_id: assignmentId!,
+      override_cooldown: false,
+      email: email,
+    })
+      .catch((err) => {
+        if (err instanceof ConvexError) {
+          let errData = err.data as {
+            code: string;
+            rejoin_time_ms: number;
+            waited_time_ms: number;
+          };
+
+          if (errData.code === "COOLDOWN_VIOLATION") {
+            setTimePassed(Math.round(errData.waited_time_ms / 1000 / 60));
             setShowCooldownOverlay(true);
           } else {
             clearValues();
           }
-
-          if (res.status === 200) {
-            manuallyGetNewData();
-          }
-        })
-        .finally(() => {
-          setAskDisabled(false);
-        });
+        }
+      })
+      .finally(() => {
+        setAskDisabled(false);
+      });
   }
 
-  const manuallyGetNewData = () => {
-    // just to make sure the queue data and student data are up to date,
-    // we manually refresh the queue data and student data
-    HomeService.getAll().then((res) => {
-      setQueueData(res.data);
-    });
-    HomeService.getStudentData().then((res) => {
-      if (res.status === 200 && res.data.andrewID === userData.andrewID) {
-        setStudentData(res.data);
-      }
-    });
-  };
-
   function clearValues() {
-    setName('');
-    setAndrewID('');
-    setLocation('');
-    setTopicId('');
-    setQuestion('');
+    setName("");
+    setEmail("");
+    setLocation("");
+    setAssignmentId(null);
+    setQuestion("");
   }
 
   return (
     <div>
       <BaseCard>
-        <CardActions style={{ justifyContent: 'space-between' }}>
-          <Typography variant="h5" sx={{ fontWeight: 'bold', ml: 2, my: 1 }}>
+        <CardActions style={{ justifyContent: "space-between" }}>
+          <Typography variant="h5" sx={{ fontWeight: "bold", ml: 2, my: 1 }}>
             Ask A Question
           </Typography>
         </CardActions>
@@ -161,9 +118,9 @@ export default function AskQuestion() {
 
         <CardContent sx={{ mx: 1.5 }}>
           <form onSubmit={handleSubmit}>
-            {userData.isTA && (
+            {userData && userData.user_kind === "TA" && (
               <Stack direction="row" justifyContent="left" sx={{ mb: 2 }}>
-                <Box sx={{ minWidth: 120, width: '47%' }}>
+                <Box sx={{ minWidth: 120, width: "47%" }}>
                   <FormControl required fullWidth>
                     <Input
                       placeholder="Student Name"
@@ -175,13 +132,13 @@ export default function AskQuestion() {
                   </FormControl>
                 </Box>
                 <Box
-                  sx={{ minWidth: 120, width: '47%', margin: 'auto', mr: 1 }}
+                  sx={{ minWidth: 120, width: "47%", margin: "auto", mr: 1 }}
                 >
                   <FormControl required fullWidth>
                     <Input
-                      placeholder="Student Andrew ID"
-                      onChange={(event) => setAndrewID(event.target.value)}
-                      value={andrewID}
+                      placeholder="Student Email"
+                      onChange={(event) => setEmail(event.target.value)}
+                      value={email}
                       fullWidth
                       inputProps={{ maxLength: 20 }}
                     />
@@ -190,16 +147,16 @@ export default function AskQuestion() {
               </Stack>
             )}
             <Stack direction="row" justifyContent="left">
-              <Box sx={{ minWidth: 120, width: '47%' }}>
+              <Box sx={{ minWidth: 120, width: "47%" }}>
                 <FormControl variant="standard" required fullWidth>
                   <InputLabel id="location-select">Location</InputLabel>
                   <Select
                     labelId="location-select-label"
                     id="location-select"
-                    value={location ?? ''}
+                    value={location ?? ""}
                     label="Location"
                     onChange={(e) => setLocation(e.target.value)}
-                    style={{ textAlign: 'left' }}
+                    style={{ textAlign: "left" }}
                   >
                     {locations.map((loc) => (
                       <MenuItem value={loc} key={loc}>
@@ -209,19 +166,21 @@ export default function AskQuestion() {
                   </Select>
                 </FormControl>
               </Box>
-              <Box sx={{ minWidth: 120, width: '47%', margin: 'auto', mr: 1 }}>
+              <Box sx={{ minWidth: 120, width: "47%", margin: "auto", mr: 1 }}>
                 <FormControl variant="standard" required fullWidth>
                   <InputLabel id="topic-select">Topic</InputLabel>
                   <Select
                     labelId="topic-select-label"
                     id="topic-select"
-                    value={topicId ?? ''}
+                    value={assignmentId ?? ""}
                     label="Topic"
-                    onChange={(e) => setTopicId(e.target.value)}
-                    style={{ textAlign: 'left' }}
+                    onChange={(e) =>
+                      setAssignmentId(e.target.value as Id<"assignments">)
+                    }
+                    style={{ textAlign: "left" }}
                   >
-                    {Array.from(topics.values()).map((topic) => (
-                      <MenuItem value={topic.assignment_id} key={topic.assignment_id}>
+                    {(currAssignments || []).map((topic) => (
+                      <MenuItem value={topic._id} key={topic._id}>
                         {topic.name}
                       </MenuItem>
                     ))}
@@ -231,7 +190,7 @@ export default function AskQuestion() {
             </Stack>
             <Typography
               variant="h6"
-              sx={{ fontWeight: 'bold', textAlign: 'left', mt: 2 }}
+              sx={{ fontWeight: "bold", textAlign: "left", mt: 2 }}
             >
               Question:
             </Typography>
@@ -239,7 +198,7 @@ export default function AskQuestion() {
               <Input
                 placeholder="Question (max 256 characters)"
                 onChange={(event) => setQuestion(event.target.value)}
-                value={question ?? ''}
+                value={question ?? ""}
                 fullWidth
                 multiline
                 inputProps={{ maxLength: 256 }}
@@ -253,9 +212,9 @@ export default function AskQuestion() {
               sx={{
                 mt: 3,
                 py: 1,
-                fontSize: '16px',
-                fontWeight: 'bold',
-                alignContent: 'center',
+                fontSize: "16px",
+                fontWeight: "bold",
+                alignContent: "center",
               }}
               type="submit"
             >
@@ -269,10 +228,10 @@ export default function AskQuestion() {
         open={showCooldownOverlay}
         setOpen={setShowCooldownOverlay}
         timePassed={timePassed}
-        andrewID={andrewID}
+        email={email}
         question={question}
         location={location}
-        topic={topics.get(topicId)}
+        assignmentId={assignmentId}
       />
     </div>
   );

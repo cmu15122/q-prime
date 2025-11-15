@@ -1,18 +1,21 @@
-import React, { useContext } from 'react';
-import { Stack, useTheme } from '@mui/material';
+import React from "react";
+import { Stack, useTheme } from "@mui/material";
 
-import YouAreHelping from './TailOptions/YouAreHelping';
-import ActionsHelp from './TailOptions/ActionsHelp';
-import ActionsFreeze from './TailOptions/ActionsFreeze';
-import StudentStatus from './TailOptions/StudentStatus';
-import LeapStudentActions from './TailOptions/LeapStudentActions';
+import YouAreHelping from "./TailOptions/YouAreHelping";
+import ActionsHelp from "./TailOptions/ActionsHelp";
+import ActionsFreeze from "./TailOptions/ActionsFreeze";
+import StudentStatus from "./TailOptions/StudentStatus";
+import LeapStudentActions from "./TailOptions/LeapStudentActions";
 
-import { StudentStatusValues } from '../../../services/StudentStatus';
-import { UserDataContext } from '../../../contexts/UserDataContext';
+import { useQuery } from "convex/react";
+import { api } from "../../../../../convex/_generated/api";
+import { Doc } from "../../../../../convex/_generated/dataModel";
 
 export default function EntryTails(props) {
-  const { student, currentTime } = props;
-  const { userData } = useContext(UserDataContext);
+  const { currentTime } = props;
+  const student: Doc<"ohq"> = props["student"];
+
+  const userData = useQuery(api.home.home_get.getUserData);
 
   const showApproval = props.showCooldownApproval;
 
@@ -22,26 +25,24 @@ export default function EntryTails(props) {
 
   const getCorrectTail = (status) => {
     switch (status) {
-      case StudentStatusValues.BEING_HELPED: {
-        if (student.helpingTAInfo?.taAndrewID === userData.andrewID) {
+      case "being_helped": {
+        if (student.helping_ta!.ta_id === userData?.ta_data?.ta_id) {
           return YouAreHelping({ ...props, theme: themeHook });
         } else {
           return ActionsHelp(props);
         }
       }
-      case StudentStatusValues.WAITING:
+      case "waiting":
         return ActionsHelp(props);
-      case StudentStatusValues.FIXING_QUESTION:
+      case "fixing_question":
         return ActionsHelp(props);
-      case StudentStatusValues.FROZEN:
+      case "frozen":
         return ActionsFreeze(props);
-      case StudentStatusValues.RECEIVED_MESSAGE:
-        return ActionsHelp(props);
-      case StudentStatusValues.COOLDOWN_VIOLATION:
+      case "cooldown_violation":
         if (showApproval) {
           return LeapStudentActions(props);
         } else {
-          return ActionsHelp({ ...props, color: 'secondary' });
+          return ActionsHelp({ ...props, color: "secondary" });
         }
       default:
         return;

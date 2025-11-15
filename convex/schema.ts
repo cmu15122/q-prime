@@ -7,7 +7,7 @@ export default defineSchema({
   // defines cross-semester TA and student preferences (doesn't exist on user because I'm scared to touch the auth tables)
   userPreferences: defineTable({
     user_id: v.id("users"),
-    preferred_name: v.optional(v.string()),
+    preferred_name: v.string(),
   }).index("by_user_id", ["user_id"]),
 
   // we'll enforce in the code that this table only ever has one row
@@ -56,7 +56,9 @@ export default defineSchema({
     assignment_type: v.optional(v.string()),
     start_date_ms: v.number(),
     end_date_ms: v.number(),
-  }),
+  })
+    .index("by_sem_end", ["semester_id", "end_date_ms"])
+    .index("by_sem_name", ["semester_id", "name"]),
 
   semesterUsers: defineTable({
     user_id: v.id("users"),
@@ -121,8 +123,14 @@ export default defineSchema({
   // each row in the table is a student on the queue
   ohq: defineTable({
     student_id: v.id("students"),
+    student_name: v.string(), // redundant but convenient for displaying the queue
+    student_email: v.string(), // redundant but convenient for displaying the queue
+
     created_by: v.union(v.literal("student"), v.literal("TA")),
+
     assignment_id: v.id("assignments"),
+    assignment_name: v.string(), // redundant but convenient for displaying the queue
+
     status: v.union(
       v.union(
         v.literal("being_helped"),
@@ -139,19 +147,27 @@ export default defineSchema({
 
     entry_time_ms: v.number(),
 
-    help_start_time_ms: v.optional(v.number()),
-    helping_ta_id: v.optional(v.id("tas")),
-
     num_asked_to_fix: v.number(),
 
     messages_from_tas: v.array(
       v.object({
         from_ta_id: v.id("tas"),
+        from_ta_name: v.string(),
         message: v.string(),
         sent_time_ms: v.number(),
       }),
     ),
     has_unread_messages: v.boolean(),
+
+    help_start_time_ms: v.optional(v.number()),
+    helping_ta: v.optional(
+      v.object({
+        ta_id: v.id("tas"),
+        preferred_name: v.string(),
+        zoom_enabled: v.boolean(),
+        zoom_url: v.optional(v.string()),
+      }),
+    ),
   })
     .index("by_student", ["student_id"])
     .index("by_position", ["position"]),

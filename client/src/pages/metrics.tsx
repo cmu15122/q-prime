@@ -7,7 +7,8 @@ import {useTheme} from '@mui/material/styles';
 import {CircularProgress} from '@mui/material';
 import {Navigate} from 'react-router-dom';
 
-import {UserDataContext} from '../contexts/UserDataContext';
+import { useQuery } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 
 /**
  * Metrics page, only accessible to TAs
@@ -15,16 +16,20 @@ import {UserDataContext} from '../contexts/UserDataContext';
  */
 function Metrics() {
   const theme = useTheme();
-  const {userData, isLoadingUserData} = useContext(UserDataContext);
+  const userData = useQuery(api.home.home_get.getUserData)
+
+  const isLoadingUserData = userData === undefined;
+  const isAuthenticated = (userData !== null && userData !== undefined)
+  const isTA = isAuthenticated && userData.user_kind === 'TA'
 
   return (
     (isLoadingUserData) ? (
       <CircularProgress />
     ) :
     (
-      (userData.isAuthenticated && userData.isTA) ? (
+      (isAuthenticated && isTA) ? (
         <div className="Metrics" style={{backgroundColor: theme.palette.background.default}}>
-          <Navbar askQuestionOrYourEntry={true}/>
+          <Navbar isHome={false}/>
           <MetricsMain/>
         </div>
       ) : (

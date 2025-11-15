@@ -1,25 +1,23 @@
-import React from 'react';
-import { Button, Stack } from '@mui/material';
+import React from "react";
+import { Button, Stack } from "@mui/material";
 
-import PersistentOptions from './PersistentOptions';
-
-import { StudentStatusValues } from '../../../../services/StudentStatus';
+import PersistentOptions from "./PersistentOptions";
+import { Doc } from "../../../../../../convex/_generated/dataModel";
 
 export default function ActionsHelp(props) {
-  const { student, index, isHelping, handleClickHelp, tempDisabled } = props;
+  const { index, isHelping, handleClickHelp, tempDisabled } = props;
+  const student: Doc<"ohq"> = props["student"];
 
-  const buttonColor = props.color == null ? 'info' : props.color;
+  const buttonColor = props.color == null ? "info" : props.color;
 
   return (
     <Stack
-      direction={{ xs: 'column', sm: 'row' }}
-      sx={{ alignItems: 'center', justifyContent: 'flex-end' }}
+      direction={{ xs: "column", sm: "row" }}
+      sx={{ alignItems: "center", justifyContent: "flex-end" }}
     >
       <Button
         disabled={
-          student.status === StudentStatusValues.BEING_HELPED ||
-          isHelping ||
-          tempDisabled
+          student.status === "being_helped" || isHelping || tempDisabled
         }
         color={buttonColor}
         variant="contained"

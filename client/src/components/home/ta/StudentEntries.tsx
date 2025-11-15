@@ -1,23 +1,18 @@
-import React, { useState, useEffect, useContext, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from "react";
 
-import BaseTable from '../../common/table/BaseTable';
-import StudentEntry from './StudentEntry';
+import BaseTable from "../../common/table/BaseTable";
+import StudentEntry from "./StudentEntry";
 
-import FilterOptions from './dialogs/FilterOptions';
-import { Button, Popover } from '@mui/material';
-import FilterListIcon from '@mui/icons-material/FilterList';
+import FilterOptions from "./dialogs/FilterOptions";
+import { Button, Popover } from "@mui/material";
+import FilterListIcon from "@mui/icons-material/FilterList";
 
-import HomeService from '../../../services/HomeService';
-import { StudentStatusValues } from '../../../services/StudentStatus';
-import { UserDataContext } from '../../../contexts/UserDataContext';
-import { AllStudentsContext } from '../../../contexts/AllStudentsContext';
-import { socketSubscribeTo } from '../../../services/SocketsService';
-import { QueueDataContext } from '../../../contexts/QueueDataContext';
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../../../convex/_generated/api";
 
-export default function StudentEntries(props) {
-  const { setQueueData } = useContext(QueueDataContext);
-  const { userData } = useContext(UserDataContext);
-  const { allStudents, setAllStudents } = useContext(AllStudentsContext);
+export default function StudentEntries() {
+  const userData = useQuery(api.home.home_get.getUserData);
+  const allStudents = useQuery(api.home.home_get.getAllStudents);
 
   // Add a current time state that will be passed to all StudentStatus components
   const [currentTime, setCurrentTime] = useState(Date.now());
@@ -35,16 +30,19 @@ export default function StudentEntries(props) {
 
   const [isHelping, setIsHelping] = useState(false);
   useEffect(() => {
+    if (!allStudents || !userData?.user_id) {
+      return;
+    }
     setIsHelping(false);
     for (const student of allStudents) {
       if (
-        student.status === StudentStatusValues.BEING_HELPED &&
-        student.helpingTAInfo?.taAndrewID === userData.andrewID
+        student.status === "being_helped" &&
+        student.helping_ta!.ta_id === userData.ta_data!.ta_id
       ) {
         setIsHelping(true);
       }
     }
-  }, [allStudents, userData.andrewID]);
+  }, [allStudents, userData?.user_id]);
 
   const [tempDisabled, setTempDisabled] = useState(false);
 
@@ -57,10 +55,14 @@ export default function StudentEntries(props) {
     }
   }, [tempDisabled, setTempDisabled]);
 
-  const [filteredLocations, setFilteredLocations] = useState([]);
-  const [filteredTopics, setFilteredTopics] = useState([]);
+  const [filteredLocations, setFilteredLocations] = useState<any[]>([]);
+  const [filteredTopics, setFilteredTopics] = useState<any[]>([]);
 
   const filteredStudents = useMemo(() => {
+    if (!allStudents) {
+      return [];
+    }
+
     let newFiltered = allStudents;
     if (filteredLocations.length > 0) {
       newFiltered = newFiltered.filter((student) =>
@@ -69,7 +71,7 @@ export default function StudentEntries(props) {
     }
     if (filteredTopics.length > 0) {
       newFiltered = newFiltered.filter((student) =>
-        filteredTopics.includes(student.topic.name),
+        filteredTopics.includes(student.assignment_id),
       );
     }
     return newFiltered;
@@ -91,20 +93,20 @@ export default function StudentEntries(props) {
         <Button
           variant="contained"
           startIcon={<FilterListIcon />}
-          sx={{ fontWeight: 'bold', mr: 1 }}
+          sx={{ fontWeight: "bold", mr: 1 }}
           onClick={handleFilterDialog}
-          aria-describedby={'popover'}
+          aria-describedby={"popover"}
         >
           Filter
         </Button>
         <Popover
-          id={'popover'}
+          id={"popover"}
           open={openFilterDialog}
           anchorEl={anchorEl}
           onClose={handleFilterClose}
           anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'left',
+            vertical: "bottom",
+            horizontal: "left",
           }}
         >
           <FilterOptions
@@ -121,108 +123,69 @@ export default function StudentEntries(props) {
 
   /* BEGIN QUEUE LOGIC */
 
-  useEffect(() => {
-    socketSubscribeTo('add', (res) => {
-      if (userData.taSettings?.joinNotifsEnabled) {
-        new Notification('New Queue Entry', {
-          body:
-            'Name: ' +
-            res.studentData.name +
-            '\n' +
-            'Andrew ID: ' +
-            res.studentData.andrewID +
-            '\n' +
-            'Topic: ' +
-            res.studentData.topic.name,
-        });
-      }
-    });
-  }, []);
+  // TODO CONVEX WEBSOCKET NOTIFS
+  // useEffect(() => {
+  //   socketSubscribeTo("add", (res) => {
+  //     if (userData.taSettings?.joinNotifsEnabled) {
+  //       new Notification("New Queue Entry", {
+  //         body:
+  //           "Name: " +
+  //           res.studentData.name +
+  //           "\n" +
+  //           "Andrew ID: " +
+  //           res.studentData.andrewID +
+  //           "\n" +
+  //           "Topic: " +
+  //           res.studentData.topic.name,
+  //       });
+  //     }
+  //   });
+  // }, []);
 
-  const manuallyGetNewData = () => {
-    // because people are mainly interacting with the student management buttons,
-    // just just just *in case* the websockets don't update (or send update before connection reestablished)
-    // we just manually refresh the queue data
-    HomeService.getAll().then((res) => {
-      setQueueData(res.data);
-    });
-    HomeService.getAllStudents().then((res) => {
-      setAllStudents(res.data.allStudents);
+  const handleClickHelp = async (index) => {
+    setTempDisabled(true);
+
+    await useMutation(api.home.home_mutate.helpStudent)({
+      student_id: filteredStudents[index].student_id,
+    }).finally(() => {
+      setTempDisabled(false);
     });
   };
 
-  const handleClickHelp = (index) => {
+  const handleCancel = async (index) => {
     setTempDisabled(true);
-    HomeService.helpStudent(
-        JSON.stringify({
-          andrewID: filteredStudents[index].andrewID,
-        }),
-    )
-        .then((res) => {
-          if (res.status === 200) {
-            manuallyGetNewData();
-          }
-        })
-        .finally(() => {
-          setTempDisabled(false);
-        });
+
+    await useMutation(api.home.home_mutate.unhelpStudent)({
+      student_id: filteredStudents[index].student_id,
+    }).finally(() => {
+      setTempDisabled(false);
+    });
   };
 
-  const handleCancel = (index) => {
+  const handleFix = async (index) => {
     setTempDisabled(true);
-    HomeService.unhelpStudent(
-        JSON.stringify({
-          andrewID: filteredStudents[index].andrewID,
-        }),
-    )
-        .then((res) => {
-          if (res.status === 200) {
-            manuallyGetNewData();
-          }
-        })
-        .finally(() => {
-          setTempDisabled(false);
-        });
-  };
 
-  function handleFix(index) {
-    setTempDisabled(true);
-    HomeService.taRequestUpdateQ(
-        JSON.stringify({
-          andrewID: filteredStudents[index].andrewID,
-        }),
-    )
-        .then((res) => {
-          if (res.status === 200) {
-            manuallyGetNewData();
-          }
-        })
-        .finally(() => {
-          setTempDisabled(false);
-        });
-  }
+    await useMutation(api.home.home_mutate.askToFixQuestion)({
+      student_id: filteredStudents[index].student_id,
+    }).finally(() => {
+      setTempDisabled(false);
+    });
+  };
 
   // used for both removing and done helping
-  const removeStudent = (index, doneHelping) => {
+  const removeStudent = async (index, doneHelping) => {
     setTempDisabled(true);
-    HomeService.removeStudent(
-        JSON.stringify({
-          andrewID: filteredStudents[index].andrewID,
-          doneHelping: doneHelping,
-        }),
-    )
-        .then((res) => {
-          if (res.status === 200) {
-            manuallyGetNewData();
-          }
-        })
-        .finally(() => {
-          setTempDisabled(false);
-        });
+
+    await useMutation(api.home.home_mutate.removeStudent)({
+      student_id: filteredStudents[index].student_id,
+      reason: doneHelping ? "helped" : "removed",
+    }).finally(() => {
+      setTempDisabled(false);
+    });
   };
 
   const handleClickUnfreeze = (index) => {
-    new Error('Unfreeze not implemented');
+    new Error("Unfreeze not implemented");
   };
 
   /* END QUEUE LOGIC */
@@ -233,7 +196,7 @@ export default function StudentEntries(props) {
         <StudentEntry
           isHelping={isHelping}
           tempDisabled={tempDisabled}
-          key={student.andrewID}
+          key={student.student_id}
           student={student}
           index={index}
           handleClickHelp={handleClickHelp}

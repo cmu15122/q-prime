@@ -1,39 +1,76 @@
-import React, {useContext} from 'react';
+import React from "react";
 import {
-  CardContent, Divider, Stack, Typography, useTheme,
-} from '@mui/material';
+  CardContent,
+  Divider,
+  Stack,
+  Typography,
+  useTheme,
+} from "@mui/material";
 
-import BaseCard from '../../common/cards/BaseCard';
+import BaseCard from "../../common/cards/BaseCard";
 
-import {QueueDataContext} from '../../../contexts/QueueDataContext';
+import { useQuery } from "convex/react";
+import { api } from "../../../../../convex/_generated/api";
 
 export default function QueueStats() {
   const theme = useTheme();
 
-  const {queueData} = useContext(QueueDataContext);
+  const queueData = useQuery(api.home.home_get.getQueueData);
 
   return (
     <BaseCard>
       <CardContent>
         <Stack
-          direction='row'
-          divider={<Divider orientation='vertical' flexItem />}
+          direction="row"
+          divider={<Divider orientation="vertical" flexItem />}
           spacing={2}
-          alignItems='center'
-          justifyContent='space-evenly'
-          sx={{pt: 1}}
+          alignItems="center"
+          justifyContent="space-evenly"
+          sx={{ pt: 1 }}
         >
           <div>
-            <Typography variant='h5' fontWeight='bold' sx={{mt: 2}}>The queue is</Typography>
-            {
-              queueData.queueFrozen ?
-                <Typography color={theme.palette.error.main} variant='h5' fontWeight='bold' sx={{mt: 1, mb: 2}}>CLOSED</Typography> :
-                <Typography color={theme.palette.success.main} variant='h5' fontWeight='bold' sx={{mt: 1, mb: 2}}>OPEN</Typography>
-            }
+            <Typography variant="h5" fontWeight="bold" sx={{ mt: 2 }}>
+              The queue is
+            </Typography>
+            {queueData?.is_frozen ? (
+              <Typography
+                color={theme.palette.error.main}
+                variant="h5"
+                fontWeight="bold"
+                sx={{ mt: 1, mb: 2 }}
+              >
+                CLOSED
+              </Typography>
+            ) : (
+              <Typography
+                color={theme.palette.success.main}
+                variant="h5"
+                fontWeight="bold"
+                sx={{ mt: 1, mb: 2 }}
+              >
+                OPEN
+              </Typography>
+            )}
           </div>
           <div>
-            <Typography variant='body1' sx={{mt: 2}}>There are <strong>{queueData.numStudents} students</strong> on the queue.</Typography>
-            <Typography variant='body1' sx={{mt: 1.5, mb: 2}}>The estimated wait time is <strong>{queueData.numTAs === 0 ? 0 : Math.floor(queueData.numUnhelped * queueData.minsPerStudent / queueData.numTAs)} minutes</strong> from the end of the queue.</Typography>
+            <Typography variant="body1" sx={{ mt: 2 }}>
+              There are <strong>{queueData?.num_students || 0} students</strong>{" "}
+              on the queue.
+            </Typography>
+            {/* TODO CONVEX WAIT TIMES*/}
+            {/*<Typography variant="body1" sx={{ mt: 1.5, mb: 2 }}>
+              The estimated wait time is{" "}
+              <strong>
+                {queueData.numTAs === 0
+                  ? 0
+                  : Math.floor(
+                      (queueData.numUnhelped * queueData.minsPerStudent) /
+                        queueData.numTAs,
+                    )}{" "}
+                minutes
+              </strong>{" "}
+              from the end of the queue.
+            </Typography>*/}
           </div>
         </Stack>
       </CardContent>

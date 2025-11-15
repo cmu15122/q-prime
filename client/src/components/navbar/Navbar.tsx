@@ -1,53 +1,58 @@
-import React, {useState, useEffect, useContext} from 'react';
-import {useCookies} from 'react-cookie';
+import React, { useState, useEffect } from "react";
 import {
-  useMediaQuery, AppBar, Toolbar, Box, Button, MenuItem, Menu,
-  IconButton, Typography,
-} from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import {styled, useTheme} from '@mui/material/styles';
+  useMediaQuery,
+  AppBar,
+  Toolbar,
+  Box,
+  Button,
+  MenuItem,
+  Menu,
+  IconButton,
+  Typography,
+} from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+import { styled, useTheme } from "@mui/material/styles";
 
-import OHQueueHeader from './OHQueueHeader';
-import ChangeNameBtn from './ChangeNameBtn';
-import GoogleLogin from '../common/GoogleLogin';
-import AlertOnLogout from './dialogs/AlertOnLogout';
+import OHQueueHeader from "./OHQueueHeader";
+import ChangeNameBtn from "./ChangeNameBtn";
+import GoogleLogin from "../common/GoogleLogin";
+import AlertOnLogout from "./dialogs/AlertOnLogout";
 
-import HomeService from '../../services/HomeService';
-import {UserDataContext} from '../../contexts/UserDataContext';
-import {QueueDataContext} from '../../contexts/QueueDataContext';
-import {StudentDataContext} from '../../contexts/StudentDataContext';
-import { NotificationsActive } from '@mui/icons-material';
+import { NotificationsActive } from "@mui/icons-material";
+
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
+import { useAuthActions } from "@convex-dev/auth/react";
 
 function createPage(page, link) {
-  return {page, link};
+  return { page, link };
 }
 
 const NavbarButton = styled(Button)({
   disableElevation: true,
-  variant: 'subtitle2',
-  color: '#FFFFFF',
-  backgroundColor: 'transparent',
+  variant: "subtitle2",
+  color: "#FFFFFF",
+  backgroundColor: "transparent",
 });
 
-export default function Navbar(props) {
-  const {isHome} = props;
+export default function Navbar(props: { isHome: boolean }) {
+  const { isHome } = props;
   const theme = useTheme();
 
-  const {queueData} = useContext(QueueDataContext);
+  const queueData = useQuery(api.home.home_get.getQueueData);
+  const userData = useQuery(api.home.home_get.getUserData);
+  const isAuthenticated = userData !== null && userData !== undefined;
+  const isTA = isAuthenticated && userData.user_kind === "TA";
+  const studentData = isAuthenticated ? userData.student_data : null;
 
-  const {studentData} = useContext(StudentDataContext);
-  const {userData} = useContext(UserDataContext);
+  const { signOut } = useAuthActions();
 
-  const isMobileView = useMediaQuery('(max-width: 1000px)');
-
-  const [, , removeCookie] = useCookies(['user']);
-
-  const [pages, setPages] = useState([]);
-
+  const isMobileView = useMediaQuery("(max-width: 1000px)");
+  const [pages, setPages] = useState<any[]>([]);
   const [anchorElNav, setAnchorElNav] = useState(null);
-
   const [alertOpen, setAlertOpen] = useState(false);
-  const [pname, setpname] = useState(userData.preferredName);
+
+  const [pname, setpname] = useState(userData?.preferred_name || "");
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -62,23 +67,23 @@ export default function Navbar(props) {
   };
 
   useEffect(() => {
-    const newPages = [];
+    const newPages: any[] = [];
 
-    if (userData.isAuthenticated && userData.isTA) {
-      newPages.push(createPage('Settings', 'settings'));
-      newPages.push(createPage('Metrics', 'metrics'));
+    if (isAuthenticated && isTA) {
+      newPages.push(createPage("Settings", "settings"));
+      newPages.push(createPage("Metrics", "metrics"));
     }
 
     setPages(newPages);
-  }, [userData.isAuthenticated, userData.isTA]);
+  }, [isAuthenticated, isTA]);
 
   useEffect(() => {
-    setpname(userData.preferredName);
-  }, [userData.preferredName, setpname]);
+    setpname(userData?.preferred_name || "");
+  }, [userData?.preferred_name, setpname]);
 
   function handleLogout() {
-    removeCookie('user');
-    window.location.href = '';
+    signOut();
+    window.location.href = "";
   }
 
   function openAlert() {
@@ -86,119 +91,149 @@ export default function Navbar(props) {
   }
 
   function handleLogoutClicked() {
-    if (studentData?.position != null && studentData.position !== -1) {
+    if (studentData?.position && studentData.position !== -1) {
       openAlert();
     } else {
       handleLogout();
     }
   }
 
-  const freezeQueue = () => {
-    HomeService.freezeQueue();
+  const freezeQueue = async () => {
+    await useMutation(api.home.home_mutate.freezeQueue)();
   };
 
-  const unfreezeQueue = () => {
-    HomeService.unfreezeQueue();
+  const unfreezeQueue = async () => {
+    await useMutation(api.home.home_mutate.unfreezeQueue)();
   };
 
-  const defaultNotificationPermission = ('Notification' in window) ? Notification.permission : 'denied';
-  const [notificationPermission, setNotificationPermission] = useState(defaultNotificationPermission);
+  const defaultNotificationPermission =
+    "Notification" in window ? Notification.permission : "denied";
+  const [notificationPermission, setNotificationPermission] = useState(
+    defaultNotificationPermission,
+  );
 
-  const unfreezeButton = <Button color="secondary" variant="contained" sx={{mx: 2}} onClick={unfreezeQueue}>Unfreeze</Button>;
-  const freezeButton = <Button color="secondary" variant="contained" sx={{mx: 2}} onClick={freezeQueue}>Freeze</Button>;
+  const unfreezeButton = (
+    <Button
+      color="secondary"
+      variant="contained"
+      sx={{ mx: 2 }}
+      onClick={async () => await unfreezeQueue()}
+    >
+      Unfreeze
+    </Button>
+  );
+  const freezeButton = (
+    <Button
+      color="secondary"
+      variant="contained"
+      sx={{ mx: 2 }}
+      onClick={async () => await freezeQueue()}
+    >
+      Freeze
+    </Button>
+  );
 
   if (isMobileView) {
     return (
-      <AppBar position="static" style={{background: theme.alternateColors.navbar}} enableColorOnDark>
-        <Toolbar sx={{display: 'flex space-between'}}>
-          {
-            ((pages && pages.length > 0) || userData.isAuthenticated) &&
-            <Box sx={{flexGrow: 1, display: 'flex'}}>
+      <AppBar
+        position="static"
+        style={{ background: theme.alternateColors.navbar }}
+        enableColorOnDark
+      >
+        <Toolbar sx={{ display: "flex space-between" }}>
+          {((pages && pages.length > 0) || isAuthenticated) && (
+            <Box sx={{ flexGrow: 1, display: "flex" }}>
               <IconButton
                 size="large"
                 onClick={handleOpenNavMenu}
                 color="inherit"
               >
-                <MenuIcon/>
+                <MenuIcon />
               </IconButton>
               <Menu
                 id="navbar-menu"
                 anchorEl={anchorElNav}
                 anchorOrigin={{
-                  vertical: 'bottom',
-                  horizontal: 'left',
+                  vertical: "bottom",
+                  horizontal: "left",
                 }}
                 keepMounted
                 transformOrigin={{
-                  vertical: 'top',
-                  horizontal: 'left',
+                  vertical: "top",
+                  horizontal: "left",
                 }}
                 open={Boolean(anchorElNav)}
                 onClose={handleCloseNavMenu}
-                sx={{display: 'block'}}
+                sx={{ display: "block" }}
               >
-                {
-                  userData.isTA && isHome && (queueData.queueFrozen ?
+                {isTA &&
+                  isHome &&
+                  (queueData?.is_frozen ? (
                     <MenuItem onClick={unfreezeQueue}>
-                      <Typography variant='subtitle2' sx={{mx: 2}}>
+                      <Typography variant="subtitle2" sx={{ mx: 2 }}>
                         Unfreeze
                       </Typography>
-                    </MenuItem> :
+                    </MenuItem>
+                  ) : (
                     <MenuItem onClick={freezeQueue}>
-                      <Typography variant='subtitle2' sx={{mx: 2}}>
+                      <Typography variant="subtitle2" sx={{ mx: 2 }}>
                         Freeze
                       </Typography>
                     </MenuItem>
-                  )
-                }
-                {
-                  notificationPermission !== 'granted' && (
-                    <MenuItem onClick={() => {
-                      if ('Notification' in window) {
+                  ))}
+                {notificationPermission !== "granted" && (
+                  <MenuItem
+                    onClick={() => {
+                      if ("Notification" in window) {
                         Notification.requestPermission((permission) => {
                           setNotificationPermission(permission);
                         });
                       }
-                    }}>
-                      <Typography variant='subtitle2' sx={{mx: 2}}>
-                        Enable Notifications
-                      </Typography>
-                    </MenuItem>
-                  )
-                }
-                {
-                  pages?.map((page) => (
-                    <MenuItem key={page.page} onClick={goToPage(page.link)}>
-                      <Typography variant='subtitle2' sx={{mx: 2}}>
-                        {page.page}
-                      </Typography>
-                    </MenuItem>
-                  ))
-                }
-                {
-                  userData.isAuthenticated && <ChangeNameBtn mobile={true} pname={pname} setpname={setpname}/>
-                }
-                {
-                  userData.isAuthenticated &&
-                    <MenuItem onClick={handleLogoutClicked}>
-                      <Typography variant='subtitle2' sx={{mx: 2}}>
-                            Logout
-                      </Typography>
-                    </MenuItem>
-                }
+                    }}
+                  >
+                    <Typography variant="subtitle2" sx={{ mx: 2 }}>
+                      Enable Notifications
+                    </Typography>
+                  </MenuItem>
+                )}
+                {pages?.map((page) => (
+                  <MenuItem key={page.page} onClick={goToPage(page.link)}>
+                    <Typography variant="subtitle2" sx={{ mx: 2 }}>
+                      {page.page}
+                    </Typography>
+                  </MenuItem>
+                ))}
+                {isAuthenticated && (
+                  <ChangeNameBtn
+                    mobile={true}
+                    pname={pname}
+                    setpname={setpname}
+                  />
+                )}
+                {isAuthenticated && (
+                  <MenuItem onClick={handleLogoutClicked}>
+                    <Typography variant="subtitle2" sx={{ mx: 2 }}>
+                      Logout
+                    </Typography>
+                  </MenuItem>
+                )}
               </Menu>
             </Box>
-          }
+          )}
 
-          <Box sx={{flexGrow: 1, display: 'flex'}} >
-            <OHQueueHeader/>
+          <Box sx={{ flexGrow: 1, display: "flex" }}>
+            <OHQueueHeader />
           </Box>
-          <Box sx={{flexGrow: 0, display: 'flex', justifyContent: 'flex-end'}} >
-            {
-              !userData.isAuthenticated && <GoogleLogin/>
-            }
+          <Box
+            sx={{ flexGrow: 0, display: "flex", justifyContent: "flex-end" }}
+          >
+            {!isAuthenticated && <GoogleLogin />}
           </Box>
-          <AlertOnLogout isOpen={alertOpen} setOpen={setAlertOpen} handleConfirm={handleLogout}/>
+          <AlertOnLogout
+            isOpen={alertOpen}
+            setOpen={setAlertOpen}
+            handleConfirm={handleLogout}
+          />
         </Toolbar>
       </AppBar>
     );
@@ -206,51 +241,58 @@ export default function Navbar(props) {
 
   // Desktop view
   return (
-    <AppBar position="sticky" enableColorOnDark style={{background: theme.alternateColors.navbar}}>
-      <Toolbar sx={{display: 'flex space-between'}}>
-        <Box sx={{flexGrow: 1, display: 'flex'}}>
-          <OHQueueHeader/>
-          {
-            userData.isTA && isHome && (queueData.queueFrozen ? unfreezeButton : freezeButton)
-          }
-          {
-            notificationPermission !== 'granted' && (
-              <IconButton color="secondary" onClick={() => {
-                if ('Notification' in window) {
+    <AppBar
+      position="sticky"
+      enableColorOnDark
+      style={{ background: theme.alternateColors.navbar }}
+    >
+      <Toolbar sx={{ display: "flex space-between" }}>
+        <Box sx={{ flexGrow: 1, display: "flex" }}>
+          <OHQueueHeader />
+          {isTA &&
+            isHome &&
+            (queueData?.is_frozen ? unfreezeButton : freezeButton)}
+          {notificationPermission !== "granted" && (
+            <IconButton
+              color="secondary"
+              onClick={() => {
+                if ("Notification" in window) {
                   Notification.requestPermission((permission) => {
                     setNotificationPermission(permission);
                   });
                 }
-              }}>
-                <NotificationsActive />
-              </IconButton>
-            )
-          }
+              }}
+            >
+              <NotificationsActive />
+            </IconButton>
+          )}
         </Box>
-        <Box sx={{flexGrow: 0, display: 'flex', color: '#FFFFFF'}}>
-          {
-            userData.isAuthenticated && 'Currently Logged in as ' + pname
-          }
+        <Box sx={{ flexGrow: 0, display: "flex", color: "#FFFFFF" }}>
+          {isAuthenticated && "Currently Logged in as " + pname}
         </Box>
-        <Box sx={{flexGrow: 0, display: 'flex'}}>
-          {
-            userData.isAuthenticated && <ChangeNameBtn mobile={false} pname={pname} setpname={setpname}/>
-          }
+        <Box sx={{ flexGrow: 0, display: "flex" }}>
+          {isAuthenticated && (
+            <ChangeNameBtn mobile={false} pname={pname} setpname={setpname} />
+          )}
         </Box>
 
-        <Box sx={{flexGrow: 0, display: 'flex'}}>
-          {
-            pages?.map((page) => (
-              <NavbarButton key={page.page} href={page.link}>{page.page}</NavbarButton>
-            ))
-          }
-          {
-            userData.isAuthenticated ?
-            <NavbarButton onClick={handleLogoutClicked}>Logout</NavbarButton> :
-            <GoogleLogin/>
-          }
+        <Box sx={{ flexGrow: 0, display: "flex" }}>
+          {pages?.map((page) => (
+            <NavbarButton key={page.page} href={page.link}>
+              {page.page}
+            </NavbarButton>
+          ))}
+          {isAuthenticated ? (
+            <NavbarButton onClick={handleLogoutClicked}>Logout</NavbarButton>
+          ) : (
+            <GoogleLogin />
+          )}
         </Box>
-        <AlertOnLogout isOpen={alertOpen} setOpen={setAlertOpen} handleConfirm={handleLogout}/>
+        <AlertOnLogout
+          isOpen={alertOpen}
+          setOpen={setAlertOpen}
+          handleConfirm={handleLogout}
+        />
       </Toolbar>
     </AppBar>
   );

@@ -1,13 +1,22 @@
-import React, {useState} from 'react';
+import React, { useState } from "react";
 import {
-  Button, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, TextField, Typography, MenuItem,
-} from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
+  Button,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  TextField,
+  Typography,
+  MenuItem,
+} from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
 
-import SettingsService from '../../services/SettingsService';
+import { useMutation } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
 
 export default function ChangeNameBtn(props) {
-  const {setpname, pname, mobile} = props;
+  const { setpname, pname, mobile } = props;
 
   const [tmpPrefName, setTmpPrefName] = useState(pname);
   const [open, setOpen] = useState(false);
@@ -20,30 +29,39 @@ export default function ChangeNameBtn(props) {
     setOpen(false);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    SettingsService.updatePreferredName({preferred_name: tmpPrefName});
+    await useMutation(api.settings.settings_mutate.updatePreferredName)({
+      preferred_name: tmpPrefName,
+    });
     handleClose();
   };
 
   return (
     <div>
-      {
-        mobile ?
-          <MenuItem onClick={handleClickOpen}>
-            <Typography variant='subtitle2' sx={{mx: 2}}> Change Name </Typography>
-          </MenuItem> :
-          <Button variant="text" onClick={handleClickOpen} sx={{color: '#FFFFFF'}}>
-            <EditIcon/>
-          </Button>
-      }
+      {mobile ? (
+        <MenuItem onClick={handleClickOpen}>
+          <Typography variant="subtitle2" sx={{ mx: 2 }}>
+            {" "}
+            Change Name{" "}
+          </Typography>
+        </MenuItem>
+      ) : (
+        <Button
+          variant="text"
+          onClick={handleClickOpen}
+          sx={{ color: "#FFFFFF" }}
+        >
+          <EditIcon />
+        </Button>
+      )}
       <Dialog open={open} onClose={handleClose}>
         <form onSubmit={handleSubmit}>
           <DialogTitle>Change Name</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Update the name that is displayed when you are on the queue and the
-              name we will call out to help you during office hours. Your
+              Update the name that is displayed when you are on the queue and
+              the name we will call out to help you during office hours. Your
               professor can see this, so please make it appropriate!
             </DialogContentText>
             <TextField
@@ -60,7 +78,9 @@ export default function ChangeNameBtn(props) {
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>Cancel</Button>
-            <Button type="submit" onClick={() => setpname(tmpPrefName)}>Set Nickname</Button>
+            <Button type="submit" onClick={() => setpname(tmpPrefName)}>
+              Set Nickname
+            </Button>
           </DialogActions>
         </form>
       </Dialog>

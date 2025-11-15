@@ -47,8 +47,27 @@ export async function getCurrentUser(ctx: QueryCtx) {
 }
 
 export async function getQueueLength(ctx: QueryCtx) {
-  const queue_length = await ctx.db.query("ohq").collect();
-  return queue_length.length;
+  const queue = await ctx.db.query("ohq").collect();
+  return queue.length;
+}
+
+export async function getNumUnhelped(ctx: QueryCtx) {
+  const queue = await ctx.db
+    .query("ohq")
+    .filter((x) => x.eq(x.field("status"), "being_helped"))
+    .collect();
+
+  return queue.length;
+}
+
+// TODO CONVEX WAIT TIMES
+export async function getNumTAs(ctx: QueryCtx) {
+  return 0;
+}
+
+// TODO CONVEX WAIT TIMES
+export async function getMinsPerStudent(ctx: QueryCtx) {
+  return 0;
 }
 
 export async function getQueueEntry(ctx: QueryCtx, student_id: Id<"students">) {
@@ -57,9 +76,9 @@ export async function getQueueEntry(ctx: QueryCtx, student_id: Id<"students">) {
     .withIndex("by_student", (q) => q.eq("student_id", student_id))
     .first();
 
-  if (!queue_entry) {
-    throw new ConvexError("Queue entry not found");
-  }
+  // if (!queue_entry) {
+  //   throw new ConvexError("Queue entry not found");
+  // }
 
   return queue_entry;
 }
@@ -72,7 +91,7 @@ export const createStudentFromUser = internalMutation({
     // create student prefs
     const new_student_prefs = await ctx.db.insert("userPreferences", {
       user_id: args.userId,
-      preferred_name: user_data.name,
+      preferred_name: user_data.name || "",
     });
 
     const curr_sem = await getCurrentSemester(ctx);

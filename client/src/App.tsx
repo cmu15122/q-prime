@@ -1,71 +1,52 @@
-import React from 'react';
-import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import Home from './pages/home';
-import Settings from './pages/settings';
-import Metrics from './pages/metrics';
+import Home from "./pages/home";
+import Settings from "./pages/settings";
+import Metrics from "./pages/metrics";
 
-import {darkTheme, lightTheme} from './themes/base';
-import CssBaseline from '@mui/material/CssBaseline';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import {ThemeProvider} from '@mui/material';
+import { darkTheme, lightTheme } from "./themes/base";
+import CssBaseline from "@mui/material/CssBaseline";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { ThemeProvider } from "@mui/material";
 
-import {AdapterLuxon} from '@mui/x-date-pickers/AdapterLuxon';
-import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
-// import {GoogleOAuthProvider} from '@react-oauth/google';
-import {ToastContainer} from 'react-toastify';
+import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { ToastContainer } from "react-toastify";
 
-import './App.css';
-import {QueueDataContextProvider} from './contexts/QueueDataContext';
-import {AllStudentsContextProvider} from './contexts/AllStudentsContext';
-import {StudentDataContextProvider} from './contexts/StudentDataContext';
-import {AdminSettingsContextProvider} from './contexts/AdminSettingsContext';
-import {UserDataContextProvider} from './contexts/UserDataContext';
+import "./App.css";
 
 function App() {
-  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const theme = React.useMemo(
-      () =>
-      prefersDarkMode ? darkTheme : lightTheme,
-      [prefersDarkMode],
+    () => (prefersDarkMode ? darkTheme : lightTheme),
+    [prefersDarkMode],
   );
   const ThemeContext = React.createContext(theme);
 
   return (
     <ThemeProvider theme={theme || darkTheme}>
-      <CssBaseline/>
+      <CssBaseline />
       <LocalizationProvider dateAdapter={AdapterLuxon}>
         <ThemeContext.Provider value={theme}>
-          {/* <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>*/}
-          <UserDataContextProvider>
-            <QueueDataContextProvider>
-              <StudentDataContextProvider>
-                <AdminSettingsContextProvider>
-                  <AllStudentsContextProvider>
-                    <Router basename={process.env.PUBLIC_URL}>
-                      <Routes>
-                        <Route path='/' element={<Home/>} />
-                        <Route path='/settings' element={<Settings/>} />
-                        <Route path='/metrics' element={<Metrics/>} />
-                      </Routes>
-                    </Router>
-                    <ToastContainer
-                      position="bottom-left"
-                      autoClose={5000}
-                      hideProgressBar={false}
-                      newestOnTop={false}
-                      closeOnClick
-                      rtl={false}
-                      pauseOnFocusLoss
-                      draggable
-                      pauseOnHover
-                    />
-                  </AllStudentsContextProvider>
-                </AdminSettingsContextProvider>
-              </StudentDataContextProvider>
-            </QueueDataContextProvider>
-          </UserDataContextProvider>
-          {/* </GoogleOAuthProvider>*/}
+          <Router basename={process.env.PUBLIC_URL}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              {/*<Route path='/settings' element={<Settings/>} />
+              <Route path='/metrics' element={<Metrics/>} />*/}
+            </Routes>
+          </Router>
+          <ToastContainer
+            position="bottom-left"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
         </ThemeContext.Provider>
       </LocalizationProvider>
     </ThemeProvider>

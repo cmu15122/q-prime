@@ -1,16 +1,22 @@
-import React, { useContext } from 'react';
-import { Typography } from '@mui/material';
+import React from "react";
+import { CircularProgress, Typography } from "@mui/material";
 
-import AdminMain from './admin/AdminMain';
-import VideoChatSettings from './VideoChatSettings';
-import NotificationSettings from './NotificationSettings';
-import TimerSettings from './TimerSettings';
-import { UserDataContext } from '../../contexts/UserDataContext';
+import AdminMain from "./admin/AdminMain";
+import VideoChatSettings from "./VideoChatSettings";
+import NotificationSettings from "./NotificationSettings";
+import TimerSettings from "./TimerSettings";
 
-function Main(props) {
-  const { userData } = useContext(UserDataContext);
+import { useQuery } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
 
-  return (
+function Main() {
+  const userData = useQuery(api.home.home_get.getUserData);
+  const isLoadingUserData = userData === undefined;
+  const isAuthenticated = userData !== null && userData !== undefined;
+
+  return isLoadingUserData ? (
+    <CircularProgress />
+  ) : isAuthenticated ? (
     <div>
       <Typography
         variant="h3"
@@ -20,12 +26,14 @@ function Main(props) {
       >
         Settings
       </Typography>
-      {!userData.isOwner && <VideoChatSettings />}
-      {!userData.isOwner && <NotificationSettings />}
-      {!userData.isOwner && <TimerSettings />}
+      {!userData.is_owner && <VideoChatSettings />}
+      {!userData.is_owner && <NotificationSettings />}
+      {!userData.is_owner && <TimerSettings />}
 
-      {userData.isAdmin && <AdminMain />}
+      {userData.ta_data!.is_admin && <AdminMain />}
     </div>
+  ) : (
+    <div></div>
   );
 }
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -6,23 +6,25 @@ import {
   DialogContent,
   Typography,
   TextField,
-} from '@mui/material';
+} from "@mui/material";
 
-import HomeService from '../../../../services/HomeService';
-import { StudentStatusValues } from '../../../../services/StudentStatus';
+import { Doc } from "../../../../../../convex/_generated/dataModel";
+import { useMutation } from "convex/react";
+import { api } from "../../../../../../convex/_generated/api";
 
 export default function MessageDialog(props) {
-  const { isOpen, onClose, student } = props;
-  const [message, setMessage] = useState('');
+  const { isOpen, onClose } = props;
+  const student: Doc<"ohq"> = props["student"];
 
-  const onSubmit = (event) => {
+  const [message, setMessage] = useState("");
+
+  const onSubmit = async (event) => {
     event.preventDefault();
-    HomeService.messageStudent(
-        JSON.stringify({
-          andrewID: student.andrewID,
-          message: message,
-        }),
-    ).then(() => {
+
+    await useMutation(api.home.home_mutate.messageStudent)({
+      message: message,
+      student_id: student.student_id,
+    }).then(() => {
       onClose();
     });
   };
@@ -32,46 +34,39 @@ export default function MessageDialog(props) {
       <DialogContent>
         <Typography
           variant="h5"
-          sx={{ pb: 1, fontWeight: 'bold', textAlign: 'center' }}
+          sx={{ pb: 1, fontWeight: "bold", textAlign: "center" }}
         >
-          Messaging Student &quot;{student.name}&quot;
+          Messaging Student &quot;{student.student_name}&quot;
         </Typography>
-        <Typography
-          variant="body2"
-          sx={{ pb: 1, textAlign: 'center', fontStyle: 'italic' }}
-        >
-          {student.status === StudentStatusValues.RECEIVED_MESSAGE &&
-            'Note: Student has already been messaged. Sending a message here will overwrite the existing message'}
-        </Typography>
-        {student.messageBuffer && student.messageBuffer.length > 0 && (
+        {student.messages_from_tas.length > 0 && (
           <Box
             bgcolor="background.paper"
             sx={{
               p: 1,
               mb: 2,
               border: 1,
-              borderColor: 'grey.400',
+              borderColor: "grey.400",
               borderRadius: 1,
-              display: 'flex',
-              flexDirection: 'column',
+              display: "flex",
+              flexDirection: "column",
               maxHeight: 80,
-              overflow: 'hidden',
-              overflowY: 'scroll',
+              overflow: "hidden",
+              overflowY: "scroll",
             }}
           >
             <Typography
               variant="body2"
-              sx={{ textAlign: 'left', fontWeight: 'bold' }}
+              sx={{ textAlign: "left", fontWeight: "bold" }}
             >
               Previous Messages:
             </Typography>
-            {student.messageBuffer.map((message, index) => (
+            {student.messages_from_tas.map((message, index) => (
               <Typography
                 key={index}
                 variant="body2"
-                sx={{ textAlign: 'left', fontStyle: 'italic' }}
+                sx={{ textAlign: "left", fontStyle: "italic" }}
               >
-                {message}
+                {message.from_ta_name} : {message.message}
               </Typography>
             ))}
           </Box>
@@ -91,7 +86,7 @@ export default function MessageDialog(props) {
             <Button
               type="submit"
               variant="contained"
-              sx={{ alignSelf: 'center' }}
+              sx={{ alignSelf: "center" }}
             >
               Send Message
             </Button>

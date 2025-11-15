@@ -1,8 +1,8 @@
-import React from 'react';
-import {useTheme} from '@mui/material';
+import React from "react";
+import { useTheme } from "@mui/material";
 
-import Navbar from '../components/navbar/Navbar';
-import HomeMain from '../components/home/HomeMain';
+import Navbar from "../components/navbar/Navbar";
+import HomeMain from "../components/home/HomeMain";
 
 /**
  * Home page
@@ -12,9 +12,12 @@ function Home() {
   const theme = useTheme();
 
   return (
-    <div className="App" style={{backgroundColor: theme.palette.background.default}}>
-      <Navbar isHome={true}/>
-      <HomeMain/>
+    <div
+      className="App"
+      style={{ backgroundColor: theme.palette.background.default }}
+    >
+      <Navbar isHome={true} />
+      <HomeMain />
     </div>
   );
 }
