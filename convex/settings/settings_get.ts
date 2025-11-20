@@ -1,10 +1,10 @@
-import { query } from '../_generated/server';
-import { v } from 'convex/values';
+import { query } from "../_generated/server";
+import { v } from "convex/values";
 import {
   ensureAuthAndAdmin,
   getCurrentSemester,
   getGlobalSettings,
-} from '../common';
+} from "../common";
 
 export const getQueueSettings = query({
   args: {},
@@ -18,6 +18,8 @@ export const getQueueSettings = query({
     dayDictionary: v.record(v.string(), v.array(v.string())),
     allowShowOthersTimer: v.boolean(),
     allowedEmailDomains: v.array(v.string()),
+    enforceEmailDomains: v.boolean(),
+    ownerEmails: v.array(v.string()),
   }),
   handler: async (ctx, args) => {
     const globalSettings = await getGlobalSettings(ctx);
@@ -28,12 +30,14 @@ export const getQueueSettings = query({
       courseName: globalSettings.course_name,
       currSem: curr_sem.name,
       slackURL: globalSettings.slackbot_webhook_url,
-      questionsURL: globalSettings.questions_policy_url,
+      questionsURL: globalSettings.questions_policy_url, // TODO CONVEX MAKE SURE THIS GETS TO THE CLIENT
       rejoinTimeMins: globalSettings.rejoin_time_ms / 60000, // convert ms to minutes
       allowCDOverride: globalSettings.allow_cooldown_override,
       dayDictionary: globalSettings.day_to_location_dict,
       allowShowOthersTimer: globalSettings.allow_tas_show_others_timer,
       allowedEmailDomains: globalSettings.allowed_email_domains,
+      enforceEmailDomains: globalSettings.enforce_email_domain,
+      ownerEmails: curr_sem.owner_emails,
     };
   },
 });

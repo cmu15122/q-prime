@@ -18,7 +18,7 @@ function Settings() {
   const theme = useTheme();
   const userData = useQuery(api.home.home_get.getUserData);
 
-  const isLoadingUserData = userData === n;
+  const isLoadingUserData = userData === undefined;
   const isAuthenticated = userData !== null && userData !== undefined;
   const isTA = isAuthenticated && userData.user_kind === "TA";
 

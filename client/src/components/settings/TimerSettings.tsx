@@ -1,32 +1,36 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   CardContent,
   Checkbox,
   FormControlLabel,
   Grid,
   Typography,
-} from '@mui/material';
+} from "@mui/material";
 
-import BaseCard from '../common/cards/BaseCard';
+import BaseCard from "../common/cards/BaseCard";
 
-import SettingsService from '../../services/SettingsService';
-import { UserDataContext } from '../../contexts/UserDataContext';
-import { QueueDataContext } from '../../contexts/QueueDataContext';
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
 
-export default function TimerSettings(props) {
-  const { userData } = useContext(UserDataContext);
-  const { queueData } = useContext(QueueDataContext);
+export default function TimerSettings() {
+  const queueData = useQuery(api.home.home_get.getQueueData);
+  const userData = useQuery(api.home.home_get.getUserData);
 
   const [showSelfTimer, setShowSelfTimer] = useState(false);
   const [showOthersTimer, setShowOthersTimer] = useState(false);
 
   useEffect(() => {
-    setShowSelfTimer(userData.taSettings?.showSelfTimer || false);
-    setShowOthersTimer(userData.taSettings?.showOthersTimer || false);
+    if (userData) {
+      setShowSelfTimer(userData.ta_data!.show_self_timer);
+      setShowOthersTimer(userData.ta_data!.show_others_timer);
+    }
   }, [userData]);
 
-  const updateTimerSettings = (selfTimer, othersTimer) => {
-    SettingsService.updateTimerSettings({
+  const updateTimerSettingsMutation = useMutation(
+    api.settings.settings_mutate.updateTimerSettings,
+  );
+  const updateTimerSettings = async (selfTimer, othersTimer) => {
+    await updateTimerSettingsMutation({
       showSelfTimer: selfTimer,
       showOthersTimer: othersTimer,
     });
@@ -36,7 +40,7 @@ export default function TimerSettings(props) {
     <BaseCard>
       <CardContent>
         <Typography
-          sx={{ fontWeight: 'bold', ml: 1, mt: 1 }}
+          sx={{ fontWeight: "bold", ml: 1, mt: 1 }}
           variant="body1"
           gutterBottom
         >
@@ -49,7 +53,7 @@ export default function TimerSettings(props) {
                 <Checkbox
                   size="small"
                   sx={{ ml: 1 }}
-                  checked={showSelfTimer ?? false}
+                  checked={showSelfTimer}
                   onChange={(e) => {
                     const isShowSelfTimer = e.target.checked;
                     setShowSelfTimer(isShowSelfTimer);
@@ -60,15 +64,15 @@ export default function TimerSettings(props) {
               label={<div>Show timer when I&apos;m helping a student</div>}
             />
           </Grid>
-          {queueData.allowShowOthersTimer && (
+          {queueData && queueData.allow_tas_show_others_timer && (
             <Grid className="d-flex" item xs={12}>
               <FormControlLabel
                 control={
                   <Checkbox
                     size="small"
                     sx={{ ml: 1 }}
-                    checked={showOthersTimer ?? false}
-                    disabled={!queueData.allowShowOthersTimer}
+                    checked={showOthersTimer}
+                    disabled={!queueData.allow_tas_show_others_timer}
                     onChange={(e) => {
                       const isShowOthersTimer = e.target.checked;
                       setShowOthersTimer(isShowOthersTimer);

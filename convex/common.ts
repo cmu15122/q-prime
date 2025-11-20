@@ -277,15 +277,12 @@ export async function ensureAuthAndStudent(
   };
 }
 
-export const ensureEmailIsTA = internalQuery({
+export const internalEnsureTA = internalQuery({
   args: {
-    email: v.string(),
+    user_id: v.id("users"),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.db
-      .query("users")
-      .withIndex("email", (x) => x.eq("email", args.email))
-      .first();
+    const user = await ctx.db.get(args.user_id);
 
     if (!user) {
       return false;

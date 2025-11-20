@@ -32,8 +32,8 @@ function App() {
           <Router basename={process.env.PUBLIC_URL}>
             <Routes>
               <Route path="/" element={<Home />} />
-              {/*<Route path='/settings' element={<Settings/>} />
-              <Route path='/metrics' element={<Metrics/>} />*/}
+              <Route path="/settings" element={<Settings />} />
+              {/*<Route path='/metrics' element={<Metrics/>} />*/}
             </Routes>
           </Router>
           <ToastContainer

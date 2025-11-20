@@ -1,19 +1,16 @@
-import React, { useContext } from 'react';
-import { Typography } from '@mui/material';
+import React from "react";
+import { Typography } from "@mui/material";
 
-import ConfigSettings from './ConfigSettings';
-import Locations from './Locations';
-import QueueRejoinSettings from './QueueRejoinSettings';
-import QueueTopicSettings from './QueueTopicSettings';
-import TASettings from './TASettings';
-import { AdminSettingsContext } from '../../../contexts/AdminSettingsContext';
-import AccessControlSettings from './AccessControlSettings';
+import ConfigSettings from "./ConfigSettings";
+import Locations from "./Locations";
+import QueueRejoinSettings from "./QueueRejoinSettings";
+import QueueTopicSettings from "./QueueTopicSettings";
+import TASettings from "./TASettings";
+import AccessControlSettings from "./AccessControlSettings";
 
-function AdminMain(props) {
-  const { adminSettings } = useContext(AdminSettingsContext);
-
+function AdminMain() {
   return (
-    <div style={{ paddingBottom: '80px' }}>
+    <div style={{ paddingBottom: "80px" }}>
       <Typography
         variant="h4"
         textAlign="center"
@@ -25,10 +22,10 @@ function AdminMain(props) {
 
       <ConfigSettings></ConfigSettings>
       <QueueRejoinSettings></QueueRejoinSettings>
-      {adminSettings.currSem && <QueueTopicSettings></QueueTopicSettings>}
-      {adminSettings.currSem && <Locations></Locations>}
-      {adminSettings.currSem && <TASettings></TASettings>}
-      {adminSettings.currSem && <AccessControlSettings></AccessControlSettings>}
+      <QueueTopicSettings></QueueTopicSettings>
+      {/*<Locations></Locations>
+      <TASettings></TASettings>
+      <AccessControlSettings></AccessControlSettings>*/}
     </div>
   );
 }

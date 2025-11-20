@@ -4,28 +4,53 @@ import { api, internal } from "./_generated/api";
 import { getCurrentSemester } from "./common";
 import { ConvexError, v } from "convex/values";
 import { auth } from "./auth";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 const http = httpRouter();
 
 auth.addHttpRoutes(http);
 
+// Helper function to create CORS headers
+function createCorsHeaders(additionalHeaders: Record<string, string> = {}) {
+  const origin = process.env.CLIENT_ORIGIN || "*";
+  return {
+    "Access-Control-Allow-Origin": origin,
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Credentials": "true",
+    "Access-Control-Max-Age": "86400", // 24 hours
+    ...additionalHeaders,
+  };
+}
+
+// Helper function to handle preflight requests
+function handlePreflight() {
+  return new Response(null, {
+    status: 204,
+    headers: createCorsHeaders(),
+  });
+}
+
+// OPTIONS handler for download_assignment_csv
+http.route({
+  path: "/download_assignment_csv",
+  method: "OPTIONS",
+  handler: httpAction(async () => handlePreflight()),
+});
+
 http.route({
   path: "/download_assignment_csv",
   method: "GET",
   handler: httpAction(async (ctx, request) => {
-    const user_identity = await ctx.auth.getUserIdentity();
+    const user = await getAuthUserId(ctx);
 
-    if (!user_identity) {
+    if (!user) {
       throw new Error("User not authenticated");
     }
 
-    if (!user_identity.email) {
-      throw new Error("User email not found");
-    }
-
     // ensure user is a TA
-    const is_ta = await ctx.runQuery(internal.common.ensureEmailIsTA, {
-      email: user_identity.email,
+    const is_ta = await ctx.runQuery(internal.common.internalEnsureTA, {
+      user_id: user,
     });
 
     if (!is_ta) {
@@ -39,31 +64,34 @@ http.route({
 
     return new Response(csvContent, {
       status: 200,
-      headers: {
+      headers: createCorsHeaders({
         "Content-Type": "text/csv",
         "Content-Disposition": `attachment; filename="assignments_example.csv"`,
-      },
+      }),
     });
   }),
+});
+
+// OPTIONS handler for download_tas_csv
+http.route({
+  path: "/download_tas_csv",
+  method: "OPTIONS",
+  handler: httpAction(async () => handlePreflight()),
 });
 
 http.route({
   path: "/download_tas_csv",
   method: "GET",
   handler: httpAction(async (ctx, request) => {
-    const user_identity = await ctx.auth.getUserIdentity();
+    const user = await getAuthUserId(ctx);
 
-    if (!user_identity) {
+    if (!user) {
       throw new Error("User not authenticated");
     }
 
-    if (!user_identity.email) {
-      throw new Error("User email not found");
-    }
-
     // ensure user is a TA
-    const is_ta = await ctx.runQuery(internal.common.ensureEmailIsTA, {
-      email: user_identity.email,
+    const is_ta = await ctx.runQuery(internal.common.internalEnsureTA, {
+      user_id: user,
     });
 
     if (!is_ta) {
@@ -77,31 +105,34 @@ http.route({
 
     return new Response(csvContent, {
       status: 200,
-      headers: {
+      headers: createCorsHeaders({
         "Content-Type": "text/csv",
         "Content-Disposition": `attachment; filename="tas_example.csv"`,
-      },
+      }),
     });
   }),
+});
+
+// OPTIONS handler for download_access_control_csv
+http.route({
+  path: "/download_access_control_csv",
+  method: "OPTIONS",
+  handler: httpAction(async () => handlePreflight()),
 });
 
 http.route({
   path: "/download_access_control_csv",
   method: "GET",
   handler: httpAction(async (ctx, request) => {
-    const user_identity = await ctx.auth.getUserIdentity();
+    const user = await getAuthUserId(ctx);
 
-    if (!user_identity) {
+    if (!user) {
       throw new Error("User not authenticated");
     }
 
-    if (!user_identity.email) {
-      throw new Error("User email not found");
-    }
-
     // ensure user is a TA
-    const is_ta = await ctx.runQuery(internal.common.ensureEmailIsTA, {
-      email: user_identity.email,
+    const is_ta = await ctx.runQuery(internal.common.internalEnsureTA, {
+      user_id: user,
     });
 
     if (!is_ta) {
@@ -115,31 +146,34 @@ http.route({
 
     return new Response(csvContent, {
       status: 200,
-      headers: {
+      headers: createCorsHeaders({
         "Content-Type": "text/csv",
         "Content-Disposition": `attachment; filename="access_control_template.csv"`,
-      },
+      }),
     });
   }),
+});
+
+// OPTIONS handler for upload_assignment_csv
+http.route({
+  path: "/upload_assignment_csv",
+  method: "OPTIONS",
+  handler: httpAction(async () => handlePreflight()),
 });
 
 http.route({
   path: "/upload_assignment_csv",
   method: "POST",
   handler: httpAction(async (ctx, request) => {
-    const user_identity = await ctx.auth.getUserIdentity();
+    const user = await getAuthUserId(ctx);
 
-    if (!user_identity) {
+    if (!user) {
       throw new Error("User not authenticated");
     }
 
-    if (!user_identity.email) {
-      throw new Error("User email not found");
-    }
-
     // ensure user is a TA
-    const is_ta = await ctx.runQuery(internal.common.ensureEmailIsTA, {
-      email: user_identity.email,
+    const is_ta = await ctx.runQuery(internal.common.internalEnsureTA, {
+      user_id: user,
     });
 
     if (!is_ta) {
@@ -169,27 +203,31 @@ http.route({
 
     return new Response(null, {
       status: 200,
+      headers: createCorsHeaders(),
     });
   }),
+});
+
+// OPTIONS handler for upload_tas_csv
+http.route({
+  path: "/upload_tas_csv",
+  method: "OPTIONS",
+  handler: httpAction(async () => handlePreflight()),
 });
 
 http.route({
   path: "/upload_tas_csv",
   method: "POST",
   handler: httpAction(async (ctx, request) => {
-    const user_identity = await ctx.auth.getUserIdentity();
+    const user = await getAuthUserId(ctx);
 
-    if (!user_identity) {
+    if (!user) {
       throw new Error("User not authenticated");
     }
 
-    if (!user_identity.email) {
-      throw new Error("User email not found");
-    }
-
     // ensure user is a TA
-    const is_ta = await ctx.runQuery(internal.common.ensureEmailIsTA, {
-      email: user_identity.email,
+    const is_ta = await ctx.runQuery(internal.common.internalEnsureTA, {
+      user_id: user,
     });
 
     if (!is_ta) {
@@ -217,27 +255,31 @@ http.route({
 
     return new Response(null, {
       status: 200,
+      headers: createCorsHeaders(),
     });
   }),
+});
+
+// OPTIONS handler for upload_access_control_csv
+http.route({
+  path: "/upload_access_control_csv",
+  method: "OPTIONS",
+  handler: httpAction(async () => handlePreflight()),
 });
 
 http.route({
   path: "/upload_access_control_csv",
   method: "POST",
   handler: httpAction(async (ctx, request) => {
-    const user_identity = await ctx.auth.getUserIdentity();
+    const user = await getAuthUserId(ctx);
 
-    if (!user_identity) {
+    if (!user) {
       throw new Error("User not authenticated");
     }
 
-    if (!user_identity.email) {
-      throw new Error("User email not found");
-    }
-
     // ensure user is a TA
-    const is_ta = await ctx.runQuery(internal.common.ensureEmailIsTA, {
-      email: user_identity.email,
+    const is_ta = await ctx.runQuery(internal.common.internalEnsureTA, {
+      user_id: user,
     });
 
     if (!is_ta) {
@@ -271,6 +313,7 @@ http.route({
 
     return new Response(null, {
       status: 200,
+      headers: createCorsHeaders(),
     });
   }),
 });

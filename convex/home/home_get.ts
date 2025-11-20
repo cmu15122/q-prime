@@ -121,6 +121,18 @@ export const getAllStudents = query({
   },
 });
 
+export const getAllAssignments = query({
+  args: {},
+  handler: async (ctx, args) => {
+    const curr_sem = await getCurrentSemester(ctx);
+
+    return await ctx.db
+      .query("assignments")
+      .withIndex("by_sem_end", (x) => x.eq("semester_id", curr_sem._id))
+      .collect();
+  },
+});
+
 export const getCurrentAssignments = query({
   args: {},
   handler: async (ctx, args) => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Button,
   CardContent,
@@ -7,122 +7,113 @@ import {
   Checkbox,
   Stack,
   Tooltip,
-} from '@mui/material';
+} from "@mui/material";
 
-import BaseCard from '../../common/cards/BaseCard';
+import BaseCard from "../../common/cards/BaseCard";
 
-import SettingsService from '../../../services/SettingsService';
-import { AdminSettingsContext } from '../../../contexts/AdminSettingsContext';
-import { QueueDataContext } from '../../../contexts/QueueDataContext';
-import { UserDataContext } from '../../../contexts/UserDataContext';
+import { useMutation, useQuery } from "convex/react";
+import { api } from "../../../../../convex/_generated/api";
 
-export default function ConfigSettings(props) {
-  const { adminSettings } = useContext(AdminSettingsContext);
-  const { queueData } = useContext(QueueDataContext);
-  const { userData } = useContext(UserDataContext);
+export default function ConfigSettings() {
+  const queueData = useQuery(api.home.home_get.getQueueData);
+  const userData = useQuery(api.home.home_get.getUserData);
+  const adminSettings = useQuery(api.settings.settings_get.getQueueSettings);
 
-  const [currSem, setCurrSem] = useState<string>(undefined);
-  const [slackURL, setSlackURL] = useState('');
-  const [questionsURL, setQuestionsURL] = useState('');
-  const [enforceCMUEmail, setEnforceCMUEmail] = useState(true);
+  const [currSem, setCurrSem] = useState<string>("");
+  const [slackURL, setSlackURL] = useState("");
+  const [questionsURL, setQuestionsURL] = useState("");
+  const [enforceEmailDomain, setEnforceEmailDomain] = useState(true);
   const [allowCDOverride, setAllowCDOverride] = useState(true);
-  const [courseName, setCourseName] = useState('');
+  const [courseName, setCourseName] = useState("");
   const [allowShowOthersTimer, setAllowShowOthersTimer] = useState(false);
 
+  // TODO CONVEX ADD ALLOWED DOMAINS SETTING
+
   useEffect(() => {
-    setCurrSem(adminSettings.currSem);
-    setSlackURL(adminSettings.slackURL);
-    setEnforceCMUEmail(adminSettings.enforceCMUEmail);
-    setCourseName(adminSettings.courseName);
-    setAllowShowOthersTimer(adminSettings.allowShowOthersTimer);
+    if (adminSettings) {
+      setCurrSem(adminSettings.currSem);
+      setSlackURL(adminSettings.slackURL || "");
+      setEnforceEmailDomain(adminSettings.enforceEmailDomains);
+      setCourseName(adminSettings.courseName);
+      setAllowShowOthersTimer(adminSettings.allowShowOthersTimer);
+    }
   }, [adminSettings]);
+
   useEffect(() => {
-    setAllowCDOverride(queueData.allowCDOverride);
-    setQuestionsURL(queueData.questionsURL);
+    if (queueData) {
+      setAllowCDOverride(queueData.allow_cooldown_override);
+      setQuestionsURL(queueData.questions_policy_url || "");
+    }
   }, [queueData]);
 
-  const handleUpdateCourseName = (event) => {
+  const updateCourseNameMutation = useMutation(
+    api.settings.settings_mutate.updateCourseName,
+  );
+  const handleUpdateCourseName = async (event) => {
     event.preventDefault();
-    if (courseName === adminSettings.courseName) return;
-
-    SettingsService.updateCourseName(
-        JSON.stringify({
-          courseName: courseName,
-        }),
-    );
+    await updateCourseNameMutation({ courseName: courseName });
   };
 
-  const handleUpdateSemester = (event) => {
+  const changeSemesterMutation = useMutation(
+    api.settings.settings_mutate.changeSemester,
+  );
+  const handleUpdateSemester = async (event) => {
     event.preventDefault();
-    if (currSem === adminSettings.currSem) return;
+    await changeSemesterMutation({ new_sem_name: currSem });
+  };
 
-    SettingsService.updateSemester(
-        JSON.stringify({
-          sem_id: currSem,
-        }),
-    ).then(() => {
-      // Reload entire page since we've changed semesters
-      window.location.reload();
+  const updateSlackURLMutation = useMutation(
+    api.settings.settings_mutate.updateSlackURL,
+  );
+  const handleUpdateSlackURL = async (event) => {
+    event.preventDefault();
+    await updateSlackURLMutation({ slackURL: slackURL });
+  };
+
+  const updateQuestionsURLMutation = useMutation(
+    api.settings.settings_mutate.updateQuestionsURL,
+  );
+  const handleUpdateQuestionsURL = async (event) => {
+    event.preventDefault();
+    await updateQuestionsURLMutation({ questionsURL: questionsURL });
+  };
+
+  const updateEnforceEmailDomainMutation = useMutation(
+    api.settings.settings_mutate.updateEnforceEmailDomain,
+  );
+  const handleUpdateEnforceEmailDomain = async (event) => {
+    event.preventDefault();
+
+    await updateEnforceEmailDomainMutation({
+      enforceEmailDomain: enforceEmailDomain,
     });
   };
 
-  const handleUpdateSlackURL = (event) => {
+  const updateAllowCooldownOverrideMutation = useMutation(
+    api.settings.settings_mutate.updateAllowCooldownOverride,
+  );
+  const handleCooldownOverrideEnabled = async (event) => {
     event.preventDefault();
-    if (slackURL === adminSettings.slackURL) return;
-
-    SettingsService.updateSlackURL(
-        JSON.stringify({
-          slackURL: slackURL,
-        }),
-    );
+    await updateAllowCooldownOverrideMutation({
+      allowCDOverride: allowCDOverride,
+    });
   };
 
-  const handleUpdateQuestionsURL = (event) => {
+  const updateAllowShowOthersTimerMutation = useMutation(
+    api.settings.settings_mutate.updateAllowShowOthersTimer,
+  );
+  const handleUpdateAllowShowOthersTimer = async (event) => {
     event.preventDefault();
-    if (questionsURL === queueData.questionsURL) return;
-
-    SettingsService.updateQuestionsURL(
-        JSON.stringify({
-          questionsURL: questionsURL,
-        }),
-    );
-  };
-
-  const handleUpdateCmuEmailEnabled = (event) => {
-    event.preventDefault();
-
-    SettingsService.updateEnforceCmuEmail(
-        JSON.stringify({
-          enforceCMUEmail: enforceCMUEmail,
-        }),
-    );
-  };
-
-  const handleCooldownOverrideEnabled = (event) => {
-    event.preventDefault();
-
-    SettingsService.updateAllowCDOverride(
-        JSON.stringify({
-          allowCDOverride: allowCDOverride,
-        }),
-    );
-  };
-
-  const handleUpdateAllowShowOthersTimer = (event) => {
-    event.preventDefault();
-
-    SettingsService.updateAllowShowOthersTimer(
-        JSON.stringify({
-          allowShowOthersTimer: allowShowOthersTimer,
-        }),
-    );
+    await updateAllowShowOthersTimerMutation({
+      allowShowOthersTimer: allowShowOthersTimer,
+    });
   };
 
   return (
     <BaseCard>
       <CardContent>
         <Typography
-          sx={{ fontWeight: 'bold', ml: 1, mt: 1 }}
+          sx={{ fontWeight: "bold", ml: 1, mt: 1 }}
           variant="body1"
           gutterBottom
         >
@@ -135,7 +126,7 @@ export default function ConfigSettings(props) {
               <Typography>Course Name:</Typography>
               <TextField
                 size="small"
-                value={courseName ?? ''}
+                value={courseName ?? ""}
                 onChange={(e) => setCourseName(e.target.value)}
                 sx={{ width: 200 }}
               />
@@ -153,13 +144,13 @@ export default function ConfigSettings(props) {
               <Typography>Current Semester:</Typography>
               <TextField
                 size="small"
-                value={currSem ?? ''}
+                value={currSem ?? ""}
                 onChange={(e) => setCurrSem(e.target.value)}
-                disabled={!userData.isOwner}
+                disabled={!(userData?.is_owner || false)}
                 inputProps={{ maxLength: 3 }}
                 sx={{ width: 80 }}
               />
-              {!userData.isOwner ? null : (
+              {!userData?.is_owner ? null : (
                 <Tooltip
                   title={
                     <Typography>
@@ -169,38 +160,39 @@ export default function ConfigSettings(props) {
                   }
                   placement="right"
                   arrow
-                  open={currSem != undefined && adminSettings.currSem === ''}
+                  open={currSem != undefined && adminSettings?.currSem === ""}
                   enterDelay={1000}
                 >
                   <Button
                     type="submit"
                     variant="contained"
-                    disabled={!userData.isOwner}
+                    disabled={!(userData?.is_owner || false)}
                   >
                     Save
                   </Button>
                 </Tooltip>
               )}
               <Typography variant="caption" color="text.secondary">
-                {!userData.isOwner ?
-                  `Only ${queueData.ownerEmail} can change semester` :
-                  'Each semester has its own settings and stats'}
+                {!(userData?.is_owner || false)
+                  ? `Only ${adminSettings?.ownerEmails || []} can change semester`
+                  : "Each semester has its own settings and stats"}
               </Typography>
             </Stack>
           </form>
 
-          <form onSubmit={handleUpdateCmuEmailEnabled}>
+          <form onSubmit={handleUpdateEnforceEmailDomain}>
             <Stack direction="row" alignItems="center" spacing={1}>
-              <Typography>Enforce CMU Email:</Typography>
+              <Typography>Enforce Email Domain:</Typography>
               <Checkbox
-                checked={enforceCMUEmail}
-                onChange={(e) => setEnforceCMUEmail(e.target.checked)}
+                checked={enforceEmailDomain}
+                onChange={(e) => setEnforceEmailDomain(e.target.checked)}
               />
               <Button type="submit" variant="contained">
                 Save
               </Button>
               <Typography variant="caption" color="text.secondary">
-                Require cmu.edu emails
+                Require emails that end with:
+                {adminSettings?.allowedEmailDomains.join(", ")}
               </Typography>
             </Stack>
           </form>
@@ -226,7 +218,7 @@ export default function ConfigSettings(props) {
               <Typography>Slack Webhook URL:</Typography>
               <TextField
                 size="small"
-                value={slackURL ?? ''}
+                value={slackURL ?? ""}
                 onChange={(e) => setSlackURL(e.target.value)}
                 placeholder="https://hooks.slack.com/..."
                 sx={{ width: 250 }}
@@ -245,7 +237,7 @@ export default function ConfigSettings(props) {
               <Typography>Questions Guide URL:</Typography>
               <TextField
                 size="small"
-                value={questionsURL ?? ''}
+                value={questionsURL ?? ""}
                 onChange={(e) => setQuestionsURL(e.target.value)}
                 placeholder="https://..."
                 sx={{ width: 250 }}

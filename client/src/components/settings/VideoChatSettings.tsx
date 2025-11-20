@@ -1,38 +1,42 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, { useState } from "react";
 import {
-  Button, Collapse, FormGroup, FormControlLabel, Checkbox,
-  CardContent, Typography, TextField, Grid,
-} from '@mui/material';
+  Button,
+  Collapse,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
+  CardContent,
+  Typography,
+  TextField,
+  Grid,
+} from "@mui/material";
 
-import BaseCard from '../common/cards/BaseCard';
+import BaseCard from "../common/cards/BaseCard";
 
-import SettingsService from '../../services/SettingsService';
-import {UserDataContext} from '../../contexts/UserDataContext';
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../../convex/_generated/api";
 
-export default function VideoChatSettings(props) {
-  const {userData} = useContext(UserDataContext);
+export default function VideoChatSettings() {
+  const userData = useQuery(api.home.home_get.getUserData);
+  const videoChatEnabled = userData?.ta_data?.zoom_enabled ?? false;
 
-  const [isVideoChatEnabled, setVideoChatEnabled] = useState(false);
-  const [videoChatURL, setVideoChatURL] = useState('');
+  const [videoChatURL, setVideoChatURL] = useState("");
 
-  useEffect(() => {
-    setVideoChatEnabled(userData.taSettings?.videoChatEnabled);
-    setVideoChatURL(userData.taSettings?.videoChatURL);
-  }, [userData]);
-
-  const updateVideoChatEnabled = (chatEnabled) => {
-    setVideoChatEnabled(chatEnabled);
-    SettingsService.updateVideoChatSettings({
+  const updateVideoChatMutation = useMutation(
+    api.settings.settings_mutate.updateVideoChat,
+  );
+  const updateVideoChatEnabled = async (chatEnabled) => {
+    await updateVideoChatMutation({
       enabled: chatEnabled,
-      url: videoChatURL,
+      url: userData!.ta_data!.zoom_url ?? "",
     });
   };
 
-  const updateVideoChatURL = (event) => {
+  const updateVideoChatURL = async (event) => {
     event.preventDefault();
 
-    SettingsService.updateVideoChatSettings({
-      enabled: isVideoChatEnabled,
+    await updateVideoChatMutation({
+      enabled: videoChatEnabled,
       url: videoChatURL,
     });
   };
@@ -40,7 +44,11 @@ export default function VideoChatSettings(props) {
   return (
     <BaseCard>
       <CardContent>
-        <Typography sx={{fontWeight: 'bold', ml: 1, mt: 1}} variant="body1" gutterBottom>
+        <Typography
+          sx={{ fontWeight: "bold", ml: 1, mt: 1 }}
+          variant="body1"
+          gutterBottom
+        >
           Video Chat Settings
         </Typography>
         <FormGroup>
@@ -48,8 +56,8 @@ export default function VideoChatSettings(props) {
             control={
               <Checkbox
                 size="small"
-                sx={{ml: 1}}
-                checked={isVideoChatEnabled ?? false}
+                sx={{ ml: 1 }}
+                checked={videoChatEnabled ?? false}
                 onChange={(e) => {
                   const chatEnabled = e.target.checked;
                   updateVideoChatEnabled(chatEnabled);
@@ -59,22 +67,24 @@ export default function VideoChatSettings(props) {
             label="Enable video chat"
           />
         </FormGroup>
-        <Collapse in={isVideoChatEnabled ?? false}>
+        <Collapse in={videoChatEnabled ?? false}>
           <form onSubmit={updateVideoChatURL}>
             <Grid container spacing={2}>
-              <Grid className="d-flex" item sx={{mt: 1, ml: 1}} xs={9.5}>
+              <Grid className="d-flex" item sx={{ mt: 1, ml: 1 }} xs={9.5}>
                 <TextField
                   id="video-chat-url"
                   placeholder="Video Chat URL"
                   variant="standard"
                   fullWidth
-                  value={videoChatURL ?? ''}
+                  value={videoChatURL ?? ""}
                   onChange={(e) => setVideoChatURL(e.target.value)}
                   type="url"
                 />
               </Grid>
-              <Grid className="d-flex" item sx={{mt: 1, mx: 1}} xs={2}>
-                <Button variant="contained" type="submit">Save</Button>
+              <Grid className="d-flex" item sx={{ mt: 1, mx: 1 }} xs={2}>
+                <Button variant="contained" type="submit">
+                  Save
+                </Button>
               </Grid>
             </Grid>
           </form>

@@ -1,67 +1,85 @@
-import React, {useState, useContext, useMemo} from 'react';
+import React, { useState, useMemo } from "react";
 import {
-  Button, TableCell, TableRow, Typography, useTheme,
-} from '@mui/material';
+  Button,
+  TableCell,
+  TableRow,
+  Typography,
+  useTheme,
+} from "@mui/material";
 
-import TopicDialogBody from './dialogs/TopicDialogBody';
+import TopicDialogBody from "./dialogs/TopicDialogBody";
 
-import AddDialog from '../../common/dialogs/AddDialog';
-import EditDialog from '../../common/dialogs/EditDialog';
-import DeleteDialog from '../../common/dialogs/DeleteDialog';
-import UploadDialog from '../../common/dialogs/UploadDialog';
+import AddDialog from "../../common/dialogs/AddDialog";
+import EditDialog from "../../common/dialogs/EditDialog";
+import DeleteDialog from "../../common/dialogs/DeleteDialog";
+import UploadDialog from "../../common/dialogs/UploadDialog";
 
-import CollapsedTable from '../../common/table/CollapsedTable';
-import EditDeleteRow from '../../common/table/EditDeleteRow';
+import CollapsedTable from "../../common/table/CollapsedTable";
+import EditDeleteRow from "../../common/table/EditDeleteRow";
 
-import SettingsService from '../../../services/SettingsService';
+import { DateTime } from "luxon";
+import download from "downloadjs";
 
-import {DateTime} from 'luxon';
-import download from 'downloadjs';
-import {QueueDataContext} from '../../../contexts/QueueDataContext';
-
-function createData(assignment_id, name, category, startDate, endDate) {
-  startDate = DateTime.fromISO(startDate);
-  endDate = DateTime.fromISO(endDate);
-  return {assignment_id, name, category, startDate, endDate};
+function createData(assignment_id, name, assignment_type, startDate, endDate) {
+  startDate = DateTime.fromMillis(startDate);
+  endDate = DateTime.fromMillis(endDate);
+  return { assignment_id, name, assignment_type, startDate, endDate };
 }
 
-export default function QueueTopicSettings(props) {
-  const {queueData} = useContext(QueueDataContext);
+import { useQuery } from "convex/react";
+import { api } from "../../../../../convex/_generated/api";
+import { useAuthToken } from "@convex-dev/auth/react";
+
+export default function QueueTopicSettings() {
+  const currAssignments = useQuery(api.home.home_get.getAllAssignments);
+  const token = useAuthToken();
+
   const theme = useTheme();
 
   const [selectedRow, setSelectedRow] = useState(null);
 
-  const rows = useMemo(() => {
-    if (queueData != null) {
-      const newRows = [];
-      queueData.topics.forEach((topic) => {
-        newRows.push(createData(
-            topic.assignment_id,
-            topic.name,
-            topic.category,
-            topic.start_date,
-            topic.end_date,
-        ));
-      });
-      return newRows;
-    } else return [];
-  }, [queueData.topics]);
+  const handleDownload = async () => {
+    if (!token) {
+      console.error("No auth token available");
+      return;
+    }
 
-  const handleDownload = () => {
-    SettingsService.downloadTopicCSV()
-        .then((result) => {
-          download(result.data, 'topics_example.csv');
-        });
+    try {
+      // For local dev, use the same URL. For production, replace .cloud with .site
+      const httpActionUrl = import.meta.env.VITE_APP_CONVEX_SITE_URL;
+
+      const response = await fetch(`${httpActionUrl}/download_assignment_csv`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Download failed: ${response.statusText}`);
+      }
+
+      const blob = await response.blob();
+      const contentDisposition = response.headers.get("Content-Disposition");
+      const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
+      const filename = filenameMatch
+        ? filenameMatch[1]
+        : "assignments_example.csv";
+
+      download(blob, filename);
+    } catch (error) {
+      console.error("Error downloading CSV:", error);
+    }
   };
 
   /** Dialog Functions */
-  const [name, setName] = useState('');
-  const [category, setCategory] = useState('');
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState("");
   const [startDate, setStartDate] = useState(DateTime.now());
   const [endDate, setEndDate] = useState(DateTime.now());
 
-  const [file, setFile] = useState();
-  const [fileName, setFileName] = useState('');
+  const [file, setFile] = useState(null);
+  const [fileName, setFileName] = useState("");
 
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
@@ -71,8 +89,8 @@ export default function QueueTopicSettings(props) {
   const handleAddDialog = () => {
     setOpenAdd(true);
 
-    setName('');
-    setCategory('');
+    setName("");
+    setCategory("");
     setStartDate(DateTime.now());
     setEndDate(DateTime.now());
   };
@@ -95,7 +113,7 @@ export default function QueueTopicSettings(props) {
   const handleUploadDialog = () => {
     setOpenUpload(true);
     setFile(null);
-    setFileName('');
+    setFileName("");
   };
 
   const handleClose = () => {
@@ -114,106 +132,117 @@ export default function QueueTopicSettings(props) {
 
   const handleAdd = (event) => {
     event.preventDefault();
-    SettingsService.createTopic(
-        JSON.stringify({
-          name: name,
-          category: category,
-          start_date: startDate.toString(),
-          end_date: endDate.toString(),
-        }),
-    );
+    // TODO: Implement create topic mutation
+    console.log("Create topic not yet implemented");
 
     handleClose();
   };
 
   const handleEdit = (event) => {
     event.preventDefault();
-    SettingsService.updateTopic(
-        JSON.stringify({
-          assignment_id: selectedRow?.assignment_id,
-          name: name,
-          category: category,
-          start_date: startDate.toString(),
-          end_date: endDate.toString(),
-        }),
-    );
+    // TODO: Implement update topic mutation
+    console.log("Update topic not yet implemented");
 
     handleClose();
   };
 
   const handleDelete = () => {
-    SettingsService.deleteTopic(
-        JSON.stringify({
-          assignment_id: selectedRow?.assignment_id,
-        }),
-    );
+    // TODO: Implement delete topic mutation
+    console.log("Delete topic not yet implemented");
 
     handleClose();
   };
 
-  const handleUpload = (event) => {
+  const handleUpload = async (event) => {
     event.preventDefault();
-    if (file == null) {
+    if (file == null || !token) {
+      console.error("No file selected or no auth token");
       return;
     }
 
-    const formData = new FormData();
-    formData.append('file', file);
-    SettingsService.uploadTopicCSV(formData);
+    try {
+      // For local dev, use the same URL. For production, replace .cloud with .site
+      const httpActionUrl = import.meta.env.VITE_APP_CONVEX_SITE_URL;
 
-    handleClose();
+      const response = await fetch(`${httpActionUrl}/upload_assignment_csv`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+        body: file,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.statusText}`);
+      }
+
+      console.log("CSV uploaded successfully");
+      handleClose();
+    } catch (error) {
+      console.error("Error uploading CSV:", error);
+    }
   };
 
   return (
     <div>
-      <CollapsedTable
-        title="Queue Topic Settings"
-      >
-        {
-          rows.map((row, index) => (
-            <EditDeleteRow
-              key={row.name}
-              index={index}
-              row={row}
-              rowKey={row.name}
-              handleEdit={handleEditDialog}
-              handleDelete={handleDeleteDialog}
-            >
-              <TableCell component="th" scope="row" sx={{pl: 3.25}}>
-                <Typography sx={{fontWeight: 'bold'}}>
-                  {row.name}
-                </Typography>
-              </TableCell>
-              <TableCell align="left">
-                <Typography sx={{fontStyle: 'italic'}}>
-                  {row.category}
-                </Typography>
-              </TableCell>
-              <TableCell align="left">
-                <Typography>
-                  {row.startDate.toLocaleString(DateTime.DATETIME_SHORT)}
-                </Typography>
-              </TableCell>
-              <TableCell align="left">
-                <Typography>
-                  {row.endDate.toLocaleString(DateTime.DATETIME_SHORT)}
-                </Typography>
-              </TableCell>
-            </EditDeleteRow>
-          ))
-        }
+      <CollapsedTable title="Queue Topic Settings">
+        {(currAssignments ?? []).map((row, index) => (
+          <EditDeleteRow
+            key={row._id}
+            index={index}
+            row={row}
+            rowKey={row._id}
+            handleEdit={handleEditDialog}
+            handleDelete={handleDeleteDialog}
+          >
+            <TableCell component="th" scope="row" sx={{ pl: 3.25 }}>
+              <Typography sx={{ fontWeight: "bold" }}>{row.name}</Typography>
+            </TableCell>
+            <TableCell align="left">
+              <Typography sx={{ fontStyle: "italic" }}>
+                {row.assignment_type}
+              </Typography>
+            </TableCell>
+            <TableCell align="left">
+              <Typography>
+                {new Date(row.start_date_ms).toLocaleString()}
+              </Typography>
+            </TableCell>
+            <TableCell align="left">
+              <Typography>
+                {new Date(row.end_date_ms).toLocaleString()}
+              </Typography>
+            </TableCell>
+          </EditDeleteRow>
+        ))}
         <TableRow
           key="actions"
-          style={{background: theme.palette.background.default}}
+          style={{ background: theme.palette.background.default }}
         >
           <TableCell align="center" colSpan={5}>
-            <Button sx={{mr: 1, fontWeight: 'bold'}} color="primary" variant="contained" onClick={() => handleAddDialog()}>
+            <Button
+              sx={{ mr: 1, fontWeight: "bold" }}
+              color="primary"
+              variant="contained"
+              onClick={() => handleAddDialog()}
+            >
               + Add Topic
             </Button>
-            <Button sx={{mr: 1, fontWeight: 'bold'}} color="info" variant="contained" onClick={() => handleDownload()}>
+            <Button
+              sx={{ mr: 1, fontWeight: "bold" }}
+              color="info"
+              variant="contained"
+              onClick={() => handleDownload()}
+            >
               Download CSV Template
             </Button>
-            <Button sx={{mr: 1, fontWeight: 'bold'}} color="info" variant="contained" onClick={() => handleUploadDialog()}>
+            <Button
+              sx={{ mr: 1, fontWeight: "bold" }}
+              color="info"
+              variant="contained"
+              onClick={() => handleUploadDialog()}
+            >
               Upload CSV
             </Button>
           </TableCell>
@@ -239,7 +268,7 @@ export default function QueueTopicSettings(props) {
       </AddDialog>
 
       <EditDialog
-        title={'Edit Topic Info'}
+        title={"Edit Topic Info"}
         isOpen={openEdit}
         onClose={handleClose}
         handleEdit={handleEdit}
@@ -261,7 +290,7 @@ export default function QueueTopicSettings(props) {
         isOpen={openDelete}
         onClose={handleClose}
         handleDelete={handleDelete}
-        itemName={' ' + selectedRow?.name}
+        itemName={" " + selectedRow?.name}
       />
 
       <UploadDialog
