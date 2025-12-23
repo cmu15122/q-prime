@@ -1,10 +1,10 @@
-import { query } from "../_generated/server";
-import { v } from "convex/values";
+import { query } from '../_generated/server';
+import { v } from 'convex/values';
 import {
   ensureAuthAndAdmin,
   getCurrentSemester,
   getGlobalSettings,
-} from "../common";
+} from '../common';
 
 export const getQueueSettings = query({
   args: {},
@@ -80,7 +80,10 @@ export const getLocations = query({
 
     for (const [key, rooms] of Object.entries(dayDictionary)) {
       const dayNum = parseInt(key);
-      if (isNaN(dayNum)) continue;
+      if (isNaN(dayNum)) {
+        console.error(`Invalid day number: ${key}`);
+        continue;
+      }
 
       for (const room of rooms) {
         if (!roomDictionary[room]) {
@@ -94,5 +97,70 @@ export const getLocations = query({
       dayDictionary,
       roomDictionary,
     };
+  },
+});
+
+export const getAllTAs = query({
+  args: {},
+  returns: v.array(
+    v.object({
+      id: v.string(),
+      name: v.string(),
+      email: v.string(),
+      isAdmin: v.boolean(),
+      future_ta: v.boolean(),
+    })
+  ),
+  handler: async (ctx, args) => {
+    const curr_sem = await getCurrentSemester(ctx);
+    const ta_sem_users = await ctx.db
+      .query('semesterUsers')
+      .withIndex('by_sem_and_kind', (x) =>
+        x.eq('semester_id', curr_sem._id).eq('kind', 'TA')
+      )
+      .collect();
+
+    const tas = await Promise.all(
+      ta_sem_users.map(async (sem_user) => {
+        const ta_promise = ctx.db
+          .query('tas')
+          .withIndex('by_semuser', (x) =>
+            x.eq('semester_user_id', sem_user._id)
+          )
+          .first();
+
+        const user_promise = ctx.db.get(sem_user.user_id);
+
+        const [ta, user] = await Promise.all([ta_promise, user_promise]);
+
+        return {
+          ta: ta!,
+          user: user!,
+        };
+      })
+    );
+
+    const future_tas = await ctx.db
+      .query('future_tas')
+      .withIndex('by_sem_and_email', (x) => x.eq('semester_id', curr_sem._id))
+      .collect();
+
+    const tas_res = tas.map((ta) => ({
+      id: ta.ta._id as string,
+      name: ta.user.name!,
+      email: ta.user.email!,
+      isAdmin: ta.ta.is_admin,
+      future_ta: false,
+    }));
+
+    const future_tas_res = future_tas.map((future_ta) => ({
+      id: future_ta._id as string,
+      name: future_ta.name,
+      email: future_ta.email,
+      isAdmin: future_ta.is_admin,
+      future_ta: true,
+    }));
+
+    return [...tas_res, ...future_tas_res];
   },
 });

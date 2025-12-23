@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import {
   Button,
   TableCell,
@@ -20,15 +20,10 @@ import EditDeleteRow from "../../common/table/EditDeleteRow";
 import { DateTime } from "luxon";
 import download from "downloadjs";
 
-function createData(assignment_id, name, assignment_type, startDate, endDate) {
-  startDate = DateTime.fromMillis(startDate);
-  endDate = DateTime.fromMillis(endDate);
-  return { assignment_id, name, assignment_type, startDate, endDate };
-}
-
-import { useQuery } from "convex/react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
 import { useAuthToken } from "@convex-dev/auth/react";
+import { Doc } from "../../../../../convex/_generated/dataModel";
 
 export default function QueueTopicSettings() {
   const currAssignments = useQuery(api.home.home_get.getAllAssignments);
@@ -36,7 +31,7 @@ export default function QueueTopicSettings() {
 
   const theme = useTheme();
 
-  const [selectedRow, setSelectedRow] = useState(null);
+  const [selectedRow, setSelectedRow] = useState<Doc<"assignments"> | null>(null);
 
   const handleDownload = async () => {
     if (!token) {
@@ -100,9 +95,9 @@ export default function QueueTopicSettings() {
     setSelectedRow(row);
 
     setName(row.name);
-    setCategory(row.category);
-    setStartDate(row.startDate);
-    setEndDate(row.endDate);
+    setCategory(row.assignment_type);
+    setStartDate(DateTime.fromMillis(row.start_date_ms) as DateTime<true>);
+    setEndDate(DateTime.fromMillis(row.end_date_ms) as DateTime<true>);
   };
 
   const handleDeleteDialog = (row) => {
@@ -130,25 +125,50 @@ export default function QueueTopicSettings() {
     }
   };
 
-  const handleAdd = (event) => {
+  const createAssignmentMutation = useMutation(api.settings.settings_mutate.createAssignment);
+  const handleAdd = async (event) => {
     event.preventDefault();
-    // TODO: Implement create topic mutation
-    console.log("Create topic not yet implemented");
+
+
+    await createAssignmentMutation({
+      name: name,
+      assignment_type: category,
+      start_date_ms: startDate.toMillis(),
+      end_date_ms: endDate.toMillis(),
+    });
 
     handleClose();
   };
 
-  const handleEdit = (event) => {
+  const updateAssignmentMutation = useMutation(api.settings.settings_mutate.updateAssignment);
+  const handleEdit = async (event) => {
     event.preventDefault();
-    // TODO: Implement update topic mutation
-    console.log("Update topic not yet implemented");
+    if (!selectedRow?._id) {
+      console.error("No assignment selected");
+      return;
+    }
+
+    await updateAssignmentMutation({
+      assignment_id: selectedRow._id,
+      name: name,
+      assignment_type: category,
+      start_date_ms: startDate.toMillis(),
+      end_date_ms: endDate.toMillis(),
+    });
 
     handleClose();
   };
 
-  const handleDelete = () => {
-    // TODO: Implement delete topic mutation
-    console.log("Delete topic not yet implemented");
+  const deleteAssignmentMutation = useMutation(api.settings.settings_mutate.deleteAssignment);
+  const handleDelete = async () => {
+    if (!selectedRow?._id) {
+      console.error("No assignment selected");
+      return;
+    }
+
+    await deleteAssignmentMutation({
+      assignment_id: selectedRow._id,
+    });
 
     handleClose();
   };

@@ -43,6 +43,7 @@ export default function Navbar(props: { isHome: boolean }) {
   const userData = useQuery(api.home.home_get.getUserData);
   const isAuthenticated = userData !== null && userData !== undefined;
   const isTA = isAuthenticated && userData.user_kind === "TA";
+  const isOwner = isAuthenticated && userData.is_owner;
   const studentData = isAuthenticated ? userData.student_data : null;
 
   const { signOut } = useAuthActions();
@@ -70,12 +71,14 @@ export default function Navbar(props: { isHome: boolean }) {
     const newPages: any[] = [];
 
     if (isAuthenticated && isTA) {
-      newPages.push(createPage("Settings", "settings"));
       newPages.push(createPage("Metrics", "metrics"));
+    }
+    if (isAuthenticated && (isTA || isOwner)) {
+      newPages.push(createPage("Settings", "settings"));
     }
 
     setPages(newPages);
-  }, [isAuthenticated, isTA]);
+  }, [isAuthenticated, isTA, isOwner]);
 
   useEffect(() => {
     setpname(userData?.preferred_name || "");

@@ -45,16 +45,24 @@ export default function AskQuestion() {
 
   useEffect(() => {
     if (queueData) {
-      setLocations(queueData.current_locations);
-    }
-
-    if (locations.length === 0) {
-      setLocations(["Office Hours"]);
-      setLocation("Office Hours");
-    } else if (locations.length === 1) {
-      setLocation(locations[0]);
+      let new_locations = queueData.current_locations;
+      if (new_locations.length === 0) {
+        new_locations = ["Office Hours"];
+      }
+      if (new_locations.length === 1) {
+        setLocation(new_locations[0]);
+      }
+      setLocations(new_locations);
     }
   }, [queueData]);
+
+  useEffect(() => {
+    if (currAssignments) {
+      if (currAssignments.length === 1) {
+        setAssignmentId(currAssignments[0]._id);
+      }
+    }
+  }, [currAssignments])
 
   useEffect(() => {
     if (userData && userData.user_kind === "student") {

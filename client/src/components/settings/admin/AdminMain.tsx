@@ -23,9 +23,9 @@ function AdminMain() {
       <ConfigSettings></ConfigSettings>
       <QueueRejoinSettings></QueueRejoinSettings>
       <QueueTopicSettings></QueueTopicSettings>
-      {/*<Locations></Locations>
+      <Locations></Locations>
       <TASettings></TASettings>
-      <AccessControlSettings></AccessControlSettings>*/}
+      {/* <AccessControlSettings></AccessControlSettings> */}
     </div>
   );
 }

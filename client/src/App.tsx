@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Home from "./pages/home";
@@ -16,6 +16,9 @@ import { ToastContainer } from "react-toastify";
 
 import "./App.css";
 
+import { useMutation } from "convex/react";
+import { api } from "../../convex/_generated/api";
+
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const theme = React.useMemo(
@@ -23,6 +26,15 @@ function App() {
     [prefersDarkMode],
   );
   const ThemeContext = React.createContext(theme);
+
+  // in order to check if a new semester has started and we need to make a new semester user
+  // we call this function
+
+  const checkNewSemUser = useMutation(api.home.home_mutate.checkNewSemesterUser);
+  useEffect(() => {
+    checkNewSemUser();
+  }, []);
+
 
   return (
     <ThemeProvider theme={theme || darkTheme}>

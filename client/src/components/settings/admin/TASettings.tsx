@@ -1,4 +1,4 @@
-import React, {useState, useContext, useMemo} from 'react';
+import React, {useState} from 'react';
 import {
   Button, Checkbox, FormControlLabel, Grid, TableCell, TableRow, Typography, useTheme,
 } from '@mui/material';
@@ -13,48 +13,61 @@ import UploadDialog from '../../common/dialogs/UploadDialog';
 import CollapsedTable from '../../common/table/CollapsedTable';
 import EditDeleteRow from '../../common/table/EditDeleteRow';
 
-import SettingsService from '../../../services/SettingsService';
 import download from 'downloadjs';
-import {QueueDataContext} from '../../../contexts/QueueDataContext';
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../../../convex/_generated/api";
+import { useAuthToken } from "@convex-dev/auth/react";
 
-function createData(userId, name, email, isAdmin) {
-  return {userId, name, email, isAdmin};
-}
+export default function TASettings() {
 
-export default function TASettings(props) {
-  const {queueData} = useContext(QueueDataContext);
+  const tas = useQuery(api.settings.settings_get.getAllTAs) ?? [];
+
   const theme = useTheme();
 
-  const [selectedRow, setSelectedRow] = useState(null);
+  const [selectedRowIdx, setSelectedRowIdx] = useState<number | null>(null);
 
-  const rows = useMemo(() => {
-    if (queueData != null) {
-      const newRows = [];
-      queueData.tas.forEach((ta) => {
-        newRows.push(createData(
-            ta.ta_id,
-            ta.preferred_name,
-            ta.email,
-            ta.isAdmin,
-        ));
+  const token = useAuthToken();
+  const handleDownload = async () => {
+    if (!token) {
+      console.error("No auth token available");
+      return;
+    }
+
+    try {
+      // For local dev, use the same URL. For production, replace .cloud with .site
+      const httpActionUrl = import.meta.env.VITE_APP_CONVEX_SITE_URL;
+
+      const response = await fetch(`${httpActionUrl}/download_tas_csv`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
       });
-      return newRows;
-    } else return [];
-  }, [queueData.tas]);
 
-  const handleDownload = () => {
-    SettingsService.downloadTACSV()
-        .then((result) => {
-          download(result.data, 'ta_example.csv');
-        });
+      if (!response.ok) {
+        throw new Error(`Download failed: ${response.statusText}`);
+      }
+
+      const blob = await response.blob();
+      const contentDisposition = response.headers.get("Content-Disposition");
+      const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
+      const filename = filenameMatch
+        ? filenameMatch[1]
+        : "tas_example.csv";
+
+      download(blob, filename);
+    } catch (error) {
+      console.error("Error downloading CSV:", error);
+    }
   };
+
 
   /** Dialog Functions */
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [isAdmin, setIsAdmin] = useState(false);
 
-  const [file, setFile] = useState();
+  const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState('');
 
   const [openAdd, setOpenAdd] = useState(false);
@@ -70,18 +83,20 @@ export default function TASettings(props) {
     setIsAdmin(false);
   };
 
-  const handleEditDialog = (row) => {
+  const handleEditDialog = (index: number) => {
     setOpenEdit(true);
-    setSelectedRow(row);
+    setSelectedRowIdx(index);
 
-    setName(row.name);
-    setEmail(row.email);
-    setIsAdmin(row.isAdmin);
+    const selected_ta = tas![index];
+
+    setName(selected_ta.name);
+    setEmail(selected_ta.email);
+    setIsAdmin(selected_ta.isAdmin);
   };
 
-  const handleDeleteDialog = (row) => {
+  const handleDeleteDialog = (index: number) => {
     setOpenDelete(true);
-    setSelectedRow(row);
+    setSelectedRowIdx(index);
   };
 
   const handleUploadDialog = () => {
@@ -97,49 +112,67 @@ export default function TASettings(props) {
     setOpenUpload(false);
   };
 
-  const handleAdd = (event) => {
+
+  const createTAMutation = useMutation(api.settings.settings_mutate.createTA);
+  const handleAdd = async (event) => {
     event.preventDefault();
-    SettingsService.createTA(
-        JSON.stringify({
-          name: name,
-          email: email,
-          isAdmin: isAdmin,
-        }),
-    );
+    await createTAMutation({
+      name: name,
+      email: email,
+      isAdmin: isAdmin,
+    });
     handleClose();
   };
 
-  const handleEdit = (event) => {
+  const updateTAMutation = useMutation(api.settings.settings_mutate.updateTA);
+  const handleEdit = async (event) => {
     event.preventDefault();
-    SettingsService.updateTA(
-        JSON.stringify({
-          user_id: selectedRow.userId,
-          isAdmin: isAdmin,
-        }),
-    );
+    await updateTAMutation({
+      email: tas![selectedRowIdx!].email,
+      isAdmin: isAdmin,
+    });
     handleClose();
   };
 
-  const handleDelete = () => {
-    SettingsService.deleteTA(
-        JSON.stringify({
-          user_id: selectedRow.userId,
-        }),
-    );
+  const deleteTAMutation = useMutation(api.settings.settings_mutate.deleteTA);
+  const handleDelete = async () => {
+    await deleteTAMutation({
+      email: tas![selectedRowIdx!].email,
+    });
     handleClose();
   };
 
-  const handleUpload = (event) => {
+  const handleUpload = async (event) => {
     event.preventDefault();
-    if (file == null) {
+    if (file == null || !token) {
+      console.error("No file selected or no auth token");
       return;
     }
 
-    const formData = new FormData();
-    formData.append('file', file);
-    SettingsService.uploadTACSV(formData);
-    handleClose();
+    try {
+      // For local dev, use the same URL. For production, replace .cloud with .site
+      const httpActionUrl = import.meta.env.VITE_APP_CONVEX_SITE_URL;
+
+      const response = await fetch(`${httpActionUrl}/upload_tas_csv`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+        body: file,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.statusText}`);
+      }
+
+      console.log("CSV uploaded successfully");
+      handleClose();
+    } catch (error) {
+      console.error("Error uploading CSV:", error);
+    }
   };
+
 
   return (
     <div>
@@ -147,14 +180,14 @@ export default function TASettings(props) {
         title="TA Settings"
       >
         {
-          rows.map((row, index) => (
+          tas.map((row, index) => (
             <EditDeleteRow
-              key={row.name}
+              key={row.id}
               index={index}
               row={row}
-              rowKey={row.name}
-              handleEdit={handleEditDialog}
-              handleDelete={handleDeleteDialog}
+              rowKey={row.id}
+              handleEdit={() => handleEditDialog(index)}
+              handleDelete={() => handleDeleteDialog(index)}
             >
               <TableCell component="th" scope="row" sx={{pl: 3.25}}>
                 <Typography sx={{fontWeight: 'bold'}}>
@@ -187,62 +220,67 @@ export default function TASettings(props) {
         </TableRow>
       </CollapsedTable>
 
-      <AddDialog
-        title="Add New TA"
-        isOpen={openAdd}
-        onClose={handleClose}
-        handleCreate={handleAdd}
-      >
-        <TADialogBody
-          name={name}
-          setName={setName}
-          isAdmin={isAdmin}
-          setIsAdmin={setIsAdmin}
-          email={email}
-          setEmail={setEmail}
-        />
-      </AddDialog>
-
-      <EditDialog
-        title={'Edit Info for TA "'+name+'"'}
-        isOpen={openEdit}
-        onClose={handleClose}
-        handleEdit={handleEdit}
-      >
-        <Grid container spacing={3}>
-          <Grid className="d-flex" item xs={12}>
-            <FormControlLabel
-              label="Is Admin?"
-              labelPlacement="start"
-              sx={{pt: 1}}
-              control={
-                <Checkbox
-                  checked={isAdmin}
-                  onChange={(e) => setIsAdmin(e.target.checked)}
-                />
-              }
+      {tas && (
+        <>
+          <AddDialog
+            title="Add New TA"
+            isOpen={openAdd}
+            onClose={handleClose}
+            handleCreate={handleAdd}
+          >
+            <TADialogBody
+              name={name}
+              setName={setName}
+              isAdmin={isAdmin}
+              setIsAdmin={setIsAdmin}
+              email={email}
+              setEmail={setEmail}
             />
-          </Grid>
-        </Grid>
-      </EditDialog>
+          </AddDialog>
 
-      <DeleteDialog
-        title="Delete TA"
-        isOpen={openDelete}
-        onClose={handleClose}
-        handleDelete={handleDelete}
-        itemName={' ' + selectedRow?.name}
-      />
+          <EditDialog
+            title={'Edit Info for TA "'+name+'"'}
+            isOpen={openEdit}
+            onClose={handleClose}
+            handleEdit={handleEdit}
+          >
+            <Grid container spacing={3}>
+              <Grid className="d-flex" item xs={12}>
+                <FormControlLabel
+                  label="Is Admin?"
+                  labelPlacement="start"
+                  sx={{pt: 1}}
+                  control={
+                    <Checkbox
+                      checked={isAdmin}
+                      onChange={(e) => setIsAdmin(e.target.checked)}
+                    />
+                  }
+                />
+              </Grid>
+            </Grid>
+          </EditDialog>
 
-      <UploadDialog
-        isOpen={openUpload}
-        onClose={handleClose}
-        handleUpload={handleUpload}
-        file={file}
-        setFile={setFile}
-        fileName={fileName}
-        setFileName={setFileName}
-      />
+          <DeleteDialog
+            title="Delete TA"
+            isOpen={openDelete}
+            onClose={handleClose}
+            handleDelete={handleDelete}
+            itemName={' ' + ((selectedRowIdx !== null && tas[selectedRowIdx]?.name) ? tas[selectedRowIdx!].name : '')}
+          />
+
+          <UploadDialog
+            isOpen={openUpload}
+            onClose={handleClose}
+            handleUpload={handleUpload}
+            file={file}
+            setFile={setFile}
+            fileName={fileName}
+            setFileName={setFileName}
+          />
+        </>
+      )}
+
     </div>
   );
 }

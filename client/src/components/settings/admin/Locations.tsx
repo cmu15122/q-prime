@@ -1,4 +1,4 @@
-import React, {useState, useContext, useMemo} from 'react';
+import React, {useState} from 'react';
 import {
   TableCell, Typography,
 } from '@mui/material';
@@ -11,27 +11,20 @@ import LocationDialogBody from './dialogs/LocationDialogBody';
 import AddRow from '../../common/table/AddRow';
 import CollapsedTable from '../../common/table/CollapsedTable';
 
-import SettingsService from '../../../services/SettingsService';
 import ItemRow from '../../common/table/ItemRow';
-import {QueueDataContext} from '../../../contexts/QueueDataContext';
 
-export default function Locations(props) {
-  const {queueData} = useContext(QueueDataContext);
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../../../convex/_generated/api';
+
+export default function Locations() {
+  const locationData = useQuery(api.settings.settings_get.getLocations);
+
+  const dayDictionary = locationData?.dayDictionary || {};
+  const roomDictionary = locationData?.roomDictionary || {};
   const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-  const dayDictionary = useMemo(() => {
-    if (queueData != null) {
-      return queueData.locations.dayDictionary;
-    } else return {};
-  }, [queueData.locations]);
-  const roomDictionary = useMemo(() => {
-    if (queueData != null) {
-      return queueData.locations.roomDictionary;
-    } else return {};
-  }, [queueData.locations]);
-
   const convertIdxToDays = (idxArr) => {
-    return idxArr.map((idx) => daysOfWeek[idx]);
+    return idxArr.filter((idx) => idx !== -1).map((idx) => daysOfWeek[idx]);
   };
 
   /** Add Dialog Functions */
@@ -47,13 +40,12 @@ export default function Locations(props) {
     setOpenAdd(false);
   };
 
-  const handleCreate = (event) => {
+  const addLocationMutation = useMutation(api.settings.settings_mutate.addLocation);
+  const handleCreate = async (event) => {
     event.preventDefault();
-    SettingsService.addLocation(
-        JSON.stringify({
-          room: room,
-        }),
-    );
+    await addLocationMutation({
+      room: room,
+    });
 
     handleClose();
   };

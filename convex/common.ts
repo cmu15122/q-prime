@@ -1,12 +1,12 @@
-import { internalMutation, internalQuery, QueryCtx } from "./_generated/server";
-import { ConvexError, v } from "convex/values";
-import { getAuthUserId } from "@convex-dev/auth/server";
-import { Doc, Id } from "./_generated/dataModel";
+import { internalMutation, internalQuery, QueryCtx } from './_generated/server';
+import { ConvexError, v } from 'convex/values';
+import { getAuthUserId } from '@convex-dev/auth/server';
+import { Doc, Id } from './_generated/dataModel';
 
 export async function getGlobalSettings(ctx: QueryCtx) {
-  const globalSettings = await ctx.db.query("globalSettings").first();
+  const globalSettings = await ctx.db.query('globalSettings').first();
   if (!globalSettings) {
-    throw new ConvexError("Global settings not found");
+    throw new ConvexError('Global settings not found');
   }
   return globalSettings;
 }
@@ -28,13 +28,18 @@ export async function getCurrentUser(ctx: QueryCtx) {
   const curr_sem = await getCurrentSemester(ctx);
 
   const curr_sem_user = (await ctx.db
-    .query("semesterUsers")
-    .withIndex("by_sem_and_user", (q) =>
-      q.eq("semester_id", curr_sem._id).eq("user_id", user_id),
+    .query('semesterUsers')
+    .withIndex('by_sem_and_user', (q) =>
+      q.eq('semester_id', curr_sem._id).eq('user_id', user_id)
     )
     .first())!;
 
   // TODO - make sure we create new sem users for old users on first login of new sem
+  // can't do here because this is a query
+
+  if (!curr_sem_user) {
+    return null;
+  }
 
   const user_prefs = (await ctx.db.get(curr_sem_user.user_prefs_id))!;
 
@@ -47,14 +52,14 @@ export async function getCurrentUser(ctx: QueryCtx) {
 }
 
 export async function getQueueLength(ctx: QueryCtx) {
-  const queue = await ctx.db.query("ohq").collect();
+  const queue = await ctx.db.query('ohq').collect();
   return queue.length;
 }
 
 export async function getNumUnhelped(ctx: QueryCtx) {
   const queue = await ctx.db
-    .query("ohq")
-    .filter((x) => x.eq(x.field("status"), "being_helped"))
+    .query('ohq')
+    .filter((x) => x.eq(x.field('status'), 'being_helped'))
     .collect();
 
   return queue.length;
@@ -70,10 +75,10 @@ export async function getMinsPerStudent(ctx: QueryCtx) {
   return 0;
 }
 
-export async function getQueueEntry(ctx: QueryCtx, student_id: Id<"students">) {
+export async function getQueueEntry(ctx: QueryCtx, student_id: Id<'students'>) {
   const queue_entry = await ctx.db
-    .query("ohq")
-    .withIndex("by_student", (q) => q.eq("student_id", student_id))
+    .query('ohq')
+    .withIndex('by_student', (q) => q.eq('student_id', student_id))
     .first();
 
   // if (!queue_entry) {
@@ -84,27 +89,27 @@ export async function getQueueEntry(ctx: QueryCtx, student_id: Id<"students">) {
 }
 
 export const createStudentFromUser = internalMutation({
-  args: { userId: v.id("users") },
+  args: { userId: v.id('users') },
   handler: async (ctx, args) => {
     const user_data = (await ctx.db.get(args.userId))!;
 
     // create student prefs
-    const new_student_prefs = await ctx.db.insert("userPreferences", {
+    const new_student_prefs = await ctx.db.insert('userPreferences', {
       user_id: args.userId,
-      preferred_name: user_data.name || "",
+      preferred_name: user_data.name || '',
     });
 
     const curr_sem = await getCurrentSemester(ctx);
 
     // create sem user
-    const new_sem_user = await ctx.db.insert("semesterUsers", {
+    const new_sem_user = await ctx.db.insert('semesterUsers', {
       user_id: args.userId,
       user_prefs_id: new_student_prefs,
       semester_id: curr_sem._id,
-      kind: "student",
+      kind: 'student',
     });
 
-    const new_student = await ctx.db.insert("students", {
+    const new_student = await ctx.db.insert('students', {
       user_id: args.userId,
       user_prefs_id: new_student_prefs,
       semester_user_id: new_sem_user,
@@ -120,7 +125,7 @@ export const createStudentFromUser = internalMutation({
 // update queue positions (every student after the removed student moves up one position except frozen students)
 export const removeQueueEntry = internalMutation({
   args: {
-    queue_entry_id: v.id("ohq"),
+    queue_entry_id: v.id('ohq'),
   },
   handler: async (ctx, args) => {
     const queue_entry = (await ctx.db.get(args.queue_entry_id))!;
@@ -130,18 +135,18 @@ export const removeQueueEntry = internalMutation({
     await ctx.db.delete(queue_entry._id);
 
     const all_greater_queue_entries = await ctx.db
-      .query("ohq")
-      .withIndex("by_position", (q) => q.gt("position", position_to_remove))
-      .order("asc")
+      .query('ohq')
+      .withIndex('by_position', (q) => q.gt('position', position_to_remove))
+      .order('asc')
       .collect();
 
     // we're gonna operate on the array and then use it to write data back to the DB
     let prev_num_frozen = 0;
     for (const q of all_greater_queue_entries) {
       if (
-        q.status === "frozen" ||
-        q.status === "cooldown_violation" ||
-        q.status === "fixing_question"
+        q.status === 'frozen' ||
+        q.status === 'cooldown_violation' ||
+        q.status === 'fixing_question'
       ) {
         prev_num_frozen++;
       } else {
@@ -157,12 +162,12 @@ export const removeQueueEntry = internalMutation({
       // dealing with all_greater_queue_entries[-prev_num_frozen:]
       for (const q of all_greater_queue_entries.slice(-prev_num_frozen)) {
         if (
-          q.status !== "frozen" &&
-          q.status !== "cooldown_violation" &&
-          q.status !== "fixing_question"
+          q.status !== 'frozen' &&
+          q.status !== 'cooldown_violation' &&
+          q.status !== 'fixing_question'
         ) {
           throw new ConvexError(
-            "non-frozen student found at the end of the queue with prev_num_frozen > 0",
+            'non-frozen student found at the end of the queue with prev_num_frozen > 0'
           );
         }
 
@@ -180,36 +185,36 @@ export const removeQueueEntry = internalMutation({
  * @param sem_user_id
  * @returns
  */
-export async function getTA(ctx: QueryCtx, sem_user_id: Id<"semesterUsers">) {
+export async function getTA(ctx: QueryCtx, sem_user_id: Id<'semesterUsers'>) {
   const ta = await ctx.db
-    .query("tas")
-    .withIndex("by_semuser", (q) => q.eq("semester_user_id", sem_user_id))
+    .query('tas')
+    .withIndex('by_semuser', (q) => q.eq('semester_user_id', sem_user_id))
     .first();
 
   if (!ta) {
-    throw new ConvexError("TA not found");
+    throw new ConvexError('TA not found');
   }
 
   return ta;
 }
 
 export async function ensureAuthAndTA(
-  ctx: QueryCtx,
-): Promise<{ user_data: Doc<"users">; ta: Doc<"tas"> }> {
+  ctx: QueryCtx
+): Promise<{ user_data: Doc<'users'>; ta: Doc<'tas'> }> {
   const user_data = await getCurrentUser(ctx);
 
   if (!user_data) {
-    throw new ConvexError("User not authenticated");
+    throw new ConvexError('User not authenticated');
   }
 
-  if (user_data.kind !== "TA") {
-    throw new ConvexError("User is not a TA");
+  if (user_data.kind !== 'TA') {
+    throw new ConvexError('User is not a TA');
   }
 
   const ta = await getTA(ctx, user_data.sem_user_id);
 
   if (!ta) {
-    throw new ConvexError("TA not found");
+    throw new ConvexError('TA not found');
   }
 
   return {
@@ -219,15 +224,34 @@ export async function ensureAuthAndTA(
 }
 
 export async function ensureAuthAndAdmin(
-  ctx: QueryCtx,
-): Promise<{ user_data: Doc<"users">; ta: Doc<"tas"> }> {
+  ctx: QueryCtx
+): Promise<{ user_data: Doc<'users'>; ta: Doc<'tas'> }> {
   const { user_data, ta } = await ensureAuthAndTA(ctx);
 
   if (!ta.is_admin) {
-    throw new ConvexError("User is not an admin");
+    throw new ConvexError('User is not an admin');
   }
 
   return { user_data: user_data, ta: ta };
+}
+
+export async function ensureAuthAndOwner(
+  ctx: QueryCtx
+): Promise<{ user_data: Doc<'users'> }> {
+  const user_data = await getCurrentUser(ctx);
+
+  if (!user_data) {
+    throw new ConvexError('User not authenticated');
+  }
+
+  const curr_sem = await getCurrentSemester(ctx);
+  const is_owner = curr_sem.owner_emails.includes(user_data.email!);
+
+  if (!is_owner) {
+    throw new ConvexError('User is not an owner');
+  }
+
+  return { user_data: user_data };
 }
 
 /**
@@ -238,37 +262,37 @@ export async function ensureAuthAndAdmin(
  */
 export async function getStudent(
   ctx: QueryCtx,
-  sem_user_id: Id<"semesterUsers">,
+  sem_user_id: Id<'semesterUsers'>
 ) {
   const student = await ctx.db
-    .query("students")
-    .withIndex("by_semuser", (q) => q.eq("semester_user_id", sem_user_id))
+    .query('students')
+    .withIndex('by_semuser', (q) => q.eq('semester_user_id', sem_user_id))
     .first();
 
   if (!student) {
-    throw new ConvexError("Student not found");
+    throw new ConvexError('Student not found');
   }
 
   return student;
 }
 
 export async function ensureAuthAndStudent(
-  ctx: QueryCtx,
-): Promise<{ user_data: Doc<"users">; student: Doc<"students"> }> {
+  ctx: QueryCtx
+): Promise<{ user_data: Doc<'users'>; student: Doc<'students'> }> {
   const user_data = await getCurrentUser(ctx);
 
   if (!user_data) {
-    throw new ConvexError("User not authenticated");
+    throw new ConvexError('User not authenticated');
   }
 
-  if (user_data.kind !== "student") {
-    throw new ConvexError("User is not a student");
+  if (user_data.kind !== 'student') {
+    throw new ConvexError('User is not a student');
   }
 
   const student = await getStudent(ctx, user_data.sem_user_id);
 
   if (!student) {
-    throw new ConvexError("Student not found");
+    throw new ConvexError('Student not found');
   }
 
   return {
@@ -279,7 +303,7 @@ export async function ensureAuthAndStudent(
 
 export const internalEnsureTA = internalQuery({
   args: {
-    user_id: v.id("users"),
+    user_id: v.id('users'),
   },
   handler: async (ctx, args) => {
     const user = await ctx.db.get(args.user_id);
@@ -291,9 +315,9 @@ export const internalEnsureTA = internalQuery({
     const curr_sem = await getCurrentSemester(ctx);
 
     const sem_user = await ctx.db
-      .query("semesterUsers")
-      .withIndex("by_sem_and_user", (q) =>
-        q.eq("semester_id", curr_sem._id).eq("user_id", user._id),
+      .query('semesterUsers')
+      .withIndex('by_sem_and_user', (q) =>
+        q.eq('semester_id', curr_sem._id).eq('user_id', user._id)
       )
       .first();
 
@@ -302,8 +326,8 @@ export const internalEnsureTA = internalQuery({
     }
 
     const ta = await ctx.db
-      .query("tas")
-      .withIndex("by_semuser", (q) => q.eq("semester_user_id", sem_user._id))
+      .query('tas')
+      .withIndex('by_semuser', (q) => q.eq('semester_user_id', sem_user._id))
       .first();
 
     if (!ta) {
@@ -311,5 +335,120 @@ export const internalEnsureTA = internalQuery({
     }
 
     return true;
+  },
+});
+
+// Make userPreferences entry if it doesn't exist
+//
+// If a semesterUser doesn't exist - default to student unless they're in future_tas:
+//
+// If the user is a student
+// - add a semesterUser with kind "student"
+// - add entry to "students"
+//
+// If the user is a TA
+// - add a semesterUser with kind "ta"
+// - add entry to "tas"
+export const internalNewSemesterUser = internalMutation({
+  args: {
+    user_id: v.id('users'),
+  },
+  handler: async (ctx, args) => {
+    const user_id = args.user_id;
+    const user = await ctx.db.get(user_id);
+
+    if (!user) {
+      throw new ConvexError('User not found');
+    }
+
+    const email = user.email!;
+    const name = user.name!;
+
+    const userPrefs = await ctx.db
+      .query('userPreferences')
+      .withIndex('by_user_id', (x) => x.eq('user_id', user_id))
+      .first();
+
+    let user_prefs_id: Id<'userPreferences'>;
+
+    if (!userPrefs) {
+      user_prefs_id = await ctx.db.insert('userPreferences', {
+        user_id: user_id,
+        preferred_name: name || '',
+      });
+    } else {
+      user_prefs_id = userPrefs._id;
+    }
+
+    const curr_sem = await getCurrentSemester(ctx);
+
+    const semUser = await ctx.db
+      .query('semesterUsers')
+      .withIndex('by_sem_and_user', (x) =>
+        x.eq('semester_id', curr_sem._id).eq('user_id', user_id)
+      )
+      .first();
+
+    if (!semUser) {
+      // check if they're in future_tas
+      const future_ta = await ctx.db
+        .query('future_tas')
+        .withIndex('by_sem_and_email', (x) =>
+          x.eq('semester_id', curr_sem._id).eq('email', email)
+        )
+        .first();
+
+      if (future_ta) {
+        // They're a TA
+        const sem_user_id = await ctx.db.insert('semesterUsers', {
+          kind: 'TA',
+          semester_id: curr_sem._id,
+          user_id: user_id,
+          user_prefs_id: user_prefs_id,
+        });
+
+        await ctx.db.insert('tas', {
+          user_id: user_id,
+          user_prefs_id: user_prefs_id,
+          semester_user_id: sem_user_id,
+
+          is_admin: future_ta.is_admin,
+
+          zoom_enabled: false,
+          zoom_url: '',
+
+          join_notifs_enabled: false,
+          remind_notifs_enabled: false,
+          remind_time_mins: 10,
+
+          show_self_timer: false,
+          show_others_timer: false,
+
+          num_helped: 0,
+          time_helped_ms: 0,
+        });
+
+        await ctx.db.delete(future_ta._id);
+      } else {
+        // They're a student
+
+        const sem_user_id = await ctx.db.insert('semesterUsers', {
+          kind: 'student',
+          semester_id: curr_sem._id,
+          user_id: user_id,
+          user_prefs_id: user_prefs_id,
+        });
+
+        await ctx.db.insert('students', {
+          user_id: user_id,
+          user_prefs_id: user_prefs_id,
+          semester_user_id: sem_user_id,
+
+          num_questions: 0,
+          time_on_queue_ms: 0,
+          num_asked_to_fix: 0,
+        });
+      }
+    }
   },
 });

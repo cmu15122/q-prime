@@ -1,14 +1,15 @@
-import { ConvexError, v } from "convex/values";
-import { mutation } from "../_generated/server";
+import { ConvexError, v } from 'convex/values';
+import { mutation } from '../_generated/server';
 import {
   ensureAuthAndAdmin,
+  ensureAuthAndOwner,
   ensureAuthAndTA,
   getCurrentSemester,
   getCurrentUser,
   getGlobalSettings,
   getQueueLength,
-} from "../common";
-import { createAccount } from "@convex-dev/auth/server";
+} from '../common';
+import { createAccount } from '@convex-dev/auth/server';
 
 /** General Settings (User-specific) **/
 
@@ -39,8 +40,8 @@ export const updatePreferredName = mutation({
     const user_data = (await getCurrentUser(ctx))!;
 
     const user_prefs = (await ctx.db
-      .query("userPreferences")
-      .withIndex("by_user_id", (q) => q.eq("user_id", user_data._id))
+      .query('userPreferences')
+      .withIndex('by_user_id', (q) => q.eq('user_id', user_data._id))
       .first())!;
 
     await ctx.db.patch(user_prefs._id, {
@@ -62,7 +63,7 @@ export const updateNotifications = mutation({
     const { ta } = await ensureAuthAndTA(ctx);
 
     if (args.remindTime < 0) {
-      throw new ConvexError("Remind time must be non-negative");
+      throw new ConvexError('Remind time must be non-negative');
     }
 
     await ctx.db.patch(ta._id, {
@@ -104,7 +105,7 @@ export const updateCourseName = mutation({
     await ensureAuthAndAdmin(ctx);
 
     if (!args.courseName) {
-      throw new ConvexError("Course name cannot be empty");
+      throw new ConvexError('Course name cannot be empty');
     }
 
     const globalSettings = await getGlobalSettings(ctx);
@@ -126,7 +127,7 @@ export const updateQuestionsURL = mutation({
     await ensureAuthAndAdmin(ctx);
 
     if (!args.questionsURL) {
-      throw new ConvexError("Questions URL cannot be empty");
+      throw new ConvexError('Questions URL cannot be empty');
     }
 
     const globalSettings = await getGlobalSettings(ctx);
@@ -148,7 +149,7 @@ export const updateRejoinTime = mutation({
     await ensureAuthAndAdmin(ctx);
 
     if (isNaN(args.rejoinTime) || args.rejoinTime < 0) {
-      throw new ConvexError("Rejoin time must be a non-negative number");
+      throw new ConvexError('Rejoin time must be a non-negative number');
     }
 
     const globalSettings = await getGlobalSettings(ctx);
@@ -230,7 +231,7 @@ export const createAssignment = mutation({
 
     const curr_sem = await getCurrentSemester(ctx);
 
-    await ctx.db.insert("assignments", {
+    await ctx.db.insert('assignments', {
       name: args.name,
       semester_id: curr_sem._id,
       assignment_type: args.assignment_type,
@@ -244,7 +245,7 @@ export const createAssignment = mutation({
 
 export const updateAssignment = mutation({
   args: {
-    assignment_id: v.id("assignments"),
+    assignment_id: v.id('assignments'),
     name: v.string(),
     assignment_type: v.optional(v.string()),
     start_date_ms: v.number(),
@@ -257,7 +258,7 @@ export const updateAssignment = mutation({
     const assignment = await ctx.db.get(args.assignment_id);
 
     if (!assignment) {
-      throw new ConvexError("Assignment not found");
+      throw new ConvexError('Assignment not found');
     }
 
     await ctx.db.patch(args.assignment_id, {
@@ -273,7 +274,7 @@ export const updateAssignment = mutation({
 
 export const deleteAssignment = mutation({
   args: {
-    assignment_id: v.id("assignments"),
+    assignment_id: v.id('assignments'),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
@@ -282,7 +283,7 @@ export const deleteAssignment = mutation({
     const assignment = await ctx.db.get(args.assignment_id);
 
     if (!assignment) {
-      throw new ConvexError("Assignment not found");
+      throw new ConvexError('Assignment not found');
     }
 
     await ctx.db.delete(args.assignment_id);
@@ -302,18 +303,18 @@ export const addLocation = mutation({
     await ensureAuthAndAdmin(ctx);
 
     if (!args.room) {
-      throw new ConvexError("Room name cannot be empty");
+      throw new ConvexError('Room name cannot be empty');
     }
 
     const globalSettings = await getGlobalSettings(ctx);
 
     const dayDictionary = { ...globalSettings.day_to_location_dict };
 
-    if (!dayDictionary["-1"]) {
-      dayDictionary["-1"] = [];
+    if (!dayDictionary['-1']) {
+      dayDictionary['-1'] = [];
     }
 
-    dayDictionary["-1"].push(args.room);
+    dayDictionary['-1'].push(args.room);
 
     await ctx.db.patch(globalSettings._id, {
       day_to_location_dict: dayDictionary,
@@ -325,9 +326,9 @@ export const addLocation = mutation({
 
 export const updateLocations = mutation({
   args: {
-    room: v.string(),
-    days: v.array(v.string()),
-    daysOfWeek: v.record(v.string(), v.string()),
+    room: v.string(), // string room name
+    days: v.array(v.string()), // array of day names for this room
+    daysOfWeek: v.record(v.string(), v.number()), // dictionary of day names to day indices
   },
   returns: v.null(),
   handler: async (ctx, args) => {
@@ -338,19 +339,22 @@ export const updateLocations = mutation({
     const newDayDictionary = { ...globalSettings.day_to_location_dict };
 
     for (const day in args.daysOfWeek) {
-      if (args.days.includes(args.daysOfWeek[day])) {
+      const dayIndex = args.daysOfWeek[day];
+      const currRoomForDay = newDayDictionary[dayIndex];
+
+      if (args.days.includes(day)) {
         // day is selected for room
-        const currRoomForDay = newDayDictionary[day];
         if (!currRoomForDay) {
-          newDayDictionary[day] = [args.room];
+          newDayDictionary[dayIndex] = [args.room];
         } else if (!currRoomForDay.includes(args.room)) {
-          newDayDictionary[day] = [...currRoomForDay, args.room];
+          newDayDictionary[dayIndex] = [...currRoomForDay, args.room];
         }
       } else {
         // day is NOT selected for room
-        const currRoomForDay = newDayDictionary[day];
         if (currRoomForDay && currRoomForDay.includes(args.room)) {
-          newDayDictionary[day] = currRoomForDay.filter((r) => r !== args.room);
+          newDayDictionary[dayIndex] = currRoomForDay.filter(
+            (r) => r !== args.room
+          );
         }
       }
     }
@@ -382,8 +386,8 @@ export const removeLocation = mutation({
     }
 
     // Remove from -1 (all rooms list)
-    if (dayDictionary["-1"]) {
-      dayDictionary["-1"] = dayDictionary["-1"].filter((r) => r !== args.room);
+    if (dayDictionary['-1']) {
+      dayDictionary['-1'] = dayDictionary['-1'].filter((r) => r !== args.room);
     }
 
     await ctx.db.patch(globalSettings._id, {
@@ -445,14 +449,14 @@ export const updateAccessControlledUser = mutation({
     const curr_sem = await getCurrentSemester(ctx);
 
     if (args.is_blacklisted && args.is_whitelisted) {
-      throw new ConvexError("User cannot be both blacklisted and whitelisted");
+      throw new ConvexError('User cannot be both blacklisted and whitelisted');
     }
 
     if (args.is_whitelisted) {
       // Check if already on blacklist
       if (curr_sem.blacklist.includes(args.email)) {
         throw new ConvexError(
-          "User is on the blacklist and cannot be added to the whitelist",
+          'User is on the blacklist and cannot be added to the whitelist'
         );
       }
 
@@ -473,7 +477,7 @@ export const updateAccessControlledUser = mutation({
       // Check if already on whitelist
       if (curr_sem.whitelist.includes(args.email)) {
         throw new ConvexError(
-          "User is on the whitelist and cannot be added to the blacklist",
+          'User is on the whitelist and cannot be added to the blacklist'
         );
       }
 
@@ -510,8 +514,8 @@ export const createTA = mutation({
     await ensureAuthAndAdmin(ctx);
 
     const user = await ctx.db
-      .query("users")
-      .withIndex("email", (x) => x.eq("email", args.email))
+      .query('users')
+      .withIndex('email', (x) => x.eq('email', args.email))
       .first();
 
     const curr_sem = await getCurrentSemester(ctx);
@@ -519,9 +523,9 @@ export const createTA = mutation({
     if (user != null) {
       // if they don't have a sem user yet, make one
       const curr_sem_user = await ctx.db
-        .query("semesterUsers")
-        .withIndex("by_sem_and_user", (q) =>
-          q.eq("semester_id", curr_sem._id).eq("user_id", user._id),
+        .query('semesterUsers')
+        .withIndex('by_sem_and_user', (q) =>
+          q.eq('semester_id', curr_sem._id).eq('user_id', user._id)
         )
         .first();
 
@@ -530,54 +534,76 @@ export const createTA = mutation({
 
       if (curr_sem_user == null) {
         const user_prefs = await ctx.db
-          .query("userPreferences")
-          .withIndex("by_user_id", (q) => q.eq("user_id", user._id))
+          .query('userPreferences')
+          .withIndex('by_user_id', (q) => q.eq('user_id', user._id))
           .first();
 
         if (!user_prefs) {
           throw new ConvexError(
-            "User preferences not found when creating semester user",
+            'User preferences not found when creating semester user'
           );
         }
 
         user_prefs_id = user_prefs._id;
 
-        curr_sem_user_id = await ctx.db.insert("semesterUsers", {
+        curr_sem_user_id = await ctx.db.insert('semesterUsers', {
           user_id: user._id,
           user_prefs_id: user_prefs._id,
           semester_id: curr_sem._id,
-          kind: "TA",
+          kind: 'TA',
         });
       } else {
         // make the sem user a TA
         await ctx.db.patch(curr_sem_user._id, {
-          kind: "TA",
+          kind: 'TA',
         });
 
         curr_sem_user_id = curr_sem_user._id;
         user_prefs_id = curr_sem_user.user_prefs_id;
       }
 
-      // Now make a TA entry
-      await ctx.db.insert("tas", {
-        user_id: user._id,
-        user_prefs_id: user_prefs_id,
-        semester_user_id: curr_sem_user_id,
-        is_admin: args.isAdmin,
-        zoom_enabled: false,
-        zoom_url: "",
-        join_notifs_enabled: false,
-        remind_notifs_enabled: false,
-        remind_time_mins: 10,
-        show_self_timer: false,
-        show_others_timer: false,
-        num_helped: 0,
-        time_helped_ms: 0,
-      });
+      // Now make a TA entry if it doesn't exist already
+      const existing_ta = await ctx.db
+        .query('tas')
+        .withIndex('by_semuser', (x) =>
+          x.eq('semester_user_id', curr_sem_user_id)
+        )
+        .first();
+
+      if (existing_ta) {
+        console.warn('TA already exists', args.email);
+      } else {
+        await ctx.db.insert('tas', {
+          user_id: user._id,
+          user_prefs_id: user_prefs_id,
+          semester_user_id: curr_sem_user_id,
+          is_admin: args.isAdmin,
+          zoom_enabled: false,
+          zoom_url: '',
+          join_notifs_enabled: false,
+          remind_notifs_enabled: false,
+          remind_time_mins: 10,
+          show_self_timer: false,
+          show_others_timer: false,
+          num_helped: 0,
+          time_helped_ms: 0,
+        });
+      }
     }
     // otherwise log that we want to make this TA when the user logs in
     else {
-      await ctx.db.insert("future_tas", {
+      const existing_future_ta = await ctx.db
+        .query('future_tas')
+        .withIndex('by_sem_and_email', (x) =>
+          x.eq('semester_id', curr_sem._id).eq('email', args.email)
+        )
+        .first();
+
+      if (existing_future_ta) {
+        throw new ConvexError('Future TA already exists');
+      }
+
+      await ctx.db.insert('future_tas', {
         semester_id: curr_sem._id,
         email: args.email,
         name: args.name,
@@ -592,7 +618,7 @@ export const createTA = mutation({
  */
 export const updateTA = mutation({
   args: {
-    email: v.id("users"),
+    email: v.string(),
     isAdmin: v.boolean(),
   },
   returns: v.null(),
@@ -601,8 +627,8 @@ export const updateTA = mutation({
 
     // check if the ta object exists
     const user = await ctx.db
-      .query("users")
-      .withIndex("email", (x) => x.eq("email", args.email))
+      .query('users')
+      .withIndex('email', (x) => x.eq('email', args.email))
       .first();
 
     const curr_sem = await getCurrentSemester(ctx);
@@ -610,15 +636,15 @@ export const updateTA = mutation({
     if (!user) {
       // check in future_tas
       const future_ta = await ctx.db
-        .query("future_tas")
-        .withIndex("by_sem_and_email", (x) =>
-          x.eq("semester_id", curr_sem._id).eq("email", args.email),
+        .query('future_tas')
+        .withIndex('by_sem_and_email', (x) =>
+          x.eq('semester_id', curr_sem._id).eq('email', args.email)
         )
         .first();
 
       if (!future_ta) {
         throw new ConvexError(
-          "User does not exist in the current or future semesters",
+          'User does not exist in the current or future semesters'
         );
       }
 
@@ -627,25 +653,25 @@ export const updateTA = mutation({
       });
     } else {
       const sem_user = await ctx.db
-        .query("semesterUsers")
-        .withIndex("by_sem_and_user", (x) =>
-          x.eq("semester_id", curr_sem._id).eq("user_id", user._id),
+        .query('semesterUsers')
+        .withIndex('by_sem_and_user', (x) =>
+          x.eq('semester_id', curr_sem._id).eq('user_id', user._id)
         )
         .first();
 
       if (!sem_user) {
         throw new ConvexError(
-          "TA user exists but does not have a sem_user entry",
+          'TA user exists but does not have a sem_user entry'
         );
       }
 
       const ta = await ctx.db
-        .query("tas")
-        .withIndex("by_semuser", (x) => x.eq("semester_user_id", sem_user._id))
+        .query('tas')
+        .withIndex('by_semuser', (x) => x.eq('semester_user_id', sem_user._id))
         .first();
 
       if (!ta) {
-        throw new ConvexError("TA user exists but does not have a ta entry");
+        throw new ConvexError('TA user exists but does not have a ta entry');
       }
 
       await ctx.db.patch(ta._id, {
@@ -667,8 +693,8 @@ export const deleteTA = mutation({
     await ensureAuthAndAdmin(ctx);
 
     const user = await ctx.db
-      .query("users")
-      .withIndex("email", (x) => x.eq("email", args.email))
+      .query('users')
+      .withIndex('email', (x) => x.eq('email', args.email))
       .first();
 
     const curr_sem = await getCurrentSemester(ctx);
@@ -676,44 +702,44 @@ export const deleteTA = mutation({
     if (!user) {
       // check in future_tas
       const future_ta = await ctx.db
-        .query("future_tas")
-        .withIndex("by_sem_and_email", (x) =>
-          x.eq("semester_id", curr_sem._id).eq("email", args.email),
+        .query('future_tas')
+        .withIndex('by_sem_and_email', (x) =>
+          x.eq('semester_id', curr_sem._id).eq('email', args.email)
         )
         .first();
 
       if (!future_ta) {
         throw new ConvexError(
-          "User does not exist in the current or future semesters",
+          'User does not exist in the current or future semesters'
         );
       }
 
       await ctx.db.delete(future_ta._id);
     } else {
       const sem_user = await ctx.db
-        .query("semesterUsers")
-        .withIndex("by_sem_and_user", (x) =>
-          x.eq("semester_id", curr_sem._id).eq("user_id", user._id),
+        .query('semesterUsers')
+        .withIndex('by_sem_and_user', (x) =>
+          x.eq('semester_id', curr_sem._id).eq('user_id', user._id)
         )
         .first();
 
       if (!sem_user) {
         throw new ConvexError(
-          "TA user exists but does not have a sem_user entry",
+          'TA user exists but does not have a sem_user entry'
         );
       }
 
       const ta = await ctx.db
-        .query("tas")
-        .withIndex("by_semuser", (x) => x.eq("semester_user_id", sem_user._id))
+        .query('tas')
+        .withIndex('by_semuser', (x) => x.eq('semester_user_id', sem_user._id))
         .first();
 
       if (!ta) {
-        throw new ConvexError("TA user exists but does not have a ta entry");
+        throw new ConvexError('TA user exists but does not have a ta entry');
       }
 
       await ctx.db.patch(sem_user._id, {
-        kind: "student",
+        kind: 'student',
       });
       await ctx.db.delete(ta._id);
     }
@@ -728,31 +754,31 @@ export const changeSemester = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const { user_data } = await ensureAuthAndAdmin(ctx);
+    const { user_data } = await ensureAuthAndOwner(ctx);
 
     const queue_length = await getQueueLength(ctx);
     if (queue_length > 0) {
-      throw new ConvexError("Queue is not empty");
+      throw new ConvexError('Queue is not empty');
     }
 
     const curr_sem = await getCurrentSemester(ctx);
     const curr_owners = curr_sem.owner_emails;
 
     if (!curr_owners.includes(user_data.email!)) {
-      throw new ConvexError("User is not an owner of the current semester");
+      throw new ConvexError('User is not an owner of the current semester');
     }
 
     // try looking up next sem by name
     const existing_sem = await ctx.db
-      .query("semesters")
-      .withIndex("by_name", (x) => x.eq("name", args.new_sem_name))
+      .query('semesters')
+      .withIndex('by_name', (x) => x.eq('name', args.new_sem_name))
       .first();
 
     let new_sem_id;
     if (existing_sem) {
       new_sem_id = existing_sem._id;
     } else {
-      const new_sem = await ctx.db.insert("semesters", {
+      const new_sem = await ctx.db.insert('semesters', {
         name: args.new_sem_name,
         owner_emails: curr_owners,
 
@@ -791,14 +817,3 @@ export const updateSlackURL = mutation({
     });
   },
 });
-
-/** CSV Upload/Download Functions **/
-// These functions require HTTP actions with file handling which is a different
-// pattern than mutations. They should be implemented as httpAction in convex/http.ts
-// rather than as mutations here. Examples:
-// - downloadTopicCSV
-// - uploadTopicCSV
-// - downloadTACSV
-// - uploadTACSV
-// - downloadAccessControlCSV
-// - uploadAccessControlCSV

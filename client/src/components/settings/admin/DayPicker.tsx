@@ -5,38 +5,43 @@ import {
 
 import {Delete as DeleteIcon} from '@mui/icons-material';
 
-import SettingsService from '../../../services/SettingsService';
+import { useMutation } from 'convex/react';
+import { api } from '../../../../../convex/_generated/api';
 
 export default function DayPicker(props) {
   const {convertIdxToDays, daysOfWeek, room, roomDictionary} = props;
   const [newDays, setNewDays] = useState(convertIdxToDays(roomDictionary[room]));
 
+
   const convertDaysToIdx = (daysArr) => {
     return daysArr.map((day) => daysOfWeek.indexOf(day));
   };
 
-  const handleDayClick = (event, newArr) => {
+  const updateLocationsMutation = useMutation(api.settings.settings_mutate.updateLocations);
+  const handleDayClick = async (event, newArr) => {
     setNewDays(newArr);
 
     const newRoomDictionary = roomDictionary;
     newRoomDictionary[room] = convertDaysToIdx(newArr);
 
-    SettingsService.updateLocations(
-        JSON.stringify({
-          room: room,
-          days: newArr,
-          daysOfWeek: daysOfWeek,
-        }),
-    );
+    const daysOfWeekDict = {}
+    for (const day of daysOfWeek) {
+      daysOfWeekDict[day] = daysOfWeek.indexOf(day);
+    }
+
+    await updateLocationsMutation({
+      room: room,
+      days: newArr,
+      daysOfWeek: daysOfWeekDict,
+    });
   };
 
-  const handleRemove = () => {
-    SettingsService.removeLocation(
-        JSON.stringify({
-          room: room,
-          days: roomDictionary[room],
-        }),
-    );
+  const removeLocationMutation = useMutation(api.settings.settings_mutate.removeLocation);
+  const handleRemove = async () => {
+    await removeLocationMutation({
+      room: room,
+      days: roomDictionary[room],
+    });
   };
 
   return (

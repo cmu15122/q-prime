@@ -30,7 +30,7 @@ function Main() {
       {!userData.is_owner && <NotificationSettings />}
       {!userData.is_owner && <TimerSettings />}
 
-      {userData.ta_data!.is_admin && <AdminMain />}
+      {(userData.is_owner || userData.ta_data?.is_admin) && <AdminMain />}
     </div>
   ) : (
     <div></div>

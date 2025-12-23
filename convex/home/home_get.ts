@@ -1,6 +1,6 @@
-import { query, QueryCtx } from "../_generated/server";
-import { ConvexError, v } from "convex/values";
-import { Doc } from "../_generated/dataModel";
+import { query, QueryCtx } from '../_generated/server';
+import { ConvexError, v } from 'convex/values';
+import { Doc } from '../_generated/dataModel';
 import {
   getCurrentSemester,
   getCurrentUser,
@@ -12,7 +12,7 @@ import {
   getNumTAs,
   getStudent,
   getTA,
-} from "../common";
+} from '../common';
 
 export const getQueueData = query({
   args: {},
@@ -60,7 +60,7 @@ export const getUserData = query({
       return null;
     }
 
-    const is_owner = curr_sem.owner_emails.includes(user_data._id);
+    const is_owner = curr_sem.owner_emails.includes(user_data.email!);
 
     type TAData = {
       ta_id: string;
@@ -74,10 +74,10 @@ export const getUserData = query({
       show_others_timer: boolean;
     } | null;
 
-    let student_data: Doc<"ohq"> | null = null;
+    let student_data: Doc<'ohq'> | null = null;
     let ta_data: TAData = null;
 
-    if (user_data.kind === "TA") {
+    if (user_data.kind === 'TA') {
       const ta = await getTA(ctx, user_data.sem_user_id);
 
       ta_data = {
@@ -91,7 +91,7 @@ export const getUserData = query({
         show_self_timer: ta.show_self_timer,
         show_others_timer: ta.show_others_timer,
       };
-    } else if (user_data.kind === "student") {
+    } else if (user_data.kind === 'student') {
       const student = await getStudent(ctx, user_data.sem_user_id);
 
       student_data = await getQueueEntry(ctx, student._id);
@@ -114,9 +114,9 @@ export const getAllStudents = query({
   args: {},
   handler: async (ctx, args) => {
     return await ctx.db
-      .query("ohq")
-      .withIndex("by_position")
-      .order("asc")
+      .query('ohq')
+      .withIndex('by_position')
+      .order('asc')
       .collect();
   },
 });
@@ -127,8 +127,8 @@ export const getAllAssignments = query({
     const curr_sem = await getCurrentSemester(ctx);
 
     return await ctx.db
-      .query("assignments")
-      .withIndex("by_sem_end", (x) => x.eq("semester_id", curr_sem._id))
+      .query('assignments')
+      .withIndex('by_sem_end', (x) => x.eq('semester_id', curr_sem._id))
       .collect();
   },
 });
@@ -159,11 +159,11 @@ export const getCurrentAssignments = query({
     // }
 
     const all_assignments = await ctx.db
-      .query("assignments")
-      .withIndex("by_sem_end", (x) =>
-        x.eq("semester_id", curr_sem._id).gt("end_date_ms", curr_date),
+      .query('assignments')
+      .withIndex('by_sem_end', (x) =>
+        x.eq('semester_id', curr_sem._id).gt('end_date_ms', curr_date)
       )
-      .filter((x) => x.lt(x.field("start_date_ms"), curr_date))
+      .filter((x) => x.lt(x.field('start_date_ms'), curr_date))
       .collect();
 
     return all_assignments;
