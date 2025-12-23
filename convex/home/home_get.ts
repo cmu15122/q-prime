@@ -13,6 +13,7 @@ import {
   getStudent,
   getTA,
 } from '../common';
+import { getAuthUserId } from '@convex-dev/auth/server';
 
 export const getQueueData = query({
   args: {},
@@ -32,7 +33,7 @@ export const getQueueData = query({
       title: globalSettings.course_name,
       is_frozen: globalSettings.is_frozen,
       announcements: globalSettings.announcements,
-      // TODO CONVEX MAKE SURE "
+      allowed_email_domains: globalSettings.allowed_email_domains,
       current_locations: current_locations,
 
       allow_cooldown_override: globalSettings.allow_cooldown_override,
@@ -167,5 +168,35 @@ export const getCurrentAssignments = query({
       .collect();
 
     return all_assignments;
+  },
+});
+
+export const checkValidEmail = query({
+  args: {},
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    const user_id = await getAuthUserId(ctx);
+
+    if (user_id) {
+      const user = await ctx.db.get(user_id);
+
+      if (!user || !user.email) {
+        return false;
+      }
+
+      const email = user.email;
+      const global_settings = await getGlobalSettings(ctx);
+
+      if (global_settings.enforce_email_domain) {
+        const allowed_domains = global_settings.allowed_email_domains;
+        const user_domain = email.split('@')[1];
+
+        if (!allowed_domains.includes(user_domain)) {
+          return false;
+        }
+      }
+    }
+
+    return true;
   },
 });

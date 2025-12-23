@@ -18,6 +18,7 @@ import "./App.css";
 
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import ConvexErrorWrapper from "./services/ConvexErrorWrapper";
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
@@ -27,10 +28,12 @@ function App() {
   );
   const ThemeContext = React.createContext(theme);
 
-  // in order to check if a new semester has started and we need to make a new semester user
-  // we call this function
-
+  // check if a new semester has started and we need to make a new semester user
   const checkNewSemUser = useMutation(api.home.home_mutate.checkNewSemesterUser);
+
+  // NOTE - the correct way to do these would be to use a post-auth callback check, but
+  // I don't think this is supported by Convex Auth as of 1/1/2026.
+
   useEffect(() => {
     checkNewSemUser();
   }, []);
@@ -41,24 +44,26 @@ function App() {
       <CssBaseline />
       <LocalizationProvider dateAdapter={AdapterLuxon}>
         <ThemeContext.Provider value={theme}>
-          <Router basename={process.env.PUBLIC_URL}>
-            <Routes>
+          <ConvexErrorWrapper>
+            <Router basename={process.env.PUBLIC_URL}>
+              <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/settings" element={<Settings />} />
               {/*<Route path='/metrics' element={<Metrics/>} />*/}
-            </Routes>
-          </Router>
-          <ToastContainer
-            position="bottom-left"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-          />
+              </Routes>
+            </Router>
+            <ToastContainer
+              position="bottom-left"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+            />
+          </ConvexErrorWrapper>
         </ThemeContext.Provider>
       </LocalizationProvider>
     </ThemeProvider>

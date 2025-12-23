@@ -6,7 +6,6 @@ import {
   TextField,
   Checkbox,
   Stack,
-  Tooltip,
 } from "@mui/material";
 
 import BaseCard from "../../common/cards/BaseCard";
@@ -16,26 +15,23 @@ import { api } from "../../../../../convex/_generated/api";
 
 export default function ConfigSettings() {
   const queueData = useQuery(api.home.home_get.getQueueData);
-  const userData = useQuery(api.home.home_get.getUserData);
   const adminSettings = useQuery(api.settings.settings_get.getQueueSettings);
 
-  const [currSem, setCurrSem] = useState<string>("");
   const [slackURL, setSlackURL] = useState("");
   const [questionsURL, setQuestionsURL] = useState("");
+  const [allowedEmailDomains, setAllowedEmailDomains] = useState<string[]>([]);
   const [enforceEmailDomain, setEnforceEmailDomain] = useState(true);
   const [allowCDOverride, setAllowCDOverride] = useState(true);
   const [courseName, setCourseName] = useState("");
   const [allowShowOthersTimer, setAllowShowOthersTimer] = useState(false);
 
-  // TODO CONVEX ADD ALLOWED DOMAINS SETTING
-
   useEffect(() => {
     if (adminSettings) {
-      setCurrSem(adminSettings.currSem);
       setSlackURL(adminSettings.slackURL || "");
       setEnforceEmailDomain(adminSettings.enforceEmailDomains);
       setCourseName(adminSettings.courseName);
       setAllowShowOthersTimer(adminSettings.allowShowOthersTimer);
+      setAllowedEmailDomains(adminSettings.allowedEmailDomains);
     }
   }, [adminSettings]);
 
@@ -54,14 +50,6 @@ export default function ConfigSettings() {
     await updateCourseNameMutation({ courseName: courseName });
   };
 
-  const changeSemesterMutation = useMutation(
-    api.settings.settings_mutate.changeSemester,
-  );
-  const handleUpdateSemester = async (event) => {
-    event.preventDefault();
-    await changeSemesterMutation({ new_sem_name: currSem });
-  };
-
   const updateSlackURLMutation = useMutation(
     api.settings.settings_mutate.updateSlackURL,
   );
@@ -76,6 +64,14 @@ export default function ConfigSettings() {
   const handleUpdateQuestionsURL = async (event) => {
     event.preventDefault();
     await updateQuestionsURLMutation({ questionsURL: questionsURL });
+  };
+
+  const updateAllowedEmailDomainsMutation = useMutation(
+    api.settings.settings_mutate.updateAllowedEmailDomains,
+  );
+  const handleUpdateAllowedEmailDomains = async (event) => {
+    event.preventDefault();
+    await updateAllowedEmailDomainsMutation({ allowedEmailDomains: allowedEmailDomains });
   };
 
   const updateEnforceEmailDomainMutation = useMutation(
@@ -121,6 +117,8 @@ export default function ConfigSettings() {
         </Typography>
 
         <Stack spacing={2} sx={{ mt: 2 }}>
+          <Typography color="text.secondary">The current semester is {adminSettings?.currSem}. Only [{adminSettings?.ownerEmails || []}] can change the semester.</Typography>
+
           <form onSubmit={handleUpdateCourseName}>
             <Stack direction="row" alignItems="center" spacing={2}>
               <Typography>Course Name:</Typography>
@@ -139,47 +137,6 @@ export default function ConfigSettings() {
             </Stack>
           </form>
 
-          <form onSubmit={handleUpdateSemester}>
-            <Stack direction="row" alignItems="center" spacing={2}>
-              <Typography>Current Semester:</Typography>
-              <TextField
-                size="small"
-                value={currSem ?? ""}
-                onChange={(e) => setCurrSem(e.target.value)}
-                disabled={!(userData?.is_owner || false)}
-                inputProps={{ maxLength: 3 }}
-                sx={{ width: 80 }}
-              />
-              {!userData?.is_owner ? null : (
-                <Tooltip
-                  title={
-                    <Typography>
-                      Update Current Semester First, this initializes your
-                      semester!
-                    </Typography>
-                  }
-                  placement="right"
-                  arrow
-                  open={currSem != undefined && adminSettings?.currSem === ""}
-                  enterDelay={1000}
-                >
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    disabled={!(userData?.is_owner || false)}
-                  >
-                    Save
-                  </Button>
-                </Tooltip>
-              )}
-              <Typography variant="caption" color="text.secondary">
-                {!(userData?.is_owner || false)
-                  ? `Only ${adminSettings?.ownerEmails || []} can change semester`
-                  : "Each semester has its own settings and stats"}
-              </Typography>
-            </Stack>
-          </form>
-
           <form onSubmit={handleUpdateEnforceEmailDomain}>
             <Stack direction="row" alignItems="center" spacing={1}>
               <Typography>Enforce Email Domain:</Typography>
@@ -191,8 +148,25 @@ export default function ConfigSettings() {
                 Save
               </Button>
               <Typography variant="caption" color="text.secondary">
-                Require emails that end with:
-                {adminSettings?.allowedEmailDomains.join(", ")}
+                Require emails that end with: {adminSettings?.allowedEmailDomains.join(", ")}
+              </Typography>
+            </Stack>
+          </form>
+
+          <form onSubmit={handleUpdateAllowedEmailDomains}>
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Typography>Allowed Email Domains:</Typography>
+              <TextField
+                size="small"
+                value={allowedEmailDomains.join(", ")}
+                onChange={(e) => setAllowedEmailDomains(e.target.value.split(", ").map((domain) => domain.trim()))}
+                sx={{ width: 250 }}
+              />
+              <Button type="submit" variant="contained">
+                Save
+              </Button>
+              <Typography variant="caption" color="text.secondary">
+                Allowed email domains, separated by commas
               </Typography>
             </Stack>
           </form>

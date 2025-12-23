@@ -180,6 +180,24 @@ export const updateEnforceEmailDomain = mutation({
   },
 });
 
+export const updateAllowedEmailDomains = mutation({
+  args: {
+    allowedEmailDomains: v.array(v.string()),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    await ensureAuthAndAdmin(ctx);
+
+    const globalSettings = await getGlobalSettings(ctx);
+
+    await ctx.db.patch(globalSettings._id, {
+      allowed_email_domains: args.allowedEmailDomains,
+    });
+
+    return null;
+  },
+});
+
 export const updateAllowCooldownOverride = mutation({
   args: {
     allowCDOverride: v.boolean(),
@@ -511,7 +529,11 @@ export const createTA = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndAdmin(ctx);
+    try {
+      await ensureAuthAndAdmin(ctx);
+    } catch (error) {
+      await ensureAuthAndOwner(ctx);
+    }
 
     const user = await ctx.db
       .query('users')
@@ -623,7 +645,11 @@ export const updateTA = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndAdmin(ctx);
+    try {
+      await ensureAuthAndAdmin(ctx);
+    } catch (error) {
+      await ensureAuthAndOwner(ctx);
+    }
 
     // check if the ta object exists
     const user = await ctx.db
@@ -690,7 +716,11 @@ export const deleteTA = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndAdmin(ctx);
+    try {
+      await ensureAuthAndAdmin(ctx);
+    } catch (error) {
+      await ensureAuthAndOwner(ctx);
+    }
 
     const user = await ctx.db
       .query('users')

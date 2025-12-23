@@ -4,7 +4,7 @@ import SharedMain from "./shared/SharedMain";
 import StudentMain from "./student/StudentMain";
 import TAMain from "./ta/TAMain";
 import Footer from "./Footer";
-import { Container } from "@mui/material";
+import { Container, Typography } from "@mui/material";
 
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
@@ -15,6 +15,7 @@ function HomeMain() {
   const [mainPage, setMainPage] = useState<JSX.Element | null>(null);
 
   const userData = useQuery(api.home.home_get.getUserData);
+  const queueData = useQuery(api.home.home_get.getQueueData);
   const isAuthenticated = userData !== null && userData !== undefined;
   const isTA = isAuthenticated && userData.user_kind === "TA";
 
@@ -40,14 +41,25 @@ function HomeMain() {
     }
   }, [isAuthenticated, isTA]);
 
+    // check if the user is logged in with a valid domain
+  const checkValidEmail = useQuery(api.home.home_get.checkValidEmail);
+
   return (
-    <Container
-      sx={{ display: "flex", minHeight: "100vh", flexDirection: "column" }}
-    >
-      <SharedMain />
-      {mainPage}
-      <Footer gitHubLink={gitHubLink} />
-    </Container>
+    <>
+      {(checkValidEmail !== undefined) &&
+      ((checkValidEmail === true) ? (<>
+          <Container
+            sx={{ display: "flex", minHeight: "100vh", flexDirection: "column" }}
+          >
+            <SharedMain />
+            {mainPage}
+            <Footer gitHubLink={gitHubLink} />
+          </Container>
+        </>) : (
+          <Typography>Please log in with an email account ending with: {queueData?.allowed_email_domains.join(", ")}</Typography>
+        ))
+      }
+    </>
   );
 }
 
