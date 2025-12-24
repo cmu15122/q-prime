@@ -53,15 +53,6 @@ export async function getQueueLength(ctx: QueryCtx) {
   return queue.length;
 }
 
-export async function getNumUnhelped(ctx: QueryCtx) {
-  const queue = await ctx.db
-    .query('ohq')
-    .filter((x) => x.neq(x.field('status'), 'being_helped'))
-    .collect();
-
-  return queue.length;
-}
-
 const WAITTIME_LOOKBACK_MINUTES = 60;
 
 export async function getWaittimeData(ctx: QueryCtx) {

@@ -11,6 +11,7 @@ import { socketSubscribeTo } from "../../../services/SocketsService";
 
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
+import ConvexNotifHandler from "../../common/ConvexNotifHandler";
 
 function StudentMain() {
   const [removeConfirm, setRemoveConfirm] = useState(false);
@@ -116,6 +117,8 @@ function StudentMain() {
   return (
     <div>
       {statusDependentComponents}
+
+      <ConvexNotifHandler convexNotifQuery={api.notifs.helpNotif} />
 
       <TAHelpingOverlay open={studentData?.status === "being_helped"} />
 

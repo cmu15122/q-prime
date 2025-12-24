@@ -65,6 +65,10 @@ export default defineSchema({
     user_prefs_id: v.id('userPreferences'),
     semester_id: v.id('semesters'),
     kind: v.union(v.literal('TA'), v.literal('student')),
+    notification: v.object({
+      title: v.string(),
+      body: v.string(),
+    }),
   })
     .index('by_sem_and_user', ['semester_id', 'user_id'])
     .index('by_sem_and_kind', ['semester_id', 'kind']),

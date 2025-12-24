@@ -5,6 +5,7 @@ import StudentEntries from "./StudentEntries";
 
 import { useQuery } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
+import ConvexNotifHandler from "../../common/ConvexNotifHandler";
 
 export default function TAMain() {
   const userData = useQuery(api.home.home_get.getUserData);
@@ -32,6 +33,8 @@ export default function TAMain() {
 
   return (
     <div>
+      {/* <ConvexNotifHandler convexNotifQuery={api.notifs.youAreHelpingTestNotif} /> */}
+
       <StudentEntries />
       <AskQuestion />
     </div>

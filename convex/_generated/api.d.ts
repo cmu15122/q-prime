@@ -14,6 +14,7 @@ import type * as common from "../common.js";
 import type * as home_home_get from "../home/home_get.js";
 import type * as home_home_mutate from "../home/home_mutate.js";
 import type * as http from "../http.js";
+import type * as notifs from "../notifs.js";
 import type * as settings_settings_get from "../settings/settings_get.js";
 import type * as settings_settings_mutate from "../settings/settings_mutate.js";
 
@@ -30,6 +31,7 @@ declare const fullApi: ApiFromModules<{
   "home/home_get": typeof home_home_get;
   "home/home_mutate": typeof home_home_mutate;
   http: typeof http;
+  notifs: typeof notifs;
   "settings/settings_get": typeof settings_settings_get;
   "settings/settings_mutate": typeof settings_settings_mutate;
 }>;
