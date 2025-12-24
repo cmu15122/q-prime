@@ -57,20 +57,21 @@ export default function QueueStats() {
               There are <strong>{queueData?.num_students || 0} students</strong>{" "}
               on the queue.
             </Typography>
-            {/* TODO CONVEX WAIT TIMES*/}
-            {/*<Typography variant="body1" sx={{ mt: 1.5, mb: 2 }}>
-              The estimated wait time is{" "}
-              <strong>
-                {queueData.numTAs === 0
-                  ? 0
-                  : Math.floor(
-                      (queueData.numUnhelped * queueData.minsPerStudent) /
-                        queueData.numTAs,
-                    )}{" "}
-                minutes
-              </strong>{" "}
-              from the end of the queue.
-            </Typography>*/}
+            {queueData && (
+              <Typography variant="body1" sx={{ mt: 1.5, mb: 2 }}>
+                The estimated wait time is{" "}
+                <strong>
+                  {queueData.num_tas === 0
+                    ? 0
+                    : Math.floor(
+                        (queueData.num_unhelped * queueData.mins_per_student) /
+                          queueData.num_tas,
+                      )}{" "}
+                  minutes
+                </strong>{" "}
+                from the end of the queue.
+              </Typography>
+            )}
           </div>
         </Stack>
       </CardContent>

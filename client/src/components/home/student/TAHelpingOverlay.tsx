@@ -28,7 +28,7 @@ export default function TAHelpingOverlay(props) {
             sx={{ mt: 3 }}
             variant="contained"
             target="_blank"
-            href={studentData?.helping_ta?.zoom_url}
+            href={studentData?.helping_ta?.zoom_url || ""}
           >
             Join Zoom
           </Button>

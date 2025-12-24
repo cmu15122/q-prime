@@ -34,9 +34,6 @@ export async function getCurrentUser(ctx: QueryCtx) {
     )
     .first())!;
 
-  // TODO - make sure we create new sem users for old users on first login of new sem
-  // can't do here because this is a query
-
   if (!curr_sem_user) {
     return null;
   }
@@ -59,20 +56,107 @@ export async function getQueueLength(ctx: QueryCtx) {
 export async function getNumUnhelped(ctx: QueryCtx) {
   const queue = await ctx.db
     .query('ohq')
-    .filter((x) => x.eq(x.field('status'), 'being_helped'))
+    .filter((x) => x.neq(x.field('status'), 'being_helped'))
     .collect();
 
   return queue.length;
 }
 
-// TODO CONVEX WAIT TIMES
-export async function getNumTAs(ctx: QueryCtx) {
-  return 0;
-}
+const WAITTIME_LOOKBACK_MINUTES = 60;
 
-// TODO CONVEX WAIT TIMES
-export async function getMinsPerStudent(ctx: QueryCtx) {
-  return 0;
+export async function getWaittimeData(ctx: QueryCtx) {
+  const now = new Date();
+  const start_time = new Date(
+    now.getTime() - WAITTIME_LOOKBACK_MINUTES * 60000
+  );
+
+  let total_helped_ms = 0;
+  let active_tas = new Set<Id<'tas'>>();
+
+  // handle questions asked in the past
+  const questions = await ctx.db
+    .query('questions')
+    .filter((x) =>
+      x.and(
+        x.gte(x.field('exit_time_ms'), start_time.getTime()),
+        x.neq(x.field('help_time_ms'), -1)
+      )
+    )
+    .collect();
+
+  for (const question of questions) {
+    const helping_ms = question.exit_time_ms - question.help_time_ms;
+    total_helped_ms += helping_ms;
+
+    if (!question.ta_id) {
+      throw new ConvexError(
+        `Question helped and finished but no helping ta: ${question}`
+      );
+    }
+
+    if (!active_tas.has(question.ta_id)) {
+      active_tas.add(question.ta_id);
+    }
+  }
+
+  // handle current questions
+  let curr_helping_questions = await ctx.db
+    .query('ohq')
+    .filter((x) => x.eq(x.field('status'), 'being_helped'))
+    .collect();
+
+  for (const curr_helping of curr_helping_questions) {
+    if (!curr_helping.help_start_time_ms) {
+      throw new ConvexError(
+        `Question had being_helped status but no help time: ${curr_helping}`
+      );
+    }
+
+    const helping_ms = now.getTime() - curr_helping.help_start_time_ms;
+    total_helped_ms += helping_ms;
+
+    if (!curr_helping.helping_ta) {
+      throw new ConvexError(
+        `Question helped but no helping ta: ${curr_helping}`
+      );
+    }
+
+    if (!active_tas.has(curr_helping.helping_ta.ta_id)) {
+      active_tas.add(curr_helping.helping_ta.ta_id);
+    }
+  }
+
+  // combine
+  const total_questions = questions.length + curr_helping_questions.length;
+  const num_tas = active_tas.size;
+
+  // do math based on num unhelped students
+  const unhelped_questions = await ctx.db
+    .query('ohq')
+    .filter((x) => x.neq(x.field('status'), 'being_helped'))
+    .collect();
+
+  const num_unhelped = unhelped_questions.length;
+
+  // avoid dividing by zero
+  if (total_questions != 0) {
+    const mins_per_student = total_helped_ms / 60000 / total_questions;
+    const wait_time = (num_unhelped * mins_per_student) / num_tas;
+
+    // TODO CONVEX SLACKBOT PING
+
+    return {
+      mins_per_student: mins_per_student,
+      num_unhelped: num_unhelped,
+      num_tas: num_tas,
+    };
+  } else {
+    return {
+      mins_per_student: 0,
+      num_unhelped: 0,
+      num_tas: 0,
+    };
+  }
 }
 
 export async function getQueueEntry(ctx: QueryCtx, student_id: Id<'students'>) {

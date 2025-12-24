@@ -7,9 +7,7 @@ import {
   getGlobalSettings,
   getQueueEntry,
   getQueueLength,
-  getNumUnhelped,
-  getMinsPerStudent,
-  getNumTAs,
+  getWaittimeData,
   getStudent,
   getTA,
 } from '../common';
@@ -21,9 +19,7 @@ export const getQueueData = query({
     const globalSettings = await getGlobalSettings(ctx);
 
     const queue_length = await getQueueLength(ctx);
-    const num_unhelped = await getNumUnhelped(ctx);
-    const num_tas = await getNumTAs(ctx);
-    const mins_per_student = await getMinsPerStudent(ctx);
+    const wait_time_data = await getWaittimeData(ctx);
 
     const current_day_of_week = new Date().getDay();
     const current_locations =
@@ -44,9 +40,9 @@ export const getQueueData = query({
 
       questions_policy_url: globalSettings.questions_policy_url,
 
-      num_unhelped: num_unhelped,
-      num_tas: num_tas,
-      mins_per_student: mins_per_student,
+      num_unhelped: wait_time_data.num_unhelped,
+      num_tas: wait_time_data.num_tas,
+      mins_per_student: wait_time_data.mins_per_student,
     };
   },
 });

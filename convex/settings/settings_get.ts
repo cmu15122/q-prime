@@ -30,7 +30,7 @@ export const getQueueSettings = query({
       courseName: globalSettings.course_name,
       currSem: curr_sem.name,
       slackURL: globalSettings.slackbot_webhook_url,
-      questionsURL: globalSettings.questions_policy_url, // TODO CONVEX MAKE SURE THIS GETS TO THE CLIENT
+      questionsURL: globalSettings.questions_policy_url,
       rejoinTimeMins: globalSettings.rejoin_time_ms / 60000, // convert ms to minutes
       allowCDOverride: globalSettings.allow_cooldown_override,
       dayDictionary: globalSettings.day_to_location_dict,
