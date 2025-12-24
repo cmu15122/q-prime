@@ -19,80 +19,83 @@ import UploadDialog from '../../common/dialogs/UploadDialog';
 import CollapsedTable from '../../common/table/CollapsedTable';
 import EditDeleteRow from '../../common/table/EditDeleteRow';
 
-import SettingsService from '../../../services/SettingsService';
 import download from 'downloadjs';
+import { useQuery, useMutation } from "convex/react";
+import { api } from "../../../../../convex/_generated/api";
+import { useAuthToken } from "@convex-dev/auth/react";
 
-function createData(email, isWhitelisted, isBlacklisted) {
-  return { email, isWhitelisted, isBlacklisted };
-}
-
-export default function AccessControlSettings(props) {
+export default function AccessControlSettings() {
   const theme = useTheme();
 
   // Access control enable/disable states
-  const [enableWhitelist, setEnableWhitelist] = useState(false);
-  const [enableBlacklist, setEnableBlacklist] = useState(false);
+  const accessControlSettings = useQuery(api.settings.settings_get.getAccessControlSettings);
+  const [selectedRowIdx, setSelectedRowIdx] = useState<number | null>(null);
+  const [selectedListType, setSelectedListType] = useState<'whitelist' | 'blacklist' | null>(null);
+  const token = useAuthToken();
 
-  const [whitelistEmails, setWhitelistEmails] = useState([]);
-  const [blacklistEmails, setBlacklistEmails] = useState([]);
+  let rows: { email: string, isWhitelisted: boolean, isBlacklisted: boolean }[] = [];
 
-  useEffect(() => {
-    SettingsService.getACLSettings().then((res) => {
-      setEnableWhitelist(res.data.whitelistEnabled);
-      setEnableBlacklist(res.data.blacklistEnabled);
-      setWhitelistEmails(res.data.whitelistEmails);
-      setBlacklistEmails(res.data.blacklistEmails);
-    });
-  }, []);
+  for (const email of accessControlSettings?.whitelistEmails || []) {
+    rows.push({ email, isWhitelisted: true, isBlacklisted: false });
+  }
 
-  const [selectedRow, setSelectedRow] = useState(null);
+  for (const email of accessControlSettings?.blacklistEmails || []) {
+    rows.push({ email, isWhitelisted: false, isBlacklisted: true });
+  }
 
-  const rows = useMemo(() => {
-    // Create whitelist users
-    const whitelistUsers = whitelistEmails.map((email) =>
-      createData(email, true, false),
-    ).sort((a, b) => a.email.localeCompare(b.email));
+  const handleDownload = async () => {
+    if (!token) {
+      console.error("No auth token available");
+      return;
+    }
 
-    // Create blacklist users
-    const blacklistUsers = blacklistEmails.map((email) =>
-      createData(email, false, true),
-    ).sort((a, b) => a.email.localeCompare(b.email));
+    try {
+      // For local dev, use the same URL. For production, replace .cloud with .site
+      const httpActionUrl = import.meta.env.VITE_APP_CONVEX_SITE_URL;
 
-    // Return whitelist first, then blacklist
-    return [...whitelistUsers, ...blacklistUsers];
-  }, [whitelistEmails, blacklistEmails]);
+      const response = await fetch(`${httpActionUrl}/download_access_control_csv`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+      });
 
-  const handleDownload = () => {
-    SettingsService.downloadAccessControlCSV().then((result) => {
-      download(result.data, 'access_control_template.csv');
+      if (!response.ok) {
+        throw new Error(`Download failed: ${response.statusText}`);
+      }
+
+      const blob = await response.blob();
+      const contentDisposition = response.headers.get("Content-Disposition");
+      const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
+      const filename = filenameMatch
+        ? filenameMatch[1]
+        : "access_control_template.csv";
+
+      download(blob, filename);
+    } catch (error) {
+      console.error("Error downloading CSV:", error);
+    };
+  };
+
+  const updateWhitelistSettings = useMutation(api.settings.settings_mutate.updateWhitelistSettings);
+  const updateBlacklistSettings = useMutation(api.settings.settings_mutate.updateBlacklistSettings);
+
+  const handleUpdateWhitelist = async () => {
+    await updateWhitelistSettings({
+      enableWhitelist: !accessControlSettings!.whitelistEnabled,
     });
   };
 
-  const handleUpdateWhitelist = () => {
-    SettingsService.updateWhitelistSettings(
-        JSON.stringify({
-          enableWhitelist: !enableWhitelist,
-        }),
-    ).then(() => {
-      setEnableWhitelist(!enableWhitelist);
-    });
-  };
-
-  const handleUpdateBlacklist = () => {
-    SettingsService.updateBlacklistSettings(
-        JSON.stringify({
-          enableBlacklist: !enableBlacklist,
-        }),
-    ).then(() => {
-      setEnableBlacklist(!enableBlacklist);
+  const handleUpdateBlacklist = async () => {
+    await updateBlacklistSettings({
+      enableBlacklist: !accessControlSettings!.blacklistEnabled,
     });
   };
 
   /** Dialog Functions */
   const [email, setEmail] = useState('');
-  const [listType, setListType] = useState('whitelist');
 
-  const [file, setFile] = useState();
+  const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState('');
 
   const [openAdd, setOpenAdd] = useState(false);
@@ -103,19 +106,27 @@ export default function AccessControlSettings(props) {
   const handleAddDialog = () => {
     setOpenAdd(true);
     setEmail('');
-    setListType('whitelist');
+    setSelectedListType('whitelist');
   };
 
-  const handleEditDialog = (row) => {
+  const handleEditDialog = (index: number, listType: 'whitelist' | 'blacklist') => {
     setOpenEdit(true);
-    setSelectedRow(row);
-    setEmail(row.email);
-    setListType(row.isWhitelisted ? 'whitelist' : 'blacklist');
+
+    setSelectedRowIdx(index);
+    setSelectedListType(listType);
+
+    if (listType === 'whitelist') {
+      setEmail(accessControlSettings!.whitelistEmails[index]);
+    } else {
+      setEmail(accessControlSettings!.blacklistEmails[index]);
+    }
   };
 
-  const handleDeleteDialog = (row) => {
+  const handleDeleteDialog = (index: number) => {
     setOpenDelete(true);
-    setSelectedRow(row);
+    setSelectedRowIdx(index);
+    setSelectedListType(null);
+    setEmail(rows[index].email);
   };
 
   const handleUploadDialog = () => {
@@ -131,103 +142,51 @@ export default function AccessControlSettings(props) {
     setOpenUpload(false);
   };
 
-  const handleAdd = (event) => {
+  const updateAccessControlledUser = useMutation(api.settings.settings_mutate.updateAccessControlledUser);
+
+  // shared for add, edit, and delete
+  const handleUpdate = async (event) => {
     event.preventDefault();
-    SettingsService.updateAccessControlUser(
-        JSON.stringify({
-          email: email,
-          listType: listType,
-          updateType: 'add',
-        }),
-    ).then(() => {
-      // Update local state based on list type
-      if (listType === 'whitelist') {
-        setWhitelistEmails((prev) => [...prev, email]);
-      } else {
-        setBlacklistEmails((prev) => [...prev, email]);
-      }
+
+    await updateAccessControlledUser({
+      email: email,
+      is_whitelisted: selectedListType === 'whitelist',
+      is_blacklisted: selectedListType === 'blacklist',
     });
+
     handleClose();
   };
 
-  const handleEdit = (event) => {
+  const handleUpload = async (event) => {
     event.preventDefault();
-
-    // Determine current and target lists
-    const currentType = selectedRow.isWhitelisted ? 'whitelist' : 'blacklist';
-    const oldEmail = selectedRow.email;
-
-    if (currentType !== listType || oldEmail !== email) {
-      // Remove from current list first
-      SettingsService.updateAccessControlUser(
-          JSON.stringify({
-            email: oldEmail,
-            listType: currentType,
-            updateType: 'remove',
-          }),
-      ).then(() => {
-        // Add to new list
-        return SettingsService.updateAccessControlUser(
-            JSON.stringify({
-              email: email,
-              listType: listType,
-              updateType: 'add',
-            }),
-        );
-      }).then(() => {
-        // Update local state
-        if (currentType === 'whitelist') {
-          setWhitelistEmails((prev) => prev.filter((e) => e !== oldEmail));
-        } else {
-          setBlacklistEmails((prev) => prev.filter((e) => e !== oldEmail));
-        }
-
-        if (listType === 'whitelist') {
-          setWhitelistEmails((prev) => [...prev, email]);
-        } else {
-          setBlacklistEmails((prev) => [...prev, email]);
-        }
-      });
-    }
-    handleClose();
-  };
-
-  const handleDelete = () => {
-    const currentType = selectedRow.isWhitelisted ? 'whitelist' : 'blacklist';
-    SettingsService.updateAccessControlUser(
-        JSON.stringify({
-          email: selectedRow.email,
-          listType: currentType,
-          updateType: 'remove',
-        }),
-    ).then(() => {
-      // Update local state
-      if (currentType === 'whitelist') {
-        setWhitelistEmails((prev) => prev.filter((e) => e !== selectedRow.email));
-      } else {
-        setBlacklistEmails((prev) => prev.filter((e) => e !== selectedRow.email));
-      }
-    });
-    handleClose();
-  };
-
-  const handleUpload = (event) => {
-    event.preventDefault();
-    if (file == null) {
+    if (file == null || !token) {
+      console.error("No file selected or no auth token");
       return;
     }
 
-    const formData = new FormData();
-    formData.append('file', file);
-    SettingsService.uploadAccessControlCSV(formData).then(() => {
-      // Refresh admin settings to get updated lists
-      SettingsService.getACLSettings().then((res) => {
-        setWhitelistEmails(res.data.whitelistEmails);
-        setBlacklistEmails(res.data.blacklistEmails);
+    try {
+      // For local dev, use the same URL. For production, replace .cloud with .site
+      const httpActionUrl = import.meta.env.VITE_APP_CONVEX_SITE_URL;
+
+      const response = await fetch(`${httpActionUrl}/upload_access_control_csv`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: "include",
+        body: file,
       });
-    });
-    handleClose();
-  };
+
+      if (!response.ok) {
+        throw new Error(`Upload failed: ${response.statusText}`);
+      }
+
+      console.log("CSV uploaded successfully");
+      handleClose();
+    } catch (error) {
+      console.error("Error uploading CSV:", error);
+    };
+  }
 
   const getStatusText = (row) => {
     if (row.isWhitelisted) return 'Whitelisted';
@@ -253,7 +212,7 @@ export default function AccessControlSettings(props) {
               <Stack direction="row" alignItems="center" spacing={1}>
                 <Typography>Enable Whitelist:</Typography>
                 <Checkbox
-                  checked={enableWhitelist}
+                  checked={accessControlSettings?.whitelistEnabled || false}
                   onChange={handleUpdateWhitelist}
                 />
                 <Typography variant="caption" color="text.secondary">
@@ -264,7 +223,7 @@ export default function AccessControlSettings(props) {
               <Stack direction="row" alignItems="center" spacing={1}>
                 <Typography>Enable Blacklist:</Typography>
                 <Checkbox
-                  checked={enableBlacklist}
+                  checked={accessControlSettings?.blacklistEnabled || false}
                   onChange={handleUpdateBlacklist}
                 />
                 <Typography variant="caption" color="text.secondary">
@@ -282,8 +241,8 @@ export default function AccessControlSettings(props) {
             index={index}
             row={row}
             rowKey={row.email}
-            handleEdit={handleEditDialog}
-            handleDelete={handleDeleteDialog}
+            handleEdit={() => handleEditDialog(index, row.isWhitelisted ? 'whitelist' : 'blacklist')}
+            handleDelete={() => handleDeleteDialog(index)}
           >
             <TableCell component="th" scope="row" sx={{pl: 3.25}}>
               <Typography sx={{fontWeight: 'bold'}}>
@@ -326,13 +285,13 @@ export default function AccessControlSettings(props) {
         title="Add User to Access Control"
         isOpen={openAdd}
         onClose={handleClose}
-        handleCreate={handleAdd}
+        handleCreate={handleUpdate}
       >
         <AccessControlDialogBody
           email={email}
           setEmail={setEmail}
-          listType={listType}
-          setListType={setListType}
+          listType={selectedListType}
+          setListType={setSelectedListType}
         />
       </AddDialog>
 
@@ -340,13 +299,13 @@ export default function AccessControlSettings(props) {
         title={'Edit Access Control for "'+email+'"'}
         isOpen={openEdit}
         onClose={handleClose}
-        handleEdit={handleEdit}
+        handleEdit={handleUpdate}
       >
         <AccessControlDialogBody
           email={email}
           setEmail={setEmail}
-          listType={listType}
-          setListType={setListType}
+          listType={selectedListType}
+          setListType={setSelectedListType}
         />
       </EditDialog>
 
@@ -354,8 +313,8 @@ export default function AccessControlSettings(props) {
         title="Remove User from Access Control"
         isOpen={openDelete}
         onClose={handleClose}
-        handleDelete={handleDelete}
-        itemName={' ' + selectedRow?.email}
+        handleDelete={handleUpdate}
+        itemName={' ' + (selectedRowIdx !== null && rows[selectedRowIdx!].email ? rows[selectedRowIdx!].email : '')}
       />
 
       <UploadDialog

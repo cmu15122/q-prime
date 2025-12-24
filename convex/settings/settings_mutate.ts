@@ -471,13 +471,6 @@ export const updateAccessControlledUser = mutation({
     }
 
     if (args.is_whitelisted) {
-      // Check if already on blacklist
-      if (curr_sem.blacklist.includes(args.email)) {
-        throw new ConvexError(
-          'User is on the blacklist and cannot be added to the whitelist'
-        );
-      }
-
       // Add to whitelist if not already there
       if (!curr_sem.whitelist.includes(args.email)) {
         await ctx.db.patch(curr_sem._id, {
@@ -492,13 +485,6 @@ export const updateAccessControlledUser = mutation({
     }
 
     if (args.is_blacklisted) {
-      // Check if already on whitelist
-      if (curr_sem.whitelist.includes(args.email)) {
-        throw new ConvexError(
-          'User is on the whitelist and cannot be added to the blacklist'
-        );
-      }
-
       // Add to blacklist if not already there
       if (!curr_sem.blacklist.includes(args.email)) {
         await ctx.db.patch(curr_sem._id, {
@@ -508,7 +494,7 @@ export const updateAccessControlledUser = mutation({
     } else {
       // Remove from blacklist if they're on it
       await ctx.db.patch(curr_sem._id, {
-        blacklist: curr_sem.blacklist.filter((id) => id !== args.email),
+        blacklist: curr_sem.blacklist.filter((email) => email !== args.email),
       });
     }
 

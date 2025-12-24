@@ -25,7 +25,7 @@ function AdminMain() {
       <QueueTopicSettings></QueueTopicSettings>
       <Locations></Locations>
       <TASettings></TASettings>
-      {/* <AccessControlSettings></AccessControlSettings> */}
+      <AccessControlSettings></AccessControlSettings>
     </div>
   );
 }
