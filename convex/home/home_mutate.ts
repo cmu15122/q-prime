@@ -1,5 +1,5 @@
 import { ConvexError, v } from 'convex/values';
-import { mutation } from '../_generated/server';
+import { internalMutation, mutation, MutationCtx } from '../_generated/server';
 import { internal } from '../_generated/api';
 import {
   ensureAuthAndStudent,
@@ -187,6 +187,7 @@ export const addQuestion = mutation({
       const prefs = (await ctx.db.get(student.user_prefs_id))!;
 
       const queue_length = await getQueueLength(ctx);
+      const assignment_name = (await ctx.db.get(args.assignment_id))!.name;
 
       await ctx.db.insert('ohq', {
         student_id: student._id,
@@ -194,7 +195,7 @@ export const addQuestion = mutation({
         student_email: user.email || '',
         created_by: 'TA',
         assignment_id: args.assignment_id,
-        assignment_name: (await ctx.db.get(args.assignment_id))!.name,
+        assignment_name: assignment_name,
         status: 'waiting',
         question: args.question,
         location: args.location,
@@ -204,6 +205,8 @@ export const addQuestion = mutation({
         num_asked_to_fix: 0,
         has_unread_messages: false,
       });
+
+      await sendQueueJoinNotifs(ctx, prefs.preferred_name, assignment_name);
     }
     // handle student created questions
     else {
@@ -272,13 +275,13 @@ export const addQuestion = mutation({
           }
         }
       }
-      // }
 
       // enqueue student
       const queue_length = await getQueueLength(ctx);
 
       const user = (await ctx.db.get(student.user_id))!;
       const prefs = (await ctx.db.get(student.user_prefs_id))!;
+      const assignment_name = (await ctx.db.get(args.assignment_id))!.name;
 
       await ctx.db.insert('ohq', {
         student_id: student._id,
@@ -286,7 +289,7 @@ export const addQuestion = mutation({
         student_email: user.email || '',
         created_by: 'student',
         assignment_id: args.assignment_id,
-        assignment_name: (await ctx.db.get(args.assignment_id))!.name,
+        assignment_name: assignment_name,
         status: 'waiting',
         question: args.question,
         location: args.location,
@@ -296,9 +299,33 @@ export const addQuestion = mutation({
         num_asked_to_fix: 0,
         has_unread_messages: false,
       });
+
+      await sendQueueJoinNotifs(ctx, prefs.preferred_name, assignment_name);
     }
   },
 });
+
+async function sendQueueJoinNotifs(
+  ctx: MutationCtx,
+  name: string,
+  assignment: string
+) {
+  // update every TA's notification field if their prefs are set to get queue join notifs
+  const tas_with_notifs = await ctx.db
+    .query('tas')
+    .filter((x) => x.eq(x.field('join_notifs_enabled'), true))
+    .collect();
+
+  await Promise.all(
+    tas_with_notifs.map(async (ta) => {
+      await ctx.runMutation(internal.common.internalSendNotification, {
+        semester_user: ta.semester_user_id,
+        title: 'New Queue Entry',
+        body: `Name: ${name}\nAssignment: ${assignment}`,
+      });
+    })
+  );
+}
 
 // Remove student, write to database
 export const removeStudent = mutation({
@@ -359,6 +386,11 @@ export const removeStudent = mutation({
       }
     }
 
+    const help_time_ms =
+      args.reason === 'helped'
+        ? Date.now() - existing_entry.help_start_time_ms!
+        : -1;
+
     await ctx.db.insert('questions', {
       semester_id: curr_sem._id,
       assignment_id: existing_entry.assignment_id,
@@ -374,13 +406,28 @@ export const removeStudent = mutation({
       entry_time_ms: existing_entry.entry_time_ms,
       exit_time_ms: Date.now(),
       // if they were being helped, store help duration, otherwise -1
-      help_time_ms:
-        args.reason === 'helped'
-          ? Date.now() - existing_entry.help_start_time_ms!
-          : -1,
-
+      help_time_ms: help_time_ms,
       num_asked_to_fix: existing_entry.num_asked_to_fix,
     });
+
+    if (args.reason === 'removed') {
+      // notify the student
+      await ctx.runMutation(internal.common.internalSendNotification, {
+        semester_user: student_to_remove.semester_user_id,
+        title: "You've been removed frmo the queue",
+        body: '',
+      });
+    }
+
+    if (args.reason === 'helped') {
+      const help_time_mins = help_time_ms / 60000;
+      // notify the TA
+      await ctx.runMutation(internal.common.internalSendNotification, {
+        semester_user: removal_ta!.semester_user_id,
+        title: 'Done Helping!',
+        body: `You helped ${existing_entry.student_name} for ${help_time_mins}`,
+      });
+    }
   },
 });
 
@@ -412,6 +459,61 @@ export const helpStudent = mutation({
       },
       status: 'being_helped',
       help_start_time_ms: Date.now(),
+    });
+
+    // notify the student
+    await ctx.runMutation(internal.common.internalSendNotification, {
+      semester_user: student_to_help.semester_user_id,
+      title: "It's your turn to get help!",
+      body: `${ta_prefs.preferred_name} is ready to help you.`,
+    });
+
+    // notify the TA in the future at their remind time if they have reminders enabled
+    if (ta.remind_notifs_enabled) {
+      const remind_time_ms = ta.remind_time_mins * 60000;
+      await ctx.scheduler.runAfter(
+        remind_time_ms,
+        internal.home.home_mutate.internalRemindTA,
+        {
+          ta_helping: ta._id,
+          student_helping: student_to_help._id,
+          title: 'Time Alert!',
+          body: `You've been helping for ${ta.remind_time_mins} minutes!`,
+        }
+      );
+    }
+  },
+});
+
+export const internalRemindTA = internalMutation({
+  args: {
+    ta_helping: v.id('tas'),
+    student_helping: v.id('students'),
+    title: v.string(),
+    body: v.string(),
+  },
+  handler: async (ctx, args) => {
+    // check if the TA is still helping the student
+    const existing_entry = await getQueueEntry(ctx, args.student_helping);
+    if (
+      existing_entry === null ||
+      existing_entry.status !== 'being_helped' ||
+      existing_entry.helping_ta!.ta_id !== args.ta_helping
+    ) {
+      return;
+    }
+
+    // check if the TA still has reminders enabled
+    const ta = (await ctx.db.get(args.ta_helping))!;
+
+    if (!ta.remind_notifs_enabled) {
+      return;
+    }
+
+    await ctx.runMutation(internal.common.internalSendNotification, {
+      semester_user: ta.semester_user_id,
+      title: args.title,
+      body: args.body,
     });
   },
 });
@@ -477,6 +579,16 @@ export const askToFixQuestion = mutation({
       status: 'fixing_question',
       num_asked_to_fix: existing_entry.num_asked_to_fix + 1,
     });
+
+    const student_sem_user = (await ctx.db.get(args.student_id))!
+      .semester_user_id;
+
+    // notify the student
+    await ctx.runMutation(internal.common.internalSendNotification, {
+      semester_user: student_sem_user,
+      title: 'Please update your question',
+      body: 'A TA has requested that you update your question.',
+    });
   },
 });
 
@@ -509,6 +621,16 @@ export const messageStudent = mutation({
         },
       ],
       has_unread_messages: true,
+    });
+
+    const student_sem_user = (await ctx.db.get(args.student_id))!
+      .semester_user_id;
+
+    // notify the student
+    await ctx.runMutation(internal.common.internalSendNotification, {
+      semester_user: student_sem_user,
+      title: "You've been messaged by a TA",
+      body: '',
     });
   },
 });
@@ -549,6 +671,16 @@ export const approveCooldownOverride = mutation({
 
     await ctx.db.patch(existing_entry._id, {
       status: 'waiting',
+    });
+
+    const student_sem_user = (await ctx.db.get(args.student_id))!
+      .semester_user_id;
+
+    // notify the student
+    await ctx.runMutation(internal.common.internalSendNotification, {
+      semester_user: student_sem_user,
+      title: 'Your entry has been approved by a TA',
+      body: '',
     });
   },
 });

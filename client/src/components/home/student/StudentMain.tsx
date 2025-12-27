@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import YourEntry from "./YourEntry";
 import RemoveQOverlay from "./RemoveQConfirm";
@@ -7,11 +7,8 @@ import UpdateQuestionOverlay from "./UpdateQuestionOverlay";
 import MessageRespond from "./MessageOverlay";
 import AskQuestion from "../shared/AskQuestion";
 
-import { socketSubscribeTo } from "../../../services/SocketsService";
-
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
-import ConvexNotifHandler from "../../common/ConvexNotifHandler";
 
 function StudentMain() {
   const [removeConfirm, setRemoveConfirm] = useState(false);
@@ -20,62 +17,6 @@ function StudentMain() {
   const queueData = useQuery(api.home.home_get.getQueueData);
   const userData = useQuery(api.home.home_get.getUserData);
   const studentData = userData?.student_data;
-
-  // TODO CONVEX SOCKETS
-  // useEffect(() => {
-  //   socketSubscribeTo("help", (res) => {
-  //     if (res.andrewID === userData.andrewID) {
-  //       new Notification("It's your turn to get help!", {
-  //         body: `${res.data.taData.taName} is ready to help you.`,
-  //         requireInteraction: true,
-  //       });
-  //     } else {
-  //       console.log("Received help for other student");
-  //     }
-  //   });
-
-  //   socketSubscribeTo("updateQRequest", (res) => {
-  //     if (res.andrewID === userData.andrewID) {
-  //       new Notification("Please update your question", {
-  //         requireInteraction: true,
-  //       });
-  //     } else {
-  //       console.log("Received updateQRequest for other student");
-  //     }
-  //   });
-
-  //   socketSubscribeTo("message", (res) => {
-  //     if (res.andrewID === userData.andrewID) {
-  //       setMessagingTAName(res.data.taName);
-
-  //       new Notification("You've been messaged by a TA", {
-  //         requireInteraction: true,
-  //       });
-  //     } else {
-  //       console.log("Received message for other student");
-  //     }
-  //   });
-
-  //   socketSubscribeTo("remove", (res) => {
-  //     if (res.andrewID === userData.andrewID) {
-  //       new Notification("You've been removed from the queue", {
-  //         requireInteraction: true,
-  //       });
-  //     } else {
-  //       console.log("Received remove for other student");
-  //     }
-  //   });
-
-  //   socketSubscribeTo("approveCooldown", (res) => {
-  //     if (res.andrewID === userData.andrewID) {
-  //       new Notification("Your entry been approved by a TA", {
-  //         requireInteraction: true,
-  //       });
-  //     } else {
-  //       console.log("Received approveCooldown for other student");
-  //     }
-  //   });
-  // }, [userData.andrewID]);
 
   const removeStudentMutation = useMutation(api.home.home_mutate.removeStudent);
   const removeFromQueue = async () => {
@@ -88,6 +29,7 @@ function StudentMain() {
   };
 
   // CONVEX TODO USE HAS_UNREAD_MESSAGES FIELD (I think I deleted frontend that handeld this lol so have to bring it back)
+  // CONVEX TODO fix messaging in general
   const dismissMessageMutation = useMutation(
     api.home.home_mutate.dismissMessage,
   );
@@ -117,8 +59,6 @@ function StudentMain() {
   return (
     <div>
       {statusDependentComponents}
-
-      <ConvexNotifHandler convexNotifQuery={api.notifs.helpNotif} />
 
       <TAHelpingOverlay open={studentData?.status === "being_helped"} />
 

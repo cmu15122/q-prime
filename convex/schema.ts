@@ -68,6 +68,7 @@ export default defineSchema({
     notification: v.object({
       title: v.string(),
       body: v.string(),
+      timestamp: v.number(),
     }),
   })
     .index('by_sem_and_user', ['semester_id', 'user_id'])

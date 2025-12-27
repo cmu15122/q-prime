@@ -182,6 +182,11 @@ export const createStudentFromUser = internalMutation({
       user_prefs_id: new_student_prefs,
       semester_id: curr_sem._id,
       kind: 'student',
+      notification: {
+        title: '',
+        body: '',
+        timestamp: 0,
+      },
     });
 
     const new_student = await ctx.db.insert('students', {
@@ -480,6 +485,11 @@ export const internalNewSemesterUser = internalMutation({
           semester_id: curr_sem._id,
           user_id: user_id,
           user_prefs_id: user_prefs_id,
+          notification: {
+            title: '',
+            body: '',
+            timestamp: 0,
+          },
         });
 
         await ctx.db.insert('tas', {
@@ -512,6 +522,11 @@ export const internalNewSemesterUser = internalMutation({
           semester_id: curr_sem._id,
           user_id: user_id,
           user_prefs_id: user_prefs_id,
+          notification: {
+            title: '',
+            body: '',
+            timestamp: 0,
+          },
         });
 
         await ctx.db.insert('students', {
@@ -525,5 +540,22 @@ export const internalNewSemesterUser = internalMutation({
         });
       }
     }
+  },
+});
+
+export const internalSendNotification = internalMutation({
+  args: {
+    semester_user: v.id('semesterUsers'),
+    title: v.string(),
+    body: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.semester_user, {
+      notification: {
+        title: args.title,
+        body: args.body,
+        timestamp: new Date().getTime(),
+      },
+    });
   },
 });

@@ -1,29 +1,26 @@
 import { useQuery } from 'convex/react';
-import { FunctionReference } from 'convex/server';
 import React, { useEffect, useState } from 'react';
+import { api } from '../../../../convex/_generated/api';
 
-export default function ConvexNotifHandler(props: {
-  convexNotifQuery: FunctionReference<"query", "public", {}, {value: boolean, messageTitle: string ,messageBody: string}>
-}) {
-  const convexNotifQuery = props.convexNotifQuery;
-  const queryRes = useQuery(convexNotifQuery);
-  const [queryVal, setQueryVal] = useState<boolean | null>(null);
+export default function ConvexNotifHandler() {
+  const notif = useQuery(api.notifs.getNotif);
+  const [oldNotifTimestamp, setOldNotifTimestamp] = useState<number | null>(null);
 
   useEffect(() => {
-    if (queryRes) {
-      if (queryVal !== null) {
+    if (notif) {
+      if (oldNotifTimestamp !== null) {
         // if the value changes from false to true, that's a notif
-        if (queryRes.value && queryVal !== queryRes.value) {
-          new Notification(queryRes.messageTitle, {
-            body: queryRes.messageBody,
+        if (notif.timestamp !== oldNotifTimestamp) {
+          new Notification(notif.title, {
+            body: notif.body,
             requireInteraction: true,
           });
         }
-      }
 
-      setQueryVal(queryRes.value);
+      }
+      setOldNotifTimestamp(notif.timestamp);
     }
-  }, [queryRes])
+  }, [notif])
 
   return <></>
 }

@@ -8,6 +8,7 @@ import { Container, Typography } from "@mui/material";
 
 import { useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
+import ConvexNotifHandler from "../common/ConvexNotifHandler";
 
 function HomeMain() {
   const gitHubLink = "https://github.com/cmu15122/q-issues/issues";
@@ -46,6 +47,7 @@ function HomeMain() {
 
   return (
     <>
+      <ConvexNotifHandler />
       {(checkValidEmail !== undefined) &&
       ((checkValidEmail === true) ? (<>
           <Container
