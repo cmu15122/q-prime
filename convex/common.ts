@@ -11,6 +11,13 @@ export async function getGlobalSettings(ctx: QueryCtx) {
   return globalSettings;
 }
 
+export const internalGetGlobalSettings = internalQuery({
+  args: {},
+  handler: async (ctx, args) => {
+    return await getGlobalSettings(ctx);
+  },
+});
+
 export async function getCurrentSemester(ctx: QueryCtx) {
   const globalSettings = await getGlobalSettings(ctx);
   const curr_sem = (await ctx.db.get(globalSettings.curr_sem))!;
@@ -140,12 +147,14 @@ export async function getWaittimeData(ctx: QueryCtx) {
       mins_per_student: mins_per_student,
       num_unhelped: num_unhelped,
       num_tas: num_tas,
+      wait_time: wait_time,
     };
   } else {
     return {
       mins_per_student: 0,
       num_unhelped: 0,
       num_tas: 0,
+      wait_time: 0,
     };
   }
 }

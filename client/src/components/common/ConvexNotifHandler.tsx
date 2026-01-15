@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { api } from '../../../../convex/_generated/api';
 
 export default function ConvexNotifHandler() {
-  const notif = useQuery(api.notifs.getNotif);
+  const notif = useQuery(api.home.home_get.getNotif);
   const [oldNotifTimestamp, setOldNotifTimestamp] = useState<number | null>(null);
 
   useEffect(() => {

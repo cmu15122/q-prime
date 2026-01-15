@@ -27,6 +27,9 @@ export default defineSchema({
     waittime_ping_threshold_mins: v.number(),
     waittime_ping_interval_mins: v.number(),
     waittime_questions_lookback_time_mins: v.number(),
+    // waittime slackbot data
+    ping_minute_ago_waittime: v.number(),
+    ping_last_pinged: v.number(),
 
     // current queue status
     is_frozen: v.boolean(),

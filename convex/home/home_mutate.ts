@@ -11,6 +11,7 @@ import {
   getQueueLength,
   getStudent,
   getTA,
+  getWaittimeData,
 } from '../common';
 import { Doc } from '../_generated/dataModel';
 import { getAuthUserId } from '@convex-dev/auth/server';
@@ -681,6 +682,38 @@ export const approveCooldownOverride = mutation({
       semester_user: student_sem_user,
       title: 'Your entry has been approved by a TA',
       body: '',
+    });
+  },
+});
+
+export const internalWaittimeIntervalCheck = internalMutation({
+  args: {},
+  handler: async (ctx, args) => {
+    const global_settings = await getGlobalSettings(ctx);
+
+    const minute_ago_waittime =
+      global_settings.waittime_ping_minute_ago_waittime;
+    const last_pinged = global_settings.waittime_ping_last_pinged;
+    const ping_threshold_mins = global_settings.waittime_ping_threshold_mins;
+    const ping_interval_mins = global_settings.waittime_ping_interval_mins;
+
+    const waittime_data = await getWaittimeData(ctx);
+
+    // decide if we want to ping again
+    // if we've waited the ping interval
+    const ping_interval_ms = ping_interval_mins * 60000;
+    if (new Date().getTime() - last_pinged > ping_interval_ms) {
+      // if the minute ago waittime and current waittime are both above threshold (stops spikes)
+      if (
+        waittime_data.wait_time > ping_threshold_mins &&
+        minute_ago_waittime > ping_threshold_mins
+      ) {
+        // TODO COME BACK HERE AND RUN ACTION FROM INSIDE MUTATION
+      }
+    }
+
+    await ctx.db.patch(global_settings._id, {
+      waittime_ping_minute_ago_waittime: waittime_data.wait_time,
     });
   },
 });
