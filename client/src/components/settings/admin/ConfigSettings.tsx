@@ -109,7 +109,7 @@ export default function ConfigSettings() {
     <BaseCard>
       <CardContent>
         <Typography
-          sx={{ fontWeight: "bold", ml: 1, mt: 1 }}
+          sx={{ fontWeight: "bold", mt: 1 }}
           variant="body1"
           gutterBottom
         >
