@@ -27,6 +27,9 @@ import { Doc } from "../../../../../convex/_generated/dataModel";
 
 export default function QueueTopicSettings() {
   const currAssignments = useQuery(api.home.home_get.getAllAssignments);
+  let assignmentsToList = currAssignments ? ([...currAssignments.all_assignments]) : [];
+  assignmentsToList = assignmentsToList.filter((assignment) => assignment._id !== currAssignments?.other_assignment_id);
+
   const token = useAuthToken();
 
   const theme = useTheme();
@@ -207,7 +210,7 @@ export default function QueueTopicSettings() {
   return (
     <div>
       <CollapsedTable title="Queue Topic Settings">
-        {(currAssignments ?? []).map((row, index) => (
+        {assignmentsToList.map((row, index) => (
           <EditDeleteRow
             key={row._id}
             index={index}

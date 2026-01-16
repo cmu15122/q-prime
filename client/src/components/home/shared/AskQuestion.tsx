@@ -97,12 +97,11 @@ export default function AskQuestion() {
           if (errData.code === "COOLDOWN_VIOLATION") {
             setTimePassed(Math.round(errData.waited_time_ms / 1000 / 60));
             setShowCooldownOverlay(true);
-          } else {
-            clearValues();
           }
         }
       })
       .finally(() => {
+        clearValues();
         setAskDisabled(false);
       });
   }

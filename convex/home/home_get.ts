@@ -123,10 +123,17 @@ export const getAllAssignments = query({
   handler: async (ctx, args) => {
     const curr_sem = await getCurrentSemester(ctx);
 
-    return await ctx.db
+    const other_assignment_id = curr_sem.other_assignment!;
+
+    const all_assignments = await ctx.db
       .query('assignments')
       .withIndex('by_sem_end', (x) => x.eq('semester_id', curr_sem._id))
       .collect();
+
+    return {
+      all_assignments: all_assignments,
+      other_assignment_id: other_assignment_id,
+    }
   },
 });
 
@@ -137,25 +144,7 @@ export const getCurrentAssignments = query({
 
     const curr_date = new Date().getTime();
 
-    // CONVEX TODO ADD OTHER ASSIGNMENT TO ALL SEMESTERS
-    // if "other" assignment doesn't exist, make it
-    // const other_assignment = await ctx.db
-    //   .query("assignments")
-    //   .withIndex("by_sem_name", (x) =>
-    //     x.eq("semester_id", curr_sem._id).eq("name", "other"),
-    //   )
-    //   .first();
-
-    // if (!other_assignment) {
-    //   await ctx.db.insert("assignments", {
-    //     semester_id: curr_sem._id,
-    //     name: "other",
-    //     start_date_ms: 0,
-    //     end_date_ms: Number.MAX_SAFE_INTEGER,
-    //   });
-    // }
-
-    const all_assignments = await ctx.db
+    const curr_assignments = await ctx.db
       .query('assignments')
       .withIndex('by_sem_end', (x) =>
         x.eq('semester_id', curr_sem._id).gt('end_date_ms', curr_date)
@@ -163,7 +152,9 @@ export const getCurrentAssignments = query({
       .filter((x) => x.lt(x.field('start_date_ms'), curr_date))
       .collect();
 
-    return all_assignments;
+    const other_assignment = (await ctx.db.get(curr_sem.other_assignment!))!;
+
+    return [...curr_assignments, other_assignment];
   },
 });
 

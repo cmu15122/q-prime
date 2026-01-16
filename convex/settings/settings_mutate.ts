@@ -559,6 +559,11 @@ export const createTA = mutation({
           user_prefs_id: user_prefs._id,
           semester_id: curr_sem._id,
           kind: 'TA',
+          notification: {
+            title: '',
+            body: '',
+            timestamp: 0,
+          },
         });
       } else {
         // make the sem user a TA
@@ -802,6 +807,20 @@ export const changeSemester = mutation({
         enable_blacklist: false,
         whitelist: [],
         blacklist: [],
+
+        other_assignment: undefined,
+      });
+
+      const other_assignment = await ctx.db.insert('assignments', {
+        name: 'Other',
+        semester_id: new_sem,
+        assignment_type: undefined,
+        start_date_ms: 0,
+        end_date_ms: 0,
+      });
+
+      await ctx.db.patch(new_sem, {
+        other_assignment: other_assignment,
       });
 
       new_sem_id = new_sem;
