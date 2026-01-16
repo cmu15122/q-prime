@@ -2,7 +2,6 @@ import axios from 'axios';
 import Cookies from 'universal-cookie';
 
 import { showErrorToast } from './services/ToastService';
-import { ensureSocketConnected } from './services/SocketsService';
 
 const cookies = new Cookies();
 
@@ -19,8 +18,6 @@ httpInstance.interceptors.request.use(
       if (userCookies != null) {
         req.headers['Authorization'] = userCookies['access_token'];
       }
-
-      // ensureSocketConnected();
 
       return req;
     },
