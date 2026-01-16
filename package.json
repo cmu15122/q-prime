@@ -2,8 +2,9 @@
   "dependencies": {
     "@auth/core": "^0.37.0",
     "@convex-dev/auth": "^0.0.87",
-    "convex": "^1.29.0",
-    "csvtojson": "^2.0.14"
+    "convex": "^1.31.4",
+    "csvtojson": "^2.0.14",
+    "slack-webhook": "^1.0.0"
   },
   "devDependencies": {
     "@types/node": "^24.10.1"

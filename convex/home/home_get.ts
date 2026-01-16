@@ -23,7 +23,7 @@ export const getQueueData = query({
 
     const current_day_of_week = new Date().getDay();
     const current_locations =
-      globalSettings.day_to_location_dict[current_day_of_week];
+      globalSettings.day_to_location_dict[current_day_of_week] || [];
 
     return {
       title: globalSettings.course_name,
@@ -199,22 +199,17 @@ export const checkValidEmail = query({
 
 export const getNotif = query({
   args: {},
-  returns: v.object({
-    title: v.string(),
-    body: v.string(),
-    timestamp: v.number(),
-  }),
   handler: async (ctx, args) => {
     const user = await getCurrentUser(ctx);
 
     if (!user) {
-      throw new ConvexError('Not logged in');
+      return null;
     }
 
     const semuser = await ctx.db.get(user?.sem_user_id);
 
     if (!semuser) {
-      throw new ConvexError('No current semuser for user');
+      return null;
     }
 
     return semuser.notification;

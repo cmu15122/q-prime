@@ -691,9 +691,8 @@ export const internalWaittimeIntervalCheck = internalMutation({
   handler: async (ctx, args) => {
     const global_settings = await getGlobalSettings(ctx);
 
-    const minute_ago_waittime =
-      global_settings.waittime_ping_minute_ago_waittime;
-    const last_pinged = global_settings.waittime_ping_last_pinged;
+    const minute_ago_waittime = global_settings.ping_minute_ago_waittime;
+    const last_pinged = global_settings.ping_last_pinged;
     const ping_threshold_mins = global_settings.waittime_ping_threshold_mins;
     const ping_interval_mins = global_settings.waittime_ping_interval_mins;
 
@@ -708,12 +707,20 @@ export const internalWaittimeIntervalCheck = internalMutation({
         waittime_data.wait_time > ping_threshold_mins &&
         minute_ago_waittime > ping_threshold_mins
       ) {
-        // TODO COME BACK HERE AND RUN ACTION FROM INSIDE MUTATION
+        await ctx.scheduler.runAfter(0, internal.actions.sendSlackbotMessage, {
+          message: `The wait time is ${waittime_data.wait_time} minutes right now. More TAs might be needed. (<${process.env.MAIN_URL}/|view»>)`,
+        });
+
+        // update the last pinged time
+        await ctx.db.patch(global_settings._id, {
+          ping_last_pinged: new Date().getTime(),
+        });
       }
     }
 
+    // update the minute ago waittime
     await ctx.db.patch(global_settings._id, {
-      waittime_ping_minute_ago_waittime: waittime_data.wait_time,
+      ping_minute_ago_waittime: waittime_data.wait_time,
     });
   },
 });
