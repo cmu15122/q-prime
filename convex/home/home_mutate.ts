@@ -13,7 +13,7 @@ import {
   getTA,
   getWaittimeData,
 } from '../common';
-import { Doc } from '../_generated/dataModel';
+import { Doc, Id } from '../_generated/dataModel';
 import { getAuthUserId } from '@convex-dev/auth/server';
 
 export const checkNewSemesterUser = mutation({
@@ -134,6 +134,7 @@ export const addQuestion = mutation({
   returns: v.null(),
   handler: async (ctx, args) => {
     const user_data = (await getCurrentUser(ctx))!;
+    const curr_sem = await getCurrentSemester(ctx);
 
     // Handle TA created questions
     if (user_data.kind == 'TA') {
@@ -141,14 +142,14 @@ export const addQuestion = mutation({
         throw new ConvexError('TA created questions must have an email');
       }
 
-      const existingUser = await ctx.db
+      const existing_user = await ctx.db
         .query('users')
         .withIndex('email', (q) => q.eq('email', args.email))
         .first();
 
       let student: Doc<'students'> | null = null;
 
-      if (!existingUser) {
+      if (!existing_user) {
         // create a new user
         let name = args.email.split('@')[0];
         const newUser = await ctx.db.insert('users', {
@@ -166,9 +167,53 @@ export const addQuestion = mutation({
           .first();
       } else {
         // get the student
+        const existing_sem_user = await ctx.db
+          .query('semesterUsers')
+          .withIndex('by_sem_and_user', (q) =>
+            q.eq('semester_id', curr_sem._id).eq('user_id', existing_user._id)
+          )
+          .first();
+
+        let sem_user_id: Id<'semesterUsers'>;
+
+        if (!existing_sem_user) {
+          // add new student sem user
+          const user_prefs = await ctx.db
+            .query('userPreferences')
+            .withIndex('by_user_id', (q) => q.eq('user_id', existing_user._id))
+            .first();
+
+          if (!user_prefs) {
+            throw new ConvexError('User preferences not found');
+          }
+
+          sem_user_id = await ctx.db.insert('semesterUsers', {
+            user_id: existing_user._id,
+            user_prefs_id: user_prefs._id,
+            semester_id: curr_sem._id,
+            kind: 'student',
+            notification: {
+              title: '',
+              body: '',
+              timestamp: 0,
+            },
+          });
+
+          await ctx.db.insert('students', {
+            user_id: existing_user._id,
+            user_prefs_id: user_prefs._id,
+            semester_user_id: sem_user_id,
+            num_questions: 0,
+            time_on_queue_ms: 0,
+            num_asked_to_fix: 0,
+          });
+        } else {
+          sem_user_id = existing_sem_user._id;
+        }
+
         student = await ctx.db
           .query('students')
-          .withIndex('by_user', (q) => q.eq('user_id', existingUser._id))
+          .withIndex('by_semuser', (q) => q.eq('semester_user_id', sem_user_id))
           .first();
       }
 
@@ -220,7 +265,9 @@ export const addQuestion = mutation({
 
       const student = (await ctx.db
         .query('students')
-        .withIndex('by_user', (q) => q.eq('user_id', user_data._id))
+        .withIndex('by_semuser', (q) =>
+          q.eq('semester_user_id', user_data.sem_user_id)
+        )
         .first())!;
 
       const existing_entry = await getQueueEntry(ctx, student._id);
@@ -230,8 +277,6 @@ export const addQuestion = mutation({
       }
 
       // check if student is allowed to ask questions
-      const curr_sem = await getCurrentSemester(ctx);
-
       if (curr_sem.enable_whitelist) {
         if (!curr_sem.whitelist.includes(student.user_id)) {
           throw new ConvexError('Student is not on the whitelist');

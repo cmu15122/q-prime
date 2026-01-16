@@ -82,7 +82,7 @@ export default defineSchema({
   students: defineTable({
     user_id: v.id('users'),
     user_prefs_id: v.id('userPreferences'),
-    semester_user_id: v.id('semesterUsers'),
+    semester_user_id: v.id('semesterUsers'), // note, generally we query students by semester_user_id instead of user_id to ensure we get the correct entry if there are multiple across semesters for the same student
 
     num_questions: v.number(),
     time_on_queue_ms: v.number(),
