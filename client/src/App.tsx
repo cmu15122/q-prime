@@ -51,7 +51,7 @@ function App() {
             <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/settings" element={<Settings />} />
-            {/*<Route path='/metrics' element={<Metrics/>} />*/}
+            <Route path='/metrics' element={<Metrics/>} />
             <Route path="/init" element={<Init />} />
             </Routes>
           </Router>

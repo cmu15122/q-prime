@@ -5,7 +5,7 @@ import {
 import {DesktopDatePicker, TimePicker} from '@mui/x-date-pickers';
 import {SxProps} from '@mui/system';
 
-export default function DateTimeSelector(props) {
+export default function DateTimeSelector() {
   const popperSx: SxProps = {
     '& .MuiPaper-root': {
       padding: 2,

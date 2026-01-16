@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import {
   Card, Divider, Typography, Grid, Stack, Table, TableBody, TableCell,
   TableContainer, TableHead, TablePagination, TableRow,
@@ -6,7 +6,8 @@ import {
 
 import {DateTime} from 'luxon';
 
-import MetricsService from '../../services/MetricsService';
+import { useQuery } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
 
 const columns = [
   {id: 'andrewId', label: 'Andrew ID', width: 25},
@@ -16,53 +17,47 @@ const columns = [
   {id: 'timeEnd', label: 'Time End', width: 100},
 ];
 
-function createData(andrewId, name, timeStart, timeEnd, question) {
-  timeStart = DateTime.fromISO(timeStart).toLocaleString(DateTime.DATETIME_MED);
-  timeEnd = DateTime.fromISO(timeEnd).toLocaleString(DateTime.DATETIME_MED);
-  return {andrewId, name, timeStart, timeEnd, question};
+interface HelpedStudent {
+  andrewId: string;
+  name: string;
+  timeStart: string;
+  timeEnd: string;
+  question: string;
+  [key: string]: any;
+}
+
+function createData(andrewId: string, name: string, timeStart: string, timeEnd: string, question: string): HelpedStudent {
+  const timeStartStr = DateTime.fromISO(timeStart).toLocaleString(DateTime.DATETIME_MED);
+  const timeEndStr = DateTime.fromISO(timeEnd).toLocaleString(DateTime.DATETIME_MED);
+  return {andrewId, name, timeStart: timeStartStr, timeEnd: timeEndStr, question};
 }
 
 export default function PersonalStats() {
-  const [helpedStudents, setHelpedStudents] = useState([]);
+  const helpedStudentsData = useQuery(api.metrics.getHelpedStudents);
+  const averageTimeData = useQuery(api.metrics.getAverageTimePerQuestion);
+  const numQuestionsData = useQuery(api.metrics.getNumQuestionsAnswered);
+
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const [numQuestionsAnswered, setNumQuestionsAnswered] = useState(0);
-  const [averageHelpTime, setAverageHelpTime] = useState(0);
+  const numQuestionsAnswered = numQuestionsData ? numQuestionsData.numQuestions : 0;
+  const averageHelpTime = averageTimeData ? averageTimeData.averageTime : 0;
 
-  useEffect(() => {
-    MetricsService.getHelpedStudents().then((res) => {
-      updateHelpedStudents(res.data.helpedStudents);
-    });
+  const helpedStudents = helpedStudentsData ? helpedStudentsData.helpedStudents.map((helpedStudent: any) =>
+    createData(
+        helpedStudent.student_andrew,
+        helpedStudent.student_name,
+        helpedStudent.start_date,
+        helpedStudent.end_date,
+        helpedStudent.question,
+    )
+  ) : [];
 
-    MetricsService.getAverageTimePerQuestion().then((res) => {
-      setAverageHelpTime(res.data.averageTime);
-    });
-
-    MetricsService.getNumQuestionsAnswered().then((res) => {
-      setNumQuestionsAnswered(res.data.numQuestions);
-    });
-  }, []);
-
-  const updateHelpedStudents = (newHelpedStudents) => {
-    const newRows = [];
-    newHelpedStudents.forEach((helpedStudent) => {
-      newRows.push(createData(
-          helpedStudent.student_andrew,
-          helpedStudent.student_name,
-          helpedStudent.start_date,
-          helpedStudent.end_date,
-          helpedStudent.question,
-      ));
-    });
-    setHelpedStudents(newRows);
-  };
-
-  const handleChangePage = (event, newPage) => {
+  const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event) => {
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };

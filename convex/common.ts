@@ -77,14 +77,13 @@ export async function getWaittimeData(ctx: QueryCtx) {
     .filter((x) =>
       x.and(
         x.gte(x.field('exit_time_ms'), start_time.getTime()),
-        x.neq(x.field('help_time_ms'), -1)
+        x.neq(x.field('help_duration_ms'), -1)
       )
     )
     .collect();
 
   for (const question of questions) {
-    const helping_ms = question.exit_time_ms - question.help_time_ms;
-    total_helped_ms += helping_ms;
+    total_helped_ms += question.help_duration_ms;
 
     if (!question.ta_id) {
       throw new ConvexError(

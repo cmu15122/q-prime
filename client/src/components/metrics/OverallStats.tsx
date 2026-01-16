@@ -1,34 +1,20 @@
-import React, {useState, useEffect} from 'react';
 import {
   Card, Divider, Typography, Grid,
 } from '@mui/material';
 
-
-import MetricsService from '../../services/MetricsService';
+import { useQuery } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
 
 export default function OverallStats() {
-  const [numQuestionsToday, setNumQuestionsToday] = useState(0);
-  const [numBadQuestions, setNumBadQuestions] = useState(0);
-  const [avgWaitTime, setAvgWaitTime] = useState(0);
-  const [taStudentRatio, setTaStudentRatio] = useState(0);
+  const numQuestionsTodayData = useQuery(api.metrics.getNumQuestionsToday);
+  const numBadQuestionsData = useQuery(api.metrics.getNumBadQuestionsToday);
+  const avgWaitTimeData = useQuery(api.metrics.getAvgWaitTimeToday);
+  const taStudentRatioData = useQuery(api.metrics.getTaStudentRatioToday);
 
-  useEffect(() => {
-    MetricsService.getNumQuestionsToday().then((res) => {
-      setNumQuestionsToday(res.data.numQuestionsToday);
-    });
-
-    MetricsService.getNumBadQuestions().then((res) => {
-      setNumBadQuestions(res.data.numBadQuestionsToday);
-    });
-
-    MetricsService.getAvgWaitTime().then((res) => {
-      setAvgWaitTime(res.data.avgWaitTime);
-    });
-
-    MetricsService.getTaStudentRatio().then((res) => {
-      setTaStudentRatio(res.data.taStudentRatio);
-    });
-  }, []);
+  const numQuestionsToday = numQuestionsTodayData ? numQuestionsTodayData.numQuestionsToday : 0;
+  const numBadQuestions = numBadQuestionsData ? numBadQuestionsData.numBadQuestionsToday : 0;
+  const avgWaitTime = avgWaitTimeData ? avgWaitTimeData.avgWaitTime : 0;
+  const taStudentRatio = taStudentRatioData ? taStudentRatioData.taStudentRatio : 0;
 
   return (
     <div>

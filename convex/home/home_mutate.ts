@@ -306,7 +306,7 @@ export const addQuestion = mutation({
         .withIndex('by_student_and_exit_time', (q) =>
           q.eq('student_id', student._id)
         )
-        .filter((q) => q.neq(q.field('help_time_ms'), -1))
+        .filter((q) => q.neq(q.field('help_duration_ms'), -1))
         .order('desc')
         .first();
 
@@ -432,7 +432,7 @@ export const removeStudent = mutation({
       }
     }
 
-    const help_time_ms =
+    const help_duration_ms =
       args.reason === 'helped'
         ? Date.now() - existing_entry.help_start_time_ms!
         : -1;
@@ -452,7 +452,7 @@ export const removeStudent = mutation({
       entry_time_ms: existing_entry.entry_time_ms,
       exit_time_ms: Date.now(),
       // if they were being helped, store help duration, otherwise -1
-      help_time_ms: help_time_ms,
+      help_duration_ms: help_duration_ms,
       num_asked_to_fix: existing_entry.num_asked_to_fix,
     });
 
@@ -466,12 +466,12 @@ export const removeStudent = mutation({
     }
 
     if (args.reason === 'helped') {
-      const help_time_mins = help_time_ms / 60000;
+      const help_duration_mins = help_duration_ms / 60000;
       // notify the TA
       await ctx.runMutation(internal.common.internalSendNotification, {
         semester_user: removal_ta!.semester_user_id,
         title: 'Done Helping!',
-        body: `You helped ${existing_entry.student_name} for ${help_time_mins}`,
+        body: `You helped ${existing_entry.student_name} for ${help_duration_mins}`,
       });
     }
   },

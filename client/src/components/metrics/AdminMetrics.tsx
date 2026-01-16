@@ -1,21 +1,22 @@
-import React, {useEffect, useState} from 'react';
-import MetricsService from '../../services/MetricsService';
+import React, {useState} from 'react';
 import {
   Card, Divider, Typography, Stack, Table, TableBody, TableCell,
   TableContainer, TableHead, TablePagination, TableRow,
 } from '@mui/material';
 
-export default function AdminMetrics() {
-  const [rankedStudents, setRankedStudents] = useState([]);
-  const [rankedTAs, setRankedTAs] = useState([]);
+import { useQuery } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
 
-  // students pagination
+export default function AdminMetrics() {
+  const rankedStudentsData = useQuery(api.metrics.getRankedStudents);
+  const rankedTAsData = useQuery(api.metrics.getRankedTAs);
+
   const [studentPage, setStudentPage] = useState(0);
   const [rowsPerStudentPage, setRowsPerStudentPage] = useState(10);
-  const handleChangeStudentPage = (event, newPage) => {
+  const handleChangeStudentPage = (_event: unknown, newPage: number) => {
     setStudentPage(newPage);
   };
-  const handleChangeRowsPerStudentPage = (event) => {
+  const handleChangeRowsPerStudentPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerStudentPage(+event.target.value);
     setStudentPage(0);
   };
@@ -23,33 +24,27 @@ export default function AdminMetrics() {
   // tas pagination
   const [taPage, setTAPage] = useState(0);
   const [rowsPerTAPage, setRowsPerTAPage] = useState(10);
-  const handleChangeTAPage = (event, newPage) => {
+  const handleChangeTAPage = (_event: unknown, newPage: number) => {
     setTAPage(newPage);
   };
-  const handleChangeRowsPerTAPage = (event) => {
+  const handleChangeRowsPerTAPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerTAPage(+event.target.value);
     setTAPage(0);
   };
 
-  useEffect(() => {
-    MetricsService.getRankedStudents().then((res) => {
-      setRankedStudents(res.data.rankedStudents.map((student) => {
-        return {
-          ...student,
-          average: Math.round(student.timeHelped / student.count * 10) / 10,
-        };
-      }));
-    });
+  const rankedStudents = rankedStudentsData ? rankedStudentsData.rankedStudents.map((student) => {
+    return {
+      ...student,
+      average: student.count > 0 ? Math.round(student.timeHelped / student.count * 10) / 10 : 0,
+    };
+  }) : [];
 
-    MetricsService.getRankedTAs().then((res) => {
-      setRankedTAs(res.data.rankedTAs.map((ta) => {
-        return {
-          ...ta,
-          average: Math.round(ta.timeHelping / ta.count * 10) / 10,
-        };
-      }));
-    });
-  }, []);
+  const rankedTAs = rankedTAsData ? rankedTAsData.rankedTAs.map((ta) => {
+    return {
+      ...ta,
+      average: ta.count > 0 ? Math.round(ta.timeHelping / ta.count * 10) / 10 : 0,
+    };
+  }) : [];
 
   const studentCols = [
     {id: 'student_andrew', label: 'Andrew ID', width: 25},

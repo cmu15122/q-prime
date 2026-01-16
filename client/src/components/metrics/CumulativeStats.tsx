@@ -1,28 +1,18 @@
-import React, {useState, useEffect} from 'react';
 import {
   Card, Divider, Typography, Grid,
 } from '@mui/material';
 
-import MetricsService from '../../services/MetricsService';
+import { useQuery } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
 
-export default function CumulativeStats(props) {
-  const [numQuestions, setNumQuestions] = useState(0);
-  const [avgTimePerQuestion, setAvgTimePerQuestion] = useState(0);
-  const [avgWaitTime, setAvgWaitTime] = useState(0);
+export default function CumulativeStats() {
+  const numQuestionsData = useQuery(api.metrics.getTotalNumQuestions);
+  const avgTimePerQuestionData = useQuery(api.metrics.getTotalAvgTimePerQuestion);
+  const avgWaitTimeData = useQuery(api.metrics.getTotalAvgWaitTime);
 
-  useEffect(() => {
-    MetricsService.getNumQuestions().then((res) => {
-      setNumQuestions(res.data.numQuestions);
-    });
-
-    MetricsService.getAvgTimePerQuestion().then((res) => {
-      setAvgTimePerQuestion(res.data.averageTime);
-    });
-
-    MetricsService.getTotalAvgWaitTime().then((res) => {
-      setAvgWaitTime(res.data.totalAvgWaitTime);
-    });
-  }, []);
+  const numQuestions = numQuestionsData ? numQuestionsData.numQuestions : 0;
+  const avgTimePerQuestion = avgTimePerQuestionData ? avgTimePerQuestionData.averageTime : 0;
+  const avgWaitTime = avgWaitTimeData ? avgWaitTimeData.totalAvgWaitTime : 0;
 
   return (
     <div>

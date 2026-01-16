@@ -1,4 +1,3 @@
-import React, {useContext} from 'react';
 import {
   Typography,
 } from '@mui/material';
@@ -7,11 +6,14 @@ import PersonalStats from './PersonalStats';
 import OverallStats from './OverallStats';
 import CumulativeStats from './CumulativeStats';
 import Graph from './Graph';
-import {UserDataContext} from '../../contexts/UserDataContext';
 import AdminMetrics from './AdminMetrics';
+import { useQuery } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
 
-export default function MetricsMain(props) {
-  const {userData} = useContext(UserDataContext);
+export default function MetricsMain() {
+
+  const userData = useQuery(api.home.home_get.getUserData);
+  const isAdmin = userData?.ta_data?.is_admin ?? false;
 
   return (
     <div>
@@ -25,7 +27,7 @@ export default function MetricsMain(props) {
       <Graph/>
 
       {
-        userData.isAdmin && <AdminMetrics/>
+        isAdmin && <AdminMetrics/>
       }
     </div>
   );

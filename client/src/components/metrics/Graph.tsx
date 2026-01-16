@@ -1,4 +1,3 @@
-import React, {useState, useEffect} from 'react';
 import {
   Typography, useTheme,
 } from '@mui/material';
@@ -9,36 +8,30 @@ import {Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement,
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip2, Legend);
 import {Line, Bar} from 'react-chartjs-2';
 
-import MetricsService from '../../services/MetricsService';
+import { useQuery } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
 
 export default function Graph() {
   const theme = useTheme();
-  const [numStudentsPerDayLastWeek, setNumStudentsPerDayLastWeek] = useState([]);
-  const [numStudentsPerDay, setNumStudentsPerDay] = useState([]);
-  const [numStudentsOverall, setNumStudentsOverall] = useState([]);
+  const numStudentsPerDayLastWeekData = useQuery(api.metrics.getNumStudentsPerDayLastWeek);
+  const numStudentsPerDayData = useQuery(api.metrics.getNumStudentsPerDay);
+  const numStudentsOverallData = useQuery(api.metrics.getNumStudentsOverall);
 
-  useEffect(() => {
-    MetricsService.getNumStudentsPerDayLastWeek().then((res) => {
-      setNumStudentsPerDayLastWeek(res.data.numStudentsPerDayLastWeek);
+  const numStudentsPerDayLastWeek = numStudentsPerDayLastWeekData ? numStudentsPerDayLastWeekData.numStudentsPerDayLastWeek : [];
+
+  const numStudentsPerDay = numStudentsPerDayData ? (() => {
+    const dataBack = [...numStudentsPerDayData.numStudentsPerDay];
+    // sort by day of week
+    dataBack.sort((a, b) => {
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      return days.indexOf(a.day) - days.indexOf(b.day);
     });
+    return dataBack;
+  })() : [];
 
-    MetricsService.getNumStudentsPerDay().then((res) => {
-      const dataBack = res.data.numStudentsPerDay;
-      // sort by day of week
-      dataBack.sort((a, b) => {
-        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        return days.indexOf(a.day) - days.indexOf(b.day);
-      });
+  const numStudentsOverall = numStudentsOverallData ? numStudentsOverallData.numStudentsOverall : [];
 
-      setNumStudentsPerDay(dataBack);
-    });
-
-    MetricsService.getNumStudentsOverall().then((res) => {
-      setNumStudentsOverall(res.data.numStudentsOverall);
-    });
-  }, []);
-
-  const dateFormatter = (day) => {
+  const dateFormatter = (day: string) => {
     return DateTime.fromISO(day).toLocaleString({month: 'long', day: 'numeric'});
   };
 
