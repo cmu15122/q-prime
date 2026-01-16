@@ -724,3 +724,76 @@ export const internalWaittimeIntervalCheck = internalMutation({
     });
   },
 });
+
+export const firstTimeSetup = mutation({
+  args: {
+    semester_name: v.string(),
+    owner_emails: v.array(v.string()),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    // verify that there is no globalsettings object (this should only happen at the very very beginning)
+
+    const existing_global_settings = await ctx.db
+      .query('globalSettings')
+      .collect();
+
+    if (existing_global_settings.length > 0) {
+      throw new ConvexError('Global settings already exists');
+    }
+
+    // create new semester and its "Other" assignment
+    const new_sem = await ctx.db.insert('semesters', {
+      name: args.semester_name,
+      owner_emails: args.owner_emails,
+      enable_whitelist: false,
+      enable_blacklist: false,
+      whitelist: [],
+      blacklist: [],
+      other_assignment: undefined,
+    });
+
+    const other_assignment = await ctx.db.insert('assignments', {
+      name: 'Other',
+      semester_id: new_sem,
+      assignment_type: undefined,
+      start_date_ms: 0,
+      end_date_ms: 0,
+    });
+
+    await ctx.db.patch(new_sem, {
+      other_assignment: other_assignment,
+    });
+
+    // create the global settings object
+    await ctx.db.insert('globalSettings', {
+      curr_sem: new_sem,
+      course_name: 'OHQ',
+      slackbot_webhook_url: undefined,
+      questions_policy_url: undefined,
+      rejoin_time_ms: 15 * 60000,
+      allowed_email_domains: [],
+      enforce_email_domain: false,
+      allow_cooldown_override: false,
+      // -1 is used as list of all locations (stupid legacy decision that we're just gonna keep living with forever lol)
+      day_to_location_dict: {
+        '-1': [],
+        '0': [],
+        '1': [],
+        '2': [],
+        '3': [],
+        '4': [],
+        '5': [],
+        '6': [],
+      },
+      allow_tas_show_others_timer: false,
+      waittime_ping_threshold_mins: 30,
+      waittime_ping_interval_mins: 10,
+      waittime_questions_lookback_time_mins: 60,
+      ping_minute_ago_waittime: 0,
+      ping_last_pinged: 0,
+      is_frozen: true,
+      announcements: [],
+    });
+  },
+});

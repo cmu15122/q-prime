@@ -133,7 +133,7 @@ export const getAllAssignments = query({
     return {
       all_assignments: all_assignments,
       other_assignment_id: other_assignment_id,
-    }
+    };
   },
 });
 
@@ -204,5 +204,17 @@ export const getNotif = query({
     }
 
     return semuser.notification;
+  },
+});
+
+export const firstTimeSetupRequired = query({
+  args: {},
+  returns: v.boolean(),
+  handler: async (ctx, args) => {
+    const existing_global_settings = await ctx.db
+      .query('globalSettings')
+      .collect();
+
+    return existing_global_settings.length === 0;
   },
 });

@@ -4,8 +4,7 @@ import Navbar from "../components/navbar/Navbar";
 import SettingsMain from "../components/settings/SettingsMain";
 
 import { useTheme } from "@mui/material/styles";
-import { CircularProgress } from "@mui/material";
-import { Navigate } from "react-router-dom";
+import { CircularProgress, Typography } from "@mui/material";
 
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
@@ -33,7 +32,11 @@ function Settings() {
       <SettingsMain />
     </div>
   ) : (
-    <Navigate to={{ pathname: "/" }} />
+    <>
+      <Typography variant="body1">
+        You must be signed in as a TA to view the settings page.
+      </Typography>
+    </>
   );
 }
 
