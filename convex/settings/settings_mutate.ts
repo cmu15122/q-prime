@@ -772,6 +772,7 @@ export const deleteTA = mutation({
 export const changeSemester = mutation({
   args: {
     new_sem_name: v.string(),
+    owner_emails: v.optional(v.array(v.string())),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
@@ -799,9 +800,10 @@ export const changeSemester = mutation({
     if (existing_sem) {
       new_sem_id = existing_sem._id;
     } else {
+      const new_owners = args.owner_emails ?? curr_owners;
       const new_sem = await ctx.db.insert('semesters', {
         name: args.new_sem_name,
-        owner_emails: curr_owners,
+        owner_emails: new_owners,
 
         enable_whitelist: false,
         enable_blacklist: false,
