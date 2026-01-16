@@ -4,7 +4,7 @@ import YourEntry from "./YourEntry";
 import RemoveQOverlay from "./RemoveQConfirm";
 import TAHelpingOverlay from "./TAHelpingOverlay";
 import UpdateQuestionOverlay from "./UpdateQuestionOverlay";
-import MessageRespond from "./MessageOverlay";
+import MessageOverlay from "./MessageOverlay";
 import AskQuestion from "../shared/AskQuestion";
 
 import { useQuery, useMutation } from "convex/react";
@@ -12,7 +12,6 @@ import { api } from "../../../../../convex/_generated/api";
 
 function StudentMain() {
   const [removeConfirm, setRemoveConfirm] = useState(false);
-  const [messagingTAName, setMessagingTAName] = useState("");
 
   const queueData = useQuery(api.home.home_get.getQueueData);
   const userData = useQuery(api.home.home_get.getUserData);
@@ -28,8 +27,6 @@ function StudentMain() {
     });
   };
 
-  // CONVEX TODO USE HAS_UNREAD_MESSAGES FIELD (I think I deleted frontend that handeld this lol so have to bring it back)
-  // CONVEX TODO fix messaging in general
   const dismissMessageMutation = useMutation(
     api.home.home_mutate.dismissMessage,
   );
@@ -67,9 +64,8 @@ function StudentMain() {
         handleClose={() => {}}
       />
 
-      <MessageRespond
+      <MessageOverlay
         open={studentData?.has_unread_messages ?? false}
-        messagingTAName={messagingTAName}
         removeFromQueue={removeFromQueue}
         dismissMessage={dismissMessage}
         handleClose={() => {}}

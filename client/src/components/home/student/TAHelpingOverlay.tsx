@@ -23,7 +23,7 @@ export default function TAHelpingOverlay(props) {
           You are being helped by{" "}
           {studentData?.helping_ta?.preferred_name || ""} (TA)!
         </Typography>
-        {studentData?.helping_ta?.preferred_name && (
+        {studentData?.helping_ta?.zoom_enabled && (
           <Button
             sx={{ mt: 3 }}
             variant="contained"

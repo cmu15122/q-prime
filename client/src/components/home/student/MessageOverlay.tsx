@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Button,
   Dialog,
@@ -6,16 +6,15 @@ import {
   Stack,
   TextField,
   Typography,
-} from "@mui/material";
+} from '@mui/material';
 
-import { useQuery } from "convex/react";
-import { api } from "../../../../../convex/_generated/api";
+import { useQuery } from 'convex/react';
+import { api } from '../../../../../convex/_generated/api';
 
 export default function MessageOverlay(props) {
   const {
     open,
     handleClose,
-    messagingTAName,
     removeFromQueue,
     dismissMessage,
   } = props;
@@ -27,11 +26,17 @@ export default function MessageOverlay(props) {
   const userData = useQuery(api.home.home_get.getUserData);
   const studentData = userData?.student_data;
 
+  const lastMessage =
+    studentData?.messages_from_tas[studentData.messages_from_tas.length - 1]
+
+  const lastMessageText = lastMessage?.message || '';
+  const lastMessageAuthor = lastMessage?.from_ta_name || '';
+
   return (
     <Dialog open={open} maxWidth="sm" fullWidth>
       <DialogContent>
-        <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-          TA {messagingTAName} sent you a message
+        <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+          TA {lastMessageAuthor} sent you a message
         </Typography>
 
         <TextField
@@ -40,9 +45,7 @@ export default function MessageOverlay(props) {
           fullWidth
           rows={4}
           value={
-            studentData?.messages_from_tas[
-              studentData.messages_from_tas.length - 1
-            ] || ""
+            lastMessageText
           }
           InputProps={{ readOnly: true }}
         />
