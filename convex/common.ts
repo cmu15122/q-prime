@@ -141,8 +141,6 @@ export async function getWaittimeData(ctx: QueryCtx) {
     const mins_per_student = total_helped_ms / 60000 / total_questions;
     const wait_time = (num_unhelped * mins_per_student) / num_tas;
 
-    // TODO CONVEX SLACKBOT PING
-
     return {
       mins_per_student: mins_per_student,
       num_unhelped: num_unhelped,

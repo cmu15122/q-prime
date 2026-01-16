@@ -18,7 +18,6 @@ import "./App.css";
 
 import { useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
-import ConvexErrorWrapper from "./services/ConvexErrorWrapper";
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
@@ -44,26 +43,24 @@ function App() {
       <CssBaseline />
       <LocalizationProvider dateAdapter={AdapterLuxon}>
         <ThemeContext.Provider value={theme}>
-          <ConvexErrorWrapper>
-            <Router basename={process.env.PUBLIC_URL}>
-              <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/settings" element={<Settings />} />
-              {/*<Route path='/metrics' element={<Metrics/>} />*/}
-              </Routes>
-            </Router>
-            <ToastContainer
-              position="bottom-left"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-            />
-          </ConvexErrorWrapper>
+          <Router basename={process.env.PUBLIC_URL}>
+            <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/settings" element={<Settings />} />
+            {/*<Route path='/metrics' element={<Metrics/>} />*/}
+            </Routes>
+          </Router>
+          <ToastContainer
+            position="bottom-left"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
         </ThemeContext.Provider>
       </LocalizationProvider>
     </ThemeProvider>

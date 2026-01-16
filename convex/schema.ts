@@ -44,6 +44,8 @@ export default defineSchema({
     enable_blacklist: v.boolean(),
     whitelist: v.array(v.string()),
     blacklist: v.array(v.string()),
+
+    other_assignment: v.id('assignments'),
   }).index('by_name', ['name']),
 
   future_tas: defineTable({

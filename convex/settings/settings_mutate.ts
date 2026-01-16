@@ -823,7 +823,6 @@ export const updateSlackURL = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    // TODO - need to make a hook that actually runs slackbot
     await ensureAuthAndAdmin(ctx);
 
     const globalSettings = await getGlobalSettings(ctx);
