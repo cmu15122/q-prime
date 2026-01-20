@@ -66,7 +66,7 @@ export default function StudentEntry(props) {
   );
   const approveCooldownOverride = async () => {
     await approveCooldownOverrideMutation({
-      student_id: student["andrewID"],
+      student_id: student.student_id,
     });
   };
   return (

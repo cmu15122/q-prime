@@ -10,7 +10,7 @@ import { useQuery } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 
 const columns = [
-  {id: 'andrewId', label: 'Andrew ID', width: 25},
+  {id: 'student_email', label: 'Email', width: 25},
   {id: 'name', label: 'Name', width: 25},
   {id: 'question', label: 'Question', width: 200},
   {id: 'timeStart', label: 'Time Start', width: 100},
@@ -18,7 +18,7 @@ const columns = [
 ];
 
 interface HelpedStudent {
-  andrewId: string;
+  student_email: string;
   name: string;
   timeStart: string;
   timeEnd: string;
@@ -26,10 +26,10 @@ interface HelpedStudent {
   [key: string]: any;
 }
 
-function createData(andrewId: string, name: string, timeStart: string, timeEnd: string, question: string): HelpedStudent {
+function createData(student_email: string, name: string, timeStart: string, timeEnd: string, question: string): HelpedStudent {
   const timeStartStr = DateTime.fromISO(timeStart).toLocaleString(DateTime.DATETIME_MED);
   const timeEndStr = DateTime.fromISO(timeEnd).toLocaleString(DateTime.DATETIME_MED);
-  return {andrewId, name, timeStart: timeStartStr, timeEnd: timeEndStr, question};
+  return {student_email, name, timeStart: timeStartStr, timeEnd: timeEndStr, question};
 }
 
 export default function PersonalStats() {
@@ -45,7 +45,7 @@ export default function PersonalStats() {
 
   const helpedStudents = helpedStudentsData ? helpedStudentsData.helpedStudents.map((helpedStudent: any) =>
     createData(
-        helpedStudent.student_andrew,
+        helpedStudent.student_email,
         helpedStudent.student_name,
         helpedStudent.start_date,
         helpedStudent.end_date,
@@ -104,7 +104,7 @@ export default function PersonalStats() {
                       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                       .map((row, i) => {
                         return (
-                          <TableRow hover role="checkbox" tabIndex={-1} key={row.andrewId + i}>
+                          <TableRow hover role="checkbox" tabIndex={-1} key={row.student_email + i}>
                             {columns.map((column) => {
                               const value = row[column.id];
                               return (

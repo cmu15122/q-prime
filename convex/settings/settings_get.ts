@@ -147,7 +147,7 @@ export const getAllTAs = query({
 
     const tas_res = tas.map((ta) => ({
       id: ta.ta._id as string,
-      name: ta.user.name!,
+      name: ta.user.name!, // this is real and not preferred name as this query is only used in admin settings, which should show the real TA name
       email: ta.user.email!,
       isAdmin: ta.ta.is_admin,
       future_ta: false,

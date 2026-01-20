@@ -49,14 +49,6 @@ function getUtcDayKey(timeMs: number) {
   return new Date(timeMs).toISOString().split('T')[0];
 }
 
-const helpedStudentValidator = v.object({
-  student_name: v.string(),
-  student_andrew: v.string(),
-  start_date: v.string(),
-  end_date: v.string(),
-  question: v.string(),
-});
-
 const dayCountValidator = v.object({
   day: v.string(),
   students: v.number(),
@@ -68,7 +60,15 @@ const dayCountValidator = v.object({
 export const getHelpedStudents = query({
   args: {},
   returns: v.object({
-    helpedStudents: v.array(helpedStudentValidator),
+    helpedStudents: v.array(
+      v.object({
+        student_name: v.string(),
+        student_email: v.string(),
+        start_date: v.string(),
+        end_date: v.string(),
+        question: v.string(),
+      })
+    ),
   }),
   handler: async (ctx) => {
     const { ta } = await ensureAuthAndTA(ctx);
@@ -89,26 +89,19 @@ export const getHelpedStudents = query({
 
     const helpedStudents = await Promise.all(
       questions.map(async (q) => {
-        const student = await ctx.db.get(q.student_id);
+        const student = (await ctx.db.get(q.student_id))!;
         let student_name = '';
-        let student_andrew = '';
 
-        if (student) {
-          const user_prefs = await ctx.db.get(student.user_prefs_id);
-          const user = await ctx.db.get(student.user_id);
-          if (user_prefs) {
-            student_name = user_prefs.preferred_name;
-          }
-          if (user && user.email) {
-            student_andrew = user.email.split('@')[0];
-          }
-        }
+        const user_prefs = (await ctx.db.get(student.user_prefs_id))!;
+        const user = (await ctx.db.get(student.user_id))!;
+
+        student_name = user_prefs.preferred_name;
 
         const help_start_ms = q.exit_time_ms - q.help_duration_ms;
 
         return {
           student_name,
-          student_andrew,
+          student_email: user.email!,
           start_date: new Date(help_start_ms).toISOString(),
           end_date: new Date(q.exit_time_ms).toISOString(),
           question: q.question,
@@ -535,7 +528,7 @@ export const getRankedStudents = query({
     rankedStudents: v.array(
       v.object({
         student_name: v.string(),
-        student_andrew: v.string(),
+        student_email: v.string(),
         count: v.number(),
         badCount: v.number(),
         timeHelped: v.number(),
@@ -570,24 +563,17 @@ export const getRankedStudents = query({
     const rankedStudents = await Promise.all(
       Object.keys(studentMap).map(async (student_id) => {
         const stats = studentMap[student_id];
-        const student = await ctx.db.get(student_id as Id<'students'>);
+        const student = (await ctx.db.get(student_id as Id<'students'>))!;
         let student_name = '';
-        let student_andrew = '';
 
-        if (student) {
-          const user_prefs = await ctx.db.get(student.user_prefs_id);
-          const user = await ctx.db.get(student.user_id);
-          if (user_prefs) {
-            student_name = user_prefs.preferred_name;
-          }
-          if (user && user.email) {
-            student_andrew = user.email.split('@')[0];
-          }
-        }
+        const user_prefs = (await ctx.db.get(student.user_prefs_id))!;
+        const user = (await ctx.db.get(student.user_id))!;
+
+        student_name = user_prefs.preferred_name;
 
         return {
           student_name,
-          student_andrew,
+          student_email: user.email!,
           count: stats.count,
           badCount: stats.badCount,
           timeHelped: Math.round(stats.timeHelped * 10) / 10,
@@ -616,7 +602,7 @@ export const getRankedTAs = query({
     rankedTAs: v.array(
       v.object({
         ta_name: v.string(),
-        ta_andrew: v.string(),
+        ta_email: v.string(),
         count: v.number(),
         timeHelping: v.number(),
       })
@@ -648,24 +634,14 @@ export const getRankedTAs = query({
     const rankedTAs = await Promise.all(
       Object.keys(taMap).map(async (ta_id) => {
         const stats = taMap[ta_id];
-        const ta = await ctx.db.get(ta_id as Id<'tas'>);
-        let ta_name = '';
-        let ta_andrew = '';
+        const ta = (await ctx.db.get(ta_id as Id<'tas'>))!;
 
-        if (ta) {
-          const user_prefs = await ctx.db.get(ta.user_prefs_id);
-          const user = await ctx.db.get(ta.user_id);
-          if (user_prefs) {
-            ta_name = user_prefs.preferred_name;
-          }
-          if (user && user.email) {
-            ta_andrew = user.email.split('@')[0];
-          }
-        }
+        const user_prefs = (await ctx.db.get(ta.user_prefs_id))!;
+        const user = (await ctx.db.get(ta.user_id))!;
 
         return {
-          ta_name,
-          ta_andrew,
+          ta_name: user_prefs.preferred_name,
+          ta_email: user.email!,
           count: stats.count,
           timeHelping: Math.round(stats.timeHelping * 10) / 10,
         };

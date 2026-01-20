@@ -47,7 +47,7 @@ export default function AdminMetrics() {
   }) : [];
 
   const studentCols = [
-    {id: 'student_andrew', label: 'Andrew ID', width: 25},
+    {id: 'student_email', label: 'Email', width: 25},
     {id: 'student_name', label: 'Name', width: 25},
     {id: 'count', label: 'Num Questions', width: 100},
     {id: 'badCount', label: 'Num Ask to Fix', width: 100},
@@ -56,7 +56,7 @@ export default function AdminMetrics() {
   ];
 
   const taCols = [
-    {id: 'ta_andrew', label: 'Andrew ID', width: 25},
+    {id: 'ta_email', label: 'Email', width: 25},
     {id: 'ta_name', label: 'Name', width: 25},
     {id: 'count', label: 'Num Questions Answered', width: 100},
     {id: 'timeHelping', label: 'Total Time Helping (min)', width: 100},
@@ -98,7 +98,7 @@ export default function AdminMetrics() {
                       .slice(studentPage * rowsPerStudentPage, studentPage * rowsPerStudentPage + rowsPerStudentPage)
                       .map((row) => {
                         return (
-                          <TableRow hover role="checkbox" tabIndex={-1} key={row.student_andrew}>
+                          <TableRow hover role="checkbox" tabIndex={-1} key={row.student_email}>
                             {studentCols.map((column) => {
                               const value = row[column.id];
                               return (
@@ -144,7 +144,7 @@ export default function AdminMetrics() {
                       .slice(taPage * rowsPerTAPage, taPage * rowsPerTAPage + rowsPerTAPage)
                       .map((row) => {
                         return (
-                          <TableRow hover role="checkbox" tabIndex={-1} key={row.ta_andrew}>
+                          <TableRow hover role="checkbox" tabIndex={-1} key={row.ta_email}>
                             {taCols.map((column) => {
                               const value = row[column.id];
                               return (
