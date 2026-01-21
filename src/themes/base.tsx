@@ -48,7 +48,7 @@ const tokens = {
 // Color palettes per mode
 const colors = {
   light: {
-    primary: { main: '#15803D', light: '#16A34A', dark: '#14532D' },
+    primary: { main: '#14532D', light: '#16A34A', dark: '#14532D' },
     accent: { main: '#EAB308', light: '#FDE047', dark: '#CA8A04' },
     bg: { default: '#FAFAFA', paper: '#F4F4F5', elevated: '#F4F4F5', subtle: '#E4E4E7' },
     text: { primary: '#18181B', secondary: '#71717A', muted: '#A1A1AA' },
@@ -59,14 +59,14 @@ const colors = {
     warning: { main: '#D97706', light: '#FEF3C7', dark: '#B45309' },
   },
   dark: {
-    primary: { main: '#16A34A', light: '#22C55E', dark: '#15803D' },
-    accent: { main: '#FDE047', light: '#FEF08A', dark: '#EAB308' },
+    primary: { main: '#15803D', light: '#16A34A', dark: '#14532D' },
+    accent: { main: '#EAB308', light: '#FDE047', dark: '#CA8A04' },
     bg: { default: '#09090B', paper: '#18181B', elevated: '#27272A', subtle: '#18181B' },
     text: { primary: '#FAFAFA', secondary: '#A1A1AA', muted: '#71717A' },
     border: { default: '#27272A', subtle: '#3F3F46', hover: '#3F3F46' },
-    success: { main: '#16A34A', light: '#166534', dark: '#15803D' },
-    error: { main: '#F87171', light: '#7F1D1D', dark: '#EF4444' },
-    info: { main: '#93B8E0', light: '#1E3A5A', dark: '#7EACD8' },
+    success: { main: '#15803D', light: '#D1FAE5', dark: '#14532D' },
+    error: { main: '#DC2626', light: '#FEE2E2', dark: '#B91C1C' },
+    info: { main: '#6B9BD2', light: '#E8F1FB', dark: '#5B8AC2' },
     warning: { main: '#FBBF24', light: '#78350F', dark: '#F59E0B' },
   },
 };
