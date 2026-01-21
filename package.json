@@ -53,7 +53,7 @@
     "dev:frontend": "vite --open",
     "predev": "convex dev --until-success",
     "build": "vite build",
-    "deploy": "npx convex deploy --cmd 'npm run build'",
+    "deploy": "npx convex deploy --cmd-url-env-var-name VITE_APP_CONVEX_URL --cmd 'npm run build'",
     "typecheck": "tsc -b"
   },
   "browserslist": {
