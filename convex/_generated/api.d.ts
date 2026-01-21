@@ -11,7 +11,7 @@
 import type * as actions from "../actions.js";
 import type * as auth from "../auth.js";
 import type * as common from "../common.js";
-import type * as cron from "../cron.js";
+import type * as crons from "../crons.js";
 import type * as home_home_get from "../home/home_get.js";
 import type * as home_home_mutate from "../home/home_mutate.js";
 import type * as http from "../http.js";
@@ -30,7 +30,7 @@ declare const fullApi: ApiFromModules<{
   actions: typeof actions;
   auth: typeof auth;
   common: typeof common;
-  cron: typeof cron;
+  crons: typeof crons;
   "home/home_get": typeof home_home_get;
   "home/home_mutate": typeof home_home_mutate;
   http: typeof http;
