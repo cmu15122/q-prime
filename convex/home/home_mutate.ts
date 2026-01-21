@@ -446,18 +446,19 @@ export const removeStudent = mutation({
       // notify the student
       await ctx.runMutation(internal.common.internalSendNotification, {
         semester_user: student_to_remove.semester_user_id,
-        title: "You've been removed frmo the queue",
+        title: "You've been removed from the queue",
         body: '',
       });
     }
 
     if (args.reason === 'helped') {
       const help_duration_mins = help_duration_ms / 60000;
+      const help_duration_mins_rounded = Math.round(help_duration_mins);
       // notify the TA
       await ctx.runMutation(internal.common.internalSendNotification, {
         semester_user: removal_ta!.semester_user_id,
         title: 'Done Helping!',
-        body: `You helped ${existing_entry.student_name} for ${help_duration_mins}`,
+        body: `You helped ${existing_entry.student_name} for ${help_duration_mins_rounded} minutes`,
       });
     }
   },

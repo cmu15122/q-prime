@@ -133,7 +133,7 @@ export default function AskQuestion() {
                       onChange={(event) => setName(event.target.value)}
                       value={name}
                       fullWidth
-                      inputProps={{ maxLength: 30 }}
+                      inputProps={{ maxLength: 50 }}
                     />
                   </FormControl>
                 </Box>
@@ -144,7 +144,7 @@ export default function AskQuestion() {
                       onChange={(event) => setEmail(event.target.value)}
                       value={email}
                       fullWidth
-                      inputProps={{ maxLength: 20 }}
+                      inputProps={{ maxLength: 256 }}
                     />
                   </FormControl>
                 </Box>
