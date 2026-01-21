@@ -11,10 +11,13 @@ export default function ConvexNotifHandler() {
       if (oldNotifTimestamp !== null) {
         // if the value changes from false to true, that's a notif
         if (notif.timestamp !== oldNotifTimestamp) {
-          new Notification(notif.title, {
-            body: notif.body,
-            requireInteraction: true,
-          });
+          // don't try to send notifications on mobile - TODO make this work with service workers
+          if ('Notification' in window) {
+            new Notification(notif.title, {
+              body: notif.body,
+              requireInteraction: true,
+            });
+          }
         }
       }
       setOldNotifTimestamp(notif.timestamp);
