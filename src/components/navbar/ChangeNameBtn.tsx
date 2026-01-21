@@ -1,0 +1,92 @@
+import React, { useState } from "react";
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  TextField,
+  Typography,
+  MenuItem,
+} from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+
+import { useMutation } from "convex/react";
+import { api } from "../../../convex/_generated/api";
+
+export default function ChangeNameBtn(props) {
+  const { setpname, pname, mobile } = props;
+
+  const [tmpPrefName, setTmpPrefName] = useState(pname);
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const updatePreferredNameMutation = useMutation(
+    api.settings.settings_mutate.updatePreferredName,
+  );
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await updatePreferredNameMutation({
+      preferred_name: tmpPrefName,
+    });
+    handleClose();
+  };
+
+  return (
+    <div>
+      {mobile ? (
+        <MenuItem onClick={handleClickOpen}>
+          <Typography variant="subtitle2" sx={{ mx: 2 }}>
+            {" "}
+            Change Name{" "}
+          </Typography>
+        </MenuItem>
+      ) : (
+        <Button
+          variant="text"
+          onClick={handleClickOpen}
+          sx={{ color: "#FFFFFF" }}
+        >
+          <EditIcon />
+        </Button>
+      )}
+      <Dialog open={open} onClose={handleClose}>
+        <form onSubmit={handleSubmit}>
+          <DialogTitle>Change Name</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Update the name that is displayed when you are on the queue and
+              the name we will call out to help you during office hours. Your
+              professor can see this, so please make it appropriate!
+            </DialogContentText>
+            <TextField
+              value={tmpPrefName}
+              onChange={(e) => setTmpPrefName(e.target.value)}
+              autoFocus
+              margin="dense"
+              id="name"
+              label="Preferred Name"
+              type="pname"
+              fullWidth
+              variant="standard"
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Cancel</Button>
+            <Button type="submit" onClick={() => setpname(tmpPrefName)}>
+              Set Nickname
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+    </div>
+  );
+}
