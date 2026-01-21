@@ -4,9 +4,11 @@
     "@convex-dev/auth": "^0.0.87",
     "convex": "^1.31.4",
     "csvtojson": "^2.0.14",
+    "luxon": "^3.7.2",
     "slack-webhook": "^1.0.0"
   },
   "devDependencies": {
+    "@types/luxon": "^3.7.1",
     "@types/node": "^24.10.1"
   }
 }

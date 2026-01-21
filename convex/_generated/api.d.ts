@@ -18,6 +18,7 @@ import type * as http from "../http.js";
 import type * as metrics from "../metrics.js";
 import type * as settings_settings_get from "../settings/settings_get.js";
 import type * as settings_settings_mutate from "../settings/settings_mutate.js";
+import type * as util_time from "../util/time.js";
 
 import type {
   ApiFromModules,
@@ -36,6 +37,7 @@ declare const fullApi: ApiFromModules<{
   metrics: typeof metrics;
   "settings/settings_get": typeof settings_settings_get;
   "settings/settings_mutate": typeof settings_settings_mutate;
+  "util/time": typeof util_time;
 }>;
 
 /**

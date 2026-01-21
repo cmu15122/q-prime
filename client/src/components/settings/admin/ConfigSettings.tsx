@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { DateTime } from "luxon";
 import {
   Button,
   CardContent,
@@ -24,6 +25,28 @@ export default function ConfigSettings() {
   const [allowCDOverride, setAllowCDOverride] = useState(true);
   const [courseName, setCourseName] = useState("");
   const [allowShowOthersTimer, setAllowShowOthersTimer] = useState(false);
+  const [timezone, setTimezone] = useState("UTC");
+  const [timezoneError, setTimezoneError] = useState("");
+
+  const timezoneSuggestions = [
+    "UTC",
+    "America/Los_Angeles",
+    "America/Denver",
+    "America/Chicago",
+    "America/New_York",
+    "America/Sao_Paulo",
+    "Europe/London",
+    "Europe/Paris",
+    "Europe/Berlin",
+    "Europe/Athens",
+    "Africa/Johannesburg",
+    "Asia/Dubai",
+    "Asia/Kolkata",
+    "Asia/Singapore",
+    "Asia/Tokyo",
+    "Australia/Sydney",
+    "Pacific/Auckland",
+  ];
 
   useEffect(() => {
     if (adminSettings) {
@@ -32,6 +55,7 @@ export default function ConfigSettings() {
       setCourseName(adminSettings.courseName);
       setAllowShowOthersTimer(adminSettings.allowShowOthersTimer);
       setAllowedEmailDomains(adminSettings.allowedEmailDomains);
+      setTimezone(adminSettings.timezone || "UTC");
     }
   }, [adminSettings]);
 
@@ -105,6 +129,25 @@ export default function ConfigSettings() {
     });
   };
 
+  const updateTimezoneMutation = useMutation(
+    (api.settings.settings_mutate as any).updateTimezone,
+  );
+  const handleUpdateTimezone = async (event) => {
+    event.preventDefault();
+    const trimmedTimezone = timezone.trim();
+    if (!trimmedTimezone) {
+      setTimezoneError("Timezone cannot be empty");
+      return;
+    }
+    const dt = DateTime.now().setZone(trimmedTimezone);
+    if (!dt.isValid) {
+      setTimezoneError("Invalid timezone");
+      return;
+    }
+    setTimezoneError("");
+    await updateTimezoneMutation({ timezone: trimmedTimezone });
+  };
+
   return (
     <BaseCard>
       <CardContent>
@@ -133,6 +176,39 @@ export default function ConfigSettings() {
               </Button>
               <Typography variant="caption" color="text.secondary">
                 Display name for the course
+              </Typography>
+            </Stack>
+          </form>
+
+          <form onSubmit={handleUpdateTimezone}>
+            <Stack direction="row" alignItems="center" spacing={2}>
+              <Typography>Timezone:</Typography>
+              <TextField
+                size="small"
+                value={timezone ?? ""}
+                onChange={(e) => {
+                  setTimezone(e.target.value);
+                  if (timezoneError) {
+                    setTimezoneError("");
+                  }
+                }}
+                placeholder="America/New_York"
+                sx={{ width: 250 }}
+                inputProps={{ list: "timezone-options" }}
+                error={Boolean(timezoneError)}
+                helperText={timezoneError || undefined}
+                FormHelperTextProps={{ sx: { m: 0 } }}
+              />
+              <datalist id="timezone-options">
+                {timezoneSuggestions.map((zone) => (
+                  <option value={zone} key={zone} />
+                ))}
+              </datalist>
+              <Button type="submit" variant="contained">
+                Save
+              </Button>
+              <Typography variant="caption" color="text.secondary">
+                Timezone used by the server
               </Typography>
             </Stack>
           </form>

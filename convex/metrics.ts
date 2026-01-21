@@ -4,8 +4,10 @@ import {
   ensureAuthAndAdmin,
   ensureAuthAndTA,
   getCurrentSemester,
+  getGlobalSettings,
 } from './common';
 import { Id } from './_generated/dataModel';
+import { getZoneDayBounds, getZoneDayKey, getZoneDayOfWeek } from './util/time';
 
 /**
  * Helper to calculate GCD for ratio
@@ -20,33 +22,6 @@ function reduceRatio(numerator: number, denominator: number) {
   }
   const divisor = gcd(numerator, denominator);
   return [numerator / divisor, denominator / divisor];
-}
-
-function getUtcDayBounds(nowMs: number = Date.now()) {
-  const now = new Date(nowMs);
-  const startMs = Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),
-    now.getUTCDate(),
-    0,
-    0,
-    0,
-    0
-  );
-  const endMs = Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),
-    now.getUTCDate(),
-    23,
-    59,
-    59,
-    999
-  );
-  return { startMs, endMs };
-}
-
-function getUtcDayKey(timeMs: number) {
-  return new Date(timeMs).toISOString().split('T')[0];
 }
 
 const dayCountValidator = v.object({
@@ -183,8 +158,10 @@ export const getNumQuestionsToday = query({
   handler: async (ctx) => {
     await ensureAuthAndTA(ctx);
     const curr_sem = await getCurrentSemester(ctx);
+    const settings = await getGlobalSettings(ctx);
+    const timezone = settings.timezone;
 
-    const { startMs, endMs } = getUtcDayBounds();
+    const { startMs, endMs } = getZoneDayBounds(Date.now(), timezone);
 
     const questions = await ctx.db
       .query('questions')
@@ -211,8 +188,10 @@ export const getNumBadQuestionsToday = query({
   handler: async (ctx) => {
     await ensureAuthAndTA(ctx);
     const curr_sem = await getCurrentSemester(ctx);
+    const settings = await getGlobalSettings(ctx);
+    const timezone = settings.timezone;
 
-    const { startMs, endMs } = getUtcDayBounds();
+    const { startMs, endMs } = getZoneDayBounds(Date.now(), timezone);
 
     const questions = await ctx.db
       .query('questions')
@@ -246,8 +225,10 @@ export const getAvgWaitTimeToday = query({
   handler: async (ctx) => {
     await ensureAuthAndTA(ctx);
     const curr_sem = await getCurrentSemester(ctx);
+    const settings = await getGlobalSettings(ctx);
+    const timezone = settings.timezone;
 
-    const { startMs, endMs } = getUtcDayBounds();
+    const { startMs, endMs } = getZoneDayBounds(Date.now(), timezone);
 
     const questions = await ctx.db
       .query('questions')
@@ -287,8 +268,10 @@ export const getTaStudentRatioToday = query({
   handler: async (ctx) => {
     await ensureAuthAndTA(ctx);
     const curr_sem = await getCurrentSemester(ctx);
+    const settings = await getGlobalSettings(ctx);
+    const timezone = settings.timezone;
 
-    const { startMs, endMs } = getUtcDayBounds();
+    const { startMs, endMs } = getZoneDayBounds(Date.now(), timezone);
 
     const questions = await ctx.db
       .query('questions')
@@ -410,6 +393,8 @@ export const getNumStudentsPerDayLastWeek = query({
   handler: async (ctx) => {
     await ensureAuthAndTA(ctx);
     const curr_sem = await getCurrentSemester(ctx);
+    const settings = await getGlobalSettings(ctx);
+    const timezone = settings.timezone;
 
     const sevenDaysAgoMs = Date.now() - 7 * 24 * 60 * 60 * 1000;
 
@@ -427,7 +412,7 @@ export const getNumStudentsPerDayLastWeek = query({
         continue;
       }
       // Use YYYY-MM-DD format as key
-      const date = getUtcDayKey(q.entry_time_ms);
+      const date = getZoneDayKey(q.entry_time_ms, timezone);
       counts[date] = (counts[date] || 0) + 1;
     }
 
@@ -450,6 +435,8 @@ export const getNumStudentsPerDay = query({
   handler: async (ctx) => {
     await ensureAuthAndTA(ctx);
     const curr_sem = await getCurrentSemester(ctx);
+    const settings = await getGlobalSettings(ctx);
+    const timezone = settings.timezone;
 
     const questions = await ctx.db
       .query('questions')
@@ -470,7 +457,7 @@ export const getNumStudentsPerDay = query({
     const counts: Record<string, number> = {};
 
     for (const q of questions) {
-      const dayIndex = new Date(q.entry_time_ms).getUTCDay();
+      const dayIndex = getZoneDayOfWeek(q.entry_time_ms, timezone);
       const dayName = days[dayIndex];
       counts[dayName] = (counts[dayName] || 0) + 1;
     }
@@ -496,6 +483,8 @@ export const getNumStudentsOverall = query({
   handler: async (ctx) => {
     await ensureAuthAndTA(ctx);
     const curr_sem = await getCurrentSemester(ctx);
+    const settings = await getGlobalSettings(ctx);
+    const timezone = settings.timezone;
 
     const questions = await ctx.db
       .query('questions')
@@ -507,7 +496,7 @@ export const getNumStudentsOverall = query({
     const counts: Record<string, number> = {};
 
     for (const q of questions) {
-      const date = getUtcDayKey(q.entry_time_ms);
+      const date = getZoneDayKey(q.entry_time_ms, timezone);
       counts[date] = (counts[date] || 0) + 1;
     }
 

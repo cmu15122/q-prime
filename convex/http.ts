@@ -5,6 +5,7 @@ import { getCurrentSemester } from './common';
 import { ConvexError, v } from 'convex/values';
 import { auth } from './auth';
 import { getAuthUserId } from '@convex-dev/auth/server';
+import { DateTime } from 'luxon';
 
 const http = httpRouter();
 
@@ -187,17 +188,50 @@ http.route({
       csvText: csvData,
     });
 
+    const globalSettings = await ctx.runQuery(
+      internal.common.internalGetGlobalSettings
+    );
+    const timezone = globalSettings.timezone;
+
     for (const assignment of csvRows) {
       const name = assignment.name;
       const assignment_type = assignment.assignment_type;
-      const start_date = new Date(assignment.start_date);
-      const end_date = new Date(assignment.end_date);
+
+      // Try to parse with the example csv format first, then ISO, then JS
+      let startDt = DateTime.fromFormat(
+        assignment.start_date,
+        'M/d/yy h:mm a',
+        { zone: timezone }
+      );
+      if (!startDt.isValid) {
+        startDt = DateTime.fromISO(assignment.start_date, { zone: timezone });
+      }
+      // Fallback to JS Date parsing if both fail, assuming local/UTC as before but wrapped in DateTime
+      if (!startDt.isValid) {
+        startDt = DateTime.fromJSDate(new Date(assignment.start_date)).setZone(
+          timezone,
+          { keepLocalTime: true }
+        );
+      }
+
+      let endDt = DateTime.fromFormat(assignment.end_date, 'M/d/yy h:mm a', {
+        zone: timezone,
+      });
+      if (!endDt.isValid) {
+        endDt = DateTime.fromISO(assignment.end_date, { zone: timezone });
+      }
+      if (!endDt.isValid) {
+        endDt = DateTime.fromJSDate(new Date(assignment.end_date)).setZone(
+          timezone,
+          { keepLocalTime: true }
+        );
+      }
 
       await ctx.runMutation(api.settings.settings_mutate.createAssignment, {
         name: name,
         assignment_type: assignment_type,
-        start_date_ms: start_date.getTime(),
-        end_date_ms: end_date.getTime(),
+        start_date_ms: startDt.toMillis(),
+        end_date_ms: endDt.toMillis(),
       });
     }
 

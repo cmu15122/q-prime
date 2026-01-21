@@ -23,6 +23,8 @@ export default defineSchema({
     day_to_location_dict: v.record(v.string(), v.array(v.string())),
     allow_tas_show_others_timer: v.boolean(),
 
+    timezone: v.string(),
+
     // waittime configs
     waittime_ping_threshold_mins: v.number(),
     waittime_ping_interval_mins: v.number(),

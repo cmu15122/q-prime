@@ -814,6 +814,7 @@ export const firstTimeSetup = mutation({
     await ctx.db.insert('globalSettings', {
       curr_sem: new_sem,
       course_name: 'OHQ',
+      timezone: 'UTC',
       slackbot_webhook_url: undefined,
       questions_policy_url: undefined,
       rejoin_time_ms: 15 * 60000,

@@ -12,16 +12,18 @@ import {
   getTA,
 } from '../common';
 import { getAuthUserId } from '@convex-dev/auth/server';
+import { getZoneDayOfWeek } from '../util/time';
 
 export const getQueueData = query({
   args: {},
   handler: async (ctx, args) => {
     const globalSettings = await getGlobalSettings(ctx);
+    const timezone = globalSettings.timezone;
 
     const queue_length = await getQueueLength(ctx);
     const wait_time_data = await getWaittimeData(ctx);
 
-    const current_day_of_week = new Date().getDay();
+    const current_day_of_week = getZoneDayOfWeek(Date.now(), timezone);
     const current_locations =
       globalSettings.day_to_location_dict[current_day_of_week] || [];
 

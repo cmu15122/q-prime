@@ -20,6 +20,7 @@ export const getQueueSettings = query({
     allowedEmailDomains: v.array(v.string()),
     enforceEmailDomains: v.boolean(),
     ownerEmails: v.array(v.string()),
+    timezone: v.string(),
   }),
   handler: async (ctx, args) => {
     const globalSettings = await getGlobalSettings(ctx);
@@ -38,7 +39,17 @@ export const getQueueSettings = query({
       allowedEmailDomains: globalSettings.allowed_email_domains,
       enforceEmailDomains: globalSettings.enforce_email_domain,
       ownerEmails: curr_sem.owner_emails,
+      timezone: globalSettings.timezone,
     };
+  },
+});
+
+export const getTimezone = query({
+  args: {},
+  returns: v.string(),
+  handler: async (ctx, args) => {
+    const globalSettings = await getGlobalSettings(ctx);
+    return globalSettings.timezone;
   },
 });
 

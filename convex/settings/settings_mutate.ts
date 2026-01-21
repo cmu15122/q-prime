@@ -1,4 +1,5 @@
 import { ConvexError, v } from 'convex/values';
+import { DateTime } from 'luxon';
 import { mutation } from '../_generated/server';
 import {
   ensureAuthAndAdmin,
@@ -228,6 +229,33 @@ export const updateAllowShowOthersTimer = mutation({
 
     await ctx.db.patch(globalSettings._id, {
       allow_tas_show_others_timer: args.allowShowOthersTimer,
+    });
+
+    return null;
+  },
+});
+
+export const updateTimezone = mutation({
+  args: {
+    timezone: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    await ensureAuthAndAdmin(ctx);
+
+    const trimmedTimezone = args.timezone.trim();
+    if (!trimmedTimezone) {
+      throw new ConvexError('Timezone cannot be empty');
+    }
+    const dt = DateTime.now().setZone(trimmedTimezone);
+    if (!dt.isValid) {
+      throw new ConvexError('Invalid timezone for Luxon');
+    }
+
+    const globalSettings = await getGlobalSettings(ctx);
+
+    await ctx.db.patch(globalSettings._id, {
+      timezone: trimmedTimezone,
     });
 
     return null;
