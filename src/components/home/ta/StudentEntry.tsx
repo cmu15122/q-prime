@@ -75,30 +75,56 @@ export default function StudentEntry(props) {
         padding="none"
         component="th"
         scope="row"
-        sx={{ py: 2, pl: 3.25, pr: 2, width: "20%" }}
+        sx={{
+          py: 2,
+          pl: 2,
+          pr: 1,
+          width: '25%',
+          wordBreak: 'break-word',
+          verticalAlign: 'top'
+        }}
       >
-        {student.student_name} ({student.student_email})<br />[
-        {student.location}]
+        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+          {student.student_name}
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+          {student.student_email}
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+          [{student.location}]
+        </Typography>
       </TableCell>
       <TableCell
         padding="none"
         align="left"
-        sx={{ py: 2, pr: 2, width: "55%" }}
+        sx={{
+          py: 2,
+          pr: 1,
+          width: '45%',
+          wordBreak: 'break-word',
+          verticalAlign: 'top'
+        }}
       >
-        <Stack direction="row" alignItems="center" spacing={1}>
+        <Stack direction="row" alignItems="flex-start" spacing={0.5} sx={{ flexWrap: 'wrap' }}>
           {(student.status === "cooldown_violation" ||
             student.status === "fixing_question" ||
-            student.status === "frozen") && <PauseIcon fontSize="inherit" />}
-          {<Typography variant="body2">[{student.assignment_name}]</Typography>}
-          {
-            <Typography variant="body2" sx={{ whiteSpace: "pre-line" }}>
-              {" "}
-              {student.question}{" "}
-            </Typography>
-          }
+            student.status === "frozen") && <PauseIcon fontSize="small" />}
+          <Typography variant="body2" sx={{ fontWeight: 500 }}>
+            [{student.assignment_name}]
+          </Typography>
         </Stack>
+        <Typography variant="body2" sx={{ mt: 0.5 }}>
+          {student.question}
+        </Typography>
       </TableCell>
-      <TableCell padding="none" sx={{ width: "25%" }}>
+      <TableCell
+        padding="none"
+        sx={{
+          width: '28%',
+          verticalAlign: 'middle',
+          pr: 4,
+        }}
+      >
         {EntryTails({
           ...props,
           removeRef: removeRef,

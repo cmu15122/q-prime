@@ -68,14 +68,17 @@ export default function StudentStatus(props) {
     }
   };
 
+  const text = chooseText(status);
+
+  if (!text) return null;
+
   return (
     <Typography
       fontSize="13px"
       color={theme.palette.success.main}
-      style={{ overflowWrap: "break-word" }}
-      sx={{ mb: { xs: 1, sm: 0.5 } }}
+      sx={{ overflowWrap: "break-word" }}
     >
-      {chooseText(status)}
+      {text}
     </Typography>
   );
 }

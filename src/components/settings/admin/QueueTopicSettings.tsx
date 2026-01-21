@@ -241,7 +241,7 @@ export default function QueueTopicSettings() {
         ))}
         <TableRow
           key="actions"
-          style={{ background: theme.palette.background.default }}
+          style={{ background: theme.palette.background.paper }}
         >
           <TableCell align="center" colSpan={5}>
             <Button

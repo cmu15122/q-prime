@@ -9,7 +9,7 @@ export default function BaseCard(props) {
 
   return (
     <div className='card' style={{display: 'flex'}}>
-      <Card sx={{minWidth: '100%'}}>
+      <Card sx={{width: '100%', overflow: 'hidden'}}>
         {children}
       </Card>
     </div>

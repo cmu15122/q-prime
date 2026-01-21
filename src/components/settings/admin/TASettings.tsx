@@ -204,7 +204,7 @@ export default function TASettings() {
         }
         <TableRow
           key="actions"
-          style={{background: theme.palette.background.default}}
+          style={{background: theme.palette.background.paper}}
         >
           <TableCell align="center" colSpan={5}>
             <Button sx={{mr: 1, fontWeight: 'bold'}} color="primary" variant="contained" onClick={() => handleAddDialog()}>

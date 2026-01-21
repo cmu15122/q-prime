@@ -52,7 +52,12 @@ export default function EntryTails(props) {
     <Stack
       direction="column"
       alignItems="center"
-      sx={{ mr: { xs: 1, sm: 2, lg: 3 }, ml: { xs: 1, sm: 2 }, my: 1.5 }}
+      justifyContent="center"
+      sx={{
+        mr: { xs: 1, sm: 2, lg: 3 },
+        ml: { xs: 1, sm: 2 },
+        my: 1.5,
+      }}
     >
       <StudentStatus student={student} currentTime={currentTime} />
       {getCorrectTail(status)}

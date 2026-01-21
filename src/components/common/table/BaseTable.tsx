@@ -19,7 +19,7 @@ export default function BaseTable(props) {
         <HeaderTailComp />
       </CardActions>
       <Divider></Divider>
-      <Table>
+      <Table sx={{ width: '100%', tableLayout: 'fixed' }}>
         <TableBody>
           {children}
         </TableBody>

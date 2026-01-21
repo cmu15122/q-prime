@@ -17,6 +17,7 @@ import OHQueueHeader from "./OHQueueHeader";
 import ChangeNameBtn from "./ChangeNameBtn";
 import GoogleLogin from "../common/GoogleLogin";
 import AlertOnLogout from "./dialogs/AlertOnLogout";
+import ThemeToggle from "./ThemeToggle";
 
 import { NotificationsActive } from "@mui/icons-material";
 
@@ -28,12 +29,12 @@ function createPage(page, link) {
   return { page, link };
 }
 
-const NavbarButton = styled(Button)({
+const NavbarButton = styled(Button)(({ theme }) => ({
   disableElevation: true,
   variant: "subtitle2",
-  color: "#FFFFFF",
+  color: theme.alternateColors.navbarText,
   backgroundColor: "transparent",
-});
+}));
 
 export default function Navbar(props: { isHome: boolean }) {
   const { isHome } = props;
@@ -145,13 +146,13 @@ export default function Navbar(props: { isHome: boolean }) {
         style={{ background: theme.alternateColors.navbar }}
         enableColorOnDark
       >
-        <Toolbar sx={{ display: "flex space-between" }}>
+        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
           {((pages && pages.length > 0) || isAuthenticated) && (
-            <Box sx={{ flexGrow: 1, display: "flex" }}>
+            <Box sx={{ flexGrow: 1, display: "flex", alignItems: "center" }}>
               <IconButton
                 size="large"
                 onClick={handleOpenNavMenu}
-                color="inherit"
+                sx={{ color: theme.alternateColors.navbarText }}
               >
                 <MenuIcon />
               </IconButton>
@@ -226,13 +227,14 @@ export default function Navbar(props: { isHome: boolean }) {
             </Box>
           )}
 
-          <Box sx={{ flexGrow: 1, display: "flex" }}>
+          <Box sx={{ flexGrow: 1, display: "flex", alignItems: "center" }}>
             <OHQueueHeader />
           </Box>
           <Box
-            sx={{ flexGrow: 0, display: "flex", justifyContent: "flex-end" }}
+            sx={{ flexGrow: 0, display: "flex", alignItems: "center", justifyContent: "flex-end" }}
           >
             {!isAuthenticated && <GoogleLogin />}
+            <ThemeToggle />
           </Box>
           <AlertOnLogout
             isOpen={alertOpen}
@@ -251,15 +253,15 @@ export default function Navbar(props: { isHome: boolean }) {
       enableColorOnDark
       style={{ background: theme.alternateColors.navbar }}
     >
-      <Toolbar sx={{ display: "flex space-between" }}>
-        <Box sx={{ flexGrow: 1, display: "flex" }}>
+      <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Box sx={{ flexGrow: 1, display: "flex", alignItems: "center" }}>
           <OHQueueHeader />
           {isTA &&
             isHome &&
             (queueData?.is_frozen ? unfreezeButton : freezeButton)}
           {notificationPermission !== "granted" && (
             <IconButton
-              color="secondary"
+              sx={{ color: theme.alternateColors.navbarText }}
               onClick={() => {
                 if ("Notification" in window) {
                   Notification.requestPermission((permission) => {
@@ -272,16 +274,16 @@ export default function Navbar(props: { isHome: boolean }) {
             </IconButton>
           )}
         </Box>
-        <Box sx={{ flexGrow: 0, display: "flex", color: "#FFFFFF" }}>
+        <Box sx={{ flexGrow: 0, display: "flex", alignItems: "center", color: theme.alternateColors.navbarText }}>
           {isAuthenticated && "Currently Logged in as " + pname}
         </Box>
-        <Box sx={{ flexGrow: 0, display: "flex" }}>
+        <Box sx={{ flexGrow: 0, display: "flex", alignItems: "center" }}>
           {isAuthenticated && (
             <ChangeNameBtn mobile={false} pname={pname} setpname={setpname} />
           )}
         </Box>
 
-        <Box sx={{ flexGrow: 0, display: "flex" }}>
+        <Box sx={{ flexGrow: 0, display: "flex", alignItems: "center" }}>
           {pages?.map((page) => (
             <NavbarButton key={page.page} href={page.link}>
               {page.page}
@@ -292,6 +294,7 @@ export default function Navbar(props: { isHome: boolean }) {
           ) : (
             <GoogleLogin />
           )}
+          <ThemeToggle />
         </Box>
         <AlertOnLogout
           isOpen={alertOpen}
