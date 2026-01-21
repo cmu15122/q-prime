@@ -120,3 +120,4 @@ config.json
 adminSettings.json
 
 .env.local
+.env.convex
