@@ -36,9 +36,7 @@ export async function getCurrentUser(ctx: QueryCtx) {
 
   const curr_sem_user = (await ctx.db
     .query('semesterUsers')
-    .withIndex('by_sem_and_user', (q) =>
-      q.eq('semester_id', curr_sem._id).eq('user_id', user_id)
-    )
+    .withIndex('by_sem_and_user', (q) => q.eq('semester_id', curr_sem._id).eq('user_id', user_id))
     .first())!;
 
   if (!curr_sem_user) {
@@ -64,12 +62,10 @@ const WAITTIME_LOOKBACK_MINUTES = 60;
 
 export async function getWaittimeData(ctx: QueryCtx) {
   const now = new Date();
-  const start_time = new Date(
-    now.getTime() - WAITTIME_LOOKBACK_MINUTES * 60000
-  );
+  const start_time = new Date(now.getTime() - WAITTIME_LOOKBACK_MINUTES * 60000);
 
   let total_helped_ms = 0;
-  let active_tas = new Set<Id<'tas'>>();
+  const active_tas = new Set<Id<'tas'>>();
 
   // handle questions asked in the past
   const questions = await ctx.db
@@ -77,8 +73,8 @@ export async function getWaittimeData(ctx: QueryCtx) {
     .filter((x) =>
       x.and(
         x.gte(x.field('exit_time_ms'), start_time.getTime()),
-        x.neq(x.field('help_duration_ms'), -1)
-      )
+        x.neq(x.field('help_duration_ms'), -1),
+      ),
     )
     .collect();
 
@@ -86,9 +82,7 @@ export async function getWaittimeData(ctx: QueryCtx) {
     total_helped_ms += question.help_duration_ms;
 
     if (!question.ta_id) {
-      throw new ConvexError(
-        `Question helped and finished but no helping ta: ${question}`
-      );
+      throw new ConvexError(`Question helped and finished but no helping ta: ${question}`);
     }
 
     if (!active_tas.has(question.ta_id)) {
@@ -97,25 +91,21 @@ export async function getWaittimeData(ctx: QueryCtx) {
   }
 
   // handle current questions
-  let curr_helping_questions = await ctx.db
+  const curr_helping_questions = await ctx.db
     .query('ohq')
     .filter((x) => x.eq(x.field('status'), 'being_helped'))
     .collect();
 
   for (const curr_helping of curr_helping_questions) {
     if (!curr_helping.help_start_time_ms) {
-      throw new ConvexError(
-        `Question had being_helped status but no help time: ${curr_helping}`
-      );
+      throw new ConvexError(`Question had being_helped status but no help time: ${curr_helping}`);
     }
 
     const helping_ms = now.getTime() - curr_helping.help_start_time_ms;
     total_helped_ms += helping_ms;
 
     if (!curr_helping.helping_ta) {
-      throw new ConvexError(
-        `Question helped but no helping ta: ${curr_helping}`
-      );
+      throw new ConvexError(`Question helped but no helping ta: ${curr_helping}`);
     }
 
     if (!active_tas.has(curr_helping.helping_ta.ta_id)) {
@@ -136,7 +126,7 @@ export async function getWaittimeData(ctx: QueryCtx) {
   const num_unhelped = unhelped_questions.length;
 
   // avoid dividing by zero
-  if (total_questions != 0) {
+  if (total_questions !== 0) {
     const mins_per_student = total_helped_ms / 60000 / total_questions;
     const wait_time = (num_unhelped * mins_per_student) / num_tas;
 
@@ -253,7 +243,7 @@ export const removeQueueEntry = internalMutation({
           q.status !== 'fixing_question'
         ) {
           throw new ConvexError(
-            'non-frozen student found at the end of the queue with prev_num_frozen > 0'
+            'non-frozen student found at the end of the queue with prev_num_frozen > 0',
           );
         }
 
@@ -285,7 +275,7 @@ export async function getTA(ctx: QueryCtx, sem_user_id: Id<'semesterUsers'>) {
 }
 
 export async function ensureAuthAndTA(
-  ctx: QueryCtx
+  ctx: QueryCtx,
 ): Promise<{ user_data: Doc<'users'>; ta: Doc<'tas'> }> {
   const user_data = await getCurrentUser(ctx);
 
@@ -310,7 +300,7 @@ export async function ensureAuthAndTA(
 }
 
 export async function ensureAuthAndAdmin(
-  ctx: QueryCtx
+  ctx: QueryCtx,
 ): Promise<{ user_data: Doc<'users'>; ta: Doc<'tas'> }> {
   const { user_data, ta } = await ensureAuthAndTA(ctx);
 
@@ -321,9 +311,7 @@ export async function ensureAuthAndAdmin(
   return { user_data: user_data, ta: ta };
 }
 
-export async function ensureAuthAndOwner(
-  ctx: QueryCtx
-): Promise<{ user_data: Doc<'users'> }> {
+export async function ensureAuthAndOwner(ctx: QueryCtx): Promise<{ user_data: Doc<'users'> }> {
   const user_data = await getCurrentUser(ctx);
 
   if (!user_data) {
@@ -346,10 +334,7 @@ export async function ensureAuthAndOwner(
  * @param sem_user_id
  * @returns
  */
-export async function getStudent(
-  ctx: QueryCtx,
-  sem_user_id: Id<'semesterUsers'>
-) {
+export async function getStudent(ctx: QueryCtx, sem_user_id: Id<'semesterUsers'>) {
   const student = await ctx.db
     .query('students')
     .withIndex('by_semuser', (q) => q.eq('semester_user_id', sem_user_id))
@@ -363,7 +348,7 @@ export async function getStudent(
 }
 
 export async function ensureAuthAndStudent(
-  ctx: QueryCtx
+  ctx: QueryCtx,
 ): Promise<{ user_data: Doc<'users'>; student: Doc<'students'> }> {
   const user_data = await getCurrentUser(ctx);
 
@@ -403,7 +388,7 @@ export const internalEnsureTA = internalQuery({
     const sem_user = await ctx.db
       .query('semesterUsers')
       .withIndex('by_sem_and_user', (q) =>
-        q.eq('semester_id', curr_sem._id).eq('user_id', user._id)
+        q.eq('semester_id', curr_sem._id).eq('user_id', user._id),
       )
       .first();
 
@@ -470,18 +455,14 @@ export const internalNewSemesterUser = internalMutation({
 
     const semUser = await ctx.db
       .query('semesterUsers')
-      .withIndex('by_sem_and_user', (x) =>
-        x.eq('semester_id', curr_sem._id).eq('user_id', user_id)
-      )
+      .withIndex('by_sem_and_user', (x) => x.eq('semester_id', curr_sem._id).eq('user_id', user_id))
       .first();
 
     if (!semUser) {
       // check if they're in future_tas
       const future_ta = await ctx.db
         .query('future_tas')
-        .withIndex('by_sem_and_email', (x) =>
-          x.eq('semester_id', curr_sem._id).eq('email', email)
-        )
+        .withIndex('by_sem_and_email', (x) => x.eq('semester_id', curr_sem._id).eq('email', email))
         .first();
 
       if (future_ta) {

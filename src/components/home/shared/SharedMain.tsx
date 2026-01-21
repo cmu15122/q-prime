@@ -1,7 +1,5 @@
-import React from "react";
-
-import Announcements from "./Annoucements";
-import QueueStats from "./QueueStats";
+import Announcements from './Annoucements';
+import QueueStats from './QueueStats';
 
 function SharedMain() {
   return (

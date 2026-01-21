@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from 'react';
 import {
   Button,
   Collapse,
@@ -9,26 +9,24 @@ import {
   Typography,
   TextField,
   Grid,
-} from "@mui/material";
+} from '@mui/material';
 
-import BaseCard from "../common/cards/BaseCard";
+import BaseCard from '../common/cards/BaseCard';
 
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../convex/_generated/api";
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 
 export default function VideoChatSettings() {
   const userData = useQuery(api.home.home_get.getUserData);
   const videoChatEnabled = userData?.ta_data?.zoom_enabled ?? false;
 
-  const [videoChatURL, setVideoChatURL] = useState("");
+  const [videoChatURL, setVideoChatURL] = useState('');
 
-  const updateVideoChatMutation = useMutation(
-    api.settings.settings_mutate.updateVideoChat,
-  );
+  const updateVideoChatMutation = useMutation(api.settings.settings_mutate.updateVideoChat);
   const updateVideoChatEnabled = async (chatEnabled) => {
     await updateVideoChatMutation({
       enabled: chatEnabled,
-      url: userData!.ta_data!.zoom_url ?? "",
+      url: userData!.ta_data!.zoom_url ?? '',
     });
   };
 
@@ -44,11 +42,7 @@ export default function VideoChatSettings() {
   return (
     <BaseCard>
       <CardContent>
-        <Typography
-          sx={{ fontWeight: "bold", ml: 1, mt: 1 }}
-          variant="body1"
-          gutterBottom
-        >
+        <Typography sx={{ fontWeight: 'bold', ml: 1, mt: 1 }} variant="body1" gutterBottom>
           Video Chat Settings
         </Typography>
         <FormGroup>
@@ -76,7 +70,7 @@ export default function VideoChatSettings() {
                   placeholder="Video Chat URL"
                   variant="standard"
                   fullWidth
-                  value={videoChatURL ?? ""}
+                  value={videoChatURL ?? ''}
                   onChange={(e) => setVideoChatURL(e.target.value)}
                   type="url"
                 />

@@ -1,8 +1,6 @@
-import React from "react";
+import { Button } from '@mui/material';
 
-import { Button } from "@mui/material";
-
-import { useAuthActions } from "@convex-dev/auth/react";
+import { useAuthActions } from '@convex-dev/auth/react';
 
 export default function GoogleLogin() {
   const { signIn } = useAuthActions();
@@ -11,7 +9,7 @@ export default function GoogleLogin() {
       color="secondary"
       variant="contained"
       sx={{ mx: 2 }}
-      onClick={() => void signIn("google", { redirectTo: "/" })}
+      onClick={() => void signIn('google', { redirectTo: '/' })}
     >
       Log In
     </Button>

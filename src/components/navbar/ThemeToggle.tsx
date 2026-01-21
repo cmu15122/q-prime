@@ -1,5 +1,13 @@
 import React from 'react';
-import { IconButton, Menu, MenuItem, ListItemIcon, ListItemText, Tooltip, useTheme } from '@mui/material';
+import {
+  IconButton,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
+  Tooltip,
+  useTheme,
+} from '@mui/material';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import SettingsBrightnessIcon from '@mui/icons-material/SettingsBrightness';

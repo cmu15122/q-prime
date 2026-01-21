@@ -1,13 +1,11 @@
-import React from "react";
+import Navbar from '../components/navbar/Navbar';
+import SettingsMain from '../components/settings/SettingsMain';
 
-import Navbar from "../components/navbar/Navbar";
-import SettingsMain from "../components/settings/SettingsMain";
+import { useTheme } from '@mui/material/styles';
+import { CircularProgress, Typography } from '@mui/material';
 
-import { useTheme } from "@mui/material/styles";
-import { CircularProgress, Typography } from "@mui/material";
-
-import { useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { useQuery } from 'convex/react';
+import { api } from '../../convex/_generated/api';
 
 /**
  * Settings page, only accessible to TAs and course owners
@@ -19,15 +17,12 @@ function Settings() {
 
   const isLoadingUserData = userData === undefined;
   const isAuthenticated = userData !== null && userData !== undefined;
-  const isTA = isAuthenticated && userData.user_kind === "TA";
+  const isTA = isAuthenticated && userData.user_kind === 'TA';
 
   return isLoadingUserData ? (
     <CircularProgress />
   ) : isAuthenticated && (isTA || userData.is_owner) ? (
-    <div
-      className="Settings"
-      style={{ backgroundColor: theme.palette.background.default }}
-    >
+    <div className="Settings" style={{ backgroundColor: theme.palette.background.default }}>
       <Navbar isHome={false} />
       <SettingsMain />
     </div>

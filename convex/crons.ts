@@ -6,7 +6,7 @@ const crons = cronJobs();
 crons.interval(
   'send waittimes slackbot ping',
   { minutes: 1 },
-  internal.home.home_mutate.internalWaittimeIntervalCheck
+  internal.home.home_mutate.internalWaittimeIntervalCheck,
 );
 
 export default crons;

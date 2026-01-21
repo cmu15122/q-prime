@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   TextField,
   Grid,
@@ -10,9 +9,7 @@ import {
 } from '@mui/material';
 
 export default function AccessControlDialogBody(props) {
-  const {
-    email, setEmail, listType, setListType,
-  } = props;
+  const { email, setEmail, listType, setListType } = props;
 
   return (
     <Grid container spacing={3}>
@@ -30,10 +27,7 @@ export default function AccessControlDialogBody(props) {
       <Grid className="d-flex" item xs={12}>
         <FormControl component="fieldset">
           <FormLabel component="legend">Access Control Type</FormLabel>
-          <RadioGroup
-            value={listType}
-            onChange={(e) => setListType(e.target.value)}
-          >
+          <RadioGroup value={listType} onChange={(e) => setListType(e.target.value)}>
             <FormControlLabel
               value="whitelist"
               control={<Radio />}

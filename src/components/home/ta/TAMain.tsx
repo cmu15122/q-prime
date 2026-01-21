@@ -1,6 +1,5 @@
-import React from "react";
-import AskQuestion from "../shared/AskQuestion";
-import StudentEntries from "./StudentEntries";
+import AskQuestion from '../shared/AskQuestion';
+import StudentEntries from './StudentEntries';
 
 export default function TAMain() {
   return (

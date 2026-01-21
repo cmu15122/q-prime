@@ -1,17 +1,17 @@
-import { useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { ThemeProvider, CssBaseline } from "@mui/material";
-import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { ToastContainer } from "react-toastify";
-import { useMutation, useQuery } from "convex/react";
-import { api } from "../convex/_generated/api";
-import { ThemeContextProvider, useThemeContext } from "./contexts/ThemeContext";
-import Home from "./pages/home";
-import Settings from "./pages/settings";
-import Metrics from "./pages/metrics";
-import Init from "./pages/init";
-import "./App.css";
+import { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ThemeProvider, CssBaseline } from '@mui/material';
+import { AdapterLuxon } from '@mui/x-date-pickers/AdapterLuxon';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { ToastContainer } from 'react-toastify';
+import { useMutation, useQuery } from 'convex/react';
+import { api } from '../convex/_generated/api';
+import { ThemeContextProvider, useThemeContext } from './contexts/ThemeContext';
+import Home from './pages/home';
+import Settings from './pages/settings';
+import Metrics from './pages/metrics';
+import Init from './pages/init';
+import './App.css';
 
 function AppContent() {
   const { theme } = useThemeContext();
@@ -54,7 +54,7 @@ function AppContent() {
           theme={theme.palette.mode}
           className=""
           toastStyle={{
-            color: theme.palette.mode === "light" ? "#000" : "#fff",
+            color: theme.palette.mode === 'light' ? '#000' : '#fff',
           }}
         />
       </LocalizationProvider>

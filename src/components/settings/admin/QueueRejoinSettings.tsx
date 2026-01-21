@@ -1,16 +1,10 @@
-import React, { useEffect, useState } from "react";
-import {
-  Button,
-  CardContent,
-  Typography,
-  TextField,
-  Grid,
-} from "@mui/material";
+import { useEffect, useState } from 'react';
+import { Button, CardContent, Typography, TextField, Grid } from '@mui/material';
 
-import BaseCard from "../../common/cards/BaseCard";
+import BaseCard from '../../common/cards/BaseCard';
 
-import { useMutation, useQuery } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
+import { useMutation, useQuery } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
 
 export default function QueueRejoinSettings() {
   const queueData = useQuery(api.home.home_get.getQueueData);
@@ -23,9 +17,7 @@ export default function QueueRejoinSettings() {
     }
   }, [queueData]);
 
-  const updateRejoinTimeMutation = useMutation(
-    api.settings.settings_mutate.updateRejoinTime,
-  );
+  const updateRejoinTimeMutation = useMutation(api.settings.settings_mutate.updateRejoinTime);
   const onSubmit = async (event) => {
     event.preventDefault();
     await updateRejoinTimeMutation({
@@ -36,11 +28,7 @@ export default function QueueRejoinSettings() {
   return (
     <BaseCard>
       <CardContent>
-        <Typography
-          sx={{ fontWeight: "bold", ml: 1, mt: 1 }}
-          variant="body1"
-          gutterBottom
-        >
+        <Typography sx={{ fontWeight: 'bold', ml: 1, mt: 1 }} variant="body1" gutterBottom>
           Queue Rejoin Settings
         </Typography>
         <form onSubmit={onSubmit}>
@@ -52,12 +40,12 @@ export default function QueueRejoinSettings() {
                 type="number"
                 variant="standard"
                 sx={{ mx: 1, mt: -1 }}
-                style={{ width: "50px" }}
+                style={{ width: '50px' }}
                 value={rejoinTime}
                 onChange={(e) => {
                   setRejoinTime(parseInt(e.target.value, 10));
                 }}
-                inputProps={{ min: 0, style: { textAlign: "center" } }}
+                inputProps={{ min: 0, style: { textAlign: 'center' } }}
               />
               minute(s)
             </Grid>

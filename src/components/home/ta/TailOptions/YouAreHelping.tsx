@@ -1,9 +1,7 @@
-import React from 'react';
 import { Button, Stack } from '@mui/material';
 
 export default function YouAreHelping(props) {
-  const { removeRef, removeStudent, index, handleCancel, theme, tempDisabled } =
-    props;
+  const { removeRef, removeStudent, index, handleCancel, theme, tempDisabled } = props;
 
   return (
     <Stack

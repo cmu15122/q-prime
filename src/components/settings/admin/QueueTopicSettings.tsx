@@ -1,44 +1,40 @@
-import React, { useState } from "react";
-import {
-  Button,
-  TableCell,
-  TableRow,
-  Typography,
-  useTheme,
-} from "@mui/material";
+import { useState } from 'react';
+import { Button, TableCell, TableRow, Typography, useTheme } from '@mui/material';
 
-import TopicDialogBody from "./dialogs/TopicDialogBody";
+import TopicDialogBody from './dialogs/TopicDialogBody';
 
-import AddDialog from "../../common/dialogs/AddDialog";
-import EditDialog from "../../common/dialogs/EditDialog";
-import DeleteDialog from "../../common/dialogs/DeleteDialog";
-import UploadDialog from "../../common/dialogs/UploadDialog";
+import AddDialog from '../../common/dialogs/AddDialog';
+import EditDialog from '../../common/dialogs/EditDialog';
+import DeleteDialog from '../../common/dialogs/DeleteDialog';
+import UploadDialog from '../../common/dialogs/UploadDialog';
 
-import CollapsedTable from "../../common/table/CollapsedTable";
-import EditDeleteRow from "../../common/table/EditDeleteRow";
+import CollapsedTable from '../../common/table/CollapsedTable';
+import EditDeleteRow from '../../common/table/EditDeleteRow';
 
-import { DateTime } from "luxon";
-import download from "downloadjs";
+import { DateTime } from 'luxon';
+import download from 'downloadjs';
 
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
-import { useAuthToken } from "@convex-dev/auth/react";
-import { Doc } from "../../../../convex/_generated/dataModel";
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
+import { useAuthToken } from '@convex-dev/auth/react';
+import { Doc } from '../../../../convex/_generated/dataModel';
 
 export default function QueueTopicSettings() {
   const currAssignments = useQuery(api.home.home_get.getAllAssignments);
-  let assignmentsToList = currAssignments ? ([...currAssignments.all_assignments]) : [];
-  assignmentsToList = assignmentsToList.filter((assignment) => assignment._id !== currAssignments?.other_assignment_id);
+  let assignmentsToList = currAssignments ? [...currAssignments.all_assignments] : [];
+  assignmentsToList = assignmentsToList.filter(
+    (assignment) => assignment._id !== currAssignments?.other_assignment_id,
+  );
 
   const token = useAuthToken();
 
   const theme = useTheme();
 
-  const [selectedRow, setSelectedRow] = useState<Doc<"assignments"> | null>(null);
+  const [selectedRow, setSelectedRow] = useState<Doc<'assignments'> | null>(null);
 
   const handleDownload = async () => {
     if (!token) {
-      console.error("No auth token available");
+      console.error('No auth token available');
       return;
     }
 
@@ -50,7 +46,7 @@ export default function QueueTopicSettings() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        credentials: "include",
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -58,26 +54,24 @@ export default function QueueTopicSettings() {
       }
 
       const blob = await response.blob();
-      const contentDisposition = response.headers.get("Content-Disposition");
+      const contentDisposition = response.headers.get('Content-Disposition');
       const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
-      const filename = filenameMatch
-        ? filenameMatch[1]
-        : "assignments_example.csv";
+      const filename = filenameMatch ? filenameMatch[1] : 'assignments_example.csv';
 
       download(blob, filename);
     } catch (error) {
-      console.error("Error downloading CSV:", error);
+      console.error('Error downloading CSV:', error);
     }
   };
 
   /** Dialog Functions */
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
+  const [name, setName] = useState('');
+  const [category, setCategory] = useState('');
   const [startDate, setStartDate] = useState(DateTime.now());
   const [endDate, setEndDate] = useState(DateTime.now());
 
   const [file, setFile] = useState(null);
-  const [fileName, setFileName] = useState("");
+  const [fileName, setFileName] = useState('');
 
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
@@ -87,8 +81,8 @@ export default function QueueTopicSettings() {
   const handleAddDialog = () => {
     setOpenAdd(true);
 
-    setName("");
-    setCategory("");
+    setName('');
+    setCategory('');
     setStartDate(DateTime.now());
     setEndDate(DateTime.now());
   };
@@ -111,7 +105,7 @@ export default function QueueTopicSettings() {
   const handleUploadDialog = () => {
     setOpenUpload(true);
     setFile(null);
-    setFileName("");
+    setFileName('');
   };
 
   const handleClose = () => {
@@ -132,7 +126,6 @@ export default function QueueTopicSettings() {
   const handleAdd = async (event) => {
     event.preventDefault();
 
-
     await createAssignmentMutation({
       name: name,
       assignment_type: category,
@@ -147,7 +140,7 @@ export default function QueueTopicSettings() {
   const handleEdit = async (event) => {
     event.preventDefault();
     if (!selectedRow?._id) {
-      console.error("No assignment selected");
+      console.error('No assignment selected');
       return;
     }
 
@@ -165,7 +158,7 @@ export default function QueueTopicSettings() {
   const deleteAssignmentMutation = useMutation(api.settings.settings_mutate.deleteAssignment);
   const handleDelete = async () => {
     if (!selectedRow?._id) {
-      console.error("No assignment selected");
+      console.error('No assignment selected');
       return;
     }
 
@@ -179,7 +172,7 @@ export default function QueueTopicSettings() {
   const handleUpload = async (event) => {
     event.preventDefault();
     if (file == null || !token) {
-      console.error("No file selected or no auth token");
+      console.error('No file selected or no auth token');
       return;
     }
 
@@ -188,11 +181,11 @@ export default function QueueTopicSettings() {
       const httpActionUrl = import.meta.env.VITE_APP_CONVEX_SITE_URL;
 
       const response = await fetch(`${httpActionUrl}/upload_assignment_csv`, {
-        method: "POST",
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        credentials: "include",
+        credentials: 'include',
         body: file,
       });
 
@@ -200,10 +193,10 @@ export default function QueueTopicSettings() {
         throw new Error(`Upload failed: ${response.statusText}`);
       }
 
-      console.log("CSV uploaded successfully");
+      console.log('CSV uploaded successfully');
       handleClose();
     } catch (error) {
-      console.error("Error uploading CSV:", error);
+      console.error('Error uploading CSV:', error);
     }
   };
 
@@ -220,32 +213,23 @@ export default function QueueTopicSettings() {
             handleDelete={handleDeleteDialog}
           >
             <TableCell component="th" scope="row" sx={{ pl: 3.25 }}>
-              <Typography sx={{ fontWeight: "bold" }}>{row.name}</Typography>
+              <Typography sx={{ fontWeight: 'bold' }}>{row.name}</Typography>
             </TableCell>
             <TableCell align="left">
-              <Typography sx={{ fontStyle: "italic" }}>
-                {row.assignment_type}
-              </Typography>
+              <Typography sx={{ fontStyle: 'italic' }}>{row.assignment_type}</Typography>
             </TableCell>
             <TableCell align="left">
-              <Typography>
-                {new Date(row.start_date_ms).toLocaleString()}
-              </Typography>
+              <Typography>{new Date(row.start_date_ms).toLocaleString()}</Typography>
             </TableCell>
             <TableCell align="left">
-              <Typography>
-                {new Date(row.end_date_ms).toLocaleString()}
-              </Typography>
+              <Typography>{new Date(row.end_date_ms).toLocaleString()}</Typography>
             </TableCell>
           </EditDeleteRow>
         ))}
-        <TableRow
-          key="actions"
-          style={{ background: theme.palette.background.paper }}
-        >
+        <TableRow key="actions" style={{ background: theme.palette.background.paper }}>
           <TableCell align="center" colSpan={5}>
             <Button
-              sx={{ mr: 1, fontWeight: "bold" }}
+              sx={{ mr: 1, fontWeight: 'bold' }}
               color="primary"
               variant="contained"
               onClick={() => handleAddDialog()}
@@ -253,7 +237,7 @@ export default function QueueTopicSettings() {
               + Add Topic
             </Button>
             <Button
-              sx={{ mr: 1, fontWeight: "bold" }}
+              sx={{ mr: 1, fontWeight: 'bold' }}
               color="info"
               variant="contained"
               onClick={() => handleDownload()}
@@ -261,7 +245,7 @@ export default function QueueTopicSettings() {
               Download CSV Template
             </Button>
             <Button
-              sx={{ mr: 1, fontWeight: "bold" }}
+              sx={{ mr: 1, fontWeight: 'bold' }}
               color="info"
               variant="contained"
               onClick={() => handleUploadDialog()}
@@ -291,7 +275,7 @@ export default function QueueTopicSettings() {
       </AddDialog>
 
       <EditDialog
-        title={"Edit Topic Info"}
+        title={'Edit Topic Info'}
         isOpen={openEdit}
         onClose={handleClose}
         handleEdit={handleEdit}
@@ -313,7 +297,7 @@ export default function QueueTopicSettings() {
         isOpen={openDelete}
         onClose={handleClose}
         handleDelete={handleDelete}
-        itemName={" " + selectedRow?.name}
+        itemName={' ' + selectedRow?.name}
       />
 
       <UploadDialog

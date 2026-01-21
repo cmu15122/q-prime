@@ -1,4 +1,3 @@
-import React from 'react';
 import { IconButton, Button, Stack } from '@mui/material';
 
 import { Delete } from '@mui/icons-material';
@@ -6,14 +5,7 @@ import { Delete } from '@mui/icons-material';
 import ExtraStudentOptions from './ExtraStudentOptions';
 
 export default function PersistentOptions(props) {
-  const {
-    student,
-    removeRef,
-    confirmRemove,
-    handleRemoveButton,
-    index,
-    handleFix,
-  } = props;
+  const { student, removeRef, confirmRemove, handleRemoveButton, index, handleFix } = props;
 
   return (
     <Stack
@@ -35,11 +27,7 @@ export default function PersistentOptions(props) {
           </IconButton>
         )}
       </div>
-      <ExtraStudentOptions
-        handleFix={handleFix}
-        student={student}
-        index={index}
-      />
+      <ExtraStudentOptions handleFix={handleFix} student={student} index={index} />
     </Stack>
   );
 }

@@ -1,5 +1,5 @@
-import { query, QueryCtx } from '../_generated/server';
-import { ConvexError, v } from 'convex/values';
+import { query } from '../_generated/server';
+import { v } from 'convex/values';
 import { Doc } from '../_generated/dataModel';
 import {
   getCurrentSemester,
@@ -24,8 +24,7 @@ export const getQueueData = query({
     const wait_time_data = await getWaittimeData(ctx);
 
     const current_day_of_week = getZoneDayOfWeek(Date.now(), timezone);
-    const current_locations =
-      globalSettings.day_to_location_dict[current_day_of_week] || [];
+    const current_locations = globalSettings.day_to_location_dict[current_day_of_week] || [];
 
     return {
       title: globalSettings.course_name,
@@ -112,11 +111,7 @@ export const getUserData = query({
 export const getAllStudents = query({
   args: {},
   handler: async (ctx, args) => {
-    return await ctx.db
-      .query('ohq')
-      .withIndex('by_position')
-      .order('asc')
-      .collect();
+    return await ctx.db.query('ohq').withIndex('by_position').order('asc').collect();
   },
 });
 
@@ -149,7 +144,7 @@ export const getCurrentAssignments = query({
     const curr_assignments = await ctx.db
       .query('assignments')
       .withIndex('by_sem_end', (x) =>
-        x.eq('semester_id', curr_sem._id).gt('end_date_ms', curr_date)
+        x.eq('semester_id', curr_sem._id).gt('end_date_ms', curr_date),
       )
       .filter((x) => x.lt(x.field('start_date_ms'), curr_date))
       .collect();
@@ -213,9 +208,7 @@ export const firstTimeSetupRequired = query({
   args: {},
   returns: v.boolean(),
   handler: async (ctx, args) => {
-    const existing_global_settings = await ctx.db
-      .query('globalSettings')
-      .collect();
+    const existing_global_settings = await ctx.db.query('globalSettings').collect();
 
     return existing_global_settings.length === 0;
   },

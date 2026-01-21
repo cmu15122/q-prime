@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Button,
   Dialog,
@@ -6,7 +5,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
-} from "@mui/material";
+} from '@mui/material';
 
 export default function AlertOnLogout(props) {
   const { isOpen, setOpen, handleConfirm } = props;
@@ -26,7 +25,7 @@ export default function AlertOnLogout(props) {
         <DialogTitle>Are you sure?</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            {" "}
+            {' '}
             If logged out, you may not get notified when you&apos;re up next.
           </DialogContentText>
         </DialogContent>
@@ -34,12 +33,7 @@ export default function AlertOnLogout(props) {
           <Button variant="contained" onClick={handleClose}>
             Cancel
           </Button>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={handleConfirm}
-            autoFocus
-          >
+          <Button variant="contained" color="error" onClick={handleConfirm} autoFocus>
             Confirm
           </Button>
         </DialogActions>

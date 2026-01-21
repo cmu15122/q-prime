@@ -42,7 +42,7 @@ export const getHelpedStudents = query({
         start_date: v.string(),
         end_date: v.string(),
         question: v.string(),
-      })
+      }),
     ),
   }),
   handler: async (ctx) => {
@@ -52,10 +52,7 @@ export const getHelpedStudents = query({
     const questions = await ctx.db
       .query('questions')
       .withIndex('by_semester_and_finished_by_and_ta', (q) =>
-        q
-          .eq('semester_id', curr_sem._id)
-          .eq('finished_by', 'helped')
-          .eq('ta_id', ta._id)
+        q.eq('semester_id', curr_sem._id).eq('finished_by', 'helped').eq('ta_id', ta._id),
       )
       .collect();
 
@@ -81,7 +78,7 @@ export const getHelpedStudents = query({
           end_date: new Date(q.exit_time_ms).toISOString(),
           question: q.question,
         };
-      })
+      }),
     );
 
     return { helpedStudents };
@@ -103,10 +100,7 @@ export const getNumQuestionsAnswered = query({
     const questions = await ctx.db
       .query('questions')
       .withIndex('by_semester_and_finished_by_and_ta', (q) =>
-        q
-          .eq('semester_id', curr_sem._id)
-          .eq('finished_by', 'helped')
-          .eq('ta_id', ta._id)
+        q.eq('semester_id', curr_sem._id).eq('finished_by', 'helped').eq('ta_id', ta._id),
       )
       .collect();
 
@@ -129,10 +123,7 @@ export const getAverageTimePerQuestion = query({
     const questions = await ctx.db
       .query('questions')
       .withIndex('by_semester_and_finished_by_and_ta', (q) =>
-        q
-          .eq('semester_id', curr_sem._id)
-          .eq('finished_by', 'helped')
-          .eq('ta_id', ta._id)
+        q.eq('semester_id', curr_sem._id).eq('finished_by', 'helped').eq('ta_id', ta._id),
       )
       .collect();
 
@@ -166,10 +157,7 @@ export const getNumQuestionsToday = query({
     const questions = await ctx.db
       .query('questions')
       .withIndex('by_semester_and_entry_time_ms', (q) =>
-        q
-          .eq('semester_id', curr_sem._id)
-          .gte('entry_time_ms', startMs)
-          .lte('entry_time_ms', endMs)
+        q.eq('semester_id', curr_sem._id).gte('entry_time_ms', startMs).lte('entry_time_ms', endMs),
       )
       .collect();
 
@@ -196,10 +184,7 @@ export const getNumBadQuestionsToday = query({
     const questions = await ctx.db
       .query('questions')
       .withIndex('by_semester_and_entry_time_ms', (q) =>
-        q
-          .eq('semester_id', curr_sem._id)
-          .gte('entry_time_ms', startMs)
-          .lte('entry_time_ms', endMs)
+        q.eq('semester_id', curr_sem._id).gte('entry_time_ms', startMs).lte('entry_time_ms', endMs),
       )
       .collect();
 
@@ -233,10 +218,7 @@ export const getAvgWaitTimeToday = query({
     const questions = await ctx.db
       .query('questions')
       .withIndex('by_semester_and_entry_time_ms', (q) =>
-        q
-          .eq('semester_id', curr_sem._id)
-          .gte('entry_time_ms', startMs)
-          .lte('entry_time_ms', endMs)
+        q.eq('semester_id', curr_sem._id).gte('entry_time_ms', startMs).lte('entry_time_ms', endMs),
       )
       .collect();
 
@@ -276,10 +258,7 @@ export const getTaStudentRatioToday = query({
     const questions = await ctx.db
       .query('questions')
       .withIndex('by_semester_and_entry_time_ms', (q) =>
-        q
-          .eq('semester_id', curr_sem._id)
-          .gte('entry_time_ms', startMs)
-          .lte('entry_time_ms', endMs)
+        q.eq('semester_id', curr_sem._id).gte('entry_time_ms', startMs).lte('entry_time_ms', endMs),
       )
       .collect();
 
@@ -312,7 +291,7 @@ export const getTotalNumQuestions = query({
     const questions = await ctx.db
       .query('questions')
       .withIndex('by_semester_and_finished_by_and_ta', (q) =>
-        q.eq('semester_id', curr_sem._id).eq('finished_by', 'helped')
+        q.eq('semester_id', curr_sem._id).eq('finished_by', 'helped'),
       )
       .collect();
 
@@ -335,7 +314,7 @@ export const getTotalAvgTimePerQuestion = query({
     const questions = await ctx.db
       .query('questions')
       .withIndex('by_semester_and_finished_by_and_ta', (q) =>
-        q.eq('semester_id', curr_sem._id).eq('finished_by', 'helped')
+        q.eq('semester_id', curr_sem._id).eq('finished_by', 'helped'),
       )
       .collect();
 
@@ -365,7 +344,7 @@ export const getTotalAvgWaitTime = query({
     const questions = await ctx.db
       .query('questions')
       .withIndex('by_semester_and_finished_by_and_ta', (q) =>
-        q.eq('semester_id', curr_sem._id).eq('finished_by', 'helped')
+        q.eq('semester_id', curr_sem._id).eq('finished_by', 'helped'),
       )
       .collect();
 
@@ -375,8 +354,7 @@ export const getTotalAvgWaitTime = query({
       totalWaitTime += (helpStartMs - q.entry_time_ms) / 1000 / 60;
     }
 
-    const totalAvgWaitTime =
-      questions.length > 0 ? totalWaitTime / questions.length : 0;
+    const totalAvgWaitTime = questions.length > 0 ? totalWaitTime / questions.length : 0;
 
     return { totalAvgWaitTime };
   },
@@ -401,7 +379,7 @@ export const getNumStudentsPerDayLastWeek = query({
     const questions = await ctx.db
       .query('questions')
       .withIndex('by_semester_and_entry_time_ms', (q) =>
-        q.eq('semester_id', curr_sem._id).gte('entry_time_ms', sevenDaysAgoMs)
+        q.eq('semester_id', curr_sem._id).gte('entry_time_ms', sevenDaysAgoMs),
       )
       .collect();
 
@@ -441,19 +419,11 @@ export const getNumStudentsPerDay = query({
     const questions = await ctx.db
       .query('questions')
       .withIndex('by_semester_and_finished_by_and_ta', (q) =>
-        q.eq('semester_id', curr_sem._id).eq('finished_by', 'helped')
+        q.eq('semester_id', curr_sem._id).eq('finished_by', 'helped'),
       )
       .collect();
 
-    const days = [
-      'Sunday',
-      'Monday',
-      'Tuesday',
-      'Wednesday',
-      'Thursday',
-      'Friday',
-      'Saturday',
-    ];
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const counts: Record<string, number> = {};
 
     for (const q of questions) {
@@ -489,7 +459,7 @@ export const getNumStudentsOverall = query({
     const questions = await ctx.db
       .query('questions')
       .withIndex('by_semester_and_finished_by_and_ta', (q) =>
-        q.eq('semester_id', curr_sem._id).eq('finished_by', 'helped')
+        q.eq('semester_id', curr_sem._id).eq('finished_by', 'helped'),
       )
       .collect();
 
@@ -521,7 +491,7 @@ export const getRankedStudents = query({
         count: v.number(),
         badCount: v.number(),
         timeHelped: v.number(),
-      })
+      }),
     ),
   }),
   handler: async (ctx) => {
@@ -531,14 +501,11 @@ export const getRankedStudents = query({
     const questions = await ctx.db
       .query('questions')
       .withIndex('by_semester_and_finished_by_and_ta', (q) =>
-        q.eq('semester_id', curr_sem._id).eq('finished_by', 'helped')
+        q.eq('semester_id', curr_sem._id).eq('finished_by', 'helped'),
       )
       .collect();
 
-    const studentMap: Record<
-      string,
-      { count: number; timeHelped: number; badCount: number }
-    > = {};
+    const studentMap: Record<string, { count: number; timeHelped: number; badCount: number }> = {};
 
     for (const q of questions) {
       if (!studentMap[q.student_id]) {
@@ -567,7 +534,7 @@ export const getRankedStudents = query({
           badCount: stats.badCount,
           timeHelped: Math.round(stats.timeHelped * 10) / 10,
         };
-      })
+      }),
     );
 
     rankedStudents.sort((a, b) => {
@@ -594,7 +561,7 @@ export const getRankedTAs = query({
         ta_email: v.string(),
         count: v.number(),
         timeHelping: v.number(),
-      })
+      }),
     ),
   }),
   handler: async (ctx) => {
@@ -604,7 +571,7 @@ export const getRankedTAs = query({
     const questions = await ctx.db
       .query('questions')
       .withIndex('by_semester_and_finished_by_and_ta', (q) =>
-        q.eq('semester_id', curr_sem._id).eq('finished_by', 'helped')
+        q.eq('semester_id', curr_sem._id).eq('finished_by', 'helped'),
       )
       .collect();
 
@@ -634,7 +601,7 @@ export const getRankedTAs = query({
           count: stats.count,
           timeHelping: Math.round(stats.timeHelping * 10) / 10,
         };
-      })
+      }),
     );
 
     rankedTAs.sort((a, b) => {

@@ -1,14 +1,14 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from 'react';
 
-import YourEntry from "./YourEntry";
-import RemoveQOverlay from "./RemoveQConfirm";
-import TAHelpingOverlay from "./TAHelpingOverlay";
-import UpdateQuestionOverlay from "./UpdateQuestionOverlay";
-import MessageOverlay from "./MessageOverlay";
-import AskQuestion from "../shared/AskQuestion";
+import YourEntry from './YourEntry';
+import RemoveQOverlay from './RemoveQConfirm';
+import TAHelpingOverlay from './TAHelpingOverlay';
+import UpdateQuestionOverlay from './UpdateQuestionOverlay';
+import MessageOverlay from './MessageOverlay';
+import AskQuestion from '../shared/AskQuestion';
 
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
 
 function StudentMain() {
   const [removeConfirm, setRemoveConfirm] = useState(false);
@@ -20,16 +20,14 @@ function StudentMain() {
   const removeStudentMutation = useMutation(api.home.home_mutate.removeStudent);
   const removeFromQueue = async () => {
     await removeStudentMutation({
-      reason: "removed",
+      reason: 'removed',
       student_id: userData!.student_data!.student_id,
     }).finally(() => {
       setRemoveConfirm(false);
     });
   };
 
-  const dismissMessageMutation = useMutation(
-    api.home.home_mutate.dismissMessage,
-  );
+  const dismissMessageMutation = useMutation(api.home.home_mutate.dismissMessage);
   const dismissMessage = async () => {
     await dismissMessageMutation();
   };
@@ -57,10 +55,10 @@ function StudentMain() {
     <div>
       {statusDependentComponents}
 
-      <TAHelpingOverlay open={studentData?.status === "being_helped"} />
+      <TAHelpingOverlay open={studentData?.status === 'being_helped'} />
 
       <UpdateQuestionOverlay
-        open={studentData?.status === "fixing_question"}
+        open={studentData?.status === 'fixing_question'}
         handleClose={() => {}}
       />
 

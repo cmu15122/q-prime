@@ -1,10 +1,7 @@
-import React from 'react';
-import {
-  TextField, Grid,
-} from '@mui/material';
+import { TextField, Grid } from '@mui/material';
 
 export default function AnnouncementDialogBody(props) {
-  const {content, setContent} = props;
+  const { content, setContent } = props;
 
   return (
     <Grid container spacing={3}>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from 'react';
 import {
   Box,
   Button,
@@ -11,36 +11,36 @@ import {
   TableCell,
   TableBody,
   TableContainer,
-} from "@mui/material";
-import { Edit, Delete } from "@mui/icons-material";
+} from '@mui/material';
+import { Edit, Delete } from '@mui/icons-material';
 
-import AnnouncementDialogBody from "./dialogs/AnnouncementDialogBody";
-import AddDialog from "../../common/dialogs/AddDialog";
-import EditDialog from "../../common/dialogs/EditDialog";
-import DeleteDialog from "../../common/dialogs/DeleteDialog";
+import AnnouncementDialogBody from './dialogs/AnnouncementDialogBody';
+import AddDialog from '../../common/dialogs/AddDialog';
+import EditDialog from '../../common/dialogs/EditDialog';
+import DeleteDialog from '../../common/dialogs/DeleteDialog';
 
-import BaseCard from "../../common/cards/BaseCard";
-import ItemRow from "../../common/table/ItemRow";
+import BaseCard from '../../common/cards/BaseCard';
+import ItemRow from '../../common/table/ItemRow';
 
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
 
 export default function Announcements() {
   const queueData = useQuery(api.home.home_get.getQueueData);
   const userData = useQuery(api.home.home_get.getUserData);
-  const isTA = userData && userData.user_kind === "TA";
+  const isTA = userData && userData.user_kind === 'TA';
   const rows = queueData?.announcements || [];
 
   /** Dialog Functions */
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState('');
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
 
   const handleAddDialog = () => {
     setOpenAdd(true);
-    setContent("");
+    setContent('');
   };
 
   const handleEditDialog = (row, idx) => {
@@ -60,15 +60,9 @@ export default function Announcements() {
     setOpenDelete(false);
   };
 
-  const createAnnouncementMutation = useMutation(
-    api.home.home_mutate.createAnnouncement,
-  );
-  const updateAnnouncementMutation = useMutation(
-    api.home.home_mutate.updateAnnouncement,
-  );
-  const deleteAnnouncementMutation = useMutation(
-    api.home.home_mutate.deleteAnnouncement,
-  );
+  const createAnnouncementMutation = useMutation(api.home.home_mutate.createAnnouncement);
+  const updateAnnouncementMutation = useMutation(api.home.home_mutate.updateAnnouncement);
+  const deleteAnnouncementMutation = useMutation(api.home.home_mutate.deleteAnnouncement);
 
   const handleAdd = async (event) => {
     event.preventDefault();
@@ -95,19 +89,15 @@ export default function Announcements() {
   };
 
   return (
-    <div style={{ paddingTop: "10px" }}>
+    <div style={{ paddingTop: '10px' }}>
       <BaseCard>
-        <CardActions style={{ justifyContent: "space-between" }}>
-          <Typography
-            sx={{ fontWeight: "bold", ml: 2, mt: 1 }}
-            variant="h5"
-            gutterBottom
-          >
+        <CardActions style={{ justifyContent: 'space-between' }}>
+          <Typography sx={{ fontWeight: 'bold', ml: 2, mt: 1 }} variant="h5" gutterBottom>
             Announcements
           </Typography>
           {isTA && (
             <Button
-              sx={{ fontWeight: "bold", mr: 1 }}
+              sx={{ fontWeight: 'bold', mr: 1 }}
               variant="contained"
               onClick={handleAddDialog}
             >
@@ -116,12 +106,8 @@ export default function Announcements() {
           )}
         </CardActions>
         <Divider></Divider>
-        <TableContainer sx={{ maxHeight: "200px" }}>
-          <Table
-            aria-label="topicsTable"
-            sx={{ overflow: "scroll" }}
-            stickyHeader
-          >
+        <TableContainer sx={{ maxHeight: '200px' }}>
+          <Table aria-label="topicsTable" sx={{ overflow: 'scroll' }} stickyHeader>
             <TableBody>
               {rows
                 .slice()
@@ -129,19 +115,12 @@ export default function Announcements() {
                 .map((row, index) => (
                   <ItemRow key={index} index={index} rowKey={index}>
                     <TableCell component="th" scope="row" sx={{ pl: 3.25 }}>
-                      <Typography
-                        sx={{ fontWeight: "bold", whiteSpace: "pre-line" }}
-                      >
+                      <Typography sx={{ fontWeight: 'bold', whiteSpace: 'pre-line' }}>
                         {row}
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      <Stack
-                        sx={{ mr: 2 }}
-                        direction="row"
-                        margin="auto"
-                        justifyContent="flex-end"
-                      >
+                      <Stack sx={{ mr: 2 }} direction="row" margin="auto" justifyContent="flex-end">
                         {isTA && (
                           <Box>
                             <IconButton
@@ -152,10 +131,7 @@ export default function Announcements() {
                               <Edit />
                             </IconButton>
 
-                            <IconButton
-                              color="error"
-                              onClick={() => handleDeleteDialog(index)}
-                            >
+                            <IconButton color="error" onClick={() => handleDeleteDialog(index)}>
                               <Delete />
                             </IconButton>
                           </Box>
@@ -179,7 +155,7 @@ export default function Announcements() {
       </AddDialog>
 
       <EditDialog
-        title={"Edit Announcement"}
+        title={'Edit Announcement'}
         isOpen={openEdit}
         onClose={handleClose}
         handleEdit={handleEdit}
@@ -192,7 +168,7 @@ export default function Announcements() {
         isOpen={openDelete}
         onClose={handleClose}
         handleDelete={handleDelete}
-        itemName={"this announcement"}
+        itemName={'this announcement'}
       />
     </div>
   );

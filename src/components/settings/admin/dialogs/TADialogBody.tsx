@@ -1,12 +1,7 @@
-import React from 'react';
-import {
-  Checkbox, FormControlLabel, TextField, Grid,
-} from '@mui/material';
+import { Checkbox, FormControlLabel, TextField, Grid } from '@mui/material';
 
 export default function TADialogBody(props) {
-  const {
-    name, setName, isAdmin, setIsAdmin, email, setEmail,
-  } = props;
+  const { name, setName, isAdmin, setIsAdmin, email, setEmail } = props;
 
   return (
     <Grid container spacing={3}>
@@ -24,13 +19,8 @@ export default function TADialogBody(props) {
         <FormControlLabel
           label="Is Admin?"
           labelPlacement="start"
-          sx={{pt: 1}}
-          control={
-            <Checkbox
-              checked={isAdmin}
-              onChange={(e) => setIsAdmin(e.target.checked)}
-            />
-          }
+          sx={{ pt: 1 }}
+          control={<Checkbox checked={isAdmin} onChange={(e) => setIsAdmin(e.target.checked)} />}
         />
       </Grid>
       <Grid className="d-flex" item xs={12}>

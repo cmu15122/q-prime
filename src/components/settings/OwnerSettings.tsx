@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 import {
   Button,
   CardContent,
@@ -14,24 +14,22 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
-} from "@mui/material";
-import { Delete, Add } from "@mui/icons-material";
+} from '@mui/material';
+import { Delete, Add } from '@mui/icons-material';
 
-import BaseCard from "../common/cards/BaseCard";
+import BaseCard from '../common/cards/BaseCard';
 
-import { useMutation, useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
-import TASettings from "./admin/TASettings";
+import { useMutation, useQuery } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
+import TASettings from './admin/TASettings';
 
 export default function OwnerSettings() {
   const userData = useQuery(api.home.home_get.getUserData);
   const adminSettings = useQuery(api.settings.settings_get.getQueueSettings);
 
   const [isEditing, setIsEditing] = useState(false);
-  const [newSemName, setNewSemName] = useState<string>("");
-  const [ownerEmails, setOwnerEmails] = useState<{ id: number; value: string }[]>(
-    []
-  );
+  const [newSemName, setNewSemName] = useState<string>('');
+  const [ownerEmails, setOwnerEmails] = useState<{ id: number; value: string }[]>([]);
   const [nextId, setNextId] = useState(0);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
 
@@ -47,9 +45,7 @@ export default function OwnerSettings() {
     }
   }, [adminSettings, isEditing]);
 
-  const changeSemesterMutation = useMutation(
-    api.settings.settings_mutate.changeSemester
-  );
+  const changeSemesterMutation = useMutation(api.settings.settings_mutate.changeSemester);
 
   const handleStartEditing = () => {
     setIsEditing(true);
@@ -70,7 +66,7 @@ export default function OwnerSettings() {
   };
 
   const handleAddEmail = () => {
-    setOwnerEmails([...ownerEmails, { id: nextId, value: "" }]);
+    setOwnerEmails([...ownerEmails, { id: nextId, value: '' }]);
     setNextId(nextId + 1);
   };
 
@@ -81,11 +77,7 @@ export default function OwnerSettings() {
   };
 
   const handleEmailChange = (id: number, value: string) => {
-    setOwnerEmails(
-      ownerEmails.map((email) =>
-        email.id === id ? { ...email, value } : email
-      )
-    );
+    setOwnerEmails(ownerEmails.map((email) => (email.id === id ? { ...email, value } : email)));
   };
 
   const handleSaveClick = (event: React.FormEvent) => {
@@ -114,43 +106,28 @@ export default function OwnerSettings() {
 
   const currentUserEmail = userData?.email;
   const isRemovingSelf =
-    currentUserEmail &&
-    !ownerEmails.some((e) => e.value.trim() === currentUserEmail);
+    currentUserEmail && !ownerEmails.some((e) => e.value.trim() === currentUserEmail);
 
   // if user is not an admin TA, we should still show TASettings so they can add new TAs
   // if they are an admin TA, then AdminMain will show this
 
   return (
-    <div style={{ paddingBottom: "80px" }}>
-      <Typography
-        variant="h4"
-        textAlign="center"
-        sx={{ my: 4 }}
-        fontWeight="bold"
-      >
+    <div style={{ paddingBottom: '80px' }}>
+      <Typography variant="h4" textAlign="center" sx={{ my: 4 }} fontWeight="bold">
         Owner Settings
       </Typography>
 
       <BaseCard>
         <CardContent>
-        <Typography
-          sx={{ fontWeight: "bold", mt: 1 }}
-          variant="body1"
-          gutterBottom
-        >
-          Owner Settings
-        </Typography>
+          <Typography sx={{ fontWeight: 'bold', mt: 1 }} variant="body1" gutterBottom>
+            Owner Settings
+          </Typography>
 
           <Stack spacing={2} sx={{ mt: 1 }}>
             {!isEditing ? (
               <Stack direction="row" alignItems="center" spacing={2}>
                 <Typography>Current Semester:</Typography>
-                <TextField
-                  size="small"
-                  value={newSemName ?? ""}
-                  disabled
-                  sx={{ width: 80 }}
-                />
+                <TextField size="small" value={newSemName ?? ''} disabled sx={{ width: 80 }} />
                 {userData?.is_owner && (
                   <Button variant="contained" onClick={handleStartEditing}>
                     Change Semester
@@ -158,8 +135,8 @@ export default function OwnerSettings() {
                 )}
                 <Typography variant="caption" color="text.secondary">
                   {!(userData?.is_owner || false)
-                    ? `Only ${adminSettings?.ownerEmails?.join(", ") || []} can change semester`
-                    : "Each semester has its own settings and stats"}
+                    ? `Only ${adminSettings?.ownerEmails?.join(', ') || []} can change semester`
+                    : 'Each semester has its own settings and stats'}
                 </Typography>
               </Stack>
             ) : (
@@ -180,18 +157,14 @@ export default function OwnerSettings() {
                     />
                   </Stack>
 
-                  <Typography
-                    variant="subtitle2"
-                    fontWeight="bold"
-                    sx={{ mt: 2, mb: 1 }}
-                  >
+                  <Typography variant="subtitle2" fontWeight="bold" sx={{ mt: 2, mb: 1 }}>
                     Owner Emails for {newSemName}:
                   </Typography>
 
                   {ownerEmails.map((email, index) => (
                     <ListItem
                       key={email.id}
-                      sx={{ display: "flex", alignItems: "flex-end", px: 0 }}
+                      sx={{ display: 'flex', alignItems: 'flex-end', px: 0 }}
                     >
                       <TextField
                         label={`Owner Email ${index + 1}`}
@@ -200,9 +173,7 @@ export default function OwnerSettings() {
                         type="email"
                         fullWidth
                         value={email.value}
-                        onChange={(e) =>
-                          handleEmailChange(email.id, e.target.value)
-                        }
+                        onChange={(e) => handleEmailChange(email.id, e.target.value)}
                       />
                       <IconButton
                         onClick={() => handleRemoveEmail(email.id)}
@@ -246,8 +217,7 @@ export default function OwnerSettings() {
         <DialogTitle>Confirm Semester Change</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to change the semester to{" "}
-            <strong>{newSemName}</strong>?
+            Are you sure you want to change the semester to <strong>{newSemName}</strong>?
           </DialogContentText>
           <DialogContentText sx={{ mt: 2 }}>
             <strong>Owners:</strong>
@@ -260,12 +230,9 @@ export default function OwnerSettings() {
             ))}
           </List>
           {isRemovingSelf && (
-            <DialogContentText
-              color="error"
-              sx={{ mt: 2, fontWeight: "bold" }}
-            >
-              Warning: You are not included in the new owner list. You will lose
-              owner access to the new semester immediately after this change.
+            <DialogContentText color="error" sx={{ mt: 2, fontWeight: 'bold' }}>
+              Warning: You are not included in the new owner list. You will lose owner access to the
+              new semester immediately after this change.
             </DialogContentText>
           )}
         </DialogContent>
@@ -274,7 +241,7 @@ export default function OwnerSettings() {
           <Button
             onClick={handleConfirmChange}
             variant="contained"
-            color={isRemovingSelf ? "error" : "primary"}
+            color={isRemovingSelf ? 'error' : 'primary'}
           >
             Confirm
           </Button>

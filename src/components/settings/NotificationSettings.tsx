@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
   CardContent,
   Checkbox,
@@ -6,12 +6,12 @@ import {
   Grid,
   TextField,
   Typography,
-} from "@mui/material";
+} from '@mui/material';
 
-import BaseCard from "../common/cards/BaseCard";
+import BaseCard from '../common/cards/BaseCard';
 
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../convex/_generated/api";
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 
 export default function NotificationSettings() {
   const userData = useQuery(api.home.home_get.getUserData);
@@ -28,9 +28,7 @@ export default function NotificationSettings() {
     }
   }, [userData]);
 
-  const updateNotifSettingsMutation = useMutation(
-    api.settings.settings_mutate.updateNotifications,
-  );
+  const updateNotifSettingsMutation = useMutation(api.settings.settings_mutate.updateNotifications);
 
   const updateNotifSettings = async (joinEnabled, remindEnabled, time) => {
     await updateNotifSettingsMutation({
@@ -43,11 +41,7 @@ export default function NotificationSettings() {
   return (
     <BaseCard>
       <CardContent>
-        <Typography
-          sx={{ fontWeight: "bold", ml: 1, mt: 1 }}
-          variant="body1"
-          gutterBottom
-        >
+        <Typography sx={{ fontWeight: 'bold', ml: 1, mt: 1 }} variant="body1" gutterBottom>
           Notification Settings
         </Typography>
         <Grid container spacing={1}>
@@ -61,11 +55,7 @@ export default function NotificationSettings() {
                   onChange={(e) => {
                     const isJoinNotifsEnabled = e.target.checked;
                     setJoinNotifsEnabled(isJoinNotifsEnabled);
-                    updateNotifSettings(
-                      isJoinNotifsEnabled,
-                      remindNotifsEnabled,
-                      remindTime,
-                    );
+                    updateNotifSettings(isJoinNotifsEnabled, remindNotifsEnabled, remindTime);
                   }}
                 />
               }
@@ -82,11 +72,7 @@ export default function NotificationSettings() {
                   onChange={(e) => {
                     const isRemindNotifsEnabled = e.target.checked;
                     setRemindNotifsEnabled(isRemindNotifsEnabled);
-                    updateNotifSettings(
-                      joinNotifsEnabled,
-                      isRemindNotifsEnabled,
-                      remindTime,
-                    );
+                    updateNotifSettings(joinNotifsEnabled, isRemindNotifsEnabled, remindTime);
                   }}
                 />
               }
@@ -99,17 +85,13 @@ export default function NotificationSettings() {
                     type="number"
                     variant="standard"
                     sx={{ mr: 1, ml: 1, mt: -1 }}
-                    style={{ width: "50px" }}
-                    inputProps={{ style: { textAlign: "center" }, min: 0 }}
+                    style={{ width: '50px' }}
+                    inputProps={{ style: { textAlign: 'center' }, min: 0 }}
                     value={remindTime ?? 15}
                     onChange={(e) => {
                       const newRemindTime = parseInt(e.target.value, 10);
                       setRemindTime(newRemindTime);
-                      updateNotifSettings(
-                        joinNotifsEnabled,
-                        remindNotifsEnabled,
-                        newRemindTime,
-                      );
+                      updateNotifSettings(joinNotifsEnabled, remindNotifsEnabled, newRemindTime);
                     }}
                   />
                   minutes

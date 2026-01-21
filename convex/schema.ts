@@ -134,11 +134,7 @@ export default defineSchema({
   })
     .index('by_student_and_exit_time', ['student_id', 'exit_time_ms'])
     .index('by_semester_and_entry_time_ms', ['semester_id', 'entry_time_ms'])
-    .index('by_semester_and_finished_by_and_ta', [
-      'semester_id',
-      'finished_by',
-      'ta_id',
-    ]),
+    .index('by_semester_and_finished_by_and_ta', ['semester_id', 'finished_by', 'ta_id']),
 
   // use a table as the actual queue lol
   // each row in the table is a student on the queue
@@ -159,8 +155,8 @@ export default defineSchema({
         v.literal('fixing_question'),
         v.literal('frozen'),
         v.literal('cooldown_violation'),
-        v.literal('error')
-      )
+        v.literal('error'),
+      ),
     ),
     position: v.number(),
     question: v.string(),
@@ -176,7 +172,7 @@ export default defineSchema({
         from_ta_name: v.string(),
         message: v.string(),
         sent_time_ms: v.number(),
-      })
+      }),
     ),
     has_unread_messages: v.boolean(),
 
@@ -187,7 +183,7 @@ export default defineSchema({
         preferred_name: v.string(),
         zoom_enabled: v.boolean(),
         zoom_url: v.optional(v.string()),
-      })
+      }),
     ),
   })
     .index('by_student', ['student_id'])

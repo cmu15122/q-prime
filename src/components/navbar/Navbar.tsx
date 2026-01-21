@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
   useMediaQuery,
   AppBar,
@@ -9,21 +9,21 @@ import {
   Menu,
   IconButton,
   Typography,
-} from "@mui/material";
-import MenuIcon from "@mui/icons-material/Menu";
-import { styled, useTheme } from "@mui/material/styles";
+} from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import { styled, useTheme } from '@mui/material/styles';
 
-import OHQueueHeader from "./OHQueueHeader";
-import ChangeNameBtn from "./ChangeNameBtn";
-import GoogleLogin from "../common/GoogleLogin";
-import AlertOnLogout from "./dialogs/AlertOnLogout";
-import ThemeToggle from "./ThemeToggle";
+import OHQueueHeader from './OHQueueHeader';
+import ChangeNameBtn from './ChangeNameBtn';
+import GoogleLogin from '../common/GoogleLogin';
+import AlertOnLogout from './dialogs/AlertOnLogout';
+import ThemeToggle from './ThemeToggle';
 
-import { NotificationsActive } from "@mui/icons-material";
+import { NotificationsActive } from '@mui/icons-material';
 
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../convex/_generated/api";
-import { useAuthActions } from "@convex-dev/auth/react";
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
+import { useAuthActions } from '@convex-dev/auth/react';
 
 function createPage(page, link) {
   return { page, link };
@@ -31,9 +31,9 @@ function createPage(page, link) {
 
 const NavbarButton = styled(Button)(({ theme }) => ({
   disableElevation: true,
-  variant: "subtitle2",
+  variant: 'subtitle2',
   color: theme.alternateColors.navbarText,
-  backgroundColor: "transparent",
+  backgroundColor: 'transparent',
 }));
 
 export default function Navbar(props: { isHome: boolean }) {
@@ -43,18 +43,18 @@ export default function Navbar(props: { isHome: boolean }) {
   const queueData = useQuery(api.home.home_get.getQueueData);
   const userData = useQuery(api.home.home_get.getUserData);
   const isAuthenticated = userData !== null && userData !== undefined;
-  const isTA = isAuthenticated && userData.user_kind === "TA";
+  const isTA = isAuthenticated && userData.user_kind === 'TA';
   const isOwner = isAuthenticated && userData.is_owner;
   const studentData = isAuthenticated ? userData.student_data : null;
 
   const { signOut } = useAuthActions();
 
-  const isMobileView = useMediaQuery("(max-width: 1000px)");
+  const isMobileView = useMediaQuery('(max-width: 1000px)');
   const [pages, setPages] = useState<any[]>([]);
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [alertOpen, setAlertOpen] = useState(false);
 
-  const [pname, setpname] = useState(userData?.preferred_name || "");
+  const [pname, setpname] = useState(userData?.preferred_name || '');
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -72,22 +72,22 @@ export default function Navbar(props: { isHome: boolean }) {
     const newPages: any[] = [];
 
     if (isAuthenticated && isTA) {
-      newPages.push(createPage("Metrics", "metrics"));
+      newPages.push(createPage('Metrics', 'metrics'));
     }
     if (isAuthenticated && (isTA || isOwner)) {
-      newPages.push(createPage("Settings", "settings"));
+      newPages.push(createPage('Settings', 'settings'));
     }
 
     setPages(newPages);
   }, [isAuthenticated, isTA, isOwner]);
 
   useEffect(() => {
-    setpname(userData?.preferred_name || "");
+    setpname(userData?.preferred_name || '');
   }, [userData?.preferred_name, setpname]);
 
   function handleLogout() {
     signOut();
-    window.location.href = "";
+    window.location.href = '';
   }
 
   function openAlert() {
@@ -113,7 +113,7 @@ export default function Navbar(props: { isHome: boolean }) {
   };
 
   const defaultNotificationPermission =
-    "Notification" in window ? Notification.permission : "denied";
+    'Notification' in window ? Notification.permission : 'denied';
   const [notificationPermission, setNotificationPermission] = useState(
     defaultNotificationPermission,
   );
@@ -146,9 +146,9 @@ export default function Navbar(props: { isHome: boolean }) {
         style={{ background: theme.alternateColors.navbar }}
         enableColorOnDark
       >
-        <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
           {((pages && pages.length > 0) || isAuthenticated) && (
-            <Box sx={{ flexGrow: 1, display: "flex", alignItems: "center" }}>
+            <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
               <IconButton
                 size="large"
                 onClick={handleOpenNavMenu}
@@ -160,17 +160,17 @@ export default function Navbar(props: { isHome: boolean }) {
                 id="navbar-menu"
                 anchorEl={anchorElNav}
                 anchorOrigin={{
-                  vertical: "bottom",
-                  horizontal: "left",
+                  vertical: 'bottom',
+                  horizontal: 'left',
                 }}
                 keepMounted
                 transformOrigin={{
-                  vertical: "top",
-                  horizontal: "left",
+                  vertical: 'top',
+                  horizontal: 'left',
                 }}
                 open={Boolean(anchorElNav)}
                 onClose={handleCloseNavMenu}
-                sx={{ display: "block" }}
+                sx={{ display: 'block' }}
               >
                 {isTA &&
                   isHome &&
@@ -187,10 +187,10 @@ export default function Navbar(props: { isHome: boolean }) {
                       </Typography>
                     </MenuItem>
                   ))}
-                {notificationPermission !== "granted" && (
+                {notificationPermission !== 'granted' && (
                   <MenuItem
                     onClick={() => {
-                      if ("Notification" in window) {
+                      if ('Notification' in window) {
                         Notification.requestPermission((permission) => {
                           setNotificationPermission(permission);
                         });
@@ -210,11 +210,7 @@ export default function Navbar(props: { isHome: boolean }) {
                   </MenuItem>
                 ))}
                 {isAuthenticated && (
-                  <ChangeNameBtn
-                    mobile={true}
-                    pname={pname}
-                    setpname={setpname}
-                  />
+                  <ChangeNameBtn mobile={true} pname={pname} setpname={setpname} />
                 )}
                 {isAuthenticated && (
                   <MenuItem onClick={handleLogoutClicked}>
@@ -227,20 +223,16 @@ export default function Navbar(props: { isHome: boolean }) {
             </Box>
           )}
 
-          <Box sx={{ flexGrow: 1, display: "flex", alignItems: "center" }}>
+          <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
             <OHQueueHeader />
           </Box>
           <Box
-            sx={{ flexGrow: 0, display: "flex", alignItems: "center", justifyContent: "flex-end" }}
+            sx={{ flexGrow: 0, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}
           >
             {!isAuthenticated && <GoogleLogin />}
             <ThemeToggle />
           </Box>
-          <AlertOnLogout
-            isOpen={alertOpen}
-            setOpen={setAlertOpen}
-            handleConfirm={handleLogout}
-          />
+          <AlertOnLogout isOpen={alertOpen} setOpen={setAlertOpen} handleConfirm={handleLogout} />
         </Toolbar>
       </AppBar>
     );
@@ -253,17 +245,15 @@ export default function Navbar(props: { isHome: boolean }) {
       enableColorOnDark
       style={{ background: theme.alternateColors.navbar }}
     >
-      <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-        <Box sx={{ flexGrow: 1, display: "flex", alignItems: "center" }}>
+      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
           <OHQueueHeader />
-          {isTA &&
-            isHome &&
-            (queueData?.is_frozen ? unfreezeButton : freezeButton)}
-          {notificationPermission !== "granted" && (
+          {isTA && isHome && (queueData?.is_frozen ? unfreezeButton : freezeButton)}
+          {notificationPermission !== 'granted' && (
             <IconButton
               sx={{ color: theme.alternateColors.navbarText }}
               onClick={() => {
-                if ("Notification" in window) {
+                if ('Notification' in window) {
                   Notification.requestPermission((permission) => {
                     setNotificationPermission(permission);
                   });
@@ -274,16 +264,21 @@ export default function Navbar(props: { isHome: boolean }) {
             </IconButton>
           )}
         </Box>
-        <Box sx={{ flexGrow: 0, display: "flex", alignItems: "center", color: theme.alternateColors.navbarText }}>
-          {isAuthenticated && "Currently Logged in as " + pname}
+        <Box
+          sx={{
+            flexGrow: 0,
+            display: 'flex',
+            alignItems: 'center',
+            color: theme.alternateColors.navbarText,
+          }}
+        >
+          {isAuthenticated && 'Currently Logged in as ' + pname}
         </Box>
-        <Box sx={{ flexGrow: 0, display: "flex", alignItems: "center" }}>
-          {isAuthenticated && (
-            <ChangeNameBtn mobile={false} pname={pname} setpname={setpname} />
-          )}
+        <Box sx={{ flexGrow: 0, display: 'flex', alignItems: 'center' }}>
+          {isAuthenticated && <ChangeNameBtn mobile={false} pname={pname} setpname={setpname} />}
         </Box>
 
-        <Box sx={{ flexGrow: 0, display: "flex", alignItems: "center" }}>
+        <Box sx={{ flexGrow: 0, display: 'flex', alignItems: 'center' }}>
           {pages?.map((page) => (
             <NavbarButton key={page.page} href={page.link}>
               {page.page}
@@ -296,11 +291,7 @@ export default function Navbar(props: { isHome: boolean }) {
           )}
           <ThemeToggle />
         </Box>
-        <AlertOnLogout
-          isOpen={alertOpen}
-          setOpen={setAlertOpen}
-          handleConfirm={handleLogout}
-        />
+        <AlertOnLogout isOpen={alertOpen} setOpen={setAlertOpen} handleConfirm={handleLogout} />
       </Toolbar>
     </AppBar>
   );

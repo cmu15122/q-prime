@@ -1,10 +1,6 @@
 import { query } from '../_generated/server';
 import { v } from 'convex/values';
-import {
-  ensureAuthAndAdmin,
-  getCurrentSemester,
-  getGlobalSettings,
-} from '../common';
+import { ensureAuthAndAdmin, getCurrentSemester, getGlobalSettings } from '../common';
 
 export const getQueueSettings = query({
   args: {},
@@ -120,24 +116,20 @@ export const getAllTAs = query({
       email: v.string(),
       isAdmin: v.boolean(),
       future_ta: v.boolean(),
-    })
+    }),
   ),
   handler: async (ctx, args) => {
     const curr_sem = await getCurrentSemester(ctx);
     const ta_sem_users = await ctx.db
       .query('semesterUsers')
-      .withIndex('by_sem_and_kind', (x) =>
-        x.eq('semester_id', curr_sem._id).eq('kind', 'TA')
-      )
+      .withIndex('by_sem_and_kind', (x) => x.eq('semester_id', curr_sem._id).eq('kind', 'TA'))
       .collect();
 
     const tas = await Promise.all(
       ta_sem_users.map(async (sem_user) => {
         const ta_promise = ctx.db
           .query('tas')
-          .withIndex('by_semuser', (x) =>
-            x.eq('semester_user_id', sem_user._id)
-          )
+          .withIndex('by_semuser', (x) => x.eq('semester_user_id', sem_user._id))
           .first();
 
         const user_promise = ctx.db.get(sem_user.user_id);
@@ -148,7 +140,7 @@ export const getAllTAs = query({
           ta: ta!,
           user: user!,
         };
-      })
+      }),
     );
 
     const future_tas = await ctx.db

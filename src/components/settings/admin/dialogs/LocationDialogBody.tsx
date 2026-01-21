@@ -1,10 +1,7 @@
-import React from 'react';
-import {
-  TextField, Grid,
-} from '@mui/material';
+import { TextField, Grid } from '@mui/material';
 
 export default function LocationDialogBody(props) {
-  const {room, setRoom} = props;
+  const { room, setRoom } = props;
 
   return (
     <Grid container spacing={3}>

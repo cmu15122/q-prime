@@ -1,15 +1,15 @@
-import React, { useState } from "react";
-import { Divider, Menu, MenuItem, IconButton, Typography } from "@mui/material";
-import SettingsIcon from "@mui/icons-material/Settings";
-import { Help } from "@mui/icons-material";
-import ChatIcon from "@mui/icons-material/Chat";
+import { useState } from 'react';
+import { Divider, Menu, MenuItem, IconButton, Typography } from '@mui/material';
+import SettingsIcon from '@mui/icons-material/Settings';
+import { Help } from '@mui/icons-material';
+import ChatIcon from '@mui/icons-material/Chat';
 
-import MessageDialog from "../dialogs/MessageDialog";
-import { Doc } from "../../../../../convex/_generated/dataModel";
+import MessageDialog from '../dialogs/MessageDialog';
+import { Doc } from '../../../../../convex/_generated/dataModel';
 
 export default function ExtraStudentOptions(props) {
   const { handleFix, index } = props;
-  const student: Doc<"ohq"> = props["student"];
+  const student: Doc<'ohq'> = props['student'];
 
   const [anchorEl, setAnchorEl] = useState(null);
   const open = Boolean(anchorEl);
@@ -36,9 +36,9 @@ export default function ExtraStudentOptions(props) {
     <div>
       <IconButton
         id="extras-button"
-        aria-controls={open ? "extras-menu" : undefined}
+        aria-controls={open ? 'extras-menu' : undefined}
         aria-haspopup="true"
-        aria-expanded={open ? "true" : undefined}
+        aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
       >
         <SettingsIcon />
@@ -50,16 +50,16 @@ export default function ExtraStudentOptions(props) {
         open={open}
         onClose={handleClose}
         anchorOrigin={{
-          vertical: "center",
-          horizontal: "right",
+          vertical: 'center',
+          horizontal: 'right',
         }}
         transformOrigin={{
-          vertical: "center",
-          horizontal: "left",
+          vertical: 'center',
+          horizontal: 'left',
         }}
       >
         <MenuItem
-          disabled={student.status !== "waiting"}
+          disabled={student.status !== 'waiting'}
           onClick={() => {
             handleClose();
             handleFix(index);
@@ -67,10 +67,10 @@ export default function ExtraStudentOptions(props) {
         >
           <div
             style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "center",
-              alignItems: "center",
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignItems: 'center',
             }}
           >
             <div>
@@ -91,14 +91,14 @@ export default function ExtraStudentOptions(props) {
             handleClose();
             handleMessage();
           }}
-          disabled={!(student.status === "waiting")}
+          disabled={!(student.status === 'waiting')}
         >
           <div
             style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "center",
-              alignItems: "center",
+              display: 'flex',
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignItems: 'center',
             }}
           >
             <div>
@@ -113,11 +113,7 @@ export default function ExtraStudentOptions(props) {
         </MenuItem>
       </Menu>
 
-      <MessageDialog
-        isOpen={openMessage}
-        onClose={handleCloseDialog}
-        student={student}
-      />
+      <MessageDialog isOpen={openMessage} onClose={handleCloseDialog} student={student} />
     </div>
   );
 }

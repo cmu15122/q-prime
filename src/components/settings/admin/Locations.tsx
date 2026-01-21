@@ -1,7 +1,5 @@
-import React, {useState} from 'react';
-import {
-  TableCell, Typography,
-} from '@mui/material';
+import { useState } from 'react';
+import { TableCell, Typography } from '@mui/material';
 
 import DayPicker from './DayPicker';
 
@@ -52,22 +50,15 @@ export default function Locations() {
 
   return (
     <div>
-      <CollapsedTable
-        title="Location Settings"
-      >
-        {
-          Object.keys(roomDictionary).sort().map((room, index) => (
-            <ItemRow
-              key={index}
-              index={index}
-              rowKey={room}
-            >
-              <TableCell component="th" scope="row" sx={{pl: 3.25}}>
-                <Typography sx={{fontWeight: 'bold'}}>
-                  {room}
-                </Typography>
+      <CollapsedTable title="Location Settings">
+        {Object.keys(roomDictionary)
+          .sort()
+          .map((room, index) => (
+            <ItemRow key={index} index={index} rowKey={room}>
+              <TableCell component="th" scope="row" sx={{ pl: 3.25 }}>
+                <Typography sx={{ fontWeight: 'bold' }}>{room}</Typography>
               </TableCell>
-              <TableCell component="th" align="right" sx={{pr: 3.25}}>
+              <TableCell component="th" align="right" sx={{ pr: 3.25 }}>
                 <DayPicker
                   convertIdxToDays={convertIdxToDays}
                   room={room}
@@ -78,12 +69,8 @@ export default function Locations() {
                 />
               </TableCell>
             </ItemRow>
-          ))
-        }
-        <AddRow
-          addButtonLabel="+ Add Location"
-          handleAdd={handleAdd}
-        />
+          ))}
+        <AddRow addButtonLabel="+ Add Location" handleAdd={handleAdd} />
       </CollapsedTable>
 
       <AddDialog
@@ -92,10 +79,7 @@ export default function Locations() {
         handleCreate={handleCreate}
         title="Add New Location"
       >
-        <LocationDialogBody
-          room={room}
-          setRoom={setRoom}
-        />
+        <LocationDialogBody room={room} setRoom={setRoom} />
       </AddDialog>
     </div>
   );

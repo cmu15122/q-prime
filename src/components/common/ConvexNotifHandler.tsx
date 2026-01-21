@@ -1,5 +1,5 @@
 import { useQuery } from 'convex/react';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../../../convex/_generated/api';
 
 export default function ConvexNotifHandler() {
@@ -16,11 +16,10 @@ export default function ConvexNotifHandler() {
             requireInteraction: true,
           });
         }
-
       }
       setOldNotifTimestamp(notif.timestamp);
     }
-  }, [notif])
+  }, [notif]);
 
-  return <></>
+  return <></>;
 }

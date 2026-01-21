@@ -1,13 +1,5 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import {
-  Button,
-  Checkbox,
-  TableCell,
-  TableRow,
-  Typography,
-  useTheme,
-  Stack,
-} from '@mui/material';
+import { useState } from 'react';
+import { Button, Checkbox, TableCell, TableRow, Typography, useTheme, Stack } from '@mui/material';
 
 import AccessControlDialogBody from './dialogs/AccessControlDialogBody';
 
@@ -20,9 +12,9 @@ import CollapsedTable from '../../common/table/CollapsedTable';
 import EditDeleteRow from '../../common/table/EditDeleteRow';
 
 import download from 'downloadjs';
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
-import { useAuthToken } from "@convex-dev/auth/react";
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
+import { useAuthToken } from '@convex-dev/auth/react';
 
 export default function AccessControlSettings() {
   const theme = useTheme();
@@ -33,7 +25,7 @@ export default function AccessControlSettings() {
   const [selectedListType, setSelectedListType] = useState<'whitelist' | 'blacklist' | null>(null);
   const token = useAuthToken();
 
-  let rows: { email: string, isWhitelisted: boolean, isBlacklisted: boolean }[] = [];
+  const rows: { email: string; isWhitelisted: boolean; isBlacklisted: boolean }[] = [];
 
   for (const email of accessControlSettings?.whitelistEmails || []) {
     rows.push({ email, isWhitelisted: true, isBlacklisted: false });
@@ -45,7 +37,7 @@ export default function AccessControlSettings() {
 
   const handleDownload = async () => {
     if (!token) {
-      console.error("No auth token available");
+      console.error('No auth token available');
       return;
     }
 
@@ -57,7 +49,7 @@ export default function AccessControlSettings() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        credentials: "include",
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -65,16 +57,14 @@ export default function AccessControlSettings() {
       }
 
       const blob = await response.blob();
-      const contentDisposition = response.headers.get("Content-Disposition");
+      const contentDisposition = response.headers.get('Content-Disposition');
       const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
-      const filename = filenameMatch
-        ? filenameMatch[1]
-        : "access_control_template.csv";
+      const filename = filenameMatch ? filenameMatch[1] : 'access_control_template.csv';
 
       download(blob, filename);
     } catch (error) {
-      console.error("Error downloading CSV:", error);
-    };
+      console.error('Error downloading CSV:', error);
+    }
   };
 
   const updateWhitelistSettings = useMutation(api.settings.settings_mutate.updateWhitelistSettings);
@@ -142,7 +132,9 @@ export default function AccessControlSettings() {
     setOpenUpload(false);
   };
 
-  const updateAccessControlledUser = useMutation(api.settings.settings_mutate.updateAccessControlledUser);
+  const updateAccessControlledUser = useMutation(
+    api.settings.settings_mutate.updateAccessControlledUser,
+  );
 
   // shared for add, edit, and delete
   const handleUpdate = async (event) => {
@@ -160,7 +152,7 @@ export default function AccessControlSettings() {
   const handleUpload = async (event) => {
     event.preventDefault();
     if (file == null || !token) {
-      console.error("No file selected or no auth token");
+      console.error('No file selected or no auth token');
       return;
     }
 
@@ -169,11 +161,11 @@ export default function AccessControlSettings() {
       const httpActionUrl = import.meta.env.VITE_APP_CONVEX_SITE_URL;
 
       const response = await fetch(`${httpActionUrl}/upload_access_control_csv`, {
-        method: "POST",
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        credentials: "include",
+        credentials: 'include',
         body: file,
       });
 
@@ -181,12 +173,12 @@ export default function AccessControlSettings() {
         throw new Error(`Upload failed: ${response.statusText}`);
       }
 
-      console.log("CSV uploaded successfully");
+      console.log('CSV uploaded successfully');
       handleClose();
     } catch (error) {
-      console.error("Error uploading CSV:", error);
-    };
-  }
+      console.error('Error uploading CSV:', error);
+    }
+  };
 
   const getStatusText = (row) => {
     if (row.isWhitelisted) return 'Whitelisted';
@@ -202,13 +194,11 @@ export default function AccessControlSettings() {
 
   return (
     <div>
-      <CollapsedTable
-        title="Access Control Settings"
-      >
+      <CollapsedTable title="Access Control Settings">
         {/* Settings Controls */}
-        <TableRow style={{background: theme.palette.background.paper}}>
-          <TableCell colSpan={5} sx={{py: 3}}>
-            <Stack spacing={2} sx={{px: 2}}>
+        <TableRow style={{ background: theme.palette.background.paper }}>
+          <TableCell colSpan={5} sx={{ py: 3 }}>
+            <Stack spacing={2} sx={{ px: 2 }}>
               <Stack direction="row" alignItems="center" spacing={1}>
                 <Typography>Enable Whitelist:</Typography>
                 <Checkbox
@@ -241,13 +231,13 @@ export default function AccessControlSettings() {
             index={index}
             row={row}
             rowKey={row.email}
-            handleEdit={() => handleEditDialog(index, row.isWhitelisted ? 'whitelist' : 'blacklist')}
+            handleEdit={() =>
+              handleEditDialog(index, row.isWhitelisted ? 'whitelist' : 'blacklist')
+            }
             handleDelete={() => handleDeleteDialog(index)}
           >
-            <TableCell component="th" scope="row" sx={{pl: 3.25}}>
-              <Typography sx={{fontWeight: 'bold'}}>
-                {row.email}
-              </Typography>
+            <TableCell component="th" scope="row" sx={{ pl: 3.25 }}>
+              <Typography sx={{ fontWeight: 'bold' }}>{row.email}</Typography>
             </TableCell>
             <TableCell align="left">
               <Typography
@@ -263,18 +253,30 @@ export default function AccessControlSettings() {
         ))}
 
         {/* Action Buttons */}
-        <TableRow
-          key="actions"
-          style={{background: theme.palette.background.paper}}
-        >
+        <TableRow key="actions" style={{ background: theme.palette.background.paper }}>
           <TableCell align="center" colSpan={5}>
-            <Button sx={{mr: 1, fontWeight: 'bold'}} color="primary" variant="contained" onClick={() => handleAddDialog()}>
+            <Button
+              sx={{ mr: 1, fontWeight: 'bold' }}
+              color="primary"
+              variant="contained"
+              onClick={() => handleAddDialog()}
+            >
               + ADD USER
             </Button>
-            <Button sx={{mr: 1, fontWeight: 'bold'}} color="info" variant="contained" onClick={() => handleDownload()}>
+            <Button
+              sx={{ mr: 1, fontWeight: 'bold' }}
+              color="info"
+              variant="contained"
+              onClick={() => handleDownload()}
+            >
               DOWNLOAD CSV TEMPLATE
             </Button>
-            <Button sx={{mr: 1, fontWeight: 'bold'}} color="info" variant="contained" onClick={() => handleUploadDialog()}>
+            <Button
+              sx={{ mr: 1, fontWeight: 'bold' }}
+              color="info"
+              variant="contained"
+              onClick={() => handleUploadDialog()}
+            >
               UPLOAD CSV
             </Button>
           </TableCell>
@@ -296,7 +298,7 @@ export default function AccessControlSettings() {
       </AddDialog>
 
       <EditDialog
-        title={'Edit Access Control for "'+email+'"'}
+        title={'Edit Access Control for "' + email + '"'}
         isOpen={openEdit}
         onClose={handleClose}
         handleEdit={handleUpdate}
@@ -314,7 +316,12 @@ export default function AccessControlSettings() {
         isOpen={openDelete}
         onClose={handleClose}
         handleDelete={handleUpdate}
-        itemName={' ' + (selectedRowIdx !== null && rows[selectedRowIdx!].email ? rows[selectedRowIdx!].email : '')}
+        itemName={
+          ' ' +
+          (selectedRowIdx !== null && rows[selectedRowIdx!].email
+            ? rows[selectedRowIdx!].email
+            : '')
+        }
       />
 
       <UploadDialog

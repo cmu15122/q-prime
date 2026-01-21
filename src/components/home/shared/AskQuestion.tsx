@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
   Typography,
   Divider,
@@ -12,15 +12,15 @@ import {
   Select,
   Input,
   Button,
-} from "@mui/material";
+} from '@mui/material';
 
-import CooldownViolationOverlay from "./CooldownViolationOverlay";
-import BaseCard from "../../common/cards/BaseCard";
+import CooldownViolationOverlay from './CooldownViolationOverlay';
+import BaseCard from '../../common/cards/BaseCard';
 
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
-import { Id } from "../../../../convex/_generated/dataModel";
-import { ConvexError } from "convex/values";
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
+import { Id } from '../../../../convex/_generated/dataModel';
+import { ConvexError } from 'convex/values';
 
 export default function AskQuestion() {
   const queueData = useQuery(api.home.home_get.getQueueData);
@@ -28,13 +28,11 @@ export default function AskQuestion() {
   const currAssignments = useQuery(api.home.home_get.getCurrentAssignments);
 
   // not changing name or email to use global because this component can also be used by TAs to manually add questions
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [location, setLocation] = useState("");
-  const [assignmentId, setAssignmentId] = useState<Id<"assignments"> | null>(
-    null,
-  );
-  const [question, setQuestion] = useState("");
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [location, setLocation] = useState('');
+  const [assignmentId, setAssignmentId] = useState<Id<'assignments'> | null>(null);
+  const [question, setQuestion] = useState('');
 
   const [showCooldownOverlay, setShowCooldownOverlay] = useState(false);
   const [timePassed, setTimePassed] = useState(0);
@@ -47,7 +45,7 @@ export default function AskQuestion() {
     if (queueData) {
       let new_locations = queueData.current_locations;
       if (new_locations.length === 0) {
-        new_locations = ["Office Hours"];
+        new_locations = ['Office Hours'];
       }
       if (new_locations.length === 1) {
         setLocation(new_locations[0]);
@@ -62,10 +60,10 @@ export default function AskQuestion() {
         setAssignmentId(currAssignments[0]._id);
       }
     }
-  }, [currAssignments])
+  }, [currAssignments]);
 
   useEffect(() => {
-    if (userData && userData.user_kind === "student") {
+    if (userData && userData.user_kind === 'student') {
       setName(userData.preferred_name);
       setEmail(userData.email);
     }
@@ -88,13 +86,13 @@ export default function AskQuestion() {
     })
       .catch((err) => {
         if (err instanceof ConvexError) {
-          let errData = err.data as {
+          const errData = err.data as {
             code: string;
             rejoin_time_ms: number;
             waited_time_ms: number;
           };
 
-          if (errData.code === "COOLDOWN_VIOLATION") {
+          if (errData.code === 'COOLDOWN_VIOLATION') {
             setTimePassed(Math.round(errData.waited_time_ms / 1000 / 60));
             setShowCooldownOverlay(true);
           }
@@ -107,18 +105,18 @@ export default function AskQuestion() {
   }
 
   function clearValues() {
-    setName("");
-    setEmail("");
-    setLocation("");
+    setName('');
+    setEmail('');
+    setLocation('');
     setAssignmentId(null);
-    setQuestion("");
+    setQuestion('');
   }
 
   return (
     <div>
       <BaseCard>
-        <CardActions style={{ justifyContent: "space-between" }}>
-          <Typography variant="h5" sx={{ fontWeight: "bold", ml: 2, my: 1 }}>
+        <CardActions style={{ justifyContent: 'space-between' }}>
+          <Typography variant="h5" sx={{ fontWeight: 'bold', ml: 2, my: 1 }}>
             Ask A Question
           </Typography>
         </CardActions>
@@ -126,9 +124,9 @@ export default function AskQuestion() {
 
         <CardContent sx={{ mx: 1.5 }}>
           <form onSubmit={handleSubmit}>
-            {userData && userData.user_kind === "TA" && (
+            {userData && userData.user_kind === 'TA' && (
               <Stack direction="row" justifyContent="left" sx={{ mb: 2 }}>
-                <Box sx={{ minWidth: 120, width: "47%" }}>
+                <Box sx={{ minWidth: 120, width: '47%' }}>
                   <FormControl required fullWidth>
                     <Input
                       placeholder="Student Name"
@@ -139,9 +137,7 @@ export default function AskQuestion() {
                     />
                   </FormControl>
                 </Box>
-                <Box
-                  sx={{ minWidth: 120, width: "47%", margin: "auto", mr: 1 }}
-                >
+                <Box sx={{ minWidth: 120, width: '47%', margin: 'auto', mr: 1 }}>
                   <FormControl required fullWidth>
                     <Input
                       placeholder="Student Email"
@@ -155,16 +151,16 @@ export default function AskQuestion() {
               </Stack>
             )}
             <Stack direction="row" justifyContent="left">
-              <Box sx={{ minWidth: 120, width: "47%" }}>
+              <Box sx={{ minWidth: 120, width: '47%' }}>
                 <FormControl variant="standard" required fullWidth>
                   <InputLabel id="location-select">Location</InputLabel>
                   <Select
                     labelId="location-select-label"
                     id="location-select"
-                    value={location ?? ""}
+                    value={location ?? ''}
                     label="Location"
                     onChange={(e) => setLocation(e.target.value)}
-                    style={{ textAlign: "left" }}
+                    style={{ textAlign: 'left' }}
                   >
                     {locations.map((loc) => (
                       <MenuItem value={loc} key={loc}>
@@ -174,18 +170,16 @@ export default function AskQuestion() {
                   </Select>
                 </FormControl>
               </Box>
-              <Box sx={{ minWidth: 120, width: "47%", margin: "auto", mr: 1 }}>
+              <Box sx={{ minWidth: 120, width: '47%', margin: 'auto', mr: 1 }}>
                 <FormControl variant="standard" required fullWidth>
                   <InputLabel id="topic-select">Topic</InputLabel>
                   <Select
                     labelId="topic-select-label"
                     id="topic-select"
-                    value={assignmentId ?? ""}
+                    value={assignmentId ?? ''}
                     label="Topic"
-                    onChange={(e) =>
-                      setAssignmentId(e.target.value as Id<"assignments">)
-                    }
-                    style={{ textAlign: "left" }}
+                    onChange={(e) => setAssignmentId(e.target.value as Id<'assignments'>)}
+                    style={{ textAlign: 'left' }}
                   >
                     {(currAssignments || []).map((topic) => (
                       <MenuItem value={topic._id} key={topic._id}>
@@ -196,17 +190,14 @@ export default function AskQuestion() {
                 </FormControl>
               </Box>
             </Stack>
-            <Typography
-              variant="h6"
-              sx={{ fontWeight: "bold", textAlign: "left", mt: 2 }}
-            >
+            <Typography variant="h6" sx={{ fontWeight: 'bold', textAlign: 'left', mt: 2 }}>
               Question:
             </Typography>
             <FormControl required fullWidth sx={{ mt: 0.5 }}>
               <Input
                 placeholder="Question (max 256 characters)"
                 onChange={(event) => setQuestion(event.target.value)}
-                value={question ?? ""}
+                value={question ?? ''}
                 fullWidth
                 multiline
                 inputProps={{ maxLength: 256 }}
@@ -220,9 +211,9 @@ export default function AskQuestion() {
               sx={{
                 mt: 3,
                 py: 1,
-                fontSize: "16px",
-                fontWeight: "bold",
-                alignContent: "center",
+                fontSize: '16px',
+                fontWeight: 'bold',
+                alignContent: 'center',
               }}
               type="submit"
             >

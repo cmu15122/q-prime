@@ -1,16 +1,9 @@
-import React from "react";
-import {
-  CardContent,
-  Divider,
-  Stack,
-  Typography,
-  useTheme,
-} from "@mui/material";
+import { CardContent, Divider, Stack, Typography, useTheme } from '@mui/material';
 
-import BaseCard from "../../common/cards/BaseCard";
+import BaseCard from '../../common/cards/BaseCard';
 
-import { useQuery } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
+import { useQuery } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
 
 export default function QueueStats() {
   const theme = useTheme();
@@ -54,21 +47,19 @@ export default function QueueStats() {
           </div>
           <div>
             <Typography variant="body1" sx={{ mt: 2 }}>
-              There are <strong>{queueData?.num_students || 0} students</strong>{" "}
-              on the queue.
+              There are <strong>{queueData?.num_students || 0} students</strong> on the queue.
             </Typography>
             {queueData && (
               <Typography variant="body1" sx={{ mt: 1.5, mb: 2 }}>
-                The estimated wait time is{" "}
+                The estimated wait time is{' '}
                 <strong>
                   {queueData.num_tas === 0
                     ? 0
                     : Math.floor(
-                        (queueData.num_unhelped * queueData.mins_per_student) /
-                          queueData.num_tas,
-                      )}{" "}
+                        (queueData.num_unhelped * queueData.mins_per_student) / queueData.num_tas,
+                      )}{' '}
                   minutes
-                </strong>{" "}
+                </strong>{' '}
                 from the end of the queue.
               </Typography>
             )}

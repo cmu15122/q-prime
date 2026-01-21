@@ -10,7 +10,7 @@ import {
   getGlobalSettings,
   getQueueLength,
 } from '../common';
-import { createAccount } from '@convex-dev/auth/server';
+import { Id } from '../_generated/dataModel';
 
 /** General Settings (User-specific) **/
 
@@ -398,9 +398,7 @@ export const updateLocations = mutation({
       } else {
         // day is NOT selected for room
         if (currRoomForDay && currRoomForDay.includes(args.room)) {
-          newDayDictionary[dayIndex] = currRoomForDay.filter(
-            (r) => r !== args.room
-          );
+          newDayDictionary[dayIndex] = currRoomForDay.filter((r) => r !== args.room);
         }
       }
     }
@@ -561,12 +559,12 @@ export const createTA = mutation({
       const curr_sem_user = await ctx.db
         .query('semesterUsers')
         .withIndex('by_sem_and_user', (q) =>
-          q.eq('semester_id', curr_sem._id).eq('user_id', user._id)
+          q.eq('semester_id', curr_sem._id).eq('user_id', user._id),
         )
         .first();
 
-      let curr_sem_user_id = null;
-      let user_prefs_id = null;
+      let curr_sem_user_id: Id<'semesterUsers'> | null = null;
+      let user_prefs_id: Id<'userPreferences'> | null = null;
 
       if (curr_sem_user == null) {
         const user_prefs = await ctx.db
@@ -575,9 +573,7 @@ export const createTA = mutation({
           .first();
 
         if (!user_prefs) {
-          throw new ConvexError(
-            'User preferences not found when creating semester user'
-          );
+          throw new ConvexError('User preferences not found when creating semester user');
         }
 
         user_prefs_id = user_prefs._id;
@@ -606,9 +602,7 @@ export const createTA = mutation({
       // Now make a TA entry if it doesn't exist already
       const existing_ta = await ctx.db
         .query('tas')
-        .withIndex('by_semuser', (x) =>
-          x.eq('semester_user_id', curr_sem_user_id)
-        )
+        .withIndex('by_semuser', (x) => x.eq('semester_user_id', curr_sem_user_id))
         .first();
 
       if (existing_ta) {
@@ -636,7 +630,7 @@ export const createTA = mutation({
       const existing_future_ta = await ctx.db
         .query('future_tas')
         .withIndex('by_sem_and_email', (x) =>
-          x.eq('semester_id', curr_sem._id).eq('email', args.email)
+          x.eq('semester_id', curr_sem._id).eq('email', args.email),
         )
         .first();
 
@@ -683,14 +677,12 @@ export const updateTA = mutation({
       const future_ta = await ctx.db
         .query('future_tas')
         .withIndex('by_sem_and_email', (x) =>
-          x.eq('semester_id', curr_sem._id).eq('email', args.email)
+          x.eq('semester_id', curr_sem._id).eq('email', args.email),
         )
         .first();
 
       if (!future_ta) {
-        throw new ConvexError(
-          'User does not exist in the current or future semesters'
-        );
+        throw new ConvexError('User does not exist in the current or future semesters');
       }
 
       await ctx.db.patch(future_ta._id, {
@@ -700,14 +692,12 @@ export const updateTA = mutation({
       const sem_user = await ctx.db
         .query('semesterUsers')
         .withIndex('by_sem_and_user', (x) =>
-          x.eq('semester_id', curr_sem._id).eq('user_id', user._id)
+          x.eq('semester_id', curr_sem._id).eq('user_id', user._id),
         )
         .first();
 
       if (!sem_user) {
-        throw new ConvexError(
-          'TA user exists but does not have a sem_user entry'
-        );
+        throw new ConvexError('TA user exists but does not have a sem_user entry');
       }
 
       const ta = await ctx.db
@@ -753,14 +743,12 @@ export const deleteTA = mutation({
       const future_ta = await ctx.db
         .query('future_tas')
         .withIndex('by_sem_and_email', (x) =>
-          x.eq('semester_id', curr_sem._id).eq('email', args.email)
+          x.eq('semester_id', curr_sem._id).eq('email', args.email),
         )
         .first();
 
       if (!future_ta) {
-        throw new ConvexError(
-          'User does not exist in the current or future semesters'
-        );
+        throw new ConvexError('User does not exist in the current or future semesters');
       }
 
       await ctx.db.delete(future_ta._id);
@@ -768,14 +756,12 @@ export const deleteTA = mutation({
       const sem_user = await ctx.db
         .query('semesterUsers')
         .withIndex('by_sem_and_user', (x) =>
-          x.eq('semester_id', curr_sem._id).eq('user_id', user._id)
+          x.eq('semester_id', curr_sem._id).eq('user_id', user._id),
         )
         .first();
 
       if (!sem_user) {
-        throw new ConvexError(
-          'TA user exists but does not have a sem_user entry'
-        );
+        throw new ConvexError('TA user exists but does not have a sem_user entry');
       }
 
       const ta = await ctx.db

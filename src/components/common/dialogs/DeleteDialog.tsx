@@ -1,26 +1,27 @@
-import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Box, Button, Dialog, DialogContent, Typography,
-} from '@mui/material';
+import { Box, Button, Dialog, DialogContent, Typography } from '@mui/material';
 
 export default function DeleteDialog(props) {
-  const {title, isOpen, onClose, handleDelete, itemName} = props;
+  const { title, isOpen, onClose, handleDelete, itemName } = props;
 
   return (
-    <Dialog
-      open={isOpen}
-      onClose={onClose}
-    >
+    <Dialog open={isOpen} onClose={onClose}>
       <DialogContent>
-        <Typography variant="h5" sx={{pb: 3, fontWeight: 'bold', textAlign: 'center'}}>
+        <Typography variant="h5" sx={{ pb: 3, fontWeight: 'bold', textAlign: 'center' }}>
           {title}
         </Typography>
-        <Typography sx={{textAlign: 'center'}}>
+        <Typography sx={{ textAlign: 'center' }}>
           Are you sure you want to remove <strong>{itemName}</strong>?
         </Typography>
-        <Box textAlign='center' sx={{pt: 5}}>
-          <Button onClick={handleDelete} variant="contained" color="error" sx={{alignSelf: 'center'}}>Delete</Button>
+        <Box textAlign="center" sx={{ pt: 5 }}>
+          <Button
+            onClick={handleDelete}
+            variant="contained"
+            color="error"
+            sx={{ alignSelf: 'center' }}
+          >
+            Delete
+          </Button>
         </Box>
       </DialogContent>
     </Dialog>

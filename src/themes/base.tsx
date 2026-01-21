@@ -74,14 +74,37 @@ const colors = {
 const createShadowArray = (mode: Mode): Shadows => {
   const s = tokens.shadows[mode];
   return [
-    'none', s.sm, s.sm, s.md, s.md, s.md, s.md, s.md,
-    s.lg, s.lg, s.lg, s.lg, s.lg, s.lg, s.lg, s.lg,
-    s.lg, s.lg, s.lg, s.lg, s.lg, s.lg, s.lg, s.lg,
+    'none',
+    s.sm,
+    s.sm,
+    s.md,
+    s.md,
+    s.md,
+    s.md,
+    s.md,
+    s.lg,
+    s.lg,
+    s.lg,
+    s.lg,
+    s.lg,
+    s.lg,
+    s.lg,
+    s.lg,
+    s.lg,
+    s.lg,
+    s.lg,
+    s.lg,
+    s.lg,
+    s.lg,
+    s.lg,
+    s.lg,
+    s.lg,
   ] as Shadows;
 };
 
 const typography = {
-  fontFamily: '"DM Sans", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  fontFamily:
+    '"DM Sans", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   fontSize: 15,
   htmlFontSize: 15,
   h1: { fontSize: '3rem', fontWeight: 600, letterSpacing: '-0.02em' },
@@ -92,7 +115,12 @@ const typography = {
   h6: { fontSize: '1.125rem', fontWeight: 600 },
   body1: { fontSize: '1rem', lineHeight: 1.6, fontWeight: 450 },
   body2: { fontSize: '0.875rem', lineHeight: 1.5, fontWeight: 450 },
-  button: { fontSize: '0.875rem', fontWeight: 500, textTransform: 'none' as const, letterSpacing: '0.01em' },
+  button: {
+    fontSize: '0.875rem',
+    fontWeight: 500,
+    textTransform: 'none' as const,
+    letterSpacing: '0.01em',
+  },
 };
 
 // Generate component overrides based on mode
@@ -200,7 +228,10 @@ const createComponents = (mode: Mode) => {
     },
     MuiDialogActions: {
       styleOverrides: {
-        root: { padding: `${tokens.spacing.lg}px ${tokens.spacing.xl}px ${tokens.spacing.xl}px`, gap: tokens.spacing.md },
+        root: {
+          padding: `${tokens.spacing.lg}px ${tokens.spacing.xl}px ${tokens.spacing.xl}px`,
+          gap: tokens.spacing.md,
+        },
       },
     },
     MuiTextField: {
@@ -211,7 +242,11 @@ const createComponents = (mode: Mode) => {
             borderRadius: tokens.radius.md,
             backgroundColor: isLight ? c.bg.subtle : c.bg.default,
             transition: `background-color ${tokens.transition.fast}, border-color ${tokens.transition.fast}`,
-            '& fieldset': { borderWidth: tokens.border.thin, borderColor: 'transparent', transition: `border-color ${tokens.transition.fast}` },
+            '& fieldset': {
+              borderWidth: tokens.border.thin,
+              borderColor: 'transparent',
+              transition: `border-color ${tokens.transition.fast}`,
+            },
             '&:hover fieldset': { borderColor: isLight ? c.border.default : c.border.hover },
             '&.Mui-focused': {
               backgroundColor: c.bg.paper,
@@ -256,14 +291,22 @@ const createComponents = (mode: Mode) => {
     },
     MuiChip: {
       styleOverrides: {
-        root: { borderRadius: tokens.radius.sm, fontWeight: 500, transition: `background-color ${tokens.transition.fast}` },
+        root: {
+          borderRadius: tokens.radius.sm,
+          fontWeight: 500,
+          transition: `background-color ${tokens.transition.fast}`,
+        },
         filled: { boxShadow: 'none', '&:hover': { boxShadow: 'none' } },
       },
     },
     MuiTableCell: {
       styleOverrides: {
         root: { borderBottom: `1px solid ${c.border.default}`, padding: `${tokens.spacing.lg}px` },
-        head: { fontWeight: 600, color: c.text.secondary, backgroundColor: isLight ? c.bg.subtle : c.bg.default },
+        head: {
+          fontWeight: 600,
+          color: c.text.secondary,
+          backgroundColor: isLight ? c.bg.subtle : c.bg.default,
+        },
       },
     },
     MuiTableRow: {
@@ -272,8 +315,14 @@ const createComponents = (mode: Mode) => {
           backgroundColor: c.bg.paper,
           transition: `background-color ${tokens.transition.fast}`,
           '&:hover': { backgroundColor: isLight ? c.bg.subtle : c.bg.elevated },
-          '& td:first-of-type': { borderTopLeftRadius: tokens.radius.xs, borderBottomLeftRadius: tokens.radius.xs },
-          '& td:last-of-type': { borderTopRightRadius: tokens.radius.xs, borderBottomRightRadius: tokens.radius.xs },
+          '& td:first-of-type': {
+            borderTopLeftRadius: tokens.radius.xs,
+            borderBottomLeftRadius: tokens.radius.xs,
+          },
+          '& td:last-of-type': {
+            borderTopRightRadius: tokens.radius.xs,
+            borderBottomRightRadius: tokens.radius.xs,
+          },
         },
       },
     },
@@ -315,10 +364,26 @@ const createComponents = (mode: Mode) => {
     MuiAlert: {
       styleOverrides: {
         root: { borderRadius: tokens.radius.md, boxShadow: 'none', border: '1px solid' },
-        standardSuccess: { backgroundColor: c.success.light, color: isLight ? c.success.dark : c.success.main, borderColor: `${c.success.main}${isLight ? '20' : '30'}` },
-        standardError: { backgroundColor: c.error.light, color: isLight ? c.error.dark : c.error.main, borderColor: `${c.error.main}${isLight ? '20' : '30'}` },
-        standardInfo: { backgroundColor: c.info.light, color: isLight ? c.info.dark : c.info.main, borderColor: `${c.info.main}${isLight ? '20' : '30'}` },
-        standardWarning: { backgroundColor: c.warning.light, color: isLight ? c.warning.dark : c.warning.main, borderColor: `${c.warning.main}${isLight ? '20' : '30'}` },
+        standardSuccess: {
+          backgroundColor: c.success.light,
+          color: isLight ? c.success.dark : c.success.main,
+          borderColor: `${c.success.main}${isLight ? '20' : '30'}`,
+        },
+        standardError: {
+          backgroundColor: c.error.light,
+          color: isLight ? c.error.dark : c.error.main,
+          borderColor: `${c.error.main}${isLight ? '20' : '30'}`,
+        },
+        standardInfo: {
+          backgroundColor: c.info.light,
+          color: isLight ? c.info.dark : c.info.main,
+          borderColor: `${c.info.main}${isLight ? '20' : '30'}`,
+        },
+        standardWarning: {
+          backgroundColor: c.warning.light,
+          color: isLight ? c.warning.dark : c.warning.main,
+          borderColor: `${c.warning.main}${isLight ? '20' : '30'}`,
+        },
       },
     },
     MuiSwitch: {
@@ -331,7 +396,12 @@ const createComponents = (mode: Mode) => {
             '& + .MuiSwitch-track': { backgroundColor: c.primary.main, opacity: 1 },
           },
         },
-        thumb: { width: 22, height: 22, boxShadow: s.sm, backgroundColor: isLight ? undefined : c.text.primary },
+        thumb: {
+          width: 22,
+          height: 22,
+          boxShadow: s.sm,
+          backgroundColor: isLight ? undefined : c.text.primary,
+        },
         track: { borderRadius: 13, backgroundColor: c.text.muted, opacity: 1 },
       },
     },
@@ -357,13 +427,20 @@ const createComponents = (mode: Mode) => {
           padding: `10px ${tokens.spacing.md}px`,
           transition: `background-color ${tokens.transition.fast}`,
           '&:hover': { backgroundColor: hoverBg },
-          '&.Mui-selected': { backgroundColor: selectedBg, '&:hover': { backgroundColor: selectedHoverBg } },
+          '&.Mui-selected': {
+            backgroundColor: selectedBg,
+            '&:hover': { backgroundColor: selectedHoverBg },
+          },
         },
       },
     },
     MuiLinearProgress: {
       styleOverrides: {
-        root: { height: 6, borderRadius: tokens.radius.full, backgroundColor: isLight ? c.bg.subtle : c.bg.elevated },
+        root: {
+          height: 6,
+          borderRadius: tokens.radius.full,
+          backgroundColor: isLight ? c.bg.subtle : c.bg.elevated,
+        },
         bar: { borderRadius: tokens.radius.full },
       },
     },
@@ -401,15 +478,25 @@ const createComponents = (mode: Mode) => {
           borderRadius: tokens.radius.md,
           transition: `background-color ${tokens.transition.fast}`,
           '&:hover': { backgroundColor: hoverBg },
-          '&.Mui-selected': { backgroundColor: selectedBg, '&:hover': { backgroundColor: selectedHoverBg } },
+          '&.Mui-selected': {
+            backgroundColor: selectedBg,
+            '&:hover': { backgroundColor: selectedHoverBg },
+          },
         },
       },
     },
     MuiSkeleton: {
-      styleOverrides: { root: { borderRadius: tokens.radius.md, backgroundColor: isLight ? c.bg.subtle : c.bg.elevated } },
+      styleOverrides: {
+        root: {
+          borderRadius: tokens.radius.md,
+          backgroundColor: isLight ? c.bg.subtle : c.bg.elevated,
+        },
+      },
     },
     MuiBackdrop: {
-      styleOverrides: { root: { backgroundColor: isLight ? 'rgba(0, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.6)' } },
+      styleOverrides: {
+        root: { backgroundColor: isLight ? 'rgba(0, 0, 0, 0.5)' : 'rgba(0, 0, 0, 0.6)' },
+      },
     },
   };
 };
@@ -419,8 +506,18 @@ const createPalette = (mode: Mode) => {
   const isLight = mode === 'light';
   return {
     mode,
-    primary: { main: c.primary.main, light: c.primary.light, dark: c.primary.dark, contrastText: isLight ? '#FFFFFF' : '#09090B' },
-    secondary: { main: c.accent.main, light: c.accent.light, dark: c.accent.dark, contrastText: isLight ? '#18181B' : '#09090B' },
+    primary: {
+      main: c.primary.main,
+      light: c.primary.light,
+      dark: c.primary.dark,
+      contrastText: isLight ? '#FFFFFF' : '#09090B',
+    },
+    secondary: {
+      main: c.accent.main,
+      light: c.accent.light,
+      dark: c.accent.dark,
+      contrastText: isLight ? '#18181B' : '#09090B',
+    },
     background: { default: c.bg.default, paper: c.bg.paper },
     text: { primary: c.text.primary, secondary: c.text.secondary },
     success: { main: c.success.main, light: c.success.light, dark: c.success.dark },
@@ -446,20 +543,21 @@ const createAlternateColors = (mode: Mode) => {
 
 const createThemeForMode = (mode: Mode): Theme => {
   const c = colors[mode];
-  const baseTypo = mode === 'dark'
-    ? {
-        ...typography,
-        h1: { ...typography.h1, color: c.text.primary },
-        h2: { ...typography.h2, color: c.text.primary },
-        h3: { ...typography.h3, color: c.text.primary },
-        h4: { ...typography.h4, color: c.text.primary },
-        h5: { ...typography.h5, color: c.text.primary },
-        h6: { ...typography.h6, color: c.text.primary },
-        body1: { ...typography.body1, color: c.text.primary },
-        body2: { ...typography.body2, color: c.text.primary },
-        button: { ...typography.button, color: c.text.primary },
-      }
-    : typography;
+  const baseTypo =
+    mode === 'dark'
+      ? {
+          ...typography,
+          h1: { ...typography.h1, color: c.text.primary },
+          h2: { ...typography.h2, color: c.text.primary },
+          h3: { ...typography.h3, color: c.text.primary },
+          h4: { ...typography.h4, color: c.text.primary },
+          h5: { ...typography.h5, color: c.text.primary },
+          h6: { ...typography.h6, color: c.text.primary },
+          body1: { ...typography.body1, color: c.text.primary },
+          body2: { ...typography.body2, color: c.text.primary },
+          button: { ...typography.button, color: c.text.primary },
+        }
+      : typography;
 
   return createTheme({
     palette: createPalette(mode),

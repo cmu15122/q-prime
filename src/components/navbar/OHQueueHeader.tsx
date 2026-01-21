@@ -1,8 +1,7 @@
-import React from "react";
-import { Link, useTheme } from "@mui/material";
+import { Link, useTheme } from '@mui/material';
 
-import { useQuery } from "convex/react";
-import { api } from "../../../convex/_generated/api";
+import { useQuery } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 
 export default function OHQueueHeader() {
   const queueData = useQuery(api.home.home_get.getQueueData);
@@ -15,7 +14,7 @@ export default function OHQueueHeader() {
       fontWeight={600}
       href=""
       underline="none"
-      sx={{ display: "flex", alignItems: "center" }}
+      sx={{ display: 'flex', alignItems: 'center' }}
     >
       {queueData?.title}
     </Link>

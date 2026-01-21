@@ -1,33 +1,26 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Stack, TableCell, Typography } from "@mui/material";
-import PauseIcon from "@mui/icons-material/Pause";
+import { useState, useEffect, useRef } from 'react';
+import { Stack, TableCell, Typography } from '@mui/material';
+import PauseIcon from '@mui/icons-material/Pause';
 
-import EntryTails from "./EntryTails";
-import ItemRow from "../../common/table/ItemRow";
+import EntryTails from './EntryTails';
+import ItemRow from '../../common/table/ItemRow';
 
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
-import { Doc } from "../../../../convex/_generated/dataModel";
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
+import { Doc } from '../../../../convex/_generated/dataModel';
 
 export default function StudentEntry(props) {
   const queueData = useQuery(api.home.home_get.getQueueData);
-  const student: Doc<"ohq"> = props["student"];
+  const student: Doc<'ohq'> = props['student'];
 
-  const {
-    index,
-    handleClickHelp,
-    removeStudent,
-    handleClickUnfreeze,
-    handleFix,
-    currentTime,
-  } = props;
+  const { index, handleClickHelp, removeStudent, handleClickUnfreeze, handleFix, currentTime } =
+    props;
 
   const [confirmRemove, setConfirmRemove] = useState(false);
   const removeRef = useRef();
 
   const [showCooldownApproval, setShowCooldownApproval] = useState(
-    queueData?.allow_cooldown_override &&
-      student.status === "cooldown_violation",
+    queueData?.allow_cooldown_override && student.status === 'cooldown_violation',
   );
 
   useEffect(() => {
@@ -38,17 +31,16 @@ export default function StudentEntry(props) {
       }
     };
 
-    document.body.addEventListener("click", closeExpanded);
+    document.body.addEventListener('click', closeExpanded);
     return () => {
-      document.body.removeEventListener("click", closeExpanded);
+      document.body.removeEventListener('click', closeExpanded);
     };
   }, []);
 
   // Update showCooldownApproval when allowCDOverride changes
   useEffect(() => {
     setShowCooldownApproval(
-      queueData?.allow_cooldown_override &&
-        student.status === "cooldown_violation",
+      queueData?.allow_cooldown_override && student.status === 'cooldown_violation',
     );
   }, [queueData?.allow_cooldown_override, student.status]);
 
@@ -61,9 +53,7 @@ export default function StudentEntry(props) {
     }
   }
 
-  const approveCooldownOverrideMutation = useMutation(
-    api.home.home_mutate.approveCooldownOverride,
-  );
+  const approveCooldownOverrideMutation = useMutation(api.home.home_mutate.approveCooldownOverride);
   const approveCooldownOverride = async () => {
     await approveCooldownOverrideMutation({
       student_id: student.student_id,
@@ -81,7 +71,7 @@ export default function StudentEntry(props) {
           pr: 1,
           width: '25%',
           wordBreak: 'break-word',
-          verticalAlign: 'top'
+          verticalAlign: 'top',
         }}
       >
         <Typography variant="body2" sx={{ fontWeight: 500 }}>
@@ -102,13 +92,13 @@ export default function StudentEntry(props) {
           pr: 1,
           width: '45%',
           wordBreak: 'break-word',
-          verticalAlign: 'top'
+          verticalAlign: 'top',
         }}
       >
         <Stack direction="row" alignItems="flex-start" spacing={0.5} sx={{ flexWrap: 'wrap' }}>
-          {(student.status === "cooldown_violation" ||
-            student.status === "fixing_question" ||
-            student.status === "frozen") && <PauseIcon fontSize="small" />}
+          {(student.status === 'cooldown_violation' ||
+            student.status === 'fixing_question' ||
+            student.status === 'frozen') && <PauseIcon fontSize="small" />}
           <Typography variant="body2" sx={{ fontWeight: 500 }}>
             [{student.assignment_name}]
           </Typography>

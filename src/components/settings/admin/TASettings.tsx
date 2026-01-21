@@ -1,6 +1,13 @@
-import React, {useState} from 'react';
+import { useState } from 'react';
 import {
-  Button, Checkbox, FormControlLabel, Grid, TableCell, TableRow, Typography, useTheme,
+  Button,
+  Checkbox,
+  FormControlLabel,
+  Grid,
+  TableCell,
+  TableRow,
+  Typography,
+  useTheme,
 } from '@mui/material';
 
 import TADialogBody from './dialogs/TADialogBody';
@@ -14,12 +21,11 @@ import CollapsedTable from '../../common/table/CollapsedTable';
 import EditDeleteRow from '../../common/table/EditDeleteRow';
 
 import download from 'downloadjs';
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
-import { useAuthToken } from "@convex-dev/auth/react";
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
+import { useAuthToken } from '@convex-dev/auth/react';
 
 export default function TASettings() {
-
   const tas = useQuery(api.settings.settings_get.getAllTAs) ?? [];
 
   const theme = useTheme();
@@ -29,7 +35,7 @@ export default function TASettings() {
   const token = useAuthToken();
   const handleDownload = async () => {
     if (!token) {
-      console.error("No auth token available");
+      console.error('No auth token available');
       return;
     }
 
@@ -41,7 +47,7 @@ export default function TASettings() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        credentials: "include",
+        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -49,18 +55,15 @@ export default function TASettings() {
       }
 
       const blob = await response.blob();
-      const contentDisposition = response.headers.get("Content-Disposition");
+      const contentDisposition = response.headers.get('Content-Disposition');
       const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
-      const filename = filenameMatch
-        ? filenameMatch[1]
-        : "tas_example.csv";
+      const filename = filenameMatch ? filenameMatch[1] : 'tas_example.csv';
 
       download(blob, filename);
     } catch (error) {
-      console.error("Error downloading CSV:", error);
+      console.error('Error downloading CSV:', error);
     }
   };
-
 
   /** Dialog Functions */
   const [name, setName] = useState('');
@@ -112,7 +115,6 @@ export default function TASettings() {
     setOpenUpload(false);
   };
 
-
   const createTAMutation = useMutation(api.settings.settings_mutate.createTA);
   const handleAdd = async (event) => {
     event.preventDefault();
@@ -145,7 +147,7 @@ export default function TASettings() {
   const handleUpload = async (event) => {
     event.preventDefault();
     if (file == null || !token) {
-      console.error("No file selected or no auth token");
+      console.error('No file selected or no auth token');
       return;
     }
 
@@ -154,11 +156,11 @@ export default function TASettings() {
       const httpActionUrl = import.meta.env.VITE_APP_CONVEX_SITE_URL;
 
       const response = await fetch(`${httpActionUrl}/upload_tas_csv`, {
-        method: "POST",
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        credentials: "include",
+        credentials: 'include',
         body: file,
       });
 
@@ -166,54 +168,59 @@ export default function TASettings() {
         throw new Error(`Upload failed: ${response.statusText}`);
       }
 
-      console.log("CSV uploaded successfully");
+      console.log('CSV uploaded successfully');
       handleClose();
     } catch (error) {
-      console.error("Error uploading CSV:", error);
+      console.error('Error uploading CSV:', error);
     }
   };
 
-
   return (
     <div>
-      <CollapsedTable
-        title="TA Settings"
-      >
-        {
-          tas.map((row, index) => (
-            <EditDeleteRow
-              key={row.id}
-              index={index}
-              row={row}
-              rowKey={row.id}
-              handleEdit={() => handleEditDialog(index)}
-              handleDelete={() => handleDeleteDialog(index)}
-            >
-              <TableCell component="th" scope="row" sx={{pl: 3.25}}>
-                <Typography sx={{fontWeight: 'bold'}}>
-                  {row.name} {row.isAdmin ? ' (Admin)' : ''}
-                </Typography>
-              </TableCell>
-              <TableCell align="left">
-                <Typography sx={{fontStyle: 'italic'}}>
-                  {row.email}
-                </Typography>
-              </TableCell>
-            </EditDeleteRow>
-          ))
-        }
-        <TableRow
-          key="actions"
-          style={{background: theme.palette.background.paper}}
-        >
+      <CollapsedTable title="TA Settings">
+        {tas.map((row, index) => (
+          <EditDeleteRow
+            key={row.id}
+            index={index}
+            row={row}
+            rowKey={row.id}
+            handleEdit={() => handleEditDialog(index)}
+            handleDelete={() => handleDeleteDialog(index)}
+          >
+            <TableCell component="th" scope="row" sx={{ pl: 3.25 }}>
+              <Typography sx={{ fontWeight: 'bold' }}>
+                {row.name} {row.isAdmin ? ' (Admin)' : ''}
+              </Typography>
+            </TableCell>
+            <TableCell align="left">
+              <Typography sx={{ fontStyle: 'italic' }}>{row.email}</Typography>
+            </TableCell>
+          </EditDeleteRow>
+        ))}
+        <TableRow key="actions" style={{ background: theme.palette.background.paper }}>
           <TableCell align="center" colSpan={5}>
-            <Button sx={{mr: 1, fontWeight: 'bold'}} color="primary" variant="contained" onClick={() => handleAddDialog()}>
+            <Button
+              sx={{ mr: 1, fontWeight: 'bold' }}
+              color="primary"
+              variant="contained"
+              onClick={() => handleAddDialog()}
+            >
               + Add TA
             </Button>
-            <Button sx={{mr: 1, fontWeight: 'bold'}} color="info" variant="contained" onClick={() => handleDownload()}>
+            <Button
+              sx={{ mr: 1, fontWeight: 'bold' }}
+              color="info"
+              variant="contained"
+              onClick={() => handleDownload()}
+            >
               Download CSV Template
             </Button>
-            <Button sx={{mr: 1, fontWeight: 'bold'}} color="info" variant="contained" onClick={() => handleUploadDialog()}>
+            <Button
+              sx={{ mr: 1, fontWeight: 'bold' }}
+              color="info"
+              variant="contained"
+              onClick={() => handleUploadDialog()}
+            >
               Upload CSV
             </Button>
           </TableCell>
@@ -239,7 +246,7 @@ export default function TASettings() {
           </AddDialog>
 
           <EditDialog
-            title={'Edit Info for TA "'+name+'"'}
+            title={'Edit Info for TA "' + name + '"'}
             isOpen={openEdit}
             onClose={handleClose}
             handleEdit={handleEdit}
@@ -249,12 +256,9 @@ export default function TASettings() {
                 <FormControlLabel
                   label="Is Admin?"
                   labelPlacement="start"
-                  sx={{pt: 1}}
+                  sx={{ pt: 1 }}
                   control={
-                    <Checkbox
-                      checked={isAdmin}
-                      onChange={(e) => setIsAdmin(e.target.checked)}
-                    />
+                    <Checkbox checked={isAdmin} onChange={(e) => setIsAdmin(e.target.checked)} />
                   }
                 />
               </Grid>
@@ -266,7 +270,12 @@ export default function TASettings() {
             isOpen={openDelete}
             onClose={handleClose}
             handleDelete={handleDelete}
-            itemName={' ' + ((selectedRowIdx !== null && tas[selectedRowIdx]?.name) ? tas[selectedRowIdx!].name : '')}
+            itemName={
+              ' ' +
+              (selectedRowIdx !== null && tas[selectedRowIdx]?.name
+                ? tas[selectedRowIdx!].name
+                : '')
+            }
           />
 
           <UploadDialog
@@ -280,7 +289,6 @@ export default function TASettings() {
           />
         </>
       )}
-
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from 'react';
 import {
   Button,
   Dialog,
@@ -9,11 +9,11 @@ import {
   TextField,
   Typography,
   MenuItem,
-} from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
+} from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
 
-import { useMutation } from "convex/react";
-import { api } from "../../../convex/_generated/api";
+import { useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 
 export default function ChangeNameBtn(props) {
   const { setpname, pname, mobile } = props;
@@ -29,9 +29,7 @@ export default function ChangeNameBtn(props) {
     setOpen(false);
   };
 
-  const updatePreferredNameMutation = useMutation(
-    api.settings.settings_mutate.updatePreferredName,
-  );
+  const updatePreferredNameMutation = useMutation(api.settings.settings_mutate.updatePreferredName);
   const handleSubmit = async (e) => {
     e.preventDefault();
     await updatePreferredNameMutation({
@@ -45,16 +43,12 @@ export default function ChangeNameBtn(props) {
       {mobile ? (
         <MenuItem onClick={handleClickOpen}>
           <Typography variant="subtitle2" sx={{ mx: 2 }}>
-            {" "}
-            Change Name{" "}
+            {' '}
+            Change Name{' '}
           </Typography>
         </MenuItem>
       ) : (
-        <Button
-          variant="text"
-          onClick={handleClickOpen}
-          sx={{ color: "#FFFFFF" }}
-        >
+        <Button variant="text" onClick={handleClickOpen} sx={{ color: '#FFFFFF' }}>
           <EditIcon />
         </Button>
       )}
@@ -63,9 +57,9 @@ export default function ChangeNameBtn(props) {
           <DialogTitle>Change Name</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Update the name that is displayed when you are on the queue and
-              the name we will call out to help you during office hours. Your
-              professor can see this, so please make it appropriate!
+              Update the name that is displayed when you are on the queue and the name we will call
+              out to help you during office hours. Your professor can see this, so please make it
+              appropriate!
             </DialogContentText>
             <TextField
               value={tmpPrefName}

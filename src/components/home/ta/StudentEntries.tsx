@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from 'react';
 
-import BaseTable from "../../common/table/BaseTable";
-import StudentEntry from "./StudentEntry";
+import BaseTable from '../../common/table/BaseTable';
+import StudentEntry from './StudentEntry';
 
-import FilterOptions from "./dialogs/FilterOptions";
-import { Button, Popover } from "@mui/material";
-import FilterListIcon from "@mui/icons-material/FilterList";
+import FilterOptions from './dialogs/FilterOptions';
+import { Button, Popover } from '@mui/material';
+import FilterListIcon from '@mui/icons-material/FilterList';
 
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../../convex/_generated/api';
 
 export default function StudentEntries() {
   const userData = useQuery(api.home.home_get.getUserData);
@@ -36,7 +36,7 @@ export default function StudentEntries() {
     setIsHelping(false);
     for (const student of allStudents) {
       if (
-        student.status === "being_helped" &&
+        student.status === 'being_helped' &&
         student.helping_ta!.ta_id === userData.ta_data!.ta_id
       ) {
         setIsHelping(true);
@@ -65,14 +65,10 @@ export default function StudentEntries() {
 
     let newFiltered = allStudents;
     if (filteredLocations.length > 0) {
-      newFiltered = newFiltered.filter((student) =>
-        filteredLocations.includes(student.location),
-      );
+      newFiltered = newFiltered.filter((student) => filteredLocations.includes(student.location));
     }
     if (filteredTopics.length > 0) {
-      newFiltered = newFiltered.filter((student) =>
-        filteredTopics.includes(student.assignment_id),
-      );
+      newFiltered = newFiltered.filter((student) => filteredTopics.includes(student.assignment_id));
     }
     return newFiltered;
   }, [allStudents, filteredLocations, filteredTopics]);
@@ -93,20 +89,20 @@ export default function StudentEntries() {
         <Button
           variant="contained"
           startIcon={<FilterListIcon />}
-          sx={{ fontWeight: "bold", mr: 1 }}
+          sx={{ fontWeight: 'bold', mr: 1 }}
           onClick={handleFilterDialog}
-          aria-describedby={"popover"}
+          aria-describedby={'popover'}
         >
           Filter
         </Button>
         <Popover
-          id={"popover"}
+          id={'popover'}
           open={openFilterDialog}
           anchorEl={anchorEl}
           onClose={handleFilterClose}
           anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "left",
+            vertical: 'bottom',
+            horizontal: 'left',
           }}
         >
           <FilterOptions
@@ -125,9 +121,7 @@ export default function StudentEntries() {
 
   const helpStudentMutation = useMutation(api.home.home_mutate.helpStudent);
   const unhelpStudentMutation = useMutation(api.home.home_mutate.unhelpStudent);
-  const askToFixQuestionMutation = useMutation(
-    api.home.home_mutate.askToFixQuestion,
-  );
+  const askToFixQuestionMutation = useMutation(api.home.home_mutate.askToFixQuestion);
   const removeStudentMutation = useMutation(api.home.home_mutate.removeStudent);
 
   const handleClickHelp = async (index) => {
@@ -166,14 +160,14 @@ export default function StudentEntries() {
 
     await removeStudentMutation({
       student_id: filteredStudents[index].student_id,
-      reason: doneHelping ? "helped" : "removed",
+      reason: doneHelping ? 'helped' : 'removed',
     }).finally(() => {
       setTempDisabled(false);
     });
   };
 
-  const handleClickUnfreeze = (index) => {
-    new Error("Unfreeze not implemented");
+  const handleClickUnfreeze = (_index) => {
+    new Error('Unfreeze not implemented');
   };
 
   /* END QUEUE LOGIC */

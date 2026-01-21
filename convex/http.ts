@@ -1,8 +1,6 @@
 import { httpRouter } from 'convex/server';
-import { httpAction, internalMutation } from './_generated/server';
+import { httpAction } from './_generated/server';
 import { api, internal } from './_generated/api';
-import { getCurrentSemester } from './common';
-import { ConvexError, v } from 'convex/values';
 import { auth } from './auth';
 import { getAuthUserId } from '@convex-dev/auth/server';
 import { DateTime } from 'luxon';
@@ -99,10 +97,7 @@ http.route({
       throw new Error('User is not a TA');
     }
 
-    const csvContent = [
-      'name,email,is_admin',
-      'Example TA,ta@andrew.cmu.edu,false',
-    ].join('\n');
+    const csvContent = ['name,email,is_admin', 'Example TA,ta@andrew.cmu.edu,false'].join('\n');
 
     return new Response(csvContent, {
       status: 200,
@@ -188,9 +183,7 @@ http.route({
       csvText: csvData,
     });
 
-    const globalSettings = await ctx.runQuery(
-      internal.common.internalGetGlobalSettings
-    );
+    const globalSettings = await ctx.runQuery(internal.common.internalGetGlobalSettings);
     const timezone = globalSettings.timezone;
 
     for (const assignment of csvRows) {
@@ -198,20 +191,15 @@ http.route({
       const assignment_type = assignment.assignment_type;
 
       // Try to parse with the example csv format first, then ISO, then JS
-      let startDt = DateTime.fromFormat(
-        assignment.start_date,
-        'M/d/yy h:mm a',
-        { zone: timezone }
-      );
+      let startDt = DateTime.fromFormat(assignment.start_date, 'M/d/yy h:mm a', { zone: timezone });
       if (!startDt.isValid) {
         startDt = DateTime.fromISO(assignment.start_date, { zone: timezone });
       }
       // Fallback to JS Date parsing if both fail, assuming local/UTC as before but wrapped in DateTime
       if (!startDt.isValid) {
-        startDt = DateTime.fromJSDate(new Date(assignment.start_date)).setZone(
-          timezone,
-          { keepLocalTime: true }
-        );
+        startDt = DateTime.fromJSDate(new Date(assignment.start_date)).setZone(timezone, {
+          keepLocalTime: true,
+        });
       }
 
       let endDt = DateTime.fromFormat(assignment.end_date, 'M/d/yy h:mm a', {
@@ -221,10 +209,9 @@ http.route({
         endDt = DateTime.fromISO(assignment.end_date, { zone: timezone });
       }
       if (!endDt.isValid) {
-        endDt = DateTime.fromJSDate(new Date(assignment.end_date)).setZone(
-          timezone,
-          { keepLocalTime: true }
-        );
+        endDt = DateTime.fromJSDate(new Date(assignment.end_date)).setZone(timezone, {
+          keepLocalTime: true,
+        });
       }
 
       await ctx.runMutation(api.settings.settings_mutate.createAssignment, {
@@ -335,14 +322,11 @@ http.route({
       if (is_whitelisted && is_blacklisted) {
       }
 
-      await ctx.runMutation(
-        api.settings.settings_mutate.updateAccessControlledUser,
-        {
-          email: email,
-          is_whitelisted: is_whitelisted,
-          is_blacklisted: is_blacklisted,
-        }
-      );
+      await ctx.runMutation(api.settings.settings_mutate.updateAccessControlledUser, {
+        email: email,
+        is_whitelisted: is_whitelisted,
+        is_blacklisted: is_blacklisted,
+      });
     }
 
     return new Response(null, {

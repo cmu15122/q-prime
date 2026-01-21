@@ -1,12 +1,29 @@
+import { Typography, useTheme } from '@mui/material';
+
+import { DateTime } from 'luxon';
+
 import {
-  Typography, useTheme,
-} from '@mui/material';
-
-import {DateTime} from 'luxon';
-
-import {Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip as Tooltip2, Legend} from 'chart.js';
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip2, Legend);
-import {Line, Bar} from 'react-chartjs-2';
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip as Tooltip2,
+  Legend,
+} from 'chart.js';
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip2,
+  Legend,
+);
+import { Line, Bar } from 'react-chartjs-2';
 
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
@@ -17,33 +34,47 @@ export default function Graph() {
   const numStudentsPerDayData = useQuery(api.metrics.getNumStudentsPerDay);
   const numStudentsOverallData = useQuery(api.metrics.getNumStudentsOverall);
 
-  const numStudentsPerDayLastWeek = numStudentsPerDayLastWeekData ? numStudentsPerDayLastWeekData.numStudentsPerDayLastWeek : [];
+  const numStudentsPerDayLastWeek = numStudentsPerDayLastWeekData
+    ? numStudentsPerDayLastWeekData.numStudentsPerDayLastWeek
+    : [];
 
-  const numStudentsPerDay = numStudentsPerDayData ? (() => {
-    const dataBack = [...numStudentsPerDayData.numStudentsPerDay];
-    // sort by day of week
-    dataBack.sort((a, b) => {
-      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-      return days.indexOf(a.day) - days.indexOf(b.day);
-    });
-    return dataBack;
-  })() : [];
+  const numStudentsPerDay = numStudentsPerDayData
+    ? (() => {
+        const dataBack = [...numStudentsPerDayData.numStudentsPerDay];
+        // sort by day of week
+        dataBack.sort((a, b) => {
+          const days = [
+            'Sunday',
+            'Monday',
+            'Tuesday',
+            'Wednesday',
+            'Thursday',
+            'Friday',
+            'Saturday',
+          ];
+          return days.indexOf(a.day) - days.indexOf(b.day);
+        });
+        return dataBack;
+      })()
+    : [];
 
-  const numStudentsOverall = numStudentsOverallData ? numStudentsOverallData.numStudentsOverall : [];
+  const numStudentsOverall = numStudentsOverallData
+    ? numStudentsOverallData.numStudentsOverall
+    : [];
 
   const dateFormatter = (day: string) => {
-    return DateTime.fromISO(day).toLocaleString({month: 'long', day: 'numeric'});
+    return DateTime.fromISO(day).toLocaleString({ month: 'long', day: 'numeric' });
   };
 
   return (
     <div>
-      <Typography variant="h5" sx={{mt: 4, ml: 10}} fontWeight='bold'>
+      <Typography variant="h5" sx={{ mt: 4, ml: 10 }} fontWeight="bold">
         Number of Questions per Day (in the last week)
       </Typography>
 
-      <div style={{height: '40vh', width: 'auto', position: 'relative'}}>
+      <div style={{ height: '40vh', width: 'auto', position: 'relative' }}>
         <Line
-          datasetIdKey='numStudentsPerDayLastWeek'
+          datasetIdKey="numStudentsPerDayLastWeek"
           options={{
             layout: {
               padding: {
@@ -88,7 +119,6 @@ export default function Graph() {
               },
             },
           }}
-
           data={{
             labels: numStudentsPerDayLastWeek.map((day) => dateFormatter(day.day)),
             datasets: [
@@ -106,13 +136,13 @@ export default function Graph() {
         />
       </div>
 
-      <Typography variant="h5" sx={{mt: 4, ml: 10}} fontWeight='bold'>
+      <Typography variant="h5" sx={{ mt: 4, ml: 10 }} fontWeight="bold">
         Number of Questions per Day (semester)
       </Typography>
 
-      <div style={{height: '40vh', width: 'auto', position: 'relative'}}>
+      <div style={{ height: '40vh', width: 'auto', position: 'relative' }}>
         <Line
-          datasetIdKey='numStudentsPerDayOverall'
+          datasetIdKey="numStudentsPerDayOverall"
           options={{
             layout: {
               padding: {
@@ -157,7 +187,6 @@ export default function Graph() {
               },
             },
           }}
-
           data={{
             labels: numStudentsOverall.map((day) => dateFormatter(day.day)),
             datasets: [
@@ -175,13 +204,13 @@ export default function Graph() {
         />
       </div>
 
-      <Typography variant="h5" sx={{mt: 4, ml: 10}} fontWeight='bold'>
-      Number of Questions per Day of the Week
+      <Typography variant="h5" sx={{ mt: 4, ml: 10 }} fontWeight="bold">
+        Number of Questions per Day of the Week
       </Typography>
 
-      <div style={{height: '40vh', width: 'auto', position: 'relative'}}>
+      <div style={{ height: '40vh', width: 'auto', position: 'relative' }}>
         <Bar
-          datasetIdKey='numStudentsPerDayOfWeek'
+          datasetIdKey="numStudentsPerDayOfWeek"
           options={{
             layout: {
               padding: {

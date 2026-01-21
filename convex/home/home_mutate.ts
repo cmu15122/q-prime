@@ -137,7 +137,7 @@ export const addQuestion = mutation({
     const curr_sem = await getCurrentSemester(ctx);
 
     // Handle TA created questions
-    if (user_data.kind == 'TA') {
+    if (user_data.kind === 'TA') {
       if (!args.email) {
         throw new ConvexError('TA created questions must have an email');
       }
@@ -151,7 +151,7 @@ export const addQuestion = mutation({
 
       if (!existing_user) {
         // create a new user
-        let name = args.email.split('@')[0];
+        const name = args.email.split('@')[0];
         const newUser = await ctx.db.insert('users', {
           email: args.email,
           name: name,
@@ -170,7 +170,7 @@ export const addQuestion = mutation({
         const existing_sem_user = await ctx.db
           .query('semesterUsers')
           .withIndex('by_sem_and_user', (q) =>
-            q.eq('semester_id', curr_sem._id).eq('user_id', existing_user._id)
+            q.eq('semester_id', curr_sem._id).eq('user_id', existing_user._id),
           )
           .first();
 
@@ -265,9 +265,7 @@ export const addQuestion = mutation({
 
       const student = (await ctx.db
         .query('students')
-        .withIndex('by_semuser', (q) =>
-          q.eq('semester_user_id', user_data.sem_user_id)
-        )
+        .withIndex('by_semuser', (q) => q.eq('semester_user_id', user_data.sem_user_id))
         .first())!;
 
       const existing_entry = await getQueueEntry(ctx, student._id);
@@ -303,9 +301,7 @@ export const addQuestion = mutation({
 
       const lastQuestion = await ctx.db
         .query('questions')
-        .withIndex('by_student_and_exit_time', (q) =>
-          q.eq('student_id', student._id)
-        )
+        .withIndex('by_student_and_exit_time', (q) => q.eq('student_id', student._id))
         .filter((q) => q.neq(q.field('help_duration_ms'), -1))
         .order('desc')
         .first();
@@ -351,11 +347,7 @@ export const addQuestion = mutation({
   },
 });
 
-async function sendQueueJoinNotifs(
-  ctx: MutationCtx,
-  name: string,
-  assignment: string
-) {
+async function sendQueueJoinNotifs(ctx: MutationCtx, name: string, assignment: string) {
   // update every TA's notification field if their prefs are set to get queue join notifs
   const tas_with_notifs = await ctx.db
     .query('tas')
@@ -369,7 +361,7 @@ async function sendQueueJoinNotifs(
         title: 'New Queue Entry',
         body: `Name: ${name}\nAssignment: ${assignment}`,
       });
-    })
+    }),
   );
 }
 
@@ -386,13 +378,13 @@ export const removeStudent = mutation({
     const existing_entry = (await getQueueEntry(ctx, args.student_id))!;
 
     // If student is removing, must be removing themselves
-    if (user_data.kind == 'student') {
+    if (user_data.kind === 'student') {
       const student = (await getStudent(ctx, user_data.sem_user_id))!;
 
       if (args.student_id !== student._id) {
         throw new ConvexError('Student is not removing themselves');
       }
-    } else if (user_data.kind != 'TA') {
+    } else if (user_data.kind !== 'TA') {
       throw new ConvexError('User is not a student or TA');
     }
 
@@ -406,8 +398,8 @@ export const removeStudent = mutation({
     // add question to database
     const curr_sem = await getCurrentSemester(ctx);
 
-    let removal_ta = undefined;
-    if (user_data.kind == 'TA') {
+    let removal_ta : Doc<'tas'> | undefined = undefined;
+    if (user_data.kind === 'TA') {
       removal_ta = await getTA(ctx, user_data.sem_user_id);
     }
 
@@ -416,26 +408,20 @@ export const removeStudent = mutation({
         throw new ConvexError('Removing user is not a TA but reason is helped');
       }
       if (existing_entry.status !== 'being_helped') {
-        throw new ConvexError(
-          'Student is not being helped but reason is helped'
-        );
+        throw new ConvexError('Student is not being helped but reason is helped');
       }
       if (existing_entry.help_start_time_ms === undefined) {
-        throw new ConvexError(
-          'Student is being helped but help start time is undefined'
-        );
+        throw new ConvexError('Student is being helped but help start time is undefined');
       }
       if (existing_entry.helping_ta!.ta_id !== removal_ta!._id) {
         throw new ConvexError(
-          'Student is being helped by a different TA than the one removing them, but reason is helped'
+          'Student is being helped by a different TA than the one removing them, but reason is helped',
         );
       }
     }
 
     const help_duration_ms =
-      args.reason === 'helped'
-        ? Date.now() - existing_entry.help_start_time_ms!
-        : -1;
+      args.reason === 'helped' ? Date.now() - existing_entry.help_start_time_ms! : -1;
 
     await ctx.db.insert('questions', {
       semester_id: curr_sem._id,
@@ -487,10 +473,7 @@ export const helpStudent = mutation({
     const student_to_help = (await ctx.db.get(args.student_id))!;
     const existing_entry = (await getQueueEntry(ctx, student_to_help._id))!;
 
-    if (
-      existing_entry.helping_ta !== undefined ||
-      existing_entry.status === 'being_helped'
-    ) {
+    if (existing_entry.helping_ta !== undefined || existing_entry.status === 'being_helped') {
       throw new ConvexError('Student is already being helped');
     }
 
@@ -517,16 +500,12 @@ export const helpStudent = mutation({
     // notify the TA in the future at their remind time if they have reminders enabled
     if (ta.remind_notifs_enabled) {
       const remind_time_ms = ta.remind_time_mins * 60000;
-      await ctx.scheduler.runAfter(
-        remind_time_ms,
-        internal.home.home_mutate.internalRemindTA,
-        {
-          ta_helping: ta._id,
-          student_helping: student_to_help._id,
-          title: 'Time Alert!',
-          body: `You've been helping for ${ta.remind_time_mins} minutes!`,
-        }
-      );
+      await ctx.scheduler.runAfter(remind_time_ms, internal.home.home_mutate.internalRemindTA, {
+        ta_helping: ta._id,
+        student_helping: student_to_help._id,
+        title: 'Time Alert!',
+        body: `You've been helping for ${ta.remind_time_mins} minutes!`,
+      });
     }
   },
 });
@@ -601,7 +580,7 @@ export const updateQuestion = mutation({
 
     const existing_entry = (await getQueueEntry(ctx, student._id))!;
 
-    if (existing_entry.question == args.question) {
+    if (existing_entry.question === args.question) {
       throw new ConvexError('Question is the same');
     }
 
@@ -626,8 +605,7 @@ export const askToFixQuestion = mutation({
       num_asked_to_fix: existing_entry.num_asked_to_fix + 1,
     });
 
-    const student_sem_user = (await ctx.db.get(args.student_id))!
-      .semester_user_id;
+    const student_sem_user = (await ctx.db.get(args.student_id))!.semester_user_id;
 
     // notify the student
     await ctx.runMutation(internal.common.internalSendNotification, {
@@ -648,10 +626,8 @@ export const messageStudent = mutation({
     const { ta } = await ensureAuthAndTA(ctx);
     const existing_entry = (await getQueueEntry(ctx, args.student_id))!;
 
-    if (existing_entry.status == 'being_helped') {
-      throw new ConvexError(
-        'You cannot message a student while they are being helped'
-      );
+    if (existing_entry.status === 'being_helped') {
+      throw new ConvexError('You cannot message a student while they are being helped');
     }
 
     const ta_prefs = (await ctx.db.get(ta.user_prefs_id))!;
@@ -669,8 +645,7 @@ export const messageStudent = mutation({
       has_unread_messages: true,
     });
 
-    const student_sem_user = (await ctx.db.get(args.student_id))!
-      .semester_user_id;
+    const student_sem_user = (await ctx.db.get(args.student_id))!.semester_user_id;
 
     // notify the student
     await ctx.runMutation(internal.common.internalSendNotification, {
@@ -719,8 +694,7 @@ export const approveCooldownOverride = mutation({
       status: 'waiting',
     });
 
-    const student_sem_user = (await ctx.db.get(args.student_id))!
-      .semester_user_id;
+    const student_sem_user = (await ctx.db.get(args.student_id))!.semester_user_id;
 
     // notify the student
     await ctx.runMutation(internal.common.internalSendNotification, {
@@ -779,9 +753,7 @@ export const firstTimeSetup = mutation({
   handler: async (ctx, args) => {
     // verify that there is no globalsettings object (this should only happen at the very very beginning)
 
-    const existing_global_settings = await ctx.db
-      .query('globalSettings')
-      .collect();
+    const existing_global_settings = await ctx.db.query('globalSettings').collect();
 
     if (existing_global_settings.length > 0) {
       throw new ConvexError('Global settings already exists');

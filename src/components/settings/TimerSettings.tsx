@@ -1,16 +1,10 @@
-import React, { useState, useEffect } from "react";
-import {
-  CardContent,
-  Checkbox,
-  FormControlLabel,
-  Grid,
-  Typography,
-} from "@mui/material";
+import { useState, useEffect } from 'react';
+import { CardContent, Checkbox, FormControlLabel, Grid, Typography } from '@mui/material';
 
-import BaseCard from "../common/cards/BaseCard";
+import BaseCard from '../common/cards/BaseCard';
 
-import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../convex/_generated/api";
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
 
 export default function TimerSettings() {
   const queueData = useQuery(api.home.home_get.getQueueData);
@@ -26,9 +20,7 @@ export default function TimerSettings() {
     }
   }, [userData]);
 
-  const updateTimerSettingsMutation = useMutation(
-    api.settings.settings_mutate.updateTimerSettings,
-  );
+  const updateTimerSettingsMutation = useMutation(api.settings.settings_mutate.updateTimerSettings);
   const updateTimerSettings = async (selfTimer, othersTimer) => {
     await updateTimerSettingsMutation({
       showSelfTimer: selfTimer,
@@ -39,11 +31,7 @@ export default function TimerSettings() {
   return (
     <BaseCard>
       <CardContent>
-        <Typography
-          sx={{ fontWeight: "bold", ml: 1, mt: 1 }}
-          variant="body1"
-          gutterBottom
-        >
+        <Typography sx={{ fontWeight: 'bold', ml: 1, mt: 1 }} variant="body1" gutterBottom>
           Timer Settings
         </Typography>
         <Grid container spacing={1}>
@@ -80,9 +68,7 @@ export default function TimerSettings() {
                     }}
                   />
                 }
-                label={
-                  <div>Show timers when other TAs are helping students</div>
-                }
+                label={<div>Show timers when other TAs are helping students</div>}
               />
             </Grid>
           )}

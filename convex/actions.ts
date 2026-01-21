@@ -19,9 +19,7 @@ export const sendSlackbotMessage = internalAction({
     message: v.string(),
   },
   handler: async (ctx, args) => {
-    const globalSettings = await ctx.runQuery(
-      internal.common.internalGetGlobalSettings
-    );
+    const globalSettings = await ctx.runQuery(internal.common.internalGetGlobalSettings);
 
     if (!globalSettings.slackbot_webhook_url) {
       throw new ConvexError('Slackbot webhook URL not found');

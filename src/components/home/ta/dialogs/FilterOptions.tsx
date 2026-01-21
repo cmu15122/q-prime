@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { useEffect } from 'react';
 
 import {
   List,
@@ -8,23 +8,18 @@ import {
   ListItemIcon,
   ListItemText,
   Checkbox,
-} from "@mui/material";
+} from '@mui/material';
 
 const FilterGroup = {
-  Location: Symbol("location"),
-  Topic: Symbol("Topic"),
+  Location: Symbol('location'),
+  Topic: Symbol('Topic'),
 };
 
-import { useQuery } from "convex/react";
-import { api } from "../../../../../convex/_generated/api";
+import { useQuery } from 'convex/react';
+import { api } from '../../../../../convex/_generated/api';
 
 export default function FilterOptions(props) {
-  const {
-    filteredLocations,
-    filteredTopics,
-    setFilteredLocations,
-    setFilteredTopics,
-  } = props;
+  const { filteredLocations, filteredTopics, setFilteredLocations, setFilteredTopics } = props;
 
   const queueData = useQuery(api.home.home_get.getQueueData);
   let locations = queueData?.current_locations || [];
@@ -33,20 +28,17 @@ export default function FilterOptions(props) {
 
   useEffect(() => {
     if (locations.length === 0) {
-      locations = ["Office Hours"];
+      locations = ['Office Hours'];
     }
   }, [locations]);
 
   // group definition:
   // 0 = locations, 1 = topics
   const handleToggle = (group, value) => () => {
-    const array =
-      group === FilterGroup.Location ? filteredLocations : filteredTopics;
+    const array = group === FilterGroup.Location ? filteredLocations : filteredTopics;
     const currentIndex = array.indexOf(value);
     const newChecked =
-      group === FilterGroup.Location
-        ? [...filteredLocations]
-        : [...filteredTopics];
+      group === FilterGroup.Location ? [...filteredLocations] : [...filteredTopics];
 
     if (currentIndex === -1) {
       // was unchecked previously
@@ -65,7 +57,7 @@ export default function FilterOptions(props) {
   return (
     <div>
       <List
-        sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
+        sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
         component="nav"
         aria-labelledby="nested-list-subheader"
         subheader={
@@ -90,7 +82,7 @@ export default function FilterOptions(props) {
                     checked={filteredLocations.indexOf(value) !== -1}
                     tabIndex={-1}
                     disableRipple
-                    inputProps={{ "aria-labelledby": labelId }}
+                    inputProps={{ 'aria-labelledby': labelId }}
                   />
                 </ListItemIcon>
                 <ListItemText id={labelId} primary={`${value}`} />
@@ -100,7 +92,7 @@ export default function FilterOptions(props) {
         })}
       </List>
       <List
-        sx={{ width: "100%", maxWidth: 360, bgcolor: "background.paper" }}
+        sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
         component="nav"
         aria-labelledby="topics-list-subheader"
         subheader={
@@ -125,7 +117,7 @@ export default function FilterOptions(props) {
                     checked={filteredTopics.indexOf(topic.name) !== -1}
                     tabIndex={-1}
                     disableRipple
-                    inputProps={{ "aria-labelledby": labelId }}
+                    inputProps={{ 'aria-labelledby': labelId }}
                   />
                 </ListItemIcon>
                 <ListItemText id={labelId} primary={`${topic.name}`} />
