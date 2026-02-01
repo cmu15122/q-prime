@@ -4,7 +4,7 @@ import { getAuthUserId } from '@convex-dev/auth/server';
 import { Doc, Id } from './_generated/dataModel';
 
 export async function getGlobalSettings(ctx: QueryCtx) {
-  const globalSettings = await ctx.db.query('globalSettings').first();
+  const globalSettings = await ctx.db.query('globalSettings').unique();
   if (!globalSettings) {
     throw new ConvexError('Global settings not found');
   }
@@ -67,14 +67,12 @@ export async function getWaittimeData(ctx: QueryCtx) {
   let total_helped_ms = 0;
   const active_tas = new Set<Id<'tas'>>();
 
-  // handle questions asked in the past
+  const curr_sem = await getCurrentSemester(ctx);
+
   const questions = await ctx.db
     .query('questions')
-    .filter((x) =>
-      x.and(
-        x.gte(x.field('exit_time_ms'), start_time.getTime()),
-        x.neq(x.field('help_duration_ms'), -1),
-      ),
+    .withIndex('by_semester_and_exit_time_ms_and_finished_by', (q) =>
+      q.eq('semester_id', curr_sem._id).gte('exit_time_ms', start_time.getTime()),
     )
     .collect();
 
@@ -93,7 +91,7 @@ export async function getWaittimeData(ctx: QueryCtx) {
   // handle current questions
   const curr_helping_questions = await ctx.db
     .query('ohq')
-    .filter((x) => x.eq(x.field('status'), 'being_helped'))
+    .withIndex('by_status', (q) => q.eq('status', 'being_helped'))
     .collect();
 
   for (const curr_helping of curr_helping_questions) {

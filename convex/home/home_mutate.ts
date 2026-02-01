@@ -301,8 +301,7 @@ export const addQuestion = mutation({
 
       const lastQuestion = await ctx.db
         .query('questions')
-        .withIndex('by_student_and_exit_time', (q) => q.eq('student_id', student._id))
-        .filter((q) => q.neq(q.field('help_duration_ms'), -1))
+        .withIndex('by_student_and_finished_by', (q) => q.eq('student_id', student._id).eq('finished_by', 'helped'))
         .order('desc')
         .first();
 
