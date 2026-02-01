@@ -10,6 +10,8 @@ import { ThemeContextProvider, useThemeContext } from './contexts/ThemeContext';
 import Home from './pages/home';
 import Settings from './pages/settings';
 import Metrics from './pages/metrics';
+import StudentMetrics from './pages/studentMetrics';
+import TAMetrics from './pages/taMetrics';
 import Init from './pages/init';
 import './App.css';
 
@@ -38,6 +40,8 @@ function AppContent() {
             <Route path="/" element={<Home />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/metrics" element={<Metrics />} />
+            <Route path="/metrics/student/:id" element={<StudentMetrics />} />
+            <Route path="/metrics/ta/:id" element={<TAMetrics />} />
             <Route path="/init" element={<Init />} />
           </Routes>
         </Router>

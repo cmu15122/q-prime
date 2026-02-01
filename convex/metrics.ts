@@ -1,5 +1,5 @@
 import { query } from './_generated/server';
-import { v } from 'convex/values';
+import { ConvexError, v } from 'convex/values';
 import {
   ensureAuthAndAdmin,
   ensureAuthAndTA,
@@ -492,6 +492,7 @@ export const getRankedStudents = query({
   returns: v.object({
     rankedStudents: v.array(
       v.object({
+        student_id: v.id('students'),
         student_name: v.string(),
         student_email: v.string(),
         count: v.number(),
@@ -534,6 +535,7 @@ export const getRankedStudents = query({
         student_name = user_prefs.preferred_name;
 
         return {
+          student_id: student_id as Id<'students'>,
           student_name,
           student_email: user.email!,
           count: stats.count,
@@ -563,6 +565,7 @@ export const getRankedTAs = query({
   returns: v.object({
     rankedTAs: v.array(
       v.object({
+        ta_id: v.id('tas'),
         ta_name: v.string(),
         ta_email: v.string(),
         count: v.number(),
@@ -602,6 +605,7 @@ export const getRankedTAs = query({
         const user = (await ctx.db.get(ta.user_id))!;
 
         return {
+          ta_id: ta_id as Id<'tas'>,
           ta_name: user_prefs.preferred_name,
           ta_email: user.email!,
           count: stats.count,
@@ -619,5 +623,230 @@ export const getRankedTAs = query({
     });
 
     return { rankedTAs };
+  },
+});
+
+/**
+ * Get complete question history for a specific student (Admin only)
+ * Returns null if student not found
+ */
+export const getStudentQuestionHistory = query({
+  args: {
+    studentId: v.id('students'),
+  },
+  returns: v.union(
+    v.object({
+      studentName: v.string(),
+      studentEmail: v.string(),
+      questions: v.array(
+        v.object({
+          question: v.string(),
+          assignment_name: v.string(),
+          location: v.string(),
+          entry_time: v.string(),
+          exit_time: v.string(),
+          wait_time_mins: v.number(),
+          help_duration_mins: v.number(),
+          finished_by: v.string(),
+          num_asked_to_fix: v.number(),
+          ta_id: v.union(v.id('tas'), v.null()),
+          ta_name: v.union(v.string(), v.null()),
+        }),
+      ),
+      totalQuestions: v.number(),
+      totalHelpedQuestions: v.number(),
+      totalAskedToFix: v.number(),
+      totalTimeHelped: v.string(),
+    }),
+    v.null(),
+  ),
+  handler: async (ctx, args) => {
+    await ensureAuthAndAdmin(ctx);
+
+    const student = await ctx.db.get(args.studentId);
+    if (!student) {
+      return null;
+    }
+
+    const user_prefs = await ctx.db.get(student.user_prefs_id);
+    const user = await ctx.db.get(student.user_id);
+    if (!user_prefs || !user) {
+      return null;
+    }
+
+    // Use the by_student_and_finished_by index - query all questions for this student
+    const allQuestions = await ctx.db
+      .query('questions')
+      .withIndex('by_student_and_finished_by', (q) => q.eq('student_id', args.studentId))
+      .collect();
+
+    // Sort by entry time descending (most recent first)
+    allQuestions.sort((a, b) => b.entry_time_ms - a.entry_time_ms);
+
+    const questions = await Promise.all(
+      allQuestions.map(async (q) => {
+        const assignment = await ctx.db.get(q.assignment_id);
+
+        let ta_name: string | null = null;
+        if (q.ta_id) {
+          const ta = await ctx.db.get(q.ta_id);
+          if (ta) {
+            const ta_prefs = await ctx.db.get(ta.user_prefs_id);
+            if (ta_prefs) {
+              ta_name = ta_prefs.preferred_name;
+            }
+          }
+        }
+
+        const helpStartMs = q.exit_time_ms - q.help_duration_ms;
+        const waitTimeMins = (helpStartMs - q.entry_time_ms) / 1000 / 60;
+
+        return {
+          question: q.question,
+          assignment_name: assignment?.name ?? 'Unknown',
+          location: q.location,
+          entry_time: new Date(q.entry_time_ms).toISOString(),
+          exit_time: new Date(q.exit_time_ms).toISOString(),
+          wait_time_mins: Math.round(waitTimeMins * 10) / 10,
+          help_duration_mins:
+            q.help_duration_ms >= 0 ? Math.round((q.help_duration_ms / 1000 / 60) * 10) / 10 : 0,
+          finished_by: q.finished_by,
+          num_asked_to_fix: q.num_asked_to_fix,
+          ta_id: q.ta_id ?? null,
+          ta_name,
+        };
+      }),
+    );
+
+    const totalAskedToFix = allQuestions.reduce((sum, q) => sum + q.num_asked_to_fix, 0);
+    const totalTimeHelped = allQuestions.reduce(
+      (sum, q) => sum + (q.finished_by === 'helped' ? q.help_duration_ms / 1000 / 60 : 0),
+      0,
+    );
+
+    return {
+      studentName: user_prefs.preferred_name,
+      studentEmail: user.email!,
+      questions,
+      totalQuestions: allQuestions.length,
+      totalHelpedQuestions: allQuestions.filter((q) => q.finished_by === 'helped').length,
+      totalAskedToFix,
+      totalTimeHelped: formatMinutes(totalTimeHelped),
+    };
+  },
+});
+
+/**
+ * Get complete question history for a specific TA (Admin only)
+ * Returns null if TA not found
+ */
+export const getTAQuestionHistory = query({
+  args: {
+    taId: v.id('tas'),
+  },
+  returns: v.union(
+    v.object({
+      taName: v.string(),
+      taEmail: v.string(),
+      questions: v.array(
+        v.object({
+          question: v.string(),
+          assignment_name: v.string(),
+          location: v.string(),
+          student_id: v.id('students'),
+          student_name: v.string(),
+          student_email: v.string(),
+          entry_time: v.string(),
+          exit_time: v.string(),
+          wait_time_mins: v.number(),
+          help_duration_mins: v.number(),
+          num_asked_to_fix: v.number(),
+        }),
+      ),
+      totalQuestionsAnswered: v.number(),
+      totalTimeHelping: v.string(),
+      avgTimePerQuestion: v.string(),
+    }),
+    v.null(),
+  ),
+  handler: async (ctx, args) => {
+    await ensureAuthAndAdmin(ctx);
+    const curr_sem = await getCurrentSemester(ctx);
+
+    const ta = await ctx.db.get(args.taId);
+    if (!ta) {
+      return null;
+    }
+
+    const user_prefs = await ctx.db.get(ta.user_prefs_id);
+    const user = await ctx.db.get(ta.user_id);
+    if (!user_prefs || !user) {
+      return null;
+    }
+
+    // Use the by_semester_and_finished_by_and_ta index
+    const allQuestions = await ctx.db
+      .query('questions')
+      .withIndex('by_semester_and_finished_by_and_ta', (q) =>
+        q.eq('semester_id', curr_sem._id).eq('finished_by', 'helped').eq('ta_id', args.taId),
+      )
+      .collect();
+
+    // Sort by entry time descending (most recent first)
+    allQuestions.sort((a, b) => b.entry_time_ms - a.entry_time_ms);
+
+    const questions = await Promise.all(
+      allQuestions.map(async (q) => {
+        const assignment = await ctx.db.get(q.assignment_id);
+        const student = await ctx.db.get(q.student_id);
+
+        let student_name = 'Unknown';
+        let student_email = 'Unknown';
+        if (student) {
+          const student_prefs = await ctx.db.get(student.user_prefs_id);
+          const student_user = await ctx.db.get(student.user_id);
+          if (student_prefs) {
+            student_name = student_prefs.preferred_name;
+          }
+          if (student_user) {
+            student_email = student_user.email!;
+          }
+        }
+
+        const helpStartMs = q.exit_time_ms - q.help_duration_ms;
+        const waitTimeMins = (helpStartMs - q.entry_time_ms) / 1000 / 60;
+
+        return {
+          question: q.question,
+          assignment_name: assignment?.name ?? 'Unknown',
+          location: q.location,
+          student_id: q.student_id,
+          student_name,
+          student_email,
+          entry_time: new Date(q.entry_time_ms).toISOString(),
+          exit_time: new Date(q.exit_time_ms).toISOString(),
+          wait_time_mins: Math.round(waitTimeMins * 10) / 10,
+          help_duration_mins: Math.round((q.help_duration_ms / 1000 / 60) * 10) / 10,
+          num_asked_to_fix: q.num_asked_to_fix,
+        };
+      }),
+    );
+
+    const totalTimeHelping = allQuestions.reduce(
+      (sum, q) => sum + q.help_duration_ms / 1000 / 60,
+      0,
+    );
+
+    const avgTimePerQuestion =
+      allQuestions.length > 0 ? totalTimeHelping / allQuestions.length : 0;
+
+    return {
+      taName: user_prefs.preferred_name,
+      taEmail: user.email!,
+      questions,
+      totalQuestionsAnswered: allQuestions.length,
+      totalTimeHelping: formatMinutes(totalTimeHelping),
+      avgTimePerQuestion: formatMinutes(avgTimePerQuestion),
+    };
   },
 });

@@ -11,7 +11,9 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  Link as MuiLink,
 } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
@@ -118,12 +120,24 @@ export default function AdminMetrics() {
                         <TableRow hover role="checkbox" tabIndex={-1} key={row.student_email}>
                           {studentCols.map((column) => {
                             const value = row[column.id];
+                            const isClickable =
+                              column.id === 'student_email' || column.id === 'student_name';
                             return (
                               <TableCell
                                 key={column.id}
                                 sx={{ width: 50, textOverflow: 'ellipsis' }}
                               >
-                                {value}
+                                {isClickable ? (
+                                  <MuiLink
+                                    component={Link}
+                                    to={`/metrics/student/${row.student_id}`}
+                                    sx={{ textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+                                  >
+                                    {value}
+                                  </MuiLink>
+                                ) : (
+                                  value
+                                )}
                               </TableCell>
                             );
                           })}
@@ -166,12 +180,23 @@ export default function AdminMetrics() {
                         <TableRow hover role="checkbox" tabIndex={-1} key={row.ta_email}>
                           {taCols.map((column) => {
                             const value = row[column.id];
+                            const isClickable = column.id === 'ta_email' || column.id === 'ta_name';
                             return (
                               <TableCell
                                 key={column.id}
                                 sx={{ width: 50, textOverflow: 'ellipsis' }}
                               >
-                                {value}
+                                {isClickable ? (
+                                  <MuiLink
+                                    component={Link}
+                                    to={`/metrics/ta/${row.ta_id}`}
+                                    sx={{ textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+                                  >
+                                    {value}
+                                  </MuiLink>
+                                ) : (
+                                  value
+                                )}
                               </TableCell>
                             );
                           })}
