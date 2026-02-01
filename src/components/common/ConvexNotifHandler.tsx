@@ -25,7 +25,7 @@ async function showNotification(title: string, options: NotificationOptions): Pr
 }
 
 export default function ConvexNotifHandler() {
-  const notif = useQuery(api.home.home_get.getNotif);
+  const userData = useQuery(api.home.home_get.getUserData);
   const [oldNotifTimestamp, setOldNotifTimestamp] = useState<number | null>(null);
   const swRegistered = useRef(false);
 
@@ -38,7 +38,9 @@ export default function ConvexNotifHandler() {
   }, []);
 
   useEffect(() => {
-    if (notif) {
+    if (userData && userData.notification) {
+      const notif = userData.notification;
+
       if (oldNotifTimestamp !== null) {
         // if the value changes from false to true, that's a notif
         if (notif.timestamp !== oldNotifTimestamp) {
@@ -52,7 +54,7 @@ export default function ConvexNotifHandler() {
       }
       setOldNotifTimestamp(notif.timestamp);
     }
-  }, [notif]);
+  }, [userData]);
 
   return <></>;
 }

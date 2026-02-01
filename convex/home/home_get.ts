@@ -1,5 +1,5 @@
 import { query } from '../_generated/server';
-import { v } from 'convex/values';
+import { ConvexError, v } from 'convex/values';
 import { Doc } from '../_generated/dataModel';
 import {
   getCurrentSemester,
@@ -95,6 +95,15 @@ export const getUserData = query({
       student_data = await getQueueEntry(ctx, student._id);
     }
 
+    const semuser = await ctx.db.get(user_data.sem_user_id);
+
+    if (!semuser) {
+      // this shouldn't be possible because getCurrentUser should have already checked for this
+      throw new ConvexError('Semester user not found');
+    }
+
+    const notification = semuser.notification;
+
     return {
       user_id: user_data._id,
       email: user_data.email!,
@@ -104,6 +113,7 @@ export const getUserData = query({
       user_kind: user_data.kind,
       ta_data: ta_data as typeof ta_data | null,
       student_data: student_data as typeof student_data | null,
+      notification: notification,
     };
   },
 });
@@ -182,25 +192,6 @@ export const checkValidEmail = query({
     }
 
     return true;
-  },
-});
-
-export const getNotif = query({
-  args: {},
-  handler: async (ctx, args) => {
-    const user = await getCurrentUser(ctx);
-
-    if (!user) {
-      return null;
-    }
-
-    const semuser = await ctx.db.get(user?.sem_user_id);
-
-    if (!semuser) {
-      return null;
-    }
-
-    return semuser.notification;
   },
 });
 
