@@ -7,6 +7,10 @@ import { DateTime } from 'luxon';
 
 const http = httpRouter();
 
+// API prefix for HTTP routes (default: '/api')
+// Set via: npx convex env set HTTP_API_PREFIX /api
+const API_PREFIX = process.env.HTTP_API_PREFIX || '/api';
+
 auth.addHttpRoutes(http);
 
 // Helper function to create CORS headers
@@ -32,13 +36,13 @@ function handlePreflight() {
 
 // OPTIONS handler for download_assignment_csv
 http.route({
-  path: '/download_assignment_csv',
+  path: `${API_PREFIX}/download_assignment_csv`,
   method: 'OPTIONS',
   handler: httpAction(async () => handlePreflight()),
 });
 
 http.route({
-  path: '/download_assignment_csv',
+  path: `${API_PREFIX}/download_assignment_csv`,
   method: 'GET',
   handler: httpAction(async (ctx, request) => {
     const user = await getAuthUserId(ctx);
@@ -73,13 +77,13 @@ http.route({
 
 // OPTIONS handler for download_tas_csv
 http.route({
-  path: '/download_tas_csv',
+  path: `${API_PREFIX}/download_tas_csv`,
   method: 'OPTIONS',
   handler: httpAction(async () => handlePreflight()),
 });
 
 http.route({
-  path: '/download_tas_csv',
+  path: `${API_PREFIX}/download_tas_csv`,
   method: 'GET',
   handler: httpAction(async (ctx, request) => {
     const user = await getAuthUserId(ctx);
@@ -111,13 +115,13 @@ http.route({
 
 // OPTIONS handler for download_access_control_csv
 http.route({
-  path: '/download_access_control_csv',
+  path: `${API_PREFIX}/download_access_control_csv`,
   method: 'OPTIONS',
   handler: httpAction(async () => handlePreflight()),
 });
 
 http.route({
-  path: '/download_access_control_csv',
+  path: `${API_PREFIX}/download_access_control_csv`,
   method: 'GET',
   handler: httpAction(async (ctx, request) => {
     const user = await getAuthUserId(ctx);
@@ -152,13 +156,13 @@ http.route({
 
 // OPTIONS handler for upload_assignment_csv
 http.route({
-  path: '/upload_assignment_csv',
+  path: `${API_PREFIX}/upload_assignment_csv`,
   method: 'OPTIONS',
   handler: httpAction(async () => handlePreflight()),
 });
 
 http.route({
-  path: '/upload_assignment_csv',
+  path: `${API_PREFIX}/upload_assignment_csv`,
   method: 'POST',
   handler: httpAction(async (ctx, request) => {
     const user = await getAuthUserId(ctx);
@@ -231,13 +235,13 @@ http.route({
 
 // OPTIONS handler for upload_tas_csv
 http.route({
-  path: '/upload_tas_csv',
+  path: `${API_PREFIX}/upload_tas_csv`,
   method: 'OPTIONS',
   handler: httpAction(async () => handlePreflight()),
 });
 
 http.route({
-  path: '/upload_tas_csv',
+  path: `${API_PREFIX}/upload_tas_csv`,
   method: 'POST',
   handler: httpAction(async (ctx, request) => {
     const user = await getAuthUserId(ctx);
@@ -283,13 +287,13 @@ http.route({
 
 // OPTIONS handler for upload_access_control_csv
 http.route({
-  path: '/upload_access_control_csv',
+  path: `${API_PREFIX}/upload_access_control_csv`,
   method: 'OPTIONS',
   handler: httpAction(async () => handlePreflight()),
 });
 
 http.route({
-  path: '/upload_access_control_csv',
+  path: `${API_PREFIX}/upload_access_control_csv`,
   method: 'POST',
   handler: httpAction(async (ctx, request) => {
     const user = await getAuthUserId(ctx);

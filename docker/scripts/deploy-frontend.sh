@@ -41,4 +41,9 @@ echo "=========================================="
 echo "Frontend deployed!"
 echo "=========================================="
 echo ""
-echo "Access at: https://$DOMAIN/ohq/"
+HTTP_CLIENT_PREFIX="${HTTP_CLIENT_PREFIX:-/ohq}"
+if [ "$DOMAIN" = "localhost" ]; then
+    echo "Access at: http://$DOMAIN${HTTP_CLIENT_PREFIX}/"
+else
+    echo "Access at: https://$DOMAIN${HTTP_CLIENT_PREFIX}/"
+fi

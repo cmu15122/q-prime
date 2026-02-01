@@ -1,6 +1,6 @@
 #!/bin/sh
 # Q-Prime NGINX Entrypoint
-# Substitutes ${DOMAIN} in config template and selects HTTP or HTTPS mode
+# Substitutes environment variables in config templates and selects HTTP or HTTPS mode
 
 set -e
 
@@ -9,18 +9,29 @@ if [ -z "$DOMAIN" ]; then
     exit 1
 fi
 
+# Set defaults for prefixes
+HTTP_CLIENT_PREFIX="${HTTP_CLIENT_PREFIX:-/ohq}"
+HTTP_API_PREFIX="${HTTP_API_PREFIX:-/api}"
+
+export DOMAIN HTTP_CLIENT_PREFIX HTTP_API_PREFIX
+
+echo "Configuration:"
+echo "  DOMAIN: $DOMAIN"
+echo "  HTTP_CLIENT_PREFIX: $HTTP_CLIENT_PREFIX"
+echo "  HTTP_API_PREFIX: $HTTP_API_PREFIX"
+
 # Check if SSL certificates exist
 CERT_PATH="/etc/letsencrypt/live/$DOMAIN/fullchain.pem"
 
 if [ -f "$CERT_PATH" ]; then
     echo "SSL certificates found for $DOMAIN - using HTTPS"
-    envsubst '${DOMAIN}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf
+    envsubst '${DOMAIN} ${HTTP_CLIENT_PREFIX} ${HTTP_API_PREFIX}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf
 else
     echo "SSL certificates NOT found for $DOMAIN - using HTTP only"
     echo ""
     echo "Run init-letsencrypt.sh to obtain SSL certificates"
     echo ""
-    cp /etc/nginx/templates/default-http-only.conf /etc/nginx/conf.d/default.conf
+    envsubst '${DOMAIN} ${HTTP_CLIENT_PREFIX} ${HTTP_API_PREFIX}' < /etc/nginx/templates/default-http-only.conf.template > /etc/nginx/conf.d/default.conf
 fi
 
 # Test config

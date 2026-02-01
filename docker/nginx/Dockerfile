@@ -15,7 +15,7 @@ RUN mkdir -p /etc/nginx/templates
 # Copy configs
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY conf.d/default.conf.template /etc/nginx/templates/default.conf.template
-COPY conf.d/default-http-only.conf /etc/nginx/templates/default-http-only.conf
+COPY conf.d/default-http-only.conf.template /etc/nginx/templates/default-http-only.conf.template
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
 RUN chmod +x /docker-entrypoint.sh

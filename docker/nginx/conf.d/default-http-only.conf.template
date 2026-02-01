@@ -1,6 +1,11 @@
 # Q-Prime NGINX - HTTP Only Configuration
 # Used during initial setup before SSL certificates are obtained
 #
+# Environment variables substituted at container start:
+#   ${DOMAIN} - Server domain name
+#   ${HTTP_CLIENT_PREFIX} - Frontend route prefix (default: /ohq)
+#   ${HTTP_API_PREFIX} - API route prefix (default: /api)
+#
 # This config:
 # - Serves ACME challenges for Let's Encrypt
 # - Proxies to backend services over HTTP (for testing)
@@ -31,14 +36,14 @@ server {
         root /var/www/certbot;
     }
 
-    # Root - Redirect to /ohq/
+    # Root - Redirect to client prefix
     location = / {
-        return 302 /ohq/;
+        return 302 ${HTTP_CLIENT_PREFIX}/;
     }
 
-    # Frontend Routes - /ohq/*
-    location /ohq/ {
-        rewrite ^/ohq/(.*) /$1 break;
+    # Frontend Routes - ${HTTP_CLIENT_PREFIX}/*
+    location ${HTTP_CLIENT_PREFIX}/ {
+        rewrite ^${HTTP_CLIENT_PREFIX}/(.*) /$1 break;
         proxy_pass http://frontend/;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
@@ -47,12 +52,12 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    location /ohq {
-        return 302 /ohq/;
+    location ${HTTP_CLIENT_PREFIX} {
+        return 302 ${HTTP_CLIENT_PREFIX}/;
     }
 
-    # Convex HTTP Actions - CSV endpoints (keep /api/ prefix, backend expects it)
-    location ~ ^/api/(download_|upload_) {
+    # Convex HTTP Actions - CSV endpoints
+    location ~ ^${HTTP_API_PREFIX}/(download_|upload_) {
         proxy_pass http://convex_site;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
@@ -61,8 +66,8 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    # Convex Auth Routes (keep /api/ prefix, backend expects it)
-    location /api/auth/ {
+    # Convex Auth Routes
+    location ${HTTP_API_PREFIX}/auth/ {
         proxy_pass http://convex_site;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
@@ -72,8 +77,8 @@ server {
     }
 
     # Convex API Routes - Main API with WebSocket
-    location /api/ {
-        rewrite ^/api/(.*) /$1 break;
+    location ${HTTP_API_PREFIX}/ {
+        rewrite ^${HTTP_API_PREFIX}/(.*) /$1 break;
         proxy_pass http://convex_api;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;

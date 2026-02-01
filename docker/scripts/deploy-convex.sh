@@ -115,6 +115,11 @@ fi
 # Note: CONVEX_SITE_URL is passed to the backend as a Docker environment variable
 # (see docker-compose.yml). We don't need to set it via env set.
 
+# HTTP API prefix for CSV endpoints (default: /api)
+HTTP_API_PREFIX="${HTTP_API_PREFIX:-/api}"
+echo "  Setting HTTP_API_PREFIX..."
+npx convex env set HTTP_API_PREFIX -- "$HTTP_API_PREFIX"
+
 # JWT keys for authentication
 if [ -n "$JWKS" ]; then
     echo "  Setting JWKS..."

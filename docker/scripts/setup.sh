@@ -157,10 +157,14 @@ else
     PROTOCOL="https"
 fi
 
-# Update values that depend on DOMAIN
-sed -i "s|^VITE_APP_CONVEX_URL=.*|VITE_APP_CONVEX_URL=${PROTOCOL}://${DOMAIN}/api|" "$PROJECT_ROOT/.env.docker"
-sed -i "s|^VITE_APP_CONVEX_SITE_URL=.*|VITE_APP_CONVEX_SITE_URL=${PROTOCOL}://${DOMAIN}/api|" "$PROJECT_ROOT/.env.docker"
-sed -i "s|^CONVEX_CLOUD_ORIGIN=.*|CONVEX_CLOUD_ORIGIN=${PROTOCOL}://${DOMAIN}/api|" "$PROJECT_ROOT/.env.docker"
+# Get prefixes (use defaults if not set)
+HTTP_API_PREFIX="${HTTP_API_PREFIX:-/api}"
+HTTP_CLIENT_PREFIX="${HTTP_CLIENT_PREFIX:-/ohq}"
+
+# Update values that depend on DOMAIN and prefixes
+sed -i "s|^VITE_APP_CONVEX_URL=.*|VITE_APP_CONVEX_URL=${PROTOCOL}://${DOMAIN}${HTTP_API_PREFIX}|" "$PROJECT_ROOT/.env.docker"
+sed -i "s|^VITE_APP_CONVEX_SITE_URL=.*|VITE_APP_CONVEX_SITE_URL=${PROTOCOL}://${DOMAIN}${HTTP_API_PREFIX}|" "$PROJECT_ROOT/.env.docker"
+sed -i "s|^CONVEX_CLOUD_ORIGIN=.*|CONVEX_CLOUD_ORIGIN=${PROTOCOL}://${DOMAIN}${HTTP_API_PREFIX}|" "$PROJECT_ROOT/.env.docker"
 sed -i "s|^CONVEX_SITE_ORIGIN=.*|CONVEX_SITE_ORIGIN=${PROTOCOL}://${DOMAIN}|" "$PROJECT_ROOT/.env.docker"
 sed -i "s|^CONVEX_SITE_URL=.*|CONVEX_SITE_URL=${PROTOCOL}://${DOMAIN}|" "$PROJECT_ROOT/.env.docker"
 sed -i "s|^CLIENT_ORIGIN=.*|CLIENT_ORIGIN=${PROTOCOL}://${DOMAIN}|" "$PROJECT_ROOT/.env.docker"
@@ -249,4 +253,4 @@ else
     echo "   docker compose -f docker/docker-compose.yml --env-file .env.docker up -d"
 fi
 echo ""
-echo "Access the app at: ${PROTOCOL}://${DOMAIN}/ohq/"
+echo "Access the app at: ${PROTOCOL}://${DOMAIN}${HTTP_CLIENT_PREFIX}/"

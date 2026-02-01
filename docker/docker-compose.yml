@@ -79,6 +79,7 @@ services:
         - VITE_APP_CONVEX_URL=${VITE_APP_CONVEX_URL}
         - VITE_APP_CONVEX_SITE_URL=${VITE_APP_CONVEX_SITE_URL}
         - VITE_APP_GOOGLE_CLIENT_ID=${VITE_APP_GOOGLE_CLIENT_ID}
+        - HTTP_CLIENT_PREFIX=${HTTP_CLIENT_PREFIX:-/ohq}
     container_name: qprime-frontend
     restart: unless-stopped
     ports:
@@ -104,6 +105,8 @@ services:
       - ./certbot/www:/var/www/certbot:ro
     environment:
       - DOMAIN=${DOMAIN}
+      - HTTP_CLIENT_PREFIX=${HTTP_CLIENT_PREFIX:-/ohq}
+      - HTTP_API_PREFIX=${HTTP_API_PREFIX:-/api}
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     depends_on:
       - frontend

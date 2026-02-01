@@ -24,14 +24,15 @@ COPY . .
 ARG VITE_APP_CONVEX_URL
 ARG VITE_APP_CONVEX_SITE_URL
 ARG VITE_APP_GOOGLE_CLIENT_ID
+ARG HTTP_CLIENT_PREFIX=/ohq
 
 # Set environment variables for build
 ENV VITE_APP_CONVEX_URL=${VITE_APP_CONVEX_URL}
 ENV VITE_APP_CONVEX_SITE_URL=${VITE_APP_CONVEX_SITE_URL}
 ENV VITE_APP_GOOGLE_CLIENT_ID=${VITE_APP_GOOGLE_CLIENT_ID}
 
-# Build the application with /ohq/ base path (quick build, no typecheck/lint)
-RUN npm run build:quick -- --base=/ohq/
+# Build the application with configurable base path (quick build, no typecheck/lint)
+RUN npm run build:quick -- --base=${HTTP_CLIENT_PREFIX}/
 
 # Stage 2: Serve with NGINX
 FROM nginx:alpine

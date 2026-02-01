@@ -1,7 +1,10 @@
 # Q-Prime NGINX Configuration
 # Based on: https://github.com/wmnnd/nginx-certbot
 #
-# ${DOMAIN} is substituted by envsubst at container start
+# Environment variables substituted at container start:
+#   ${DOMAIN} - Server domain name
+#   ${HTTP_CLIENT_PREFIX} - Frontend route prefix (default: /ohq)
+#   ${HTTP_API_PREFIX} - API route prefix (default: /api)
 
 # WebSocket connection upgrade map
 map $http_upgrade $connection_upgrade {
@@ -60,17 +63,17 @@ server {
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
 
     # ===========================================
-    # Root - Redirect to /ohq/
+    # Root - Redirect to client prefix
     # ===========================================
     location = / {
-        return 302 /ohq/;
+        return 302 ${HTTP_CLIENT_PREFIX}/;
     }
 
     # ===========================================
-    # Frontend - /ohq/*
+    # Frontend - ${HTTP_CLIENT_PREFIX}/*
     # ===========================================
-    location /ohq/ {
-        rewrite ^/ohq/(.*) /$1 break;
+    location ${HTTP_CLIENT_PREFIX}/ {
+        rewrite ^${HTTP_CLIENT_PREFIX}/(.*) /$1 break;
         proxy_pass http://frontend/;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
@@ -79,15 +82,14 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    location /ohq {
-        return 302 /ohq/;
+    location ${HTTP_CLIENT_PREFIX} {
+        return 302 ${HTTP_CLIENT_PREFIX}/;
     }
 
     # ===========================================
     # Convex HTTP Actions - CSV endpoints
-    # (keep /api/ prefix, backend expects it)
     # ===========================================
-    location ~ ^/api/(download_|upload_) {
+    location ~ ^${HTTP_API_PREFIX}/(download_|upload_) {
         proxy_pass http://convex_site;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
@@ -101,9 +103,8 @@ server {
 
     # ===========================================
     # Convex Auth - OAuth callbacks
-    # (keep /api/ prefix, backend expects it)
     # ===========================================
-    location /api/auth/ {
+    location ${HTTP_API_PREFIX}/auth/ {
         proxy_pass http://convex_site;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
@@ -115,8 +116,8 @@ server {
     # ===========================================
     # Convex API - Main API with WebSocket
     # ===========================================
-    location /api/ {
-        rewrite ^/api/(.*) /$1 break;
+    location ${HTTP_API_PREFIX}/ {
+        rewrite ^${HTTP_API_PREFIX}/(.*) /$1 break;
         proxy_pass http://convex_api;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
