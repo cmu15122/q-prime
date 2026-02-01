@@ -9,7 +9,7 @@ export default function GoogleLogin() {
       color="secondary"
       variant="contained"
       sx={{ mx: 2 }}
-      onClick={() => void signIn('google', { redirectTo: '/' })}
+      onClick={() => void signIn('google', { redirectTo: import.meta.env.BASE_URL || '/' })}
     >
       Log In
     </Button>

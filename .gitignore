@@ -121,3 +121,8 @@ adminSettings.json
 
 .env.local
 .env.convex
+.env.docker
+
+# Docker deployment
+docker/certbot/
+backups/

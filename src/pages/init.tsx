@@ -56,7 +56,7 @@ function Init() {
       owner_emails: ownerEmailsArray,
     });
 
-    signIn('google', { redirectTo: '/settings' });
+    signIn('google', { redirectTo: `${import.meta.env.BASE_URL || '/'}settings` });
   };
 
   return (

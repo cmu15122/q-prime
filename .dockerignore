@@ -1,0 +1,55 @@
+# Q-Prime Docker Build Ignore File
+
+# Dependencies
+node_modules/
+.npm/
+
+# Build outputs (we build inside Docker)
+dist/
+build/
+
+# Environment files (secrets)
+.env
+.env.*
+!.env.docker.example
+
+# Convex generated files (keep _generated - needed for frontend build)
+# convex/_generated/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Docker files we don't need in frontend build
+docker/nginx/
+docker/scripts/
+docker/*.yml
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+
+# Test files
+coverage/
+*.test.ts
+*.test.tsx
+__tests__/
+
+# Documentation (not needed in container)
+*.md
+!README.md
+
+# Misc
+.DS_Store
+Thumbs.db
+backups/
+
+# SSL certificates (managed by certbot)
+docker/nginx/ssl/

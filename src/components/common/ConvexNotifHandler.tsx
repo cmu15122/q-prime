@@ -9,7 +9,7 @@ async function registerServiceWorker(): Promise<ServiceWorkerRegistration | null
   }
 
   try {
-    const registration = await navigator.serviceWorker.register('/sw.js');
+    const registration = await navigator.serviceWorker.register(`${import.meta.env.BASE_URL || '/'}sw.js`);
     return registration;
   } catch (error) {
     console.error('Service worker registration failed:', error);

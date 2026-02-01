@@ -1,0 +1,136 @@
+# Q-Prime Docker Compose Configuration
+# Based on: https://github.com/wmnnd/nginx-certbot
+#
+# Usage:
+#   First time: ./docker/scripts/init-letsencrypt.sh
+#   Then: docker compose -f docker/docker-compose.yml --env-file .env.docker up -d
+#
+# Services:
+# - convex-backend: Convex API server (port 3210) and HTTP actions (port 3211)
+# - convex-dashboard: Admin dashboard (port 6791, localhost only)
+# - frontend: Vite build served by NGINX (port 4000)
+# - nginx-proxy: SSL termination and routing (ports 80, 443)
+# - certbot: SSL certificate management
+
+services:
+  # ===========================================
+  # Convex Backend - Core API Server
+  # ===========================================
+  convex-backend:
+    image: ghcr.io/get-convex/convex-backend:latest
+    container_name: qprime-convex-backend
+    restart: unless-stopped
+    stop_grace_period: 10s
+    stop_signal: SIGINT
+    ports:
+      - "127.0.0.1:3210:3210"  # Backend API (internal only)
+      - "127.0.0.1:3211:3211"  # HTTP Actions (internal only)
+    volumes:
+      - convex_data:/convex/data
+    environment:
+      - CONVEX_CLOUD_ORIGIN=${CONVEX_CLOUD_ORIGIN}
+      - CONVEX_SITE_ORIGIN=${CONVEX_SITE_ORIGIN}
+      - RUST_LOG=${RUST_LOG:-info}
+      - DOCUMENT_RETENTION_DELAY=${DOCUMENT_RETENTION_DELAY:-172800}
+      - AUTH_GOOGLE_ID=${AUTH_GOOGLE_ID}
+      - AUTH_GOOGLE_SECRET=${AUTH_GOOGLE_SECRET}
+      - CLIENT_ORIGIN=${CLIENT_ORIGIN}
+      - SITE_URL=${SITE_URL}
+      - JWKS=${JWKS}
+      - JWT_PRIVATE_KEY=${JWT_PRIVATE_KEY}
+      - CONVEX_SITE_URL=${CONVEX_SITE_URL}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3210/version"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - qprime-network
+
+  # ===========================================
+  # Convex Dashboard - Admin Interface
+  # Access via SSH tunnel: ssh -L 6791:localhost:6791 user@server
+  # ===========================================
+  convex-dashboard:
+    image: ghcr.io/get-convex/convex-dashboard:latest
+    container_name: qprime-convex-dashboard
+    restart: unless-stopped
+    stop_grace_period: 10s
+    stop_signal: SIGINT
+    ports:
+      - "127.0.0.1:6791:6791"
+    environment:
+      - NEXT_PUBLIC_DEPLOYMENT_URL=${CONVEX_CLOUD_ORIGIN}
+    depends_on:
+      convex-backend:
+        condition: service_healthy
+    networks:
+      - qprime-network
+
+  # ===========================================
+  # Frontend - Vite Build Served by NGINX
+  # ===========================================
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/frontend/Dockerfile
+      args:
+        - VITE_APP_CONVEX_URL=${VITE_APP_CONVEX_URL}
+        - VITE_APP_CONVEX_SITE_URL=${VITE_APP_CONVEX_SITE_URL}
+        - VITE_APP_GOOGLE_CLIENT_ID=${VITE_APP_GOOGLE_CLIENT_ID}
+    container_name: qprime-frontend
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:4000:80"
+    networks:
+      - qprime-network
+
+  # ===========================================
+  # NGINX Reverse Proxy - SSL & Routing
+  # Reloads config every 6 hours to pick up renewed certs
+  # ===========================================
+  nginx-proxy:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: qprime-nginx-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+    environment:
+      - DOMAIN=${DOMAIN}
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    depends_on:
+      - frontend
+      - convex-backend
+    networks:
+      - qprime-network
+
+  # ===========================================
+  # Certbot - SSL Certificate Management
+  # Checks for renewal every 12 hours
+  # ===========================================
+  certbot:
+    image: certbot/certbot:latest
+    container_name: qprime-certbot
+    restart: unless-stopped
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    networks:
+      - qprime-network
+
+volumes:
+  convex_data:
+    name: qprime_convex_data
+
+networks:
+  qprime-network:
+    name: qprime-network
+    driver: bridge
