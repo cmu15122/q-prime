@@ -9,8 +9,8 @@ export default function CumulativeStats() {
   const avgWaitTimeData = useQuery(api.metrics.getTotalAvgWaitTime);
 
   const numQuestions = numQuestionsData ? numQuestionsData.numQuestions : 0;
-  const avgTimePerQuestion = avgTimePerQuestionData ? avgTimePerQuestionData.averageTime : 0;
-  const avgWaitTime = avgWaitTimeData ? avgWaitTimeData.totalAvgWaitTime : 0;
+  const avgTimePerQuestion = avgTimePerQuestionData ? avgTimePerQuestionData.averageTime : '0:00';
+  const avgWaitTime = avgWaitTimeData ? avgWaitTimeData.totalAvgWaitTime : '0:00';
 
   return (
     <div>
@@ -44,7 +44,7 @@ export default function CumulativeStats() {
             Average Time Spent per Question (min)
           </Typography>
           <Typography variant="h3" sx={{ mt: 2 }} fontWeight="bold">
-            {Number(avgTimePerQuestion).toFixed(2)}
+            {avgTimePerQuestion}
           </Typography>
         </Grid>
 
@@ -54,7 +54,7 @@ export default function CumulativeStats() {
             Average Wait Time (min)
           </Typography>
           <Typography variant="h3" sx={{ mt: 2 }} fontWeight="bold">
-            {Number(avgWaitTime).toFixed(2)}
+            {avgWaitTime}
           </Typography>
         </Grid>
       </Card>

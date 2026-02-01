@@ -29,6 +29,12 @@ const dayCountValidator = v.object({
   students: v.number(),
 });
 
+function formatMinutes(num: number): string {
+  const minutes = Math.floor(num);
+  const seconds = Math.round((num - minutes) * 60);
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}
+
 /**
  * Get list of students helped by the current TA
  */
@@ -114,7 +120,7 @@ export const getNumQuestionsAnswered = query({
 export const getAverageTimePerQuestion = query({
   args: {},
   returns: v.object({
-    averageTime: v.number(),
+    averageTime: v.string(),
   }),
   handler: async (ctx) => {
     const { ta } = await ensureAuthAndTA(ctx);
@@ -134,7 +140,7 @@ export const getAverageTimePerQuestion = query({
 
     const averageTime = questions.length > 0 ? totalTime / questions.length : 0;
 
-    return { averageTime };
+    return { averageTime: formatMinutes(averageTime) };
   },
 });
 
@@ -205,7 +211,7 @@ export const getNumBadQuestionsToday = query({
 export const getAvgWaitTimeToday = query({
   args: {},
   returns: v.object({
-    avgWaitTime: v.number(),
+    avgWaitTime: v.string(),
   }),
   handler: async (ctx) => {
     await ensureAuthAndTA(ctx);
@@ -235,7 +241,7 @@ export const getAvgWaitTimeToday = query({
 
     const avgWaitTime = helpedCount > 0 ? totalWaitTime / helpedCount : 0;
 
-    return { avgWaitTime };
+    return { avgWaitTime: formatMinutes(avgWaitTime) };
   },
 });
 
@@ -305,7 +311,7 @@ export const getTotalNumQuestions = query({
 export const getTotalAvgTimePerQuestion = query({
   args: {},
   returns: v.object({
-    averageTime: v.number(),
+    averageTime: v.string(),
   }),
   handler: async (ctx) => {
     await ensureAuthAndTA(ctx);
@@ -325,7 +331,7 @@ export const getTotalAvgTimePerQuestion = query({
 
     const averageTime = questions.length > 0 ? totalTime / questions.length : 0;
 
-    return { averageTime };
+    return { averageTime: formatMinutes(averageTime) };
   },
 });
 
@@ -335,7 +341,7 @@ export const getTotalAvgTimePerQuestion = query({
 export const getTotalAvgWaitTime = query({
   args: {},
   returns: v.object({
-    totalAvgWaitTime: v.number(),
+    totalAvgWaitTime: v.string(),
   }),
   handler: async (ctx) => {
     await ensureAuthAndTA(ctx);
@@ -356,7 +362,7 @@ export const getTotalAvgWaitTime = query({
 
     const totalAvgWaitTime = questions.length > 0 ? totalWaitTime / questions.length : 0;
 
-    return { totalAvgWaitTime };
+    return { totalAvgWaitTime: formatMinutes(totalAvgWaitTime) };
   },
 });
 

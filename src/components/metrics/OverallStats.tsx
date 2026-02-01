@@ -11,8 +11,8 @@ export default function OverallStats() {
 
   const numQuestionsToday = numQuestionsTodayData ? numQuestionsTodayData.numQuestionsToday : 0;
   const numBadQuestions = numBadQuestionsData ? numBadQuestionsData.numBadQuestionsToday : 0;
-  const avgWaitTime = avgWaitTimeData ? avgWaitTimeData.avgWaitTime : 0;
-  const taStudentRatio = taStudentRatioData ? taStudentRatioData.taStudentRatio : 0;
+  const avgWaitTime = avgWaitTimeData ? avgWaitTimeData.avgWaitTime : '0:00';
+  const taStudentRatio = taStudentRatioData ? taStudentRatioData.taStudentRatio : '0:0';
 
   return (
     <div>
@@ -54,7 +54,7 @@ export default function OverallStats() {
             Average Waiting Time (min)
           </Typography>
           <Typography variant="h3" sx={{ mt: 2 }} fontWeight="bold">
-            {Number(avgWaitTime).toFixed(2)}
+            {avgWaitTime}
           </Typography>
         </Grid>
         <Divider orientation="vertical" variant="middle" flexItem />

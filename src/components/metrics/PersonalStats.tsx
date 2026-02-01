@@ -19,21 +19,12 @@ import { DateTime } from 'luxon';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 
-const columns = [
-  { id: 'student_email', label: 'Email', width: 25 },
-  { id: 'name', label: 'Name', width: 25 },
-  { id: 'question', label: 'Question', width: 200 },
-  { id: 'timeStart', label: 'Time Start', width: 100 },
-  { id: 'timeEnd', label: 'Time End', width: 100 },
-];
-
 interface HelpedStudent {
   student_email: string;
   name: string;
   timeStart: string;
   timeEnd: string;
   question: string;
-  [key: string]: any;
 }
 
 function createData(
@@ -43,8 +34,8 @@ function createData(
   timeEnd: string,
   question: string,
 ): HelpedStudent {
-  const timeStartStr = DateTime.fromISO(timeStart).toLocaleString(DateTime.DATETIME_MED);
-  const timeEndStr = DateTime.fromISO(timeEnd).toLocaleString(DateTime.DATETIME_MED);
+  const timeStartStr = DateTime.fromISO(timeStart).toFormat('dd/MM/yyyy HH:mm');
+  const timeEndStr = DateTime.fromISO(timeEnd).toFormat('dd/MM/yyyy HH:mm');
   return { student_email, name, timeStart: timeStartStr, timeEnd: timeEndStr, question };
 }
 
@@ -57,7 +48,7 @@ export default function PersonalStats() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
   const numQuestionsAnswered = numQuestionsData ? numQuestionsData.numQuestions : 0;
-  const averageHelpTime = averageTimeData ? averageTimeData.averageTime : 0;
+  const averageHelpTime = averageTimeData ? averageTimeData.averageTime : '0:00';
 
   const helpedStudents = helpedStudentsData
     ? helpedStudentsData.helpedStudents.map((helpedStudent: any) =>
@@ -107,7 +98,7 @@ export default function PersonalStats() {
               Avg. Time Spent Per Question (min)
             </Typography>
             <Typography variant="h3" sx={{ mt: 2 }} fontWeight="bold">
-              {Number(averageHelpTime).toFixed(2)}
+              {averageHelpTime}
             </Typography>
           </Grid>
           <Stack sx={{ width: '100%' }}>
@@ -115,36 +106,25 @@ export default function PersonalStats() {
               <Table stickyHeader aria-label="sticky table">
                 <TableHead>
                   <TableRow>
-                    {columns.map((column) => (
-                      <TableCell
-                        key={column.id}
-                        style={{ width: column.width, textOverflow: 'ellipsis' }}
-                      >
-                        {column.label}
-                      </TableCell>
-                    ))}
+                    <TableCell sx={{ minWidth: 125 }}>Email</TableCell>
+                    <TableCell sx={{ minWidth: 125 }}>Name</TableCell>
+                    <TableCell>Question</TableCell>
+                    <TableCell>Time Start</TableCell>
+                    <TableCell>Time End</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {helpedStudents
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row, i) => {
-                      return (
-                        <TableRow hover role="checkbox" tabIndex={-1} key={row.student_email + i}>
-                          {columns.map((column) => {
-                            const value = row[column.id];
-                            return (
-                              <TableCell
-                                key={column.id}
-                                sx={{ width: 50, textOverflow: 'ellipsis' }}
-                              >
-                                {value}
-                              </TableCell>
-                            );
-                          })}
-                        </TableRow>
-                      );
-                    })}
+                    .map((row, i) => (
+                      <TableRow hover key={row.student_email + i}>
+                        <TableCell sx={{ wordBreak: 'break-word' }}>{row.student_email}</TableCell>
+                        <TableCell sx={{ wordBreak: 'break-word' }}>{row.name}</TableCell>
+                        <TableCell sx={{ wordBreak: 'break-word' }}>{row.question}</TableCell>
+                        <TableCell>{row.timeStart}</TableCell>
+                        <TableCell>{row.timeEnd}</TableCell>
+                      </TableRow>
+                    ))}
                 </TableBody>
               </Table>
             </TableContainer>
