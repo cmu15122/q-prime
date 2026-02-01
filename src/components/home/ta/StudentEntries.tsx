@@ -10,6 +10,51 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 
+const Filter = ({ filteredLocations, filteredTopics, setFilteredLocations, setFilteredTopics }) => {
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleFilterDialog = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleFilterClose = () => {
+    setAnchorEl(null);
+  };
+
+  const openFilterDialog = Boolean(anchorEl);
+
+  return (
+    <div>
+      <Button
+        variant="contained"
+        startIcon={<FilterListIcon />}
+        sx={{ fontWeight: 'bold', mr: 1 }}
+        onClick={handleFilterDialog}
+        aria-describedby={'popover'}
+      >
+        Filter
+      </Button>
+      <Popover
+        id={'popover'}
+        open={openFilterDialog}
+        anchorEl={anchorEl}
+        onClose={handleFilterClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+      >
+        <FilterOptions
+          filteredLocations={filteredLocations}
+          filteredTopics={filteredTopics}
+          setFilteredLocations={setFilteredLocations}
+          setFilteredTopics={setFilteredTopics}
+        />
+      </Popover>
+    </div>
+  );
+};
+
 export default function StudentEntries() {
   const userData = useQuery(api.home.home_get.getUserData);
   const allStudents = useQuery(api.home.home_get.getAllStudents);
@@ -73,48 +118,18 @@ export default function StudentEntries() {
     return newFiltered;
   }, [allStudents, filteredLocations, filteredTopics]);
 
-  const Filter = () => {
-    const handleFilterDialog = (event) => {
-      setAnchorEl(event.currentTarget);
-    };
-
-    const [anchorEl, setAnchorEl] = useState(null);
-    const handleFilterClose = () => {
-      setAnchorEl(null);
-    };
-    const openFilterDialog = Boolean(anchorEl);
-
-    return (
-      <div>
-        <Button
-          variant="contained"
-          startIcon={<FilterListIcon />}
-          sx={{ fontWeight: 'bold', mr: 1 }}
-          onClick={handleFilterDialog}
-          aria-describedby={'popover'}
-        >
-          Filter
-        </Button>
-        <Popover
-          id={'popover'}
-          open={openFilterDialog}
-          anchorEl={anchorEl}
-          onClose={handleFilterClose}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'left',
-          }}
-        >
-          <FilterOptions
-            filteredLocations={filteredLocations}
-            filteredTopics={filteredTopics}
-            setFilteredLocations={setFilteredLocations}
-            setFilteredTopics={setFilteredTopics}
-          />
-        </Popover>
-      </div>
+  const FilterWithProps = useMemo(() => {
+    console.log(filteredTopics);
+    return (props) => (
+      <Filter
+        filteredLocations={filteredLocations}
+        filteredTopics={filteredTopics}
+        setFilteredLocations={setFilteredLocations}
+        setFilteredTopics={setFilteredTopics}
+        {...props}
+      />
     );
-  };
+  }, [filteredLocations, filteredTopics, setFilteredLocations, setFilteredTopics]);
   /* END FILTER LOGIC (the actual filtering is in QUEUE LOGIC)*/
 
   /* BEGIN QUEUE LOGIC */
@@ -173,7 +188,7 @@ export default function StudentEntries() {
   /* END QUEUE LOGIC */
 
   return (
-    <BaseTable title="Students" HeaderTailComp={Filter}>
+    <BaseTable title="Students" HeaderTailComp={FilterWithProps}>
       {filteredStudents.map((student, index) => (
         <StudentEntry
           isHelping={isHelping}

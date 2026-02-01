@@ -101,19 +101,19 @@ export default function FilterOptions(props) {
         }
       >
         {(currAssignments || []).map((topic) => {
-          const labelId = `checkbox-list-label-${topic.name}`;
+          const labelId = `checkbox-list-label-${topic._id}`;
 
           return (
-            <ListItem key={topic.name} disablePadding>
+            <ListItem key={topic._id} disablePadding>
               <ListItemButton
                 role={undefined}
-                onClick={handleToggle(FilterGroup.Topic, topic.name)}
+                onClick={handleToggle(FilterGroup.Topic, topic._id)}
                 dense
               >
                 <ListItemIcon>
                   <Checkbox
                     edge="start"
-                    checked={filteredTopics.indexOf(topic.name) !== -1}
+                    checked={filteredTopics.indexOf(topic._id) !== -1}
                     tabIndex={-1}
                     disableRipple
                     inputProps={{ 'aria-labelledby': labelId }}
