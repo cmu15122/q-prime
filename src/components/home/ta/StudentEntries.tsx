@@ -119,7 +119,6 @@ export default function StudentEntries() {
   }, [allStudents, filteredLocations, filteredTopics]);
 
   const FilterWithProps = useMemo(() => {
-    console.log(filteredTopics);
     return (props) => (
       <Filter
         filteredLocations={filteredLocations}

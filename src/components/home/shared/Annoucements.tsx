@@ -13,6 +13,7 @@ import {
   TableContainer,
 } from '@mui/material';
 import { Edit, Delete } from '@mui/icons-material';
+import Linkify from 'linkify-react';
 
 import AnnouncementDialogBody from './dialogs/AnnouncementDialogBody';
 import AddDialog from '../../common/dialogs/AddDialog';
@@ -78,6 +79,8 @@ export default function Announcements() {
     await updateAnnouncementMutation({
       idx: selectedIdx!,
       content: content,
+    }).then(() => {
+      handleClose();
     });
   };
 
@@ -85,6 +88,8 @@ export default function Announcements() {
     event.preventDefault();
     await deleteAnnouncementMutation({
       idx: selectedIdx!,
+    }).then(() => {
+      handleClose();
     });
   };
 
@@ -115,9 +120,18 @@ export default function Announcements() {
                 .map((row, index) => (
                   <ItemRow key={index} index={index} rowKey={index}>
                     <TableCell component="th" scope="row" sx={{ pl: 3.25 }}>
-                      <Typography sx={{ fontWeight: 'bold', whiteSpace: 'pre-line' }}>
-                        {row}
-                      </Typography>
+                      <Typography
+                        sx={{
+                          fontWeight: 'bold',
+                          whiteSpace: 'pre-line',
+                          '& a': {
+                            color: 'primary.main',
+                            cursor: 'pointer',
+                          },
+                        }}
+                      >
+                        <Linkify options={{ target: '_blank' }}>{row}</Linkify>
+                      </Typography>{' '}
                     </TableCell>
                     <TableCell>
                       <Stack sx={{ mr: 2 }} direction="row" margin="auto" justifyContent="flex-end">
