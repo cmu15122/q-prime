@@ -82,12 +82,19 @@ docker --version
 docker compose version
 ```
 
-## Step 6: Install Node.js
+## Step 6: Install Node.js via nvm
 
 ```bash
-# Install Node.js 20.x
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt install -y nodejs
+# Install nvm (Node Version Manager)
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+
+# Load nvm into current session
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+# Install Node.js 20
+nvm install 20
+nvm use 20
 
 # Verify installation
 node --version
@@ -102,7 +109,7 @@ git clone https://github.com/cmu15122/q-prime.git
 cd q-prime
 
 # Install dependencies
-npm ci --legacy-peer-deps
+npm ci
 ```
 
 ## Step 8: Set Up Google OAuth
@@ -186,12 +193,15 @@ Verify all containers are running:
 docker compose -f docker/docker-compose.yml --env-file .env.docker ps
 ```
 
-You should see:
-- `qprime-convex-backend` - healthy
-- `qprime-convex-dashboard` - running
-- `qprime-frontend` - running
-- `qprime-nginx-proxy` - running
-- `qprime-certbot` - running
+You should see all 5 containers running:
+```
+NAME                      SERVICE            STATUS
+qprime-convex-backend     convex-backend     Up (healthy)
+qprime-convex-dashboard   convex-dashboard   Up
+qprime-frontend           frontend           Up
+qprime-nginx-proxy        nginx-proxy        Up
+qprime-certbot            certbot            Up
+```
 
 ## Step 13: Initial Setup
 

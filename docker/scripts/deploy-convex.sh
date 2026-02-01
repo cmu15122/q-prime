@@ -72,7 +72,7 @@ cd "$PROJECT_ROOT"
 # Install dependencies if needed
 if [ ! -d "node_modules" ]; then
     echo "Installing dependencies..."
-    npm ci --legacy-peer-deps
+    npm ci
     echo ""
 fi
 
