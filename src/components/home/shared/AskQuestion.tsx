@@ -95,6 +95,9 @@ export default function AskQuestion() {
           if (errData.code === 'COOLDOWN_VIOLATION') {
             setTimePassed(Math.round(errData.waited_time_ms / 1000 / 60));
             setShowCooldownOverlay(true);
+          } else {
+            // reraise the error to show the toast
+            throw err;
           }
         }
       })
