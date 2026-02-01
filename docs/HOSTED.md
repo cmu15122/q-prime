@@ -31,13 +31,40 @@ Before starting, you'll need:
    npx convex dev
    ```
 2. When prompted, log in to Convex and create a new project
-3. Note your project URLs from the terminal output:
+3. Note your project URLs. You can also find these in the [Convex Dashboard](https://dashboard.convex.dev) under **Settings > URL & Deploy Key**.
    - **Deployment URL**: `https://adjective-animal-123.convex.cloud`
    - **HTTP Actions URL**: `https://adjective-animal-123.convex.site`
+4. If you see "Convex functions ready!" you can safely kill the process.
+5. If you're setting up a production environment, at the top of the Convex Dashboard, change from "Development (Cloud)" to "Production"
 
-You can also find these in the [Convex Dashboard](https://dashboard.convex.dev) under **Settings > URL & Deploy Key**.
+## Step 3: Deploy to Vercel
 
-## Step 3: Set Up Google OAuth
+Deploy the frontend first to get your Vercel URL:
+
+1. Go to [vercel.com/new](https://vercel.com/new)
+2. Click **Import** and select your forked q-prime repository
+   - Note which branch Vercel is going to deploy, which should be the `preview` branch if you just link the whole repo. If you want to deploy another branch, then paste that branch's URL when making the project, e.g. `https://github.com/jacksontromero/q-prime-testing/tree/convex`
+3. Configure the project:
+   - **Framework Preset**: Vite
+   - **Build Command**: `npm run deploy`
+   - **Output Directory**: `dist`
+4. Add environment variables:
+
+   | Variable            | Value                                                                               |
+   | ------------------- | ----------------------------------------------------------------------------------- |
+   | `CONVEX_DEPLOY_KEY` | Get from Convex Dashboard > Settings > Deploy Keys > Generate Production Deploy Key |
+   | `VITE_CONVEX_URL`   | `https://adjective-animal-123.convex.cloud` (your Convex deployment URL)            |
+
+5. Click **Deploy**
+6. **Note your Vercel URL** (e.g., `https://q-prime-abc123.vercel.app`)
+
+The first deploy will likely fail because OAuth isn't configured yet - that's expected.
+
+## Step 4: Set Up Google OAuth
+
+Note: If you want to use a custom domain, see the [Custom Domain](#custom-domain) section.
+
+Now that you have both your Convex and Vercel URLs:
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
 2. Create a new project (or select existing)
@@ -49,10 +76,9 @@ You can also find these in the [Convex Dashboard](https://dashboard.convex.dev) 
 4. Go to **APIs & Services > Credentials**
 5. Click **Create Credentials > OAuth client ID**
    - Application type: **Web application**
-   - **Authorized JavaScript origins:**
+   - **Authorized JavaScript origins** (use YOUR Vercel URL):
      ```
-     http://localhost:5173
-     https://your-app.vercel.app
+     https://q-prime-abc123.vercel.app
      ```
    - **Authorized redirect URIs** (use YOUR Convex site URL):
      ```
@@ -60,58 +86,44 @@ You can also find these in the [Convex Dashboard](https://dashboard.convex.dev) 
      ```
 6. Save your **Client ID** and **Client Secret**
 
-## Step 4: Configure Convex Environment Variables
+## Step 5: Configure Convex Environment Variables
+
+First, generate the required JWT keys:
+
+```bash
+node generateKeys.mjs
+```
+
+This outputs two environment variables. Copy them.
 
 In the [Convex Dashboard](https://dashboard.convex.dev), go to **Settings > Environment Variables** and add:
 
-| Variable | Value |
-|----------|-------|
-| `AUTH_GOOGLE_ID` | Your Google Client ID |
-| `AUTH_GOOGLE_SECRET` | Your Google Client Secret |
-| `SITE_URL` | `https://your-app.vercel.app` (your Vercel URL) |
+| Variable             | Value                                                        |
+| -------------------- | ------------------------------------------------------------ |
+| `AUTH_GOOGLE_ID`     | Your Google Client ID                                        |
+| `AUTH_GOOGLE_SECRET` | Your Google Client Secret                                    |
+| `SITE_URL`           | `https://q-prime-abc123.vercel.app` (your actual Vercel URL) |
+| `JWT_PRIVATE_KEY`    | Output from `generateKeys.mjs` (starts with `-----BEGIN...`) |
+| `JWKS`               | Output from `generateKeys.mjs` (JSON with `keys` array)      |
 
-## Step 5: Deploy to Convex Cloud
+## Step 6: Redeploy
 
-Deploy your Convex functions to production:
+Trigger a redeploy now that everything is configured:
+
+1. In Vercel, go to your project **Deployments**
+2. Click the three dots on your latest deployment
+3. Click **Redeploy**
+
+Or push an empty commit:
 
 ```bash
-npx convex deploy
+git commit --allow-empty -m "Trigger redeploy"
+git push
 ```
 
-This pushes your backend functions to Convex Cloud.
+## Step 7: Initial Setup
 
-## Step 6: Deploy to Vercel
-
-1. Go to [vercel.com/new](https://vercel.com/new)
-2. Click **Import** and select your forked q-prime repository
-3. Configure the project:
-   - **Framework Preset**: Vite
-   - **Build Command**: `npx convex deploy --cmd 'npm run build'`
-   - **Output Directory**: `dist`
-4. Add environment variables:
-
-   | Variable | Value |
-   |----------|-------|
-   | `CONVEX_DEPLOY_KEY` | Get from Convex Dashboard > Settings > URL & Deploy Key > Generate Production Deploy Key |
-   | `VITE_APP_CONVEX_URL` | `https://adjective-animal-123.convex.cloud` (your Convex deployment URL) |
-
-5. Click **Deploy**
-
-## Step 7: Update OAuth and Environment URLs
-
-After Vercel assigns your domain (e.g., `your-app.vercel.app`):
-
-1. **Update Google OAuth**:
-   - Go back to [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
-   - Add your Vercel URL to **Authorized JavaScript origins**
-
-2. **Update Convex SITE_URL**:
-   - In Convex Dashboard > Settings > Environment Variables
-   - Update `SITE_URL` to your Vercel URL (e.g., `https://your-app.vercel.app`)
-
-## Step 8: Initial Setup
-
-1. Visit your Vercel URL (e.g., `https://your-app.vercel.app`)
+1. Visit your Vercel URL (e.g., `https://q-prime-abc123.vercel.app`)
 2. Click **Log In** and authenticate with Google
 3. You'll be redirected to the initial setup page
 4. Enter:
@@ -119,7 +131,7 @@ After Vercel assigns your domain (e.g., `your-app.vercel.app`):
    - **Owner email(s)** - your admin email address(es)
 5. Click **Save** to initialize the database
 
-## Custom Domain (Optional)
+## Custom Domain
 
 ### Vercel Custom Domain
 
@@ -158,6 +170,7 @@ Vercel's build command (`npx convex deploy --cmd 'npm run build'`) automatically
 ### OAuth Error: redirect_uri_mismatch
 
 Your Google OAuth redirect URI doesn't match. Ensure it's exactly:
+
 ```
 https://YOUR-CONVEX-PROJECT.convex.site/api/auth/callback/google
 ```
@@ -175,7 +188,7 @@ https://YOUR-CONVEX-PROJECT.convex.site/api/auth/callback/google
 ### Build failures on Vercel
 
 - Check that `CONVEX_DEPLOY_KEY` is set correctly
-- Verify `VITE_APP_CONVEX_URL` points to your `.convex.cloud` URL
+- Verify `VITE_CONVEX_URL` points to your `.convex.cloud` URL
 
 ## Architecture Overview
 
