@@ -61,7 +61,7 @@
     "predev": "convex dev --until-success",
     "build": "npm run typecheck && npm run lint && vite build",
     "build:quick": "vite build",
-    "deploy": "npx convex deploy --cmd-url-env-var-name VITE_APP_CONVEX_URL --cmd 'npm run build:quick'",
+    "deploy": "npx convex deploy --cmd-url-env-var-name VITE_CONVEX_URL --cmd 'npm run build:quick'",
     "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.convex.json --noEmit",
     "lint": "eslint src/ convex/",
     "lint:fix": "eslint src/ convex/ --fix",

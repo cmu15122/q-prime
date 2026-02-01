@@ -23,8 +23,8 @@ services:
     stop_grace_period: 10s
     stop_signal: SIGINT
     ports:
-      - "127.0.0.1:3210:3210"  # Backend API (internal only)
-      - "127.0.0.1:3211:3211"  # HTTP Actions (internal only)
+      - '127.0.0.1:3210:3210' # Backend API (internal only)
+      - '127.0.0.1:3211:3211' # HTTP Actions (internal only)
     volumes:
       - convex_data:/convex/data
     environment:
@@ -40,7 +40,7 @@ services:
       - JWT_PRIVATE_KEY=${JWT_PRIVATE_KEY}
       - CONVEX_SITE_URL=${CONVEX_SITE_URL}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3210/version"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3210/version']
       interval: 5s
       timeout: 10s
       retries: 5
@@ -59,7 +59,7 @@ services:
     stop_grace_period: 10s
     stop_signal: SIGINT
     ports:
-      - "127.0.0.1:6791:6791"
+      - '127.0.0.1:6791:6791'
     environment:
       - NEXT_PUBLIC_DEPLOYMENT_URL=${CONVEX_CLOUD_ORIGIN}
     depends_on:
@@ -76,14 +76,14 @@ services:
       context: ..
       dockerfile: docker/frontend/Dockerfile
       args:
-        - VITE_APP_CONVEX_URL=${VITE_APP_CONVEX_URL}
+        - VITE_CONVEX_URL=${VITE_CONVEX_URL}
         - VITE_APP_CONVEX_SITE_URL=${VITE_APP_CONVEX_SITE_URL}
         - VITE_APP_GOOGLE_CLIENT_ID=${VITE_APP_GOOGLE_CLIENT_ID}
         - HTTP_CLIENT_PREFIX=${HTTP_CLIENT_PREFIX:-/ohq}
     container_name: qprime-frontend
     restart: unless-stopped
     ports:
-      - "127.0.0.1:4000:80"
+      - '127.0.0.1:4000:80'
     networks:
       - qprime-network
 
@@ -98,8 +98,8 @@ services:
     container_name: qprime-nginx-proxy
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./certbot/conf:/etc/letsencrypt:ro
       - ./certbot/www:/var/www/certbot:ro
@@ -107,7 +107,7 @@ services:
       - DOMAIN=${DOMAIN}
       - HTTP_CLIENT_PREFIX=${HTTP_CLIENT_PREFIX:-/ohq}
       - HTTP_API_PREFIX=${HTTP_API_PREFIX:-/api}
-    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
     depends_on:
       - frontend
       - convex-backend

@@ -133,7 +133,7 @@ fi
 
 echo ""
 echo "Deploying functions..."
-npx convex deploy --cmd-url-env-var-name VITE_APP_CONVEX_URL --cmd 'npm run build:quick'
+npx convex deploy --cmd-url-env-var-name VITE_CONVEX_URL --cmd 'npm run build:quick'
 
 echo ""
 echo "=========================================="

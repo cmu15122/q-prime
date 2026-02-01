@@ -2,7 +2,7 @@
 # Multi-stage build: npm build → nginx serve
 #
 # Build args (passed from docker-compose):
-# - VITE_APP_CONVEX_URL: Public Convex API URL
+# - VITE_CONVEX_URL: Public Convex API URL
 # - VITE_APP_CONVEX_SITE_URL: Public Convex Site URL
 # - VITE_APP_GOOGLE_CLIENT_ID: Google OAuth client ID
 
@@ -21,13 +21,13 @@ RUN npm ci
 COPY . .
 
 # Build arguments for Vite environment variables
-ARG VITE_APP_CONVEX_URL
+ARG VITE_CONVEX_URL
 ARG VITE_APP_CONVEX_SITE_URL
 ARG VITE_APP_GOOGLE_CLIENT_ID
 ARG HTTP_CLIENT_PREFIX=/ohq
 
 # Set environment variables for build
-ENV VITE_APP_CONVEX_URL=${VITE_APP_CONVEX_URL}
+ENV VITE_CONVEX_URL=${VITE_CONVEX_URL}
 ENV VITE_APP_CONVEX_SITE_URL=${VITE_APP_CONVEX_SITE_URL}
 ENV VITE_APP_GOOGLE_CLIENT_ID=${VITE_APP_GOOGLE_CLIENT_ID}
 
