@@ -42,14 +42,11 @@ function HomeMain() {
     }
   }, [isAuthenticated, isTA]);
 
-  // check if the user is logged in with a valid domain
-  const checkValidEmail = useQuery(api.home.home_get.checkValidEmail);
-
   return (
     <>
       <ConvexNotifHandler />
-      {checkValidEmail !== undefined &&
-        (checkValidEmail === true ? (
+      {userData &&
+        (userData.valid_email ? (
           <>
             <Container sx={{ display: 'flex', minHeight: '100vh', flexDirection: 'column' }}>
               <SharedMain />

@@ -104,6 +104,19 @@ export const getUserData = query({
 
     const notification = semuser.notification;
 
+    let valid_email = true;
+    const email = user_data.email!;
+    const global_settings = await getGlobalSettings(ctx);
+
+    if (global_settings.enforce_email_domain) {
+      const allowed_domains = global_settings.allowed_email_domains;
+      const user_domain = email.split('@')[1];
+
+      if (!allowed_domains.includes(user_domain)) {
+        valid_email = false;
+      }
+    }
+
     return {
       user_id: user_data._id,
       email: user_data.email!,
@@ -114,6 +127,7 @@ export const getUserData = query({
       ta_data: ta_data as typeof ta_data | null,
       student_data: student_data as typeof student_data | null,
       notification: notification,
+      valid_email: valid_email,
     };
   },
 });
@@ -162,36 +176,6 @@ export const getCurrentAssignments = query({
     const other_assignment = (await ctx.db.get(curr_sem.other_assignment!))!;
 
     return [...curr_assignments, other_assignment];
-  },
-});
-
-export const checkValidEmail = query({
-  args: {},
-  returns: v.boolean(),
-  handler: async (ctx, args) => {
-    const user_id = await getAuthUserId(ctx);
-
-    if (user_id) {
-      const user = await ctx.db.get(user_id);
-
-      if (!user || !user.email) {
-        return false;
-      }
-
-      const email = user.email;
-      const global_settings = await getGlobalSettings(ctx);
-
-      if (global_settings.enforce_email_domain) {
-        const allowed_domains = global_settings.allowed_email_domains;
-        const user_domain = email.split('@')[1];
-
-        if (!allowed_domains.includes(user_domain)) {
-          return false;
-        }
-      }
-    }
-
-    return true;
   },
 });
 
