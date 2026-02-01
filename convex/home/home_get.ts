@@ -11,13 +11,19 @@ import {
   getStudent,
   getTA,
 } from '../common';
-import { getAuthUserId } from '@convex-dev/auth/server';
 import { getZoneDayOfWeek } from '../util/time';
 
+// returns null if first time setup is required
 export const getQueueData = query({
   args: {},
   handler: async (ctx, args) => {
-    const globalSettings = await getGlobalSettings(ctx);
+    // handle first time setup
+    const globalSettingsArray = await ctx.db.query('globalSettings').collect();
+    if (globalSettingsArray.length === 0) {
+      return null;
+    }
+    const globalSettings = globalSettingsArray[0];
+
     const timezone = globalSettings.timezone;
 
     const queue_length = await getQueueLength(ctx);
@@ -176,15 +182,5 @@ export const getCurrentAssignments = query({
     const other_assignment = (await ctx.db.get(curr_sem.other_assignment!))!;
 
     return [...curr_assignments, other_assignment];
-  },
-});
-
-export const firstTimeSetupRequired = query({
-  args: {},
-  returns: v.boolean(),
-  handler: async (ctx, args) => {
-    const existing_global_settings = await ctx.db.query('globalSettings').collect();
-
-    return existing_global_settings.length === 0;
   },
 });

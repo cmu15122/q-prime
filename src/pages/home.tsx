@@ -13,9 +13,9 @@ import { api } from '../../convex/_generated/api';
 function Home() {
   const theme = useTheme();
 
-  const firstTimeSetupRequired = useQuery(api.home.home_get.firstTimeSetupRequired);
+  const queueData = useQuery(api.home.home_get.getQueueData);
 
-  if (firstTimeSetupRequired) {
+  if (queueData === null) {
     return <Navigate to="/init" />;
   }
 

@@ -25,7 +25,7 @@ function Init() {
   const [ownerEmails, setOwnerEmails] = useState([{ id: 0, value: '' }]);
   const [nextId, setNextId] = useState(1);
 
-  const firstTimeSetupRequired = useQuery(api.home.home_get.firstTimeSetupRequired);
+  const queueData = useQuery(api.home.home_get.getQueueData);
   const firstTimeSetupMutation = useMutation(api.home.home_mutate.firstTimeSetup);
 
   const handleAddEmail = () => {
@@ -64,7 +64,7 @@ function Init() {
       <Container sx={{ display: 'flex', minHeight: '100vh', flexDirection: 'column' }}>
         <BaseCard>
           <CardContent>
-            {firstTimeSetupRequired ? (
+            {queueData === null ? (
               <form onSubmit={handleContinue}>
                 <Typography variant="h3">First Time Setup</Typography>
                 <Typography variant="body1" sx={{ mt: 2 }}>

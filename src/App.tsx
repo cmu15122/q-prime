@@ -18,16 +18,16 @@ function AppContent() {
 
   // check if a new semester has started and we need to make a new semester user
   const checkNewSemUser = useMutation(api.home.home_mutate.checkNewSemesterUser);
-  const firstTimeSetupRequired = useQuery(api.home.home_get.firstTimeSetupRequired);
+  const queueData = useQuery(api.home.home_get.getQueueData);
 
   // NOTE - the correct way to do these would be to use a post-auth callback check, but
   // I don't think this is supported by Convex Auth as of 1/1/2026.
 
   useEffect(() => {
-    if (firstTimeSetupRequired === false) {
+    if (queueData) {
       checkNewSemUser();
     }
-  }, [firstTimeSetupRequired]);
+  }, [queueData]);
 
   return (
     <ThemeProvider theme={theme}>
