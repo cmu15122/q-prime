@@ -7,6 +7,7 @@ This guide walks through deploying q' with the Convex backend on an AWS EC2 inst
 ## Prerequisites
 
 Before starting, you'll need:
+
 - An AWS account
 - A domain name (e.g., `cs122.andrew.cmu.edu`)
 - Google Cloud Console access for OAuth credentials
@@ -16,7 +17,7 @@ Before starting, you'll need:
 1. From the EC2 page in the AWS console, click **Launch instances**
 2. **Name:** Give your instance a name (e.g., `q-prime-prod`)
 3. **OS Image:** Select **Ubuntu** (22.04 LTS or later)
-4. **Instance type:** Select `t3.small` or larger (t2.micro may be too small for Docker)
+4. **Instance type:** Select `t3.small` or larger (t2.micro may be too small for Docker - check AWS free tier offerings, as of writing they offer c7i-flex.large in the free tier and it's much larger)
 5. **Key pair:** Click **Create new key pair**
    - Name it (e.g., `q-prime-key`)
    - Select RSA and .pem format
@@ -34,11 +35,11 @@ Before starting, you'll need:
 2. Click on the Security Group link
 3. Click **Edit inbound rules**
 4. Ensure you have these rules:
-   | Type  | Port | Source    |
+   | Type | Port | Source |
    |-------|------|-----------|
-   | SSH   | 22   | Your IP   |
-   | HTTP  | 80   | 0.0.0.0/0 |
-   | HTTPS | 443  | 0.0.0.0/0 |
+   | SSH | 22 | Your IP |
+   | HTTP | 80 | 0.0.0.0/0 |
+   | HTTPS | 443 | 0.0.0.0/0 |
 
 ## Step 3: Connect Your Domain
 
@@ -77,6 +78,7 @@ exit
 ```
 
 Reconnect via SSH, then verify Docker works:
+
 ```bash
 docker --version
 docker compose version
@@ -153,11 +155,13 @@ AUTH_GOOGLE_SECRET=your-google-client-secret
 ```
 
 Run the setup script again after editing:
+
 ```bash
 ./docker/scripts/setup.sh
 ```
 
 This will:
+
 - Generate JWT keys automatically
 - Generate the Convex admin key
 - Update all derived URLs based on your domain
@@ -170,6 +174,7 @@ This will:
 ```
 
 This script will:
+
 - Start nginx temporarily for the ACME challenge
 - Obtain SSL certificates from Let's Encrypt
 - Configure automatic renewal
@@ -189,11 +194,13 @@ docker compose -f docker/docker-compose.yml --env-file .env.docker up -d
 ```
 
 Verify all containers are running:
+
 ```bash
 docker compose -f docker/docker-compose.yml --env-file .env.docker ps
 ```
 
 You should see all 5 containers running:
+
 ```
 NAME                      SERVICE            STATUS
 qprime-convex-backend     convex-backend     Up (healthy)
@@ -216,6 +223,7 @@ qprime-certbot            certbot            Up
 ## Useful Commands
 
 ### View logs
+
 ```bash
 # All services
 docker compose -f docker/docker-compose.yml --env-file .env.docker logs -f
@@ -225,16 +233,19 @@ docker compose -f docker/docker-compose.yml --env-file .env.docker logs -f conve
 ```
 
 ### Restart services
+
 ```bash
 docker compose -f docker/docker-compose.yml --env-file .env.docker restart
 ```
 
 ### Stop all services
+
 ```bash
 docker compose -f docker/docker-compose.yml --env-file .env.docker down
 ```
 
 ### Update deployment
+
 ```bash
 # Pull latest code
 git pull
@@ -245,6 +256,7 @@ docker compose -f docker/docker-compose.yml --env-file .env.docker up -d --build
 ```
 
 ### Access Convex Dashboard
+
 The Convex dashboard runs on port 6791 but is only accessible locally. Use SSH tunneling:
 
 ```bash
@@ -255,6 +267,7 @@ ssh -i ~/path/to/q-prime-key.pem -L 6791:localhost:6791 ubuntu@<your-instance-ip
 ```
 
 ### Backup data
+
 ```bash
 ./docker/scripts/backup.sh
 ```
@@ -264,6 +277,7 @@ Backups are stored in the `backups/` directory.
 ## Troubleshooting
 
 ### Container won't start
+
 ```bash
 # Check logs for errors
 docker compose -f docker/docker-compose.yml --env-file .env.docker logs convex-backend
@@ -273,6 +287,7 @@ cat .env.docker
 ```
 
 ### SSL certificate issues
+
 ```bash
 # Check certificate status
 sudo certbot certificates
@@ -282,6 +297,7 @@ sudo certbot certificates
 ```
 
 ### OAuth not working
+
 1. Verify your Google OAuth callback URL matches exactly:
    ```
    https://yourdomain.edu/api/auth/callback/google
@@ -290,12 +306,14 @@ sudo certbot certificates
 3. Ensure your Google OAuth app is **published** (not in testing mode)
 
 ### Database issues
+
 ```bash
 # Access the Convex dashboard via SSH tunnel to inspect data
 # See "Access Convex Dashboard" section above
 ```
 
 ### Frontend not loading
+
 ```bash
 # Rebuild frontend
 docker compose -f docker/docker-compose.yml --env-file .env.docker up -d --build frontend
