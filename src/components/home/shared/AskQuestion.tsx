@@ -25,7 +25,8 @@ import { ConvexError } from 'convex/values';
 export default function AskQuestion() {
   const queueData = useQuery(api.home.home_get.getQueueData);
   const userData = useQuery(api.home.home_get.getUserData);
-  const currAssignments = useQuery(api.home.home_get.getCurrentAssignments);
+
+  const currAssignments = queueData?.current_assignments || [];
 
   // not changing name or email to use global because this component can also be used by TAs to manually add questions
   const [name, setName] = useState('');

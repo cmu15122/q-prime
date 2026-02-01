@@ -1,4 +1,4 @@
-import { query } from '../_generated/server';
+import { query, QueryCtx } from '../_generated/server';
 import { ConvexError, v } from 'convex/values';
 import { Doc } from '../_generated/dataModel';
 import {
@@ -17,11 +17,13 @@ import { getZoneDayOfWeek } from '../util/time';
 export const getQueueData = query({
   args: {},
   handler: async (ctx, args) => {
-    // handle first time setup
+    // ---- handle first time setup ----
     const globalSettingsArray = await ctx.db.query('globalSettings').collect();
     if (globalSettingsArray.length === 0) {
       return null;
     }
+
+    // ---- get global settings ----
     const globalSettings = globalSettingsArray[0];
 
     const timezone = globalSettings.timezone;
@@ -32,12 +34,15 @@ export const getQueueData = query({
     const current_day_of_week = getZoneDayOfWeek(Date.now(), timezone);
     const current_locations = globalSettings.day_to_location_dict[current_day_of_week] || [];
 
+    const current_assignments = await getCurrentAssignments(ctx);
+
     return {
       title: globalSettings.course_name,
       is_frozen: globalSettings.is_frozen,
       announcements: globalSettings.announcements,
       allowed_email_domains: globalSettings.allowed_email_domains,
       current_locations: current_locations,
+      current_assignments: current_assignments,
 
       allow_cooldown_override: globalSettings.allow_cooldown_override,
       allow_tas_show_others_timer: globalSettings.allow_tas_show_others_timer,
@@ -101,6 +106,7 @@ export const getUserData = query({
       student_data = await getQueueEntry(ctx, student._id);
     }
 
+    // ---- notification ----
     const semuser = await ctx.db.get(user_data.sem_user_id);
 
     if (!semuser) {
@@ -110,6 +116,7 @@ export const getUserData = query({
 
     const notification = semuser.notification;
 
+    // ---- email validation ----
     let valid_email = true;
     const email = user_data.email!;
     const global_settings = await getGlobalSettings(ctx);
@@ -164,23 +171,18 @@ export const getAllAssignments = query({
   },
 });
 
-export const getCurrentAssignments = query({
-  args: {},
-  handler: async (ctx, args) => {
-    const curr_sem = await getCurrentSemester(ctx);
+export async function getCurrentAssignments(ctx: QueryCtx) {
+  const curr_sem = await getCurrentSemester(ctx);
 
-    const curr_date = new Date().getTime();
+  const curr_date = new Date().getTime();
 
-    const curr_assignments = await ctx.db
-      .query('assignments')
-      .withIndex('by_sem_end', (x) =>
-        x.eq('semester_id', curr_sem._id).gt('end_date_ms', curr_date),
-      )
-      .filter((x) => x.lt(x.field('start_date_ms'), curr_date))
-      .collect();
+  const curr_assignments = await ctx.db
+    .query('assignments')
+    .withIndex('by_sem_end', (x) => x.eq('semester_id', curr_sem._id).gt('end_date_ms', curr_date))
+    .filter((x) => x.lt(x.field('start_date_ms'), curr_date))
+    .collect();
 
-    const other_assignment = (await ctx.db.get(curr_sem.other_assignment!))!;
+  const other_assignment = (await ctx.db.get(curr_sem.other_assignment!))!;
 
-    return [...curr_assignments, other_assignment];
-  },
-});
+  return [...curr_assignments, other_assignment];
+}

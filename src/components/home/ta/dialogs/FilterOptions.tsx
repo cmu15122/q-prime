@@ -23,8 +23,7 @@ export default function FilterOptions(props) {
 
   const queueData = useQuery(api.home.home_get.getQueueData);
   let locations = queueData?.current_locations || [];
-
-  const currAssignments = useQuery(api.home.home_get.getCurrentAssignments);
+  const currAssignments = queueData?.current_assignments || [];
 
   useEffect(() => {
     if (locations.length === 0) {
