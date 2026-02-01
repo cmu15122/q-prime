@@ -34,8 +34,8 @@ function createData(
   timeEnd: string,
   question: string,
 ): HelpedStudent {
-  const timeStartStr = DateTime.fromISO(timeStart).toFormat('dd/MM/yyyy HH:mm');
-  const timeEndStr = DateTime.fromISO(timeEnd).toFormat('dd/MM/yyyy HH:mm');
+  const timeStartStr = DateTime.fromISO(timeStart).toFormat('MM/dd/yyyy HH:mm');
+  const timeEndStr = DateTime.fromISO(timeEnd).toFormat('MM/dd/yyyy HH:mm');
   return { student_email, name, timeStart: timeStartStr, timeEnd: timeEndStr, question };
 }
 
