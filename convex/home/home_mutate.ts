@@ -344,7 +344,7 @@ export const addQuestion = mutation({
         created_by: 'student',
         assignment_id: args.assignment_id,
         assignment_name: assignment_name,
-        status: 'waiting',
+        status: args.override_cooldown ? 'cooldown_violation' : 'waiting',
         question: args.question,
         location: args.location,
         entry_time_ms: Date.now(),
