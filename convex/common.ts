@@ -11,6 +11,16 @@ export async function getGlobalSettings(ctx: QueryCtx) {
   return globalSettings;
 }
 
+export async function getWaittimePingData(ctx: QueryCtx) {
+  const waittimePingData = await ctx.db.query('waittime_ping_data').unique();
+
+  if (!waittimePingData) {
+    throw new ConvexError('Waittime ping data not found');
+  }
+
+  return waittimePingData;
+}
+
 export const internalGetGlobalSettings = internalQuery({
   args: {},
   handler: async (ctx, args) => {

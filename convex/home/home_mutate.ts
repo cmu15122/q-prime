@@ -12,6 +12,7 @@ import {
   getStudent,
   getTA,
   getWaittimeData,
+  getWaittimePingData,
 } from '../common';
 import { Doc, Id } from '../_generated/dataModel';
 import { getAuthUserId } from '@convex-dev/auth/server';
@@ -711,9 +712,10 @@ export const internalWaittimeIntervalCheck = internalMutation({
   args: {},
   handler: async (ctx, args) => {
     const global_settings = await getGlobalSettings(ctx);
+    const waittimePingData = await getWaittimePingData(ctx);
 
-    const minute_ago_waittime = global_settings.ping_minute_ago_waittime;
-    const last_pinged = global_settings.ping_last_pinged;
+    const minute_ago_waittime = waittimePingData.minute_ago_waittime;
+    const last_pinged = waittimePingData.last_pinged;
     const ping_threshold_mins = global_settings.waittime_ping_threshold_mins;
     const ping_interval_mins = global_settings.waittime_ping_interval_mins;
 
@@ -733,15 +735,15 @@ export const internalWaittimeIntervalCheck = internalMutation({
         });
 
         // update the last pinged time
-        await ctx.db.patch(global_settings._id, {
-          ping_last_pinged: new Date().getTime(),
+        await ctx.db.patch(waittimePingData._id, {
+          last_pinged: new Date().getTime(),
         });
       }
     }
 
     // update the minute ago waittime
-    await ctx.db.patch(global_settings._id, {
-      ping_minute_ago_waittime: waittime_data.wait_time,
+    await ctx.db.patch(waittimePingData._id, {
+      minute_ago_waittime: waittime_data.wait_time,
     });
   },
 });
@@ -810,10 +812,13 @@ export const firstTimeSetup = mutation({
       waittime_ping_threshold_mins: 30,
       waittime_ping_interval_mins: 10,
       waittime_questions_lookback_time_mins: 60,
-      ping_minute_ago_waittime: 0,
-      ping_last_pinged: 0,
       is_frozen: true,
       announcements: [],
+    });
+
+    await ctx.db.insert('waittime_ping_data', {
+      minute_ago_waittime: 0,
+      last_pinged: 0,
     });
   },
 });
