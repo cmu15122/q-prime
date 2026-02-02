@@ -59,6 +59,16 @@ export const getQueueData = query({
   },
 });
 
+// returns true if first time setup is required
+// when this is true, getQueueData will return null - this is just a lighter weight version of that check
+export const isFirstTimeSetup = query({
+  args: {},
+  handler: async (ctx, args) => {
+    const globalSettingsArray = await ctx.db.query('globalSettings').collect();
+    return globalSettingsArray.length === 0;
+  },
+});
+
 export const getUserData = query({
   args: {},
   handler: async (ctx, args) => {
