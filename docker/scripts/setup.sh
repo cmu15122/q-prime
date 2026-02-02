@@ -167,7 +167,6 @@ sed -i "s|^VITE_APP_CONVEX_SITE_URL=.*|VITE_APP_CONVEX_SITE_URL=${PROTOCOL}://${
 sed -i "s|^CONVEX_CLOUD_ORIGIN=.*|CONVEX_CLOUD_ORIGIN=${PROTOCOL}://${DOMAIN}${HTTP_API_PREFIX}|" "$PROJECT_ROOT/.env.docker"
 sed -i "s|^CONVEX_SITE_ORIGIN=.*|CONVEX_SITE_ORIGIN=${PROTOCOL}://${DOMAIN}|" "$PROJECT_ROOT/.env.docker"
 sed -i "s|^CONVEX_SITE_URL=.*|CONVEX_SITE_URL=${PROTOCOL}://${DOMAIN}|" "$PROJECT_ROOT/.env.docker"
-sed -i "s|^CLIENT_ORIGIN=.*|CLIENT_ORIGIN=${PROTOCOL}://${DOMAIN}|" "$PROJECT_ROOT/.env.docker"
 sed -i "s|^SITE_URL=.*|SITE_URL=${PROTOCOL}://${DOMAIN}|" "$PROJECT_ROOT/.env.docker"
 
 # Sync Google Client ID to frontend

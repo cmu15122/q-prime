@@ -74,9 +74,8 @@ Get q' running locally for development.
    npx convex env set JWT_PRIVATE_KEY "-----BEGIN PRIVATE KEY----- ... -----END PRIVATE KEY-----"
    npx convex env set JWKS '{"keys":[...]}'
 
-   # Local dev settings (no nginx)
+   # Local dev doesn't use nginx, so no /api prefix
    npx convex env set HTTP_API_PREFIX ""
-   npx convex env set CLIENT_ORIGIN http://localhost:5173
    ```
 
    Note: These are set on the Convex deployment, not in `.env.local`.

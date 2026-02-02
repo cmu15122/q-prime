@@ -16,7 +16,7 @@ auth.addHttpRoutes(http);
 
 // Helper function to create CORS headers
 function createCorsHeaders(additionalHeaders: Record<string, string> = {}) {
-  const origin = process.env.CLIENT_ORIGIN || '*';
+  const origin = process.env.SITE_URL || '*';
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',

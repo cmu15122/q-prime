@@ -105,6 +105,7 @@ In the [Convex Dashboard](https://dashboard.convex.dev), go to **Settings > Envi
 | `SITE_URL`           | `https://q-prime-abc123.vercel.app` (your actual Vercel URL) |
 | `JWT_PRIVATE_KEY`    | Output from `generateKeys.mjs` (starts with `-----BEGIN...`) |
 | `JWKS`               | Output from `generateKeys.mjs` (JSON with `keys` array)      |
+| `HTTP_API_PREFIX`    | `` (empty string - no nginx proxy in hosted setup)          |
 
 ## Step 6: Redeploy
 

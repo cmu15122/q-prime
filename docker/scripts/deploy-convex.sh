@@ -101,12 +101,6 @@ if [ -n "$AUTH_GOOGLE_SECRET" ]; then
     npx convex env set AUTH_GOOGLE_SECRET -- "$AUTH_GOOGLE_SECRET"
 fi
 
-# Required for Convex Auth
-if [ -n "$CLIENT_ORIGIN" ]; then
-    echo "  Setting CLIENT_ORIGIN..."
-    npx convex env set CLIENT_ORIGIN -- "$CLIENT_ORIGIN"
-fi
-
 if [ -n "$SITE_URL" ]; then
     echo "  Setting SITE_URL..."
     npx convex env set SITE_URL -- "$SITE_URL"
