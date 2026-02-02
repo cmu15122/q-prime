@@ -12,7 +12,7 @@ export default function OHQueueHeader() {
       variant="h6"
       color={theme.alternateColors.navbarText}
       fontWeight={600}
-      href=""
+      href="/"
       underline="none"
       sx={{ display: 'flex', alignItems: 'center' }}
     >
