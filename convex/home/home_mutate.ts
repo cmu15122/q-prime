@@ -301,7 +301,9 @@ export const addQuestion = mutation({
 
       const lastQuestion = await ctx.db
         .query('questions')
-        .withIndex('by_student_and_finished_by', (q) => q.eq('student_id', student._id).eq('finished_by', 'helped'))
+        .withIndex('by_student_and_finished_by', (q) =>
+          q.eq('student_id', student._id).eq('finished_by', 'helped'),
+        )
         .order('desc')
         .first();
 
@@ -397,7 +399,7 @@ export const removeStudent = mutation({
     // add question to database
     const curr_sem = await getCurrentSemester(ctx);
 
-    let removal_ta : Doc<'tas'> | undefined = undefined;
+    let removal_ta: Doc<'tas'> | undefined = undefined;
     if (user_data.kind === 'TA') {
       removal_ta = await getTA(ctx, user_data.sem_user_id);
     }

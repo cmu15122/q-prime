@@ -131,7 +131,10 @@ export default function AdminMetrics() {
                                   <MuiLink
                                     component={Link}
                                     to={`/metrics/student/${row.student_id}`}
-                                    sx={{ textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+                                    sx={{
+                                      textDecoration: 'none',
+                                      '&:hover': { textDecoration: 'underline' },
+                                    }}
                                   >
                                     {value}
                                   </MuiLink>
@@ -190,7 +193,10 @@ export default function AdminMetrics() {
                                   <MuiLink
                                     component={Link}
                                     to={`/metrics/ta/${row.ta_id}`}
-                                    sx={{ textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}
+                                    sx={{
+                                      textDecoration: 'none',
+                                      '&:hover': { textDecoration: 'underline' },
+                                    }}
                                   >
                                     {value}
                                   </MuiLink>

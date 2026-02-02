@@ -1,5 +1,5 @@
 import { query, QueryCtx } from '../_generated/server';
-import { ConvexError, v } from 'convex/values';
+import { ConvexError } from 'convex/values';
 import { Doc } from '../_generated/dataModel';
 import {
   getCurrentSemester,

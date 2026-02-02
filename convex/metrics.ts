@@ -1,5 +1,5 @@
 import { query } from './_generated/server';
-import { ConvexError, v } from 'convex/values';
+import { v } from 'convex/values';
 import {
   ensureAuthAndAdmin,
   ensureAuthAndTA,
@@ -837,8 +837,7 @@ export const getTAQuestionHistory = query({
       0,
     );
 
-    const avgTimePerQuestion =
-      allQuestions.length > 0 ? totalTimeHelping / allQuestions.length : 0;
+    const avgTimePerQuestion = allQuestions.length > 0 ? totalTimeHelping / allQuestions.length : 0;
 
     return {
       taName: user_prefs.preferred_name,

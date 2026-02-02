@@ -29,10 +29,7 @@ import Navbar from '../components/navbar/Navbar';
 /**
  * Error boundary that redirects to home on any error
  */
-class MetricsErrorBoundary extends Component<
-  { children: ReactNode },
-  { hasError: boolean }
-> {
+class MetricsErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
   constructor(props: { children: ReactNode }) {
     super(props);
     this.state = { hasError: false };
