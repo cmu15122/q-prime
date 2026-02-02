@@ -140,10 +140,10 @@ export default defineSchema({
   })
     .index('by_student_and_finished_by', ['student_id', 'finished_by'])
     .index('by_semester_and_entry_time_ms', ['semester_id', 'entry_time_ms'])
-    .index('by_semester_and_exit_time_ms_and_finished_by', [
+    .index('by_semester_and_finished_by_and_exit_time_ms', [
       'semester_id',
-      'exit_time_ms',
       'finished_by',
+      'exit_time_ms',
     ])
     .index('by_semester_and_finished_by_and_ta', ['semester_id', 'finished_by', 'ta_id']),
 

@@ -81,8 +81,11 @@ export async function getWaittimeData(ctx: QueryCtx) {
 
   const questions = await ctx.db
     .query('questions')
-    .withIndex('by_semester_and_exit_time_ms_and_finished_by', (q) =>
-      q.eq('semester_id', curr_sem._id).gte('exit_time_ms', start_time.getTime()),
+    .withIndex('by_semester_and_finished_by_and_exit_time_ms', (q) =>
+      q
+        .eq('semester_id', curr_sem._id)
+        .eq('finished_by', 'helped')
+        .gte('exit_time_ms', start_time.getTime()),
     )
     .collect();
 
@@ -140,16 +143,16 @@ export async function getWaittimeData(ctx: QueryCtx) {
 
     return {
       mins_per_student: mins_per_student,
+      wait_time: wait_time,
       num_unhelped: num_unhelped,
       num_tas: num_tas,
-      wait_time: wait_time,
     };
   } else {
     return {
       mins_per_student: 0,
-      num_unhelped: 0,
-      num_tas: 0,
       wait_time: 0,
+      num_unhelped: num_unhelped,
+      num_tas: num_tas,
     };
   }
 }

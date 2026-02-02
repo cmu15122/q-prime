@@ -20,7 +20,6 @@ import BaseCard from '../../common/cards/BaseCard';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import { Id } from '../../../../convex/_generated/dataModel';
-import { ConvexError } from 'convex/values';
 
 export default function AskQuestion() {
   const queueData = useQuery(api.home.home_get.getQueueData);
@@ -78,42 +77,52 @@ export default function AskQuestion() {
 
   const addQuestionMutation = useMutation(api.home.home_mutate.addQuestion);
   async function callAddQuestionAPI() {
-    await addQuestionMutation({
+    const result = await addQuestionMutation({
       question: question,
       location: location,
       assignment_id: assignmentId!,
       override_cooldown: false,
       email: email,
-    })
-      .catch((err) => {
-        if (err instanceof ConvexError) {
-          const errData = err.data as {
-            code: string;
-            rejoin_time_ms: number;
-            waited_time_ms: number;
-          };
+    });
 
-          if (errData.code === 'COOLDOWN_VIOLATION') {
-            setTimePassed(Math.round(errData.waited_time_ms / 1000 / 60));
-            setShowCooldownOverlay(true);
-          } else {
-            // reraise the error to show the toast
-            throw err;
-          }
-        }
-      })
-      .finally(() => {
-        clearValues();
-        setAskDisabled(false);
-      });
+    if (result.code === 'COOLDOWN_VIOLATION') {
+      if (!result.data) {
+        throw new Error('Cooldown violation result data is undefined');
+      }
+
+      setTimePassed(Math.round(result.data.waited_time_ms / 1000 / 60));
+      setShowCooldownOverlay(true);
+    } else if (result.code === 'SUCCESS') {
+      clearValues();
+      setAskDisabled(false);
+    } else {
+      throw new Error('Unknown result code: ' + result.code);
+    }
   }
 
   function clearValues() {
     setName('');
     setEmail('');
-    setLocation('');
-    setAssignmentId(null);
     setQuestion('');
+    setAssignmentId(null);
+    setLocation('');
+
+    if (queueData) {
+      let new_locations = queueData.current_locations;
+      if (new_locations.length === 0) {
+        new_locations = ['Office Hours'];
+      }
+      if (new_locations.length === 1) {
+        setLocation(new_locations[0]);
+      }
+      setLocations(new_locations);
+    }
+
+    if (currAssignments) {
+      if (currAssignments.length === 1) {
+        setAssignmentId(currAssignments[0]._id);
+      }
+    }
   }
 
   return (

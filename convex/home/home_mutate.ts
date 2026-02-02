@@ -132,7 +132,15 @@ export const addQuestion = mutation({
     override_cooldown: v.boolean(),
     email: v.optional(v.string()), // only used for TA created questions
   },
-  returns: v.null(),
+  returns: v.object({
+    code: v.string(),
+    data: v.optional(
+      v.object({
+        rejoin_time_ms: v.number(),
+        waited_time_ms: v.number(),
+      }),
+    ),
+  }),
   handler: async (ctx, args) => {
     const user_data = (await getCurrentUser(ctx))!;
     const curr_sem = await getCurrentSemester(ctx);
@@ -311,11 +319,13 @@ export const addQuestion = mutation({
       if (lastQuestion) {
         if (lastQuestion.exit_time_ms > Date.now() - rejoin_time_ms) {
           if (!args.override_cooldown) {
-            throw new ConvexError({
+            return {
               code: 'COOLDOWN_VIOLATION',
-              rejoin_time_ms: rejoin_time_ms,
-              waited_time_ms: Date.now() - lastQuestion.exit_time_ms,
-            });
+              data: {
+                rejoin_time_ms: rejoin_time_ms,
+                waited_time_ms: Date.now() - lastQuestion.exit_time_ms,
+              },
+            };
           }
         }
       }
@@ -346,6 +356,11 @@ export const addQuestion = mutation({
 
       await sendQueueJoinNotifs(ctx, prefs.preferred_name, assignment_name);
     }
+
+    return {
+      code: 'SUCCESS',
+      data: undefined,
+    };
   },
 });
 
