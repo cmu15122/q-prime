@@ -9,7 +9,8 @@ const http = httpRouter();
 
 // API prefix for HTTP routes (default: '/api')
 // Set via: npx convex env set HTTP_API_PREFIX /api
-const API_PREFIX = process.env.HTTP_API_PREFIX || '/api';
+// For local dev without nginx, set to empty string: npx convex env set HTTP_API_PREFIX ""
+const API_PREFIX = process.env.HTTP_API_PREFIX ?? '/api';
 
 auth.addHttpRoutes(http);
 
