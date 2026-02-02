@@ -263,7 +263,7 @@ export default function ConfigSettings() {
                 Save
               </Button>
               <Typography variant="caption" color="text.secondary">
-                URL for Slack notifications
+                Slack Webhook for pinging channel when wait time is long
               </Typography>
             </Stack>
           </form>
@@ -282,7 +282,7 @@ export default function ConfigSettings() {
                 Save
               </Button>
               <Typography variant="caption" color="text.secondary">
-                URL for questions guide
+                Link shown to students when Asked to Fix
               </Typography>
             </Stack>
           </form>

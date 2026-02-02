@@ -734,19 +734,24 @@ export const internalWaittimeIntervalCheck = internalMutation({
     const ping_threshold_mins = global_settings.waittime_ping_threshold_mins;
     const ping_interval_mins = global_settings.waittime_ping_interval_mins;
 
-    const waittime_data = await getWaittimeData(ctx);
+    const waittime_data = await getWaittimeData(
+      ctx,
+      global_settings.waittime_questions_lookback_time_mins,
+    );
 
     // decide if we want to ping again
     // if we've waited the ping interval
     const ping_interval_ms = ping_interval_mins * 60000;
-    if (new Date().getTime() - last_pinged > ping_interval_ms) {
+    if (new Date().getTime() - last_pinged >= ping_interval_ms) {
       // if the minute ago waittime and current waittime are both above threshold (stops spikes)
       if (
         waittime_data.wait_time > ping_threshold_mins &&
         minute_ago_waittime > ping_threshold_mins
       ) {
+        const wait_time_mins_rounded = Math.round(waittime_data.wait_time);
+
         await ctx.scheduler.runAfter(0, internal.actions.sendSlackbotMessage, {
-          message: `The wait time is ${waittime_data.wait_time} minutes right now. More TAs might be needed. (<${process.env.MAIN_URL}/|view»>)`,
+          message: `<!channel> The wait time is ${wait_time_mins_rounded} minutes right now. More TAs might be needed.`,
         });
 
         // update the last pinged time

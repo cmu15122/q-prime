@@ -29,7 +29,10 @@ export const getQueueData = query({
     const timezone = globalSettings.timezone;
 
     const queue_length = await getQueueLength(ctx);
-    const wait_time_data = await getWaittimeData(ctx);
+    const wait_time_data = await getWaittimeData(
+      ctx,
+      globalSettings.waittime_questions_lookback_time_mins,
+    );
 
     const current_day_of_week = getZoneDayOfWeek(Date.now(), timezone);
     const current_locations = globalSettings.day_to_location_dict[current_day_of_week] || [];

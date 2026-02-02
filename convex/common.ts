@@ -68,11 +68,9 @@ export async function getQueueLength(ctx: QueryCtx) {
   return queue.length;
 }
 
-const WAITTIME_LOOKBACK_MINUTES = 60;
-
-export async function getWaittimeData(ctx: QueryCtx) {
+export async function getWaittimeData(ctx: QueryCtx, lookback_minutes: number) {
   const now = new Date();
-  const start_time = new Date(now.getTime() - WAITTIME_LOOKBACK_MINUTES * 60000);
+  const start_time = new Date(now.getTime() - lookback_minutes * 60000);
 
   let total_helped_ms = 0;
   const active_tas = new Set<Id<'tas'>>();
