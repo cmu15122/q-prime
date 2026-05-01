@@ -29,7 +29,7 @@ if [ -f "$CERT_PATH" ]; then
 else
     echo "SSL certificates NOT found for $DOMAIN - using HTTP only"
     echo ""
-    echo "Run init-letsencrypt.sh to obtain SSL certificates"
+    echo "To enable SSL: re-run ./docker/scripts/setup.sh and answer Y to the SSL prompt"
     echo ""
     envsubst '${DOMAIN} ${HTTP_CLIENT_PREFIX} ${HTTP_API_PREFIX}' < /etc/nginx/templates/default-http-only.conf.template > /etc/nginx/conf.d/default.conf
 fi

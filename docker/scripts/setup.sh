@@ -1,255 +1,308 @@
 #!/bin/bash
-# Q-Prime Docker Setup Script
-#
-# This script handles all the chicken-and-egg setup:
-# 1. Creates .env.docker from example if missing
-# 2. Auto-generates JWT keys if not set
-# 3. Starts Convex backend and waits for healthy
-# 4. Auto-generates admin key if not set
-# 5. Updates .env.docker with generated values
-#
+# Q-Prime Docker Setup
 # Usage: ./docker/scripts/setup.sh
+#
+# Prerequisites: docker, docker compose, node
+# Required in .env.docker: DOMAIN, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET
+# Optional in .env.docker: LETSENCRYPT_EMAIL, HTTP_CLIENT_PREFIX, HTTP_API_PREFIX, LETSENCRYPT_STAGING
 
-set -e
+set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 DOCKER_DIR="$PROJECT_ROOT/docker"
+ENV_FILE="$PROJECT_ROOT/.env.docker"
 
-echo "=========================================="
-echo "Q-Prime Docker Setup"
-echo "=========================================="
-echo ""
+# ── Helpers ────────────────────────────────────────────────────────────────────
 
-# ----------------------------------------------
-# Step 1: Check prerequisites
-# ----------------------------------------------
-echo "Checking prerequisites..."
+log()  { echo "  $*"; }
+step() { echo ""; echo "▶ $*"; }
+ok()   { echo "  ✓ $*"; }
+die()  { echo ""; echo "ERROR: $*" >&2; exit 1; }
 
-if ! command -v docker &> /dev/null; then
-    echo "Error: Docker is not installed"
-    echo "Install: https://docs.docker.com/engine/install/"
-    exit 1
-fi
+compose() {
+    docker compose -f "$DOCKER_DIR/docker-compose.yml" --env-file "$ENV_FILE" "$@"
+}
 
-if ! docker compose version &> /dev/null; then
-    echo "Error: Docker Compose V2 is required"
-    exit 1
-fi
+# ── Step 1: Prerequisites ──────────────────────────────────────────────────────
 
-if ! command -v node &> /dev/null; then
-    echo "Error: Node.js is not installed"
-    echo "Install: https://nodejs.org/"
-    exit 1
-fi
+step "Checking prerequisites..."
+command -v docker >/dev/null 2>&1 || die "docker not found — install from https://docs.docker.com/engine/install/"
+docker compose version >/dev/null 2>&1 || die "docker compose V2 not found"
+command -v node >/dev/null 2>&1 || die "node not found — install from https://nodejs.org/"
+ok "docker, docker compose, node available"
 
-echo "Prerequisites OK"
-echo ""
+# ── Step 2: Bootstrap .env.docker ─────────────────────────────────────────────
 
-# ----------------------------------------------
-# Step 2: Create .env.docker if missing
-# ----------------------------------------------
-if [ ! -f "$PROJECT_ROOT/.env.docker" ]; then
-    if [ -f "$PROJECT_ROOT/.env.docker.example" ]; then
-        echo "Creating .env.docker from example..."
-        cp "$PROJECT_ROOT/.env.docker.example" "$PROJECT_ROOT/.env.docker"
-        echo ""
-        echo "=========================================="
-        echo "ACTION REQUIRED: Edit .env.docker"
-        echo "=========================================="
-        echo ""
-        echo "Fill in these values:"
-        echo "  - DOMAIN (your domain, e.g., cs122.andrew.cmu.edu)"
-        echo "  - AUTH_GOOGLE_ID (from Google Cloud Console)"
-        echo "  - AUTH_GOOGLE_SECRET (from Google Cloud Console)"
-        echo "  - LETSENCRYPT_EMAIL (for SSL certificate notifications)"
-        echo ""
-        echo "Then run this script again."
-        exit 0
-    else
-        echo "Error: .env.docker.example not found"
-        exit 1
-    fi
-fi
-
-# ----------------------------------------------
-# Step 3: Load and validate environment
-# ----------------------------------------------
-echo "Loading environment..."
-set -a
-source "$PROJECT_ROOT/.env.docker"
-set +a
-
-# Check required user-provided values
-MISSING=()
-[ -z "$DOMAIN" ] || [ "$DOMAIN" = "yourdomain.edu" ] && MISSING+=("DOMAIN")
-[ -z "$AUTH_GOOGLE_ID" ] || [ "$AUTH_GOOGLE_ID" = "your-google-client-id.apps.googleusercontent.com" ] && MISSING+=("AUTH_GOOGLE_ID")
-[ -z "$AUTH_GOOGLE_SECRET" ] || [ "$AUTH_GOOGLE_SECRET" = "your-google-client-secret" ] && MISSING+=("AUTH_GOOGLE_SECRET")
-
-if [ ${#MISSING[@]} -gt 0 ]; then
+step "Loading configuration..."
+if [ ! -f "$ENV_FILE" ]; then
+    [ -f "$ENV_FILE.example" ] || die ".env.docker.example not found"
+    cp "$ENV_FILE.example" "$ENV_FILE"
     echo ""
-    echo "=========================================="
-    echo "ACTION REQUIRED: Edit .env.docker"
-    echo "=========================================="
-    echo ""
-    echo "Missing or placeholder values:"
-    for var in "${MISSING[@]}"; do
-        echo "  - $var"
-    done
-    echo ""
-    echo "Edit .env.docker and run this script again."
-    exit 1
+    echo "  Created .env.docker — fill in the required values and re-run:"
+    echo "    DOMAIN, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET"
+    echo "  (LETSENCRYPT_EMAIL is optional, prompted interactively if needed for SSL)"
+    exit 0
 fi
 
-echo "Required configuration OK"
-echo ""
+set -a; source "$ENV_FILE"; set +a
 
-# ----------------------------------------------
-# Step 4: Auto-generate JWT keys if missing
-# ----------------------------------------------
-if [ -z "$JWKS" ] || [ -z "$JWT_PRIVATE_KEY" ]; then
-    echo "Generating JWT keys..."
+# ── Step 3: Prompt for any missing required vars ───────────────────────────────
 
-    if [ ! -f "$PROJECT_ROOT/generateKeys.mjs" ]; then
-        echo "Error: generateKeys.mjs not found"
-        exit 1
-    fi
+prompt_var() {
+    local var="$1" prompt="$2" value
+    read -rp "  $prompt: " value
+    [ -n "$value" ] || die "$var cannot be empty"
+    eval "$var=\$value"
+}
 
-    # Generate keys and capture output
-    cd "$PROJECT_ROOT"
-    KEY_OUTPUT=$(node generateKeys.mjs)
+{ [ -z "${DOMAIN:-}" ] || [ "$DOMAIN" = "yourdomain.edu" ]; } && prompt_var DOMAIN "Deployment domain (e.g. cs122.andrew.cmu.edu)"
+{ [ -z "${AUTH_GOOGLE_ID:-}" ] || [ "$AUTH_GOOGLE_ID" = "your-client-id.apps.googleusercontent.com" ]; } && prompt_var AUTH_GOOGLE_ID "Google OAuth client ID"
+{ [ -z "${AUTH_GOOGLE_SECRET:-}" ] || [ "$AUTH_GOOGLE_SECRET" = "your-client-secret" ]; } && prompt_var AUTH_GOOGLE_SECRET "Google OAuth client secret"
 
-    # Extract values
-    JWT_PRIVATE_KEY=$(echo "$KEY_OUTPUT" | grep "^JWT_PRIVATE_KEY=" | cut -d'=' -f2-)
-    JWKS=$(echo "$KEY_OUTPUT" | grep "^JWKS=" | cut -d'=' -f2-)
+ok "Required configuration present"
 
-    # Update .env.docker (use awk to handle special characters in keys)
-    if grep -q "^JWT_PRIVATE_KEY=$" "$PROJECT_ROOT/.env.docker"; then
-        awk -v val="$JWT_PRIVATE_KEY" '/^JWT_PRIVATE_KEY=$/ {print "JWT_PRIVATE_KEY=" val; next} {print}' \
-            "$PROJECT_ROOT/.env.docker" > "$PROJECT_ROOT/.env.docker.tmp" && \
-            mv "$PROJECT_ROOT/.env.docker.tmp" "$PROJECT_ROOT/.env.docker"
-    fi
-    if grep -q "^JWKS=$" "$PROJECT_ROOT/.env.docker"; then
-        # Wrap JWKS in single quotes to preserve JSON during bash source
-        awk -v val="$JWKS" '/^JWKS=$/ {print "JWKS='"'"'" val "'"'"'"; next} {print}' \
-            "$PROJECT_ROOT/.env.docker" > "$PROJECT_ROOT/.env.docker.tmp" && \
-            mv "$PROJECT_ROOT/.env.docker.tmp" "$PROJECT_ROOT/.env.docker"
-    fi
+# ── Step 4: Derive config values ───────────────────────────────────────────────
 
-    echo "JWT keys generated and saved to .env.docker"
-    echo ""
-
-    # Reload environment
-    set -a
-    source "$PROJECT_ROOT/.env.docker"
-    set +a
-fi
-
-# ----------------------------------------------
-# Step 5: Update derived values in .env.docker
-# ----------------------------------------------
-echo "Updating derived configuration values..."
-
-# Determine protocol based on domain
-if [ "$DOMAIN" = "localhost" ]; then
-    PROTOCOL="http"
-else
-    PROTOCOL="https"
-fi
-
-# Get prefixes (use defaults if not set)
-HTTP_API_PREFIX="${HTTP_API_PREFIX:-/api}"
 HTTP_CLIENT_PREFIX="${HTTP_CLIENT_PREFIX:-/ohq}"
+HTTP_API_PREFIX="${HTTP_API_PREFIX:-/api}"
+LETSENCRYPT_STAGING="${LETSENCRYPT_STAGING:-0}"
 
-# Update values that depend on DOMAIN and prefixes
-sed -i "s|^VITE_CONVEX_URL=.*|VITE_CONVEX_URL=${PROTOCOL}://${DOMAIN}${HTTP_API_PREFIX}|" "$PROJECT_ROOT/.env.docker"
-sed -i "s|^VITE_APP_CONVEX_SITE_URL=.*|VITE_APP_CONVEX_SITE_URL=${PROTOCOL}://${DOMAIN}${HTTP_API_PREFIX}|" "$PROJECT_ROOT/.env.docker"
-sed -i "s|^CONVEX_CLOUD_ORIGIN=.*|CONVEX_CLOUD_ORIGIN=${PROTOCOL}://${DOMAIN}${HTTP_API_PREFIX}|" "$PROJECT_ROOT/.env.docker"
-sed -i "s|^CONVEX_SITE_ORIGIN=.*|CONVEX_SITE_ORIGIN=${PROTOCOL}://${DOMAIN}|" "$PROJECT_ROOT/.env.docker"
-sed -i "s|^CONVEX_SITE_URL=.*|CONVEX_SITE_URL=${PROTOCOL}://${DOMAIN}|" "$PROJECT_ROOT/.env.docker"
-sed -i "s|^SITE_URL=.*|SITE_URL=${PROTOCOL}://${DOMAIN}|" "$PROJECT_ROOT/.env.docker"
+PROTOCOL="https"
+[ "$DOMAIN" = "localhost" ] && PROTOCOL="http"
 
-# Sync Google Client ID to frontend
-sed -i "s|^VITE_APP_GOOGLE_CLIENT_ID=.*|VITE_APP_GOOGLE_CLIENT_ID=${AUTH_GOOGLE_ID}|" "$PROJECT_ROOT/.env.docker"
+# VITE_CONVEX_URL must NOT include the API prefix — ConvexReactClient appends /api/ itself
+VITE_CONVEX_URL="${PROTOCOL}://${DOMAIN}"
+VITE_APP_CONVEX_SITE_URL="${PROTOCOL}://${DOMAIN}${HTTP_API_PREFIX}"
+CONVEX_CLOUD_ORIGIN="${PROTOCOL}://${DOMAIN}${HTTP_API_PREFIX}"
+CONVEX_SITE_ORIGIN="${PROTOCOL}://${DOMAIN}"
+CONVEX_SITE_URL="${PROTOCOL}://${DOMAIN}"
+SITE_URL="${PROTOCOL}://${DOMAIN}"
+CONVEX_SELF_HOSTED_URL="http://127.0.0.1:3210"
 
-echo "Configuration updated"
-echo ""
+# ── Step 5: Install dependencies ──────────────────────────────────────────────
 
-# Reload environment with updated values
-set -a
-source "$PROJECT_ROOT/.env.docker"
-set +a
+step "Installing dependencies..."
+cd "$PROJECT_ROOT"
+[ -d node_modules ] || npm ci
+ok "Dependencies ready"
 
-# ----------------------------------------------
-# Step 6: Pull images and start Convex backend
-# ----------------------------------------------
-echo "Pulling Docker images..."
-docker compose -f "$DOCKER_DIR/docker-compose.yml" --env-file "$PROJECT_ROOT/.env.docker" pull convex-backend convex-dashboard certbot
-echo ""
+# ── Step 6: Generate JWT keys if missing ───────────────────────────────────────
 
-echo "Starting Convex backend..."
-docker compose -f "$DOCKER_DIR/docker-compose.yml" --env-file "$PROJECT_ROOT/.env.docker" up -d convex-backend
-echo ""
+step "Checking JWT keys..."
+if [ -z "${JWKS:-}" ] || [ -z "${JWT_PRIVATE_KEY:-}" ]; then
+    log "Generating RSA key pair..."
+    [ -f "$PROJECT_ROOT/generateKeys.mjs" ] || die "generateKeys.mjs not found"
+    KEY_OUTPUT=$(node generateKeys.mjs)
+    JWT_PRIVATE_KEY=$(echo "$KEY_OUTPUT" | grep "^JWT_PRIVATE_KEY=" | cut -d'=' -f2- | tr -d '"')
+    JWKS=$(echo "$KEY_OUTPUT" | grep "^JWKS=" | cut -d'=' -f2-)
+    [ -n "$JWT_PRIVATE_KEY" ] || die "JWT key generation failed"
+    ok "JWT keys generated"
+else
+    ok "JWT keys already present, skipping"
+fi
 
-echo "Waiting for Convex backend to be healthy..."
-for i in {1..60}; do
-    if docker compose -f "$DOCKER_DIR/docker-compose.yml" --env-file "$PROJECT_ROOT/.env.docker" exec -T convex-backend curl -sf http://localhost:3210/version > /dev/null 2>&1; then
-        echo "Convex backend is healthy!"
+# ── Step 7: Write .env.docker so Convex backend starts with correct env vars ──
+
+step "Writing .env.docker..."
+
+# Keys that write_env_file emits. Anything else found in the existing file is
+# preserved verbatim under "# Customization" so users can set vars like
+# RUST_LOG or DOCUMENT_RETENTION_DELAY without losing them on re-run.
+MANAGED_KEYS_RE='^(DOMAIN|LETSENCRYPT_EMAIL|AUTH_GOOGLE_ID|AUTH_GOOGLE_SECRET|HTTP_CLIENT_PREFIX|HTTP_API_PREFIX|LETSENCRYPT_STAGING|JWT_PRIVATE_KEY|JWKS|CONVEX_SELF_HOSTED_ADMIN_KEY|VITE_CONVEX_URL|VITE_APP_CONVEX_SITE_URL|VITE_APP_GOOGLE_CLIENT_ID|CONVEX_CLOUD_ORIGIN|CONVEX_SITE_ORIGIN|CONVEX_SITE_URL|SITE_URL|CONVEX_SELF_HOSTED_URL)='
+
+write_env_file() {
+    local tmp="${ENV_FILE}.tmp"
+    local custom_vars=""
+    if [ -f "$ENV_FILE" ]; then
+        custom_vars=$(grep -E '^[A-Z_][A-Z0-9_]*=' "$ENV_FILE" | grep -vE "$MANAGED_KEYS_RE" || true)
+    fi
+    {
+        cat << 'HEADER'
+# Q-Prime Docker Configuration
+# Managed by setup.sh — sections below (Required, Optional, Auto-generated, Derived)
+# are overwritten on every run. Add custom vars under "# Customization" to preserve them.
+HEADER
+        echo ""
+        echo "# Required"
+        printf 'DOMAIN=%s\n'              "$DOMAIN"
+        printf 'LETSENCRYPT_EMAIL=%s\n'   "${LETSENCRYPT_EMAIL:-}"
+        printf 'AUTH_GOOGLE_ID=%s\n'      "$AUTH_GOOGLE_ID"
+        printf 'AUTH_GOOGLE_SECRET="%s"\n' "$AUTH_GOOGLE_SECRET"
+        echo ""
+        echo "# Optional"
+        printf 'HTTP_CLIENT_PREFIX=%s\n'  "$HTTP_CLIENT_PREFIX"
+        printf 'HTTP_API_PREFIX=%s\n'     "$HTTP_API_PREFIX"
+        printf 'LETSENCRYPT_STAGING=%s\n' "$LETSENCRYPT_STAGING"
+        echo ""
+        echo "# Auto-generated"
+        printf 'JWT_PRIVATE_KEY="%s"\n'   "$JWT_PRIVATE_KEY"
+        printf "JWKS='%s'\n"              "$JWKS"
+        printf 'CONVEX_SELF_HOSTED_ADMIN_KEY="%s"\n' "${CONVEX_SELF_HOSTED_ADMIN_KEY:-}"
+        echo ""
+        echo "# Derived from DOMAIN (do not edit — re-run setup.sh to update)"
+        printf 'VITE_CONVEX_URL=%s\n'          "$VITE_CONVEX_URL"
+        printf 'VITE_APP_CONVEX_SITE_URL=%s\n' "$VITE_APP_CONVEX_SITE_URL"
+        printf 'VITE_APP_GOOGLE_CLIENT_ID=%s\n' "$AUTH_GOOGLE_ID"
+        printf 'CONVEX_CLOUD_ORIGIN=%s\n'      "$CONVEX_CLOUD_ORIGIN"
+        printf 'CONVEX_SITE_ORIGIN=%s\n'       "$CONVEX_SITE_ORIGIN"
+        printf 'CONVEX_SITE_URL=%s\n'          "$CONVEX_SITE_URL"
+        printf 'SITE_URL=%s\n'                 "$SITE_URL"
+        printf 'CONVEX_SELF_HOSTED_URL=%s\n'   "$CONVEX_SELF_HOSTED_URL"
+        echo ""
+        echo "# Customization (preserved across runs — e.g. RUST_LOG=debug, DOCUMENT_RETENTION_DELAY=86400)"
+        [ -n "$custom_vars" ] && printf '%s\n' "$custom_vars"
+    } > "$tmp"
+    mv "$tmp" "$ENV_FILE"
+}
+
+write_env_file
+set -a; source "$ENV_FILE"; set +a
+ok ".env.docker written"
+
+# ── Step 8: Start Convex backend ───────────────────────────────────────────────
+
+step "Starting Convex backend..."
+compose pull convex-backend --quiet
+compose up -d convex-backend
+
+log "Waiting for healthy..."
+for i in $(seq 1 60); do
+    if compose exec -T convex-backend curl -sf http://localhost:3210/version >/dev/null 2>&1; then
+        ok "Convex backend healthy"
         break
     fi
-    if [ $i -eq 60 ]; then
-        echo "Error: Convex backend failed to start"
-        docker compose -f "$DOCKER_DIR/docker-compose.yml" --env-file "$PROJECT_ROOT/.env.docker" logs convex-backend
-        exit 1
-    fi
-    echo "  Waiting... ($i/60)"
+    [ "$i" -eq 60 ] && { compose logs convex-backend; die "Convex backend failed to start after 120s"; }
     sleep 2
 done
-echo ""
 
-# ----------------------------------------------
-# Step 7: Generate admin key if missing
-# ----------------------------------------------
-if [ -z "$CONVEX_SELF_HOSTED_ADMIN_KEY" ]; then
-    echo "Generating Convex admin key..."
-    ADMIN_KEY=$(docker compose -f "$DOCKER_DIR/docker-compose.yml" --env-file "$PROJECT_ROOT/.env.docker" exec -T convex-backend ./generate_admin_key.sh 2>/dev/null | tail -1)
+# ── Step 9: Generate admin key if missing ──────────────────────────────────────
 
-    if [ -n "$ADMIN_KEY" ]; then
-        # Update .env.docker (quote the value to handle | character)
-        awk -v key="$ADMIN_KEY" '/^CONVEX_SELF_HOSTED_ADMIN_KEY=/ {print "CONVEX_SELF_HOSTED_ADMIN_KEY=\"" key "\""; next} {print}' \
-            "$PROJECT_ROOT/.env.docker" > "$PROJECT_ROOT/.env.docker.tmp" && \
-            mv "$PROJECT_ROOT/.env.docker.tmp" "$PROJECT_ROOT/.env.docker"
-        echo "Admin key generated and saved to .env.docker"
-    else
-        echo "Warning: Failed to generate admin key"
-    fi
-    echo ""
-fi
-
-# ----------------------------------------------
-# Step 8: Done!
-# ----------------------------------------------
-echo "=========================================="
-echo "Setup complete!"
-echo "=========================================="
-echo ""
-echo "Next steps:"
-echo ""
-if [ "$DOMAIN" != "localhost" ]; then
-    echo "1. Initialize SSL certificates:"
-    echo "   ./docker/scripts/init-letsencrypt.sh"
-    echo ""
-    echo "2. Deploy Convex functions:"
-    echo "   ./docker/scripts/deploy-convex.sh"
-    echo ""
-    echo "3. Start all services:"
-    echo "   docker compose -f docker/docker-compose.yml --env-file .env.docker up -d"
+step "Checking admin key..."
+if [ -z "${CONVEX_SELF_HOSTED_ADMIN_KEY:-}" ]; then
+    log "Generating admin key..."
+    CONVEX_SELF_HOSTED_ADMIN_KEY=$(compose exec -T convex-backend ./generate_admin_key.sh 2>/dev/null | tail -1)
+    [ -n "$CONVEX_SELF_HOSTED_ADMIN_KEY" ] || die "Admin key generation failed — check: docker logs qprime-convex-backend"
+    ok "Admin key generated"
 else
-    echo "1. Deploy Convex functions:"
-    echo "   ./docker/scripts/deploy-convex.sh"
-    echo ""
-    echo "2. Start all services:"
-    echo "   docker compose -f docker/docker-compose.yml --env-file .env.docker up -d"
+    ok "Admin key already present, skipping"
 fi
+
+# ── Step 10: Persist admin key to .env.docker ─────────────────────────────────
+
+write_env_file
+set -a; source "$ENV_FILE"; set +a
+ok ".env.docker updated with admin key"
+
+# ── Step 11: Deploy Convex functions ───────────────────────────────────────────
+
+step "Deploying Convex functions..."
+cd "$PROJECT_ROOT"
+
+cat > "$PROJECT_ROOT/.env.local" << EOF
+CONVEX_SELF_HOSTED_URL=$CONVEX_SELF_HOSTED_URL
+CONVEX_SELF_HOSTED_ADMIN_KEY=$CONVEX_SELF_HOSTED_ADMIN_KEY
+EOF
+
+npx convex env set AUTH_GOOGLE_ID     -- "$AUTH_GOOGLE_ID"
+npx convex env set AUTH_GOOGLE_SECRET -- "$AUTH_GOOGLE_SECRET"
+npx convex env set SITE_URL           -- "$SITE_URL"
+npx convex env set HTTP_API_PREFIX    -- "$HTTP_API_PREFIX"
+npx convex env set JWKS               -- "$JWKS"
+npx convex env set JWT_PRIVATE_KEY    -- "$JWT_PRIVATE_KEY"
+
+npx convex deploy --cmd-url-env-var-name VITE_CONVEX_URL --cmd 'npm run build:quick'
+ok "Convex functions deployed"
+
+# ── Step 12: Build and start all services ──────────────────────────────────────
+
+step "Building and starting services..."
+compose build frontend nginx-proxy
+compose up -d
+ok "All services running"
+
+# ── Step 13: SSL setup (interactive) ──────────────────────────────────────────
+
+setup_ssl() {
+    local data_path="$PROJECT_ROOT/docker/certbot"
+    local staging_arg=""
+    [ "${LETSENCRYPT_STAGING:-0}" != "0" ] && staging_arg="--staging"
+
+    if [ -z "${LETSENCRYPT_EMAIL:-}" ]; then
+        read -rp "  Email for Let's Encrypt: " LETSENCRYPT_EMAIL
+        [ -n "$LETSENCRYPT_EMAIL" ] || die "Email required for Let's Encrypt"
+        write_env_file
+    fi
+
+    mkdir -p "$data_path/conf" "$data_path/www" "$data_path/conf/live/$DOMAIN"
+
+    if [ ! -f "$data_path/conf/options-ssl-nginx.conf" ]; then
+        log "Downloading recommended TLS parameters..."
+        curl -fsSL https://raw.githubusercontent.com/certbot/certbot/master/certbot-nginx/certbot_nginx/_internal/tls_configs/options-ssl-nginx.conf \
+            -o "$data_path/conf/options-ssl-nginx.conf"
+        curl -fsSL https://raw.githubusercontent.com/certbot/certbot/master/certbot/certbot/ssl-dhparams.pem \
+            -o "$data_path/conf/ssl-dhparams.pem"
+    fi
+
+    log "Creating temporary certificate so nginx can start in SSL mode..."
+    compose run --rm --entrypoint "openssl req -x509 -nodes -newkey rsa:4096 -days 1 \
+        -keyout /etc/letsencrypt/live/$DOMAIN/privkey.pem \
+        -out /etc/letsencrypt/live/$DOMAIN/fullchain.pem \
+        -subj '/CN=localhost'" certbot
+
+    compose up --force-recreate -d nginx-proxy
+    log "Waiting for nginx..."
+    for i in $(seq 1 30); do
+        if curl -sf http://localhost/health >/dev/null 2>&1; then break; fi
+        [ "$i" -eq 30 ] && die "nginx failed to start after 30s"
+        sleep 1
+    done
+
+    log "Removing temporary certificate..."
+    compose run --rm --entrypoint \
+        "rm -rf /etc/letsencrypt/live/$DOMAIN /etc/letsencrypt/archive/$DOMAIN /etc/letsencrypt/renewal/$DOMAIN.conf" \
+        certbot
+
+    log "Requesting certificate from Let's Encrypt..."
+    compose run --rm --entrypoint "certbot certonly --webroot -w /var/www/certbot \
+        $staging_arg \
+        --email $LETSENCRYPT_EMAIL \
+        --rsa-key-size 4096 \
+        --agree-tos \
+        --no-eff-email \
+        --force-renewal \
+        -d $DOMAIN" certbot
+
+    compose exec nginx-proxy nginx -s reload
+    ok "SSL certificate obtained and nginx reloaded"
+}
+
+step "SSL setup"
+# certbot writes a renewal config only on a successful Let's Encrypt issuance,
+# which distinguishes it from the short-lived self-signed cert used during bootstrap.
+RENEWAL_CONF="$PROJECT_ROOT/docker/certbot/conf/renewal/$DOMAIN.conf"
+if [ -f "$RENEWAL_CONF" ]; then
+    ok "SSL certificate already present for $DOMAIN (delete $RENEWAL_CONF to re-run)"
+else
+    read -rp "  Set up Let's Encrypt SSL certificate? (y/N) " ssl_answer
+    if [ "${ssl_answer:-}" = "y" ] || [ "${ssl_answer:-}" = "Y" ]; then
+        setup_ssl
+    else
+        log "Skipping SSL — nginx running in HTTP-only mode"
+        log "To enable SSL later: re-run setup.sh and answer Y"
+    fi
+fi
+
+# ── Done ───────────────────────────────────────────────────────────────────────
+
 echo ""
-echo "Access the app at: ${PROTOCOL}://${DOMAIN}${HTTP_CLIENT_PREFIX}/"
+echo "══════════════════════════════════════════"
+echo "  Setup complete!"
+echo "══════════════════════════════════════════"
+echo ""
+echo "  Site: ${PROTOCOL}://${DOMAIN}${HTTP_CLIENT_PREFIX}/"
+echo ""
+echo "  Re-deployment commands:"
+echo "    Convex functions:  ./docker/scripts/deploy-convex.sh"
+echo "    Frontend:          ./docker/scripts/deploy-frontend.sh"
+echo "    All services:      docker compose -f docker/docker-compose.yml --env-file .env.docker up -d"

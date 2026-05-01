@@ -16,6 +16,7 @@ RUN mkdir -p /etc/nginx/templates
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY conf.d/default.conf.template /etc/nginx/templates/default.conf.template
 COPY conf.d/default-http-only.conf.template /etc/nginx/templates/default-http-only.conf.template
+COPY snippets/proxy-params.conf /etc/nginx/snippets/proxy-params.conf
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 
 RUN chmod +x /docker-entrypoint.sh

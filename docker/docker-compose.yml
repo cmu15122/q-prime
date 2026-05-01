@@ -2,8 +2,7 @@
 # Based on: https://github.com/wmnnd/nginx-certbot
 #
 # Usage:
-#   First time: ./docker/scripts/init-letsencrypt.sh
-#   Then: docker compose -f docker/docker-compose.yml --env-file .env.docker up -d
+#   ./docker/scripts/setup.sh
 #
 # Services:
 # - convex-backend: Convex API server (port 3210) and HTTP actions (port 3211)

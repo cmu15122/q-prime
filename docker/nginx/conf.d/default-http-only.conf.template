@@ -1,17 +1,9 @@
 # Q-Prime NGINX - HTTP Only Configuration
-# Used during initial setup before SSL certificates are obtained
 #
 # Environment variables substituted at container start:
-#   ${DOMAIN} - Server domain name
 #   ${HTTP_CLIENT_PREFIX} - Frontend route prefix (default: /ohq)
 #   ${HTTP_API_PREFIX} - API route prefix (default: /api)
-#
-# This config:
-# - Serves ACME challenges for Let's Encrypt
-# - Proxies to backend services over HTTP (for testing)
-# - Does NOT redirect to HTTPS
 
-# Upstream definitions
 upstream frontend {
     server frontend:80;
     keepalive 32;
@@ -31,80 +23,53 @@ server {
     listen 80;
     server_name _;
 
-    # ACME challenge for Let's Encrypt
     location /.well-known/acme-challenge/ {
         root /var/www/certbot;
     }
 
-    # Root - Redirect to client prefix
     location = / {
         return 302 ${HTTP_CLIENT_PREFIX}/;
     }
 
-    # Frontend Routes - ${HTTP_CLIENT_PREFIX}/*
     location ${HTTP_CLIENT_PREFIX}/ {
         rewrite ^${HTTP_CLIENT_PREFIX}/(.*) /$1 break;
+        include /etc/nginx/snippets/proxy-params.conf;
         proxy_pass http://frontend/;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
     }
 
     location ${HTTP_CLIENT_PREFIX} {
         return 302 ${HTTP_CLIENT_PREFIX}/;
     }
 
-    # Convex HTTP Actions - CSV endpoints
     location ~ ^${HTTP_API_PREFIX}/(download_|upload_) {
+        include /etc/nginx/snippets/proxy-params.conf;
         proxy_pass http://convex_site;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    # Convex Auth Routes
     location ${HTTP_API_PREFIX}/auth/ {
+        include /etc/nginx/snippets/proxy-params.conf;
         proxy_pass http://convex_site;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    # Convex API Routes - Main API with WebSocket
     location ${HTTP_API_PREFIX}/ {
-        rewrite ^${HTTP_API_PREFIX}/(.*) /$1 break;
-        proxy_pass http://convex_api;
-        proxy_http_version 1.1;
+        include /etc/nginx/snippets/proxy-params.conf;
         proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Connection $connection_upgrade;
+        proxy_pass http://convex_api;
         proxy_read_timeout 86400s;
         proxy_send_timeout 86400s;
     }
 
-    # OpenID Connect Discovery
     location /.well-known/openid-configuration {
+        include /etc/nginx/snippets/proxy-params.conf;
         proxy_pass http://convex_site/.well-known/openid-configuration;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
     }
 
     location /.well-known/jwks.json {
+        include /etc/nginx/snippets/proxy-params.conf;
         proxy_pass http://convex_site/.well-known/jwks.json;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
     }
 
-    # Health check
     location /health {
         access_log off;
         return 200 "healthy\n";
