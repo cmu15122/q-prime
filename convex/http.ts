@@ -4,6 +4,7 @@ import { api, internal } from './_generated/api';
 import { auth } from './auth';
 import { getAuthUserId } from '@convex-dev/auth/server';
 import { DateTime } from 'luxon';
+import { Id } from './_generated/dataModel';
 
 const http = httpRouter();
 
@@ -35,6 +36,16 @@ function handlePreflight() {
   });
 }
 
+// Multi-tenant: every CSV route requires ?courseId=<id> in the request URL.
+function getCourseIdFromRequest(request: Request): Id<'courses'> {
+  const url = new URL(request.url);
+  const courseId = url.searchParams.get('courseId');
+  if (!courseId) {
+    throw new Error('Missing courseId query parameter');
+  }
+  return courseId as Id<'courses'>;
+}
+
 // OPTIONS handler for download_assignment_csv
 http.route({
   path: `${API_PREFIX}/download_assignment_csv`,
@@ -52,9 +63,12 @@ http.route({
       throw new Error('User not authenticated');
     }
 
+    const courseId = getCourseIdFromRequest(request);
+
     // ensure user is a TA
     const is_ta = await ctx.runQuery(internal.common.internalEnsureTA, {
       user_id: user,
+      courseId,
     });
 
     if (!is_ta) {
@@ -93,9 +107,12 @@ http.route({
       throw new Error('User not authenticated');
     }
 
+    const courseId = getCourseIdFromRequest(request);
+
     // ensure user is a TA
     const is_ta = await ctx.runQuery(internal.common.internalEnsureTA, {
       user_id: user,
+      courseId,
     });
 
     if (!is_ta) {
@@ -131,9 +148,12 @@ http.route({
       throw new Error('User not authenticated');
     }
 
+    const courseId = getCourseIdFromRequest(request);
+
     // ensure user is a TA
     const is_ta = await ctx.runQuery(internal.common.internalEnsureTA, {
       user_id: user,
+      courseId,
     });
 
     if (!is_ta) {
@@ -172,9 +192,12 @@ http.route({
       throw new Error('User not authenticated');
     }
 
+    const courseId = getCourseIdFromRequest(request);
+
     // ensure user is a TA
     const is_ta = await ctx.runQuery(internal.common.internalEnsureTA, {
       user_id: user,
+      courseId,
     });
 
     if (!is_ta) {
@@ -188,7 +211,9 @@ http.route({
       csvText: csvData,
     });
 
-    const globalSettings = await ctx.runQuery(internal.common.internalGetGlobalSettings);
+    const globalSettings = await ctx.runQuery(internal.common.internalGetGlobalSettings, {
+      courseId,
+    });
     const timezone = globalSettings.timezone;
 
     for (const assignment of csvRows) {
@@ -220,6 +245,7 @@ http.route({
       }
 
       await ctx.runMutation(api.settings.settings_mutate.createAssignment, {
+        courseId,
         name: name,
         assignment_type: assignment_type,
         start_date_ms: startDt.toMillis(),
@@ -251,9 +277,12 @@ http.route({
       throw new Error('User not authenticated');
     }
 
+    const courseId = getCourseIdFromRequest(request);
+
     // ensure user is a TA
     const is_ta = await ctx.runQuery(internal.common.internalEnsureTA, {
       user_id: user,
+      courseId,
     });
 
     if (!is_ta) {
@@ -273,6 +302,7 @@ http.route({
       const is_admin = ta.is_admin.toLowerCase() === 'true';
 
       await ctx.runMutation(api.settings.settings_mutate.createTA, {
+        courseId,
         name: name,
         email: email,
         isAdmin: is_admin,
@@ -303,9 +333,12 @@ http.route({
       throw new Error('User not authenticated');
     }
 
+    const courseId = getCourseIdFromRequest(request);
+
     // ensure user is a TA
     const is_ta = await ctx.runQuery(internal.common.internalEnsureTA, {
       user_id: user,
+      courseId,
     });
 
     if (!is_ta) {
@@ -328,6 +361,7 @@ http.route({
       }
 
       await ctx.runMutation(api.settings.settings_mutate.updateAccessControlledUser, {
+        courseId,
         email: email,
         is_whitelisted: is_whitelisted,
         is_blacklisted: is_blacklisted,

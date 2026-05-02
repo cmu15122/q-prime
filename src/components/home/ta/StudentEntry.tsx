@@ -8,9 +8,11 @@ import ItemRow from '../../common/table/ItemRow';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import { Doc } from '../../../../convex/_generated/dataModel';
+import { useCourseId } from '../../../contexts/CourseContext';
 
 export default function StudentEntry(props) {
-  const queueData = useQuery(api.home.home_get.getQueueData);
+  const courseId = useCourseId();
+  const queueData = useQuery(api.home.home_get.getQueueData, { courseId });
   const student: Doc<'ohq'> = props['student'];
 
   const { index, handleClickHelp, removeStudent, handleClickUnfreeze, handleFix, currentTime } =
@@ -56,6 +58,7 @@ export default function StudentEntry(props) {
   const approveCooldownOverrideMutation = useMutation(api.home.home_mutate.approveCooldownOverride);
   const approveCooldownOverride = async () => {
     await approveCooldownOverrideMutation({
+      courseId,
       student_id: student.student_id,
     });
   };

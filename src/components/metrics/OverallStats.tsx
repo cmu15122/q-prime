@@ -2,12 +2,14 @@ import { Card, Divider, Typography, Grid } from '@mui/material';
 
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
+import { useCourseId } from '../../contexts/CourseContext';
 
 export default function OverallStats() {
-  const numQuestionsTodayData = useQuery(api.metrics.getNumQuestionsToday);
-  const numBadQuestionsData = useQuery(api.metrics.getNumBadQuestionsToday);
-  const avgWaitTimeData = useQuery(api.metrics.getAvgWaitTimeToday);
-  const taStudentRatioData = useQuery(api.metrics.getTaStudentRatioToday);
+  const courseId = useCourseId();
+  const numQuestionsTodayData = useQuery(api.metrics.getNumQuestionsToday, { courseId });
+  const numBadQuestionsData = useQuery(api.metrics.getNumBadQuestionsToday, { courseId });
+  const avgWaitTimeData = useQuery(api.metrics.getAvgWaitTimeToday, { courseId });
+  const taStudentRatioData = useQuery(api.metrics.getTaStudentRatioToday, { courseId });
 
   const numQuestionsToday = numQuestionsTodayData ? numQuestionsTodayData.numQuestionsToday : 0;
   const numBadQuestions = numBadQuestionsData ? numBadQuestionsData.numBadQuestionsToday : 0;

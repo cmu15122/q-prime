@@ -14,9 +14,11 @@ import EditIcon from '@mui/icons-material/Edit';
 
 import { useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
+import { useCourseId } from '../../contexts/CourseContext';
 
 export default function ChangeNameBtn(props) {
   const { setpname, pname, mobile } = props;
+  const courseId = useCourseId();
 
   const [tmpPrefName, setTmpPrefName] = useState(pname);
   const [open, setOpen] = useState(false);
@@ -33,6 +35,7 @@ export default function ChangeNameBtn(props) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     await updatePreferredNameMutation({
+      courseId,
       preferred_name: tmpPrefName,
     });
     handleClose();

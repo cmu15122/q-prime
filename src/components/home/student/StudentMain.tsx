@@ -9,17 +9,20 @@ import AskQuestion from '../shared/AskQuestion';
 
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
+import { useCourseId } from '../../../contexts/CourseContext';
 
 function StudentMain() {
   const [removeConfirm, setRemoveConfirm] = useState(false);
+  const courseId = useCourseId();
 
-  const queueData = useQuery(api.home.home_get.getQueueData);
-  const userData = useQuery(api.home.home_get.getUserData);
+  const queueData = useQuery(api.home.home_get.getQueueData, { courseId });
+  const userData = useQuery(api.home.home_get.getUserData, { courseId });
   const studentData = userData?.student_data;
 
   const removeStudentMutation = useMutation(api.home.home_mutate.removeStudent);
   const removeFromQueue = async () => {
     await removeStudentMutation({
+      courseId,
       reason: 'removed',
       student_id: userData!.student_data!.student_id,
     }).finally(() => {
@@ -29,7 +32,7 @@ function StudentMain() {
 
   const dismissMessageMutation = useMutation(api.home.home_mutate.dismissMessage);
   const dismissMessage = async () => {
-    await dismissMessageMutation();
+    await dismissMessageMutation({ courseId });
   };
 
   const statusDependentComponents = useMemo(() => {

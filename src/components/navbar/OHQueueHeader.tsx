@@ -1,22 +1,30 @@
-import { Link, useTheme } from '@mui/material';
+import { Box, useTheme } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
+import { useCourseId, useCourseSlug } from '../../contexts/CourseContext';
 
 export default function OHQueueHeader() {
-  const queueData = useQuery(api.home.home_get.getQueueData);
+  const courseId = useCourseId();
+  const slug = useCourseSlug();
+  const queueData = useQuery(api.home.home_get.getQueueData, { courseId });
   const theme = useTheme();
 
   return (
-    <Link
-      variant="h6"
-      color={theme.alternateColors.navbarText}
-      fontWeight={600}
-      href="/"
-      underline="none"
-      sx={{ display: 'flex', alignItems: 'center' }}
+    <Box
+      component={RouterLink}
+      to={`/${slug}`}
+      sx={{
+        color: theme.alternateColors.navbarText,
+        fontWeight: 600,
+        fontSize: '1.25rem',
+        textDecoration: 'none',
+        display: 'flex',
+        alignItems: 'center',
+      }}
     >
       {queueData?.title}
-    </Link>
+    </Box>
   );
 }

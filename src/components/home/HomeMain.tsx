@@ -9,14 +9,16 @@ import { Container, Typography } from '@mui/material';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import ConvexNotifHandler from '../common/ConvexNotifHandler';
+import { useCourseId } from '../../contexts/CourseContext';
 
 function HomeMain() {
   const gitHubLink = 'https://github.com/cmu15122/q-issues/issues';
+  const courseId = useCourseId();
 
   const [mainPage, setMainPage] = useState<JSX.Element | null>(null);
 
-  const userData = useQuery(api.home.home_get.getUserData);
-  const queueData = useQuery(api.home.home_get.getQueueData);
+  const userData = useQuery(api.home.home_get.getUserData, { courseId });
+  const queueData = useQuery(api.home.home_get.getQueueData, { courseId });
   const isAuthenticated = userData !== null && userData !== undefined;
   const isTA = isAuthenticated && userData.user_kind === 'TA';
 

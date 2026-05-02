@@ -9,12 +9,14 @@ import LeapStudentActions from './TailOptions/LeapStudentActions';
 import { useQuery } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import { Doc } from '../../../../convex/_generated/dataModel';
+import { useCourseId } from '../../../contexts/CourseContext';
 
 export default function EntryTails(props) {
   const { currentTime } = props;
   const student: Doc<'ohq'> = props['student'];
+  const courseId = useCourseId();
 
-  const userData = useQuery(api.home.home_get.getUserData);
+  const userData = useQuery(api.home.home_get.getUserData, { courseId });
 
   const showApproval = props.showCooldownApproval;
 

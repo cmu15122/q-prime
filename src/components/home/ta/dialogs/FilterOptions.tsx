@@ -17,11 +17,13 @@ const FilterGroup = {
 
 import { useQuery } from 'convex/react';
 import { api } from '../../../../../convex/_generated/api';
+import { useCourseId } from '../../../../contexts/CourseContext';
 
 export default function FilterOptions(props) {
   const { filteredLocations, filteredTopics, setFilteredLocations, setFilteredTopics } = props;
+  const courseId = useCourseId();
 
-  const queueData = useQuery(api.home.home_get.getQueueData);
+  const queueData = useQuery(api.home.home_get.getQueueData, { courseId });
   let locations = queueData?.current_locations || [];
   const currAssignments = queueData?.current_assignments || [];
 

@@ -15,12 +15,14 @@ import download from 'downloadjs';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import { useAuthToken } from '@convex-dev/auth/react';
+import { useCourseId } from '../../../contexts/CourseContext';
 
 export default function AccessControlSettings() {
+  const courseId = useCourseId();
   const theme = useTheme();
 
   // Access control enable/disable states
-  const accessControlSettings = useQuery(api.settings.settings_get.getAccessControlSettings);
+  const accessControlSettings = useQuery(api.settings.settings_get.getAccessControlSettings, { courseId });
   const [selectedRowIdx, setSelectedRowIdx] = useState<number | null>(null);
   const [selectedListType, setSelectedListType] = useState<'whitelist' | 'blacklist' | null>(null);
   const token = useAuthToken();
@@ -45,7 +47,7 @@ export default function AccessControlSettings() {
       // For local dev, use the same URL. For production, replace .cloud with .site
       const httpActionUrl = import.meta.env.VITE_APP_CONVEX_SITE_URL;
 
-      const response = await fetch(`${httpActionUrl}/download_access_control_csv`, {
+      const response = await fetch(`${httpActionUrl}/download_access_control_csv?courseId=${courseId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -72,12 +74,14 @@ export default function AccessControlSettings() {
 
   const handleUpdateWhitelist = async () => {
     await updateWhitelistSettings({
+      courseId,
       enableWhitelist: !accessControlSettings!.whitelistEnabled,
     });
   };
 
   const handleUpdateBlacklist = async () => {
     await updateBlacklistSettings({
+      courseId,
       enableBlacklist: !accessControlSettings!.blacklistEnabled,
     });
   };
@@ -141,6 +145,7 @@ export default function AccessControlSettings() {
     event.preventDefault();
 
     await updateAccessControlledUser({
+      courseId,
       email: email,
       is_whitelisted: selectedListType === 'whitelist',
       is_blacklisted: selectedListType === 'blacklist',
@@ -160,7 +165,7 @@ export default function AccessControlSettings() {
       // For local dev, use the same URL. For production, replace .cloud with .site
       const httpActionUrl = import.meta.env.VITE_APP_CONVEX_SITE_URL;
 
-      const response = await fetch(`${httpActionUrl}/upload_access_control_csv`, {
+      const response = await fetch(`${httpActionUrl}/upload_access_control_csv?courseId=${courseId}`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,

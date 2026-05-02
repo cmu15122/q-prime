@@ -27,12 +27,14 @@ import { Line, Bar } from 'react-chartjs-2';
 
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
+import { useCourseId } from '../../contexts/CourseContext';
 
 export default function Graph() {
   const theme = useTheme();
-  const numStudentsPerDayLastWeekData = useQuery(api.metrics.getNumStudentsPerDayLastWeek);
-  const numStudentsPerDayData = useQuery(api.metrics.getNumStudentsPerDay);
-  const numStudentsOverallData = useQuery(api.metrics.getNumStudentsOverall);
+  const courseId = useCourseId();
+  const numStudentsPerDayLastWeekData = useQuery(api.metrics.getNumStudentsPerDayLastWeek, { courseId });
+  const numStudentsPerDayData = useQuery(api.metrics.getNumStudentsPerDay, { courseId });
+  const numStudentsOverallData = useQuery(api.metrics.getNumStudentsOverall, { courseId });
 
   const numStudentsPerDayLastWeek = numStudentsPerDayLastWeekData
     ? numStudentsPerDayLastWeekData.numStudentsPerDayLastWeek

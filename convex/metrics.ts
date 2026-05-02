@@ -39,7 +39,7 @@ function formatMinutes(num: number): string {
  * Get list of students helped by the current TA
  */
 export const getHelpedStudents = query({
-  args: {},
+  args: { courseId: v.id('courses') },
   returns: v.object({
     helpedStudents: v.array(
       v.object({
@@ -51,9 +51,9 @@ export const getHelpedStudents = query({
       }),
     ),
   }),
-  handler: async (ctx) => {
-    const { ta } = await ensureAuthAndTA(ctx);
-    const curr_sem = await getCurrentSemester(ctx);
+  handler: async (ctx, args) => {
+    const { ta } = await ensureAuthAndTA(ctx, args.courseId);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
 
     const questions = await ctx.db
       .query('questions')
@@ -95,13 +95,13 @@ export const getHelpedStudents = query({
  * Get number of questions answered by the current TA
  */
 export const getNumQuestionsAnswered = query({
-  args: {},
+  args: { courseId: v.id('courses') },
   returns: v.object({
     numQuestions: v.number(),
   }),
-  handler: async (ctx) => {
-    const { ta } = await ensureAuthAndTA(ctx);
-    const curr_sem = await getCurrentSemester(ctx);
+  handler: async (ctx, args) => {
+    const { ta } = await ensureAuthAndTA(ctx, args.courseId);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
 
     const questions = await ctx.db
       .query('questions')
@@ -118,13 +118,13 @@ export const getNumQuestionsAnswered = query({
  * Get average time per question for the current TA
  */
 export const getAverageTimePerQuestion = query({
-  args: {},
+  args: { courseId: v.id('courses') },
   returns: v.object({
     averageTime: v.string(),
   }),
-  handler: async (ctx) => {
-    const { ta } = await ensureAuthAndTA(ctx);
-    const curr_sem = await getCurrentSemester(ctx);
+  handler: async (ctx, args) => {
+    const { ta } = await ensureAuthAndTA(ctx, args.courseId);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
 
     const questions = await ctx.db
       .query('questions')
@@ -148,14 +148,14 @@ export const getAverageTimePerQuestion = query({
  * Get number of questions answered today (for all TAs)
  */
 export const getNumQuestionsToday = query({
-  args: {},
+  args: { courseId: v.id('courses') },
   returns: v.object({
     numQuestionsToday: v.number(),
   }),
-  handler: async (ctx) => {
-    await ensureAuthAndTA(ctx);
-    const curr_sem = await getCurrentSemester(ctx);
-    const settings = await getGlobalSettings(ctx);
+  handler: async (ctx, args) => {
+    await ensureAuthAndTA(ctx, args.courseId);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
+    const settings = await getGlobalSettings(ctx, args.courseId);
     const timezone = settings.timezone;
 
     const { startMs, endMs } = getZoneDayBounds(Date.now(), timezone);
@@ -175,14 +175,14 @@ export const getNumQuestionsToday = query({
  * Get number of "bad" questions (asked to fix) today
  */
 export const getNumBadQuestionsToday = query({
-  args: {},
+  args: { courseId: v.id('courses') },
   returns: v.object({
     numBadQuestionsToday: v.number(),
   }),
-  handler: async (ctx) => {
-    await ensureAuthAndTA(ctx);
-    const curr_sem = await getCurrentSemester(ctx);
-    const settings = await getGlobalSettings(ctx);
+  handler: async (ctx, args) => {
+    await ensureAuthAndTA(ctx, args.courseId);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
+    const settings = await getGlobalSettings(ctx, args.courseId);
     const timezone = settings.timezone;
 
     const { startMs, endMs } = getZoneDayBounds(Date.now(), timezone);
@@ -209,14 +209,14 @@ export const getNumBadQuestionsToday = query({
  * Get average wait time for questions answered today
  */
 export const getAvgWaitTimeToday = query({
-  args: {},
+  args: { courseId: v.id('courses') },
   returns: v.object({
     avgWaitTime: v.string(),
   }),
-  handler: async (ctx) => {
-    await ensureAuthAndTA(ctx);
-    const curr_sem = await getCurrentSemester(ctx);
-    const settings = await getGlobalSettings(ctx);
+  handler: async (ctx, args) => {
+    await ensureAuthAndTA(ctx, args.courseId);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
+    const settings = await getGlobalSettings(ctx, args.courseId);
     const timezone = settings.timezone;
 
     const { startMs, endMs } = getZoneDayBounds(Date.now(), timezone);
@@ -249,14 +249,14 @@ export const getAvgWaitTimeToday = query({
  * Get TA:Student ratio today
  */
 export const getTaStudentRatioToday = query({
-  args: {},
+  args: { courseId: v.id('courses') },
   returns: v.object({
     taStudentRatio: v.string(),
   }),
-  handler: async (ctx) => {
-    await ensureAuthAndTA(ctx);
-    const curr_sem = await getCurrentSemester(ctx);
-    const settings = await getGlobalSettings(ctx);
+  handler: async (ctx, args) => {
+    await ensureAuthAndTA(ctx, args.courseId);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
+    const settings = await getGlobalSettings(ctx, args.courseId);
     const timezone = settings.timezone;
 
     const { startMs, endMs } = getZoneDayBounds(Date.now(), timezone);
@@ -286,13 +286,13 @@ export const getTaStudentRatioToday = query({
  * Get total number of questions answered in semester
  */
 export const getTotalNumQuestions = query({
-  args: {},
+  args: { courseId: v.id('courses') },
   returns: v.object({
     numQuestions: v.number(),
   }),
-  handler: async (ctx) => {
-    await ensureAuthAndTA(ctx);
-    const curr_sem = await getCurrentSemester(ctx);
+  handler: async (ctx, args) => {
+    await ensureAuthAndTA(ctx, args.courseId);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
 
     const questions = await ctx.db
       .query('questions')
@@ -309,13 +309,13 @@ export const getTotalNumQuestions = query({
  * Get total average time per question in semester
  */
 export const getTotalAvgTimePerQuestion = query({
-  args: {},
+  args: { courseId: v.id('courses') },
   returns: v.object({
     averageTime: v.string(),
   }),
-  handler: async (ctx) => {
-    await ensureAuthAndTA(ctx);
-    const curr_sem = await getCurrentSemester(ctx);
+  handler: async (ctx, args) => {
+    await ensureAuthAndTA(ctx, args.courseId);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
 
     const questions = await ctx.db
       .query('questions')
@@ -339,13 +339,13 @@ export const getTotalAvgTimePerQuestion = query({
  * Get total average wait time in semester
  */
 export const getTotalAvgWaitTime = query({
-  args: {},
+  args: { courseId: v.id('courses') },
   returns: v.object({
     totalAvgWaitTime: v.string(),
   }),
-  handler: async (ctx) => {
-    await ensureAuthAndTA(ctx);
-    const curr_sem = await getCurrentSemester(ctx);
+  handler: async (ctx, args) => {
+    await ensureAuthAndTA(ctx, args.courseId);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
 
     const questions = await ctx.db
       .query('questions')
@@ -370,14 +370,14 @@ export const getTotalAvgWaitTime = query({
  * Get number of students per day for the last week
  */
 export const getNumStudentsPerDayLastWeek = query({
-  args: {},
+  args: { courseId: v.id('courses') },
   returns: v.object({
     numStudentsPerDayLastWeek: v.array(dayCountValidator),
   }),
-  handler: async (ctx) => {
-    await ensureAuthAndTA(ctx);
-    const curr_sem = await getCurrentSemester(ctx);
-    const settings = await getGlobalSettings(ctx);
+  handler: async (ctx, args) => {
+    await ensureAuthAndTA(ctx, args.courseId);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
+    const settings = await getGlobalSettings(ctx, args.courseId);
     const timezone = settings.timezone;
 
     const sevenDaysAgoMs = Date.now() - 7 * 24 * 60 * 60 * 1000;
@@ -412,14 +412,14 @@ export const getNumStudentsPerDayLastWeek = query({
  * Get number of students per day of the week (overall)
  */
 export const getNumStudentsPerDay = query({
-  args: {},
+  args: { courseId: v.id('courses') },
   returns: v.object({
     numStudentsPerDay: v.array(dayCountValidator),
   }),
-  handler: async (ctx) => {
-    await ensureAuthAndTA(ctx);
-    const curr_sem = await getCurrentSemester(ctx);
-    const settings = await getGlobalSettings(ctx);
+  handler: async (ctx, args) => {
+    await ensureAuthAndTA(ctx, args.courseId);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
+    const settings = await getGlobalSettings(ctx, args.courseId);
     const timezone = settings.timezone;
 
     const questions = await ctx.db
@@ -452,14 +452,14 @@ export const getNumStudentsPerDay = query({
  * Get number of students per day overall
  */
 export const getNumStudentsOverall = query({
-  args: {},
+  args: { courseId: v.id('courses') },
   returns: v.object({
     numStudentsOverall: v.array(dayCountValidator),
   }),
-  handler: async (ctx) => {
-    await ensureAuthAndTA(ctx);
-    const curr_sem = await getCurrentSemester(ctx);
-    const settings = await getGlobalSettings(ctx);
+  handler: async (ctx, args) => {
+    await ensureAuthAndTA(ctx, args.courseId);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
+    const settings = await getGlobalSettings(ctx, args.courseId);
     const timezone = settings.timezone;
 
     const questions = await ctx.db
@@ -488,7 +488,7 @@ export const getNumStudentsOverall = query({
  * Get ranked students (Admin only)
  */
 export const getRankedStudents = query({
-  args: {},
+  args: { courseId: v.id('courses') },
   returns: v.object({
     rankedStudents: v.array(
       v.object({
@@ -501,9 +501,9 @@ export const getRankedStudents = query({
       }),
     ),
   }),
-  handler: async (ctx) => {
-    await ensureAuthAndAdmin(ctx);
-    const curr_sem = await getCurrentSemester(ctx);
+  handler: async (ctx, args) => {
+    await ensureAuthAndAdmin(ctx, args.courseId);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
 
     const questions = await ctx.db
       .query('questions')
@@ -561,7 +561,7 @@ export const getRankedStudents = query({
  * Get ranked TAs (Admin only)
  */
 export const getRankedTAs = query({
-  args: {},
+  args: { courseId: v.id('courses') },
   returns: v.object({
     rankedTAs: v.array(
       v.object({
@@ -573,9 +573,9 @@ export const getRankedTAs = query({
       }),
     ),
   }),
-  handler: async (ctx) => {
-    await ensureAuthAndAdmin(ctx);
-    const curr_sem = await getCurrentSemester(ctx);
+  handler: async (ctx, args) => {
+    await ensureAuthAndAdmin(ctx, args.courseId);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
 
     const questions = await ctx.db
       .query('questions')
@@ -632,6 +632,7 @@ export const getRankedTAs = query({
  */
 export const getStudentQuestionHistory = query({
   args: {
+    courseId: v.id('courses'),
     studentId: v.id('students'),
   },
   returns: v.union(
@@ -661,10 +662,18 @@ export const getStudentQuestionHistory = query({
     v.null(),
   ),
   handler: async (ctx, args) => {
-    await ensureAuthAndAdmin(ctx);
+    await ensureAuthAndAdmin(ctx, args.courseId);
 
     const student = await ctx.db.get(args.studentId);
     if (!student) {
+      return null;
+    }
+
+    // Tenant guard: confirm this student belongs to the current course's semester.
+    // Without this, a course-A admin could read history for a course-B student.
+    const student_sem_user = await ctx.db.get(student.semester_user_id);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
+    if (!student_sem_user || student_sem_user.semester_id !== curr_sem._id) {
       return null;
     }
 
@@ -742,6 +751,7 @@ export const getStudentQuestionHistory = query({
  */
 export const getTAQuestionHistory = query({
   args: {
+    courseId: v.id('courses'),
     taId: v.id('tas'),
   },
   returns: v.union(
@@ -770,11 +780,18 @@ export const getTAQuestionHistory = query({
     v.null(),
   ),
   handler: async (ctx, args) => {
-    await ensureAuthAndAdmin(ctx);
-    const curr_sem = await getCurrentSemester(ctx);
+    await ensureAuthAndAdmin(ctx, args.courseId);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
 
     const ta = await ctx.db.get(args.taId);
     if (!ta) {
+      return null;
+    }
+
+    // Tenant guard: confirm this TA belongs to the current course's semester.
+    // Without this, a course-A admin could read history for a course-B TA.
+    const ta_sem_user = await ctx.db.get(ta.semester_user_id);
+    if (!ta_sem_user || ta_sem_user.semester_id !== curr_sem._id) {
       return null;
     }
 

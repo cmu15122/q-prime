@@ -3,12 +3,14 @@ import { Button, Dialog, DialogContent, FormControl, Input, Link, Typography } f
 
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
+import { useCourseId } from '../../../contexts/CourseContext';
 
 export default function UpdateQuestionOverlay(props) {
   const { open, handleClose } = props;
+  const courseId = useCourseId();
 
-  const queueData = useQuery(api.home.home_get.getQueueData);
-  const userData = useQuery(api.home.home_get.getUserData);
+  const queueData = useQuery(api.home.home_get.getQueueData, { courseId });
+  const userData = useQuery(api.home.home_get.getUserData, { courseId });
   const studentData = userData?.student_data;
 
   const [tempQuestion, setTempQuestion] = useState('');
@@ -21,6 +23,7 @@ export default function UpdateQuestionOverlay(props) {
     setIsSubmitting(true);
 
     await updateQuestionMutation({
+      courseId,
       question: tempQuestion,
     }).finally(() => {
       handleClose();

@@ -18,6 +18,7 @@ import { DateTime } from 'luxon';
 
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
+import { useCourseId } from '../../contexts/CourseContext';
 
 interface HelpedStudent {
   student_email: string;
@@ -40,9 +41,10 @@ function createData(
 }
 
 export default function PersonalStats() {
-  const helpedStudentsData = useQuery(api.metrics.getHelpedStudents);
-  const averageTimeData = useQuery(api.metrics.getAverageTimePerQuestion);
-  const numQuestionsData = useQuery(api.metrics.getNumQuestionsAnswered);
+  const courseId = useCourseId();
+  const helpedStudentsData = useQuery(api.metrics.getHelpedStudents, { courseId });
+  const averageTimeData = useQuery(api.metrics.getAverageTimePerQuestion, { courseId });
+  const numQuestionsData = useQuery(api.metrics.getNumQuestionsAnswered, { courseId });
 
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);

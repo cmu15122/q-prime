@@ -25,12 +25,16 @@ import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { Id } from '../../convex/_generated/dataModel';
 import Navbar from '../components/navbar/Navbar';
+import { useCourseId, useCourseSlug } from '../contexts/CourseContext';
 
 /**
  * Error boundary that redirects to home on any error
  */
-class MetricsErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
-  constructor(props: { children: ReactNode }) {
+class MetricsErrorBoundary extends Component<
+  { children: ReactNode; slug: string },
+  { hasError: boolean }
+> {
+  constructor(props: { children: ReactNode; slug: string }) {
     super(props);
     this.state = { hasError: false };
   }
@@ -41,7 +45,7 @@ class MetricsErrorBoundary extends Component<{ children: ReactNode }, { hasError
 
   override render() {
     if (this.state.hasError) {
-      return <Navigate to="/" />;
+      return <Navigate to={`/${this.props.slug}`} />;
     }
     return this.props.children;
   }
@@ -54,7 +58,9 @@ class MetricsErrorBoundary extends Component<{ children: ReactNode }, { hasError
 function TAMetricsContent() {
   const theme = useTheme();
   const { id } = useParams<{ id: string }>();
-  const userData = useQuery(api.home.home_get.getUserData);
+  const courseId = useCourseId();
+  const slug = useCourseSlug();
+  const userData = useQuery(api.home.home_get.getUserData, { courseId });
 
   const isLoadingUserData = userData === undefined;
   const isAuthenticated = userData !== null && userData !== undefined;
@@ -64,7 +70,7 @@ function TAMetricsContent() {
   // Only query when we've confirmed the user is an admin
   const taHistory = useQuery(
     api.metrics.getTAQuestionHistory,
-    id && isAdmin ? { taId: id as Id<'tas'> } : 'skip',
+    id && isAdmin ? { courseId, taId: id as Id<'tas'> } : 'skip',
   );
 
   const [page, setPage] = useState(0);
@@ -91,7 +97,7 @@ function TAMetricsContent() {
 
   // Redirect if not authorized
   if (!isAuthenticated || !isAdmin) {
-    return <Navigate to="/" />;
+    return <Navigate to={`/${slug}`} />;
   }
 
   // Show loading while fetching TA data
@@ -101,7 +107,7 @@ function TAMetricsContent() {
 
   // Redirect if TA not found
   if (taHistory === null) {
-    return <Navigate to="/" />;
+    return <Navigate to={`/${slug}`} />;
   }
 
   return (
@@ -111,7 +117,7 @@ function TAMetricsContent() {
     >
       <Navbar isHome={false} />
       <div style={{ margin: 'auto', padding: '10px', width: '90%' }}>
-        <Button component={Link} to="/metrics" startIcon={<ArrowBackIcon />} sx={{ mt: 2, mb: 1 }}>
+        <Button component={Link} to={`/${slug}/metrics`} startIcon={<ArrowBackIcon />} sx={{ mt: 2, mb: 1 }}>
           Back to Metrics
         </Button>
 
@@ -188,7 +194,7 @@ function TAMetricsContent() {
                       <TableCell sx={{ wordBreak: 'break-word' }}>
                         <MuiLink
                           component={Link}
-                          to={`/metrics/student/${row.student_id}`}
+                          to={`/${slug}/metrics/student/${row.student_id}`}
                           sx={{
                             textDecoration: 'none',
                             '&:hover': { textDecoration: 'underline' },
@@ -200,7 +206,7 @@ function TAMetricsContent() {
                       <TableCell sx={{ wordBreak: 'break-word' }}>
                         <MuiLink
                           component={Link}
-                          to={`/metrics/student/${row.student_id}`}
+                          to={`/${slug}/metrics/student/${row.student_id}`}
                           sx={{
                             textDecoration: 'none',
                             '&:hover': { textDecoration: 'underline' },
@@ -236,8 +242,9 @@ function TAMetricsContent() {
 }
 
 function TAMetrics() {
+  const slug = useCourseSlug();
   return (
-    <MetricsErrorBoundary>
+    <MetricsErrorBoundary slug={slug}>
       <TAMetricsContent />
     </MetricsErrorBoundary>
   );

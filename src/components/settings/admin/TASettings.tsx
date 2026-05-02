@@ -24,9 +24,11 @@ import download from 'downloadjs';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import { useAuthToken } from '@convex-dev/auth/react';
+import { useCourseId } from '../../../contexts/CourseContext';
 
 export default function TASettings() {
-  const tas = useQuery(api.settings.settings_get.getAllTAs) ?? [];
+  const courseId = useCourseId();
+  const tas = useQuery(api.settings.settings_get.getAllTAs, { courseId }) ?? [];
 
   const theme = useTheme();
 
@@ -43,7 +45,7 @@ export default function TASettings() {
       // For local dev, use the same URL. For production, replace .cloud with .site
       const httpActionUrl = import.meta.env.VITE_APP_CONVEX_SITE_URL;
 
-      const response = await fetch(`${httpActionUrl}/download_tas_csv`, {
+      const response = await fetch(`${httpActionUrl}/download_tas_csv?courseId=${courseId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -119,6 +121,7 @@ export default function TASettings() {
   const handleAdd = async (event) => {
     event.preventDefault();
     await createTAMutation({
+      courseId,
       name: name,
       email: email,
       isAdmin: isAdmin,
@@ -130,6 +133,7 @@ export default function TASettings() {
   const handleEdit = async (event) => {
     event.preventDefault();
     await updateTAMutation({
+      courseId,
       email: tas![selectedRowIdx!].email,
       isAdmin: isAdmin,
     });
@@ -139,6 +143,7 @@ export default function TASettings() {
   const deleteTAMutation = useMutation(api.settings.settings_mutate.deleteTA);
   const handleDelete = async () => {
     await deleteTAMutation({
+      courseId,
       email: tas![selectedRowIdx!].email,
     });
     handleClose();
@@ -155,7 +160,7 @@ export default function TASettings() {
       // For local dev, use the same URL. For production, replace .cloud with .site
       const httpActionUrl = import.meta.env.VITE_APP_CONVEX_SITE_URL;
 
-      const response = await fetch(`${httpActionUrl}/upload_tas_csv`, {
+      const response = await fetch(`${httpActionUrl}/upload_tas_csv?courseId=${courseId}`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,

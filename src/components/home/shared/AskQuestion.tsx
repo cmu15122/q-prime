@@ -20,10 +20,12 @@ import BaseCard from '../../common/cards/BaseCard';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import { Id } from '../../../../convex/_generated/dataModel';
+import { useCourseId } from '../../../contexts/CourseContext';
 
 export default function AskQuestion() {
-  const queueData = useQuery(api.home.home_get.getQueueData);
-  const userData = useQuery(api.home.home_get.getUserData);
+  const courseId = useCourseId();
+  const queueData = useQuery(api.home.home_get.getQueueData, { courseId });
+  const userData = useQuery(api.home.home_get.getUserData, { courseId });
 
   const currAssignments = queueData?.current_assignments || [];
 
@@ -78,6 +80,7 @@ export default function AskQuestion() {
   const addQuestionMutation = useMutation(api.home.home_mutate.addQuestion);
   async function callAddQuestionAPI() {
     const result = await addQuestionMutation({
+      courseId,
       question: question,
       location: location,
       assignment_id: assignmentId!,

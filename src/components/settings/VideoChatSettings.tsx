@@ -15,9 +15,11 @@ import BaseCard from '../common/cards/BaseCard';
 
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
+import { useCourseId } from '../../contexts/CourseContext';
 
 export default function VideoChatSettings() {
-  const userData = useQuery(api.home.home_get.getUserData);
+  const courseId = useCourseId();
+  const userData = useQuery(api.home.home_get.getUserData, { courseId });
   const videoChatEnabled = userData?.ta_data?.zoom_enabled ?? false;
 
   const [videoChatURL, setVideoChatURL] = useState('');
@@ -25,6 +27,7 @@ export default function VideoChatSettings() {
   const updateVideoChatMutation = useMutation(api.settings.settings_mutate.updateVideoChat);
   const updateVideoChatEnabled = async (chatEnabled) => {
     await updateVideoChatMutation({
+      courseId,
       enabled: chatEnabled,
       url: userData!.ta_data!.zoom_url ?? '',
     });
@@ -34,6 +37,7 @@ export default function VideoChatSettings() {
     event.preventDefault();
 
     await updateVideoChatMutation({
+      courseId,
       enabled: videoChatEnabled,
       url: videoChatURL,
     });

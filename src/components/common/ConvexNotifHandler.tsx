@@ -1,6 +1,7 @@
 import { useQuery } from 'convex/react';
 import { useEffect, useRef, useState } from 'react';
 import { api } from '../../../convex/_generated/api';
+import { useCourseId } from '../../contexts/CourseContext';
 
 // Register service worker for notifications
 async function registerServiceWorker(): Promise<ServiceWorkerRegistration | null> {
@@ -27,7 +28,8 @@ async function showNotification(title: string, options: NotificationOptions): Pr
 }
 
 export default function ConvexNotifHandler() {
-  const userData = useQuery(api.home.home_get.getUserData);
+  const courseId = useCourseId();
+  const userData = useQuery(api.home.home_get.getUserData, { courseId });
   const [oldNotifTimestamp, setOldNotifTimestamp] = useState<number | null>(null);
   const swRegistered = useRef(false);
 

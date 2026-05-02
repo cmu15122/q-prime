@@ -17,10 +17,13 @@ import { Link } from 'react-router-dom';
 
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
+import { useCourseId, useCourseSlug } from '../../contexts/CourseContext';
 
 export default function AdminMetrics() {
-  const rankedStudentsData = useQuery(api.metrics.getRankedStudents);
-  const rankedTAsData = useQuery(api.metrics.getRankedTAs);
+  const courseId = useCourseId();
+  const slug = useCourseSlug();
+  const rankedStudentsData = useQuery(api.metrics.getRankedStudents, { courseId });
+  const rankedTAsData = useQuery(api.metrics.getRankedTAs, { courseId });
 
   const [studentPage, setStudentPage] = useState(0);
   const [rowsPerStudentPage, setRowsPerStudentPage] = useState(10);
@@ -130,7 +133,7 @@ export default function AdminMetrics() {
                                 {isClickable ? (
                                   <MuiLink
                                     component={Link}
-                                    to={`/metrics/student/${row.student_id}`}
+                                    to={`/${slug}/metrics/student/${row.student_id}`}
                                     sx={{
                                       textDecoration: 'none',
                                       '&:hover': { textDecoration: 'underline' },
@@ -192,7 +195,7 @@ export default function AdminMetrics() {
                                 {isClickable ? (
                                   <MuiLink
                                     component={Link}
-                                    to={`/metrics/ta/${row.ta_id}`}
+                                    to={`/${slug}/metrics/ta/${row.ta_id}`}
                                     sx={{
                                       textDecoration: 'none',
                                       '&:hover': { textDecoration: 'underline' },

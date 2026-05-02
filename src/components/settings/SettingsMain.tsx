@@ -8,9 +8,11 @@ import TimerSettings from './TimerSettings';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import OwnerSettings from './OwnerSettings';
+import { useCourseId } from '../../contexts/CourseContext';
 
 function Main() {
-  const userData = useQuery(api.home.home_get.getUserData);
+  const courseId = useCourseId();
+  const userData = useQuery(api.home.home_get.getUserData, { courseId });
   const isLoadingUserData = userData === undefined;
   const isAuthenticated = userData !== null && userData !== undefined;
 

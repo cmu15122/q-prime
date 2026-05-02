@@ -25,10 +25,12 @@ import ItemRow from '../../common/table/ItemRow';
 
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
+import { useCourseId } from '../../../contexts/CourseContext';
 
 export default function Announcements() {
-  const queueData = useQuery(api.home.home_get.getQueueData);
-  const userData = useQuery(api.home.home_get.getUserData);
+  const courseId = useCourseId();
+  const queueData = useQuery(api.home.home_get.getQueueData, { courseId });
+  const userData = useQuery(api.home.home_get.getUserData, { courseId });
   const isTA = userData && userData.user_kind === 'TA';
   const rows = queueData?.announcements || [];
 
@@ -68,6 +70,7 @@ export default function Announcements() {
   const handleAdd = async (event) => {
     event.preventDefault();
     await createAnnouncementMutation({
+      courseId,
       content: content,
     }).then(() => {
       handleClose();
@@ -77,6 +80,7 @@ export default function Announcements() {
   const handleEdit = async (event) => {
     event.preventDefault();
     await updateAnnouncementMutation({
+      courseId,
       idx: selectedIdx!,
       content: content,
     }).then(() => {
@@ -87,6 +91,7 @@ export default function Announcements() {
   const handleDelete = async (event) => {
     event.preventDefault();
     await deleteAnnouncementMutation({
+      courseId,
       idx: selectedIdx!,
     }).then(() => {
       handleClose();

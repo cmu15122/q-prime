@@ -26,12 +26,16 @@ import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { Id } from '../../convex/_generated/dataModel';
 import Navbar from '../components/navbar/Navbar';
+import { useCourseId, useCourseSlug } from '../contexts/CourseContext';
 
 /**
  * Error boundary that redirects to home on any error
  */
-class MetricsErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
-  constructor(props: { children: ReactNode }) {
+class MetricsErrorBoundary extends Component<
+  { children: ReactNode; slug: string },
+  { hasError: boolean }
+> {
+  constructor(props: { children: ReactNode; slug: string }) {
     super(props);
     this.state = { hasError: false };
   }
@@ -42,7 +46,7 @@ class MetricsErrorBoundary extends Component<{ children: ReactNode }, { hasError
 
   override render() {
     if (this.state.hasError) {
-      return <Navigate to="/" />;
+      return <Navigate to={`/${this.props.slug}`} />;
     }
     return this.props.children;
   }
@@ -55,7 +59,9 @@ class MetricsErrorBoundary extends Component<{ children: ReactNode }, { hasError
 function StudentMetricsContent() {
   const theme = useTheme();
   const { id } = useParams<{ id: string }>();
-  const userData = useQuery(api.home.home_get.getUserData);
+  const courseId = useCourseId();
+  const slug = useCourseSlug();
+  const userData = useQuery(api.home.home_get.getUserData, { courseId });
 
   const isLoadingUserData = userData === undefined;
   const isAuthenticated = userData !== null && userData !== undefined;
@@ -65,7 +71,7 @@ function StudentMetricsContent() {
   // Only query when we've confirmed the user is an admin
   const studentHistory = useQuery(
     api.metrics.getStudentQuestionHistory,
-    id && isAdmin ? { studentId: id as Id<'students'> } : 'skip',
+    id && isAdmin ? { courseId, studentId: id as Id<'students'> } : 'skip',
   );
 
   const [page, setPage] = useState(0);
@@ -92,7 +98,7 @@ function StudentMetricsContent() {
 
   // Redirect if not authorized
   if (!isAuthenticated || !isAdmin) {
-    return <Navigate to="/" />;
+    return <Navigate to={`/${slug}`} />;
   }
 
   // Show loading while fetching student data
@@ -102,7 +108,7 @@ function StudentMetricsContent() {
 
   // Redirect if student not found
   if (studentHistory === null) {
-    return <Navigate to="/" />;
+    return <Navigate to={`/${slug}`} />;
   }
 
   return (
@@ -112,7 +118,12 @@ function StudentMetricsContent() {
     >
       <Navbar isHome={false} />
       <div style={{ margin: 'auto', padding: '10px', width: '90%' }}>
-        <Button component={Link} to="/metrics" startIcon={<ArrowBackIcon />} sx={{ mt: 2, mb: 1 }}>
+        <Button
+          component={Link}
+          to={`/${slug}/metrics`}
+          startIcon={<ArrowBackIcon />}
+          sx={{ mt: 2, mb: 1 }}
+        >
           Back to Metrics
         </Button>
 
@@ -211,7 +222,7 @@ function StudentMetricsContent() {
                         {row.ta_id ? (
                           <MuiLink
                             component={Link}
-                            to={`/metrics/ta/${row.ta_id}`}
+                            to={`/${slug}/metrics/ta/${row.ta_id}`}
                             sx={{
                               textDecoration: 'none',
                               '&:hover': { textDecoration: 'underline' },
@@ -244,8 +255,9 @@ function StudentMetricsContent() {
 }
 
 function StudentMetrics() {
+  const slug = useCourseSlug();
   return (
-    <MetricsErrorBoundary>
+    <MetricsErrorBoundary slug={slug}>
       <StudentMetricsContent />
     </MetricsErrorBoundary>
   );

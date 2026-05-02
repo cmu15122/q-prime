@@ -5,9 +5,11 @@ import BaseCard from '../../common/cards/BaseCard';
 
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
+import { useCourseId } from '../../../contexts/CourseContext';
 
 export default function QueueRejoinSettings() {
-  const queueData = useQuery(api.home.home_get.getQueueData);
+  const courseId = useCourseId();
+  const queueData = useQuery(api.home.home_get.getQueueData, { courseId });
 
   const [rejoinTime, setRejoinTime] = useState(15);
 
@@ -21,6 +23,7 @@ export default function QueueRejoinSettings() {
   const onSubmit = async (event) => {
     event.preventDefault();
     await updateRejoinTimeMutation({
+      courseId,
       rejoinTime: rejoinTime,
     });
   };

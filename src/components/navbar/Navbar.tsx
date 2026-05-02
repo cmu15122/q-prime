@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { styled, useTheme } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom';
 
 import OHQueueHeader from './OHQueueHeader';
 import ChangeNameBtn from './ChangeNameBtn';
@@ -24,6 +25,7 @@ import { NotificationsActive } from '@mui/icons-material';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import { useAuthActions } from '@convex-dev/auth/react';
+import { useCourseId, useCourseSlug } from '../../contexts/CourseContext';
 
 function createPage(page, link) {
   return { page, link };
@@ -39,9 +41,12 @@ const NavbarButton = styled(Button)(({ theme }) => ({
 export default function Navbar(props: { isHome: boolean }) {
   const { isHome } = props;
   const theme = useTheme();
+  const courseId = useCourseId();
+  const slug = useCourseSlug();
+  const navigate = useNavigate();
 
-  const queueData = useQuery(api.home.home_get.getQueueData);
-  const userData = useQuery(api.home.home_get.getUserData);
+  const queueData = useQuery(api.home.home_get.getQueueData, { courseId });
+  const userData = useQuery(api.home.home_get.getUserData, { courseId });
   const isAuthenticated = userData !== null && userData !== undefined;
   const isTA = isAuthenticated && userData.user_kind === 'TA';
   const isOwner = isAuthenticated && userData.is_owner;
@@ -64,8 +69,8 @@ export default function Navbar(props: { isHome: boolean }) {
     setAnchorElNav(null);
   };
 
-  const goToPage = (pageLink) => () => {
-    window.location.href = pageLink;
+  const goToPage = (pageLink: string) => () => {
+    navigate(`/${slug}/${pageLink}`);
   };
 
   useEffect(() => {
@@ -87,7 +92,7 @@ export default function Navbar(props: { isHome: boolean }) {
 
   function handleLogout() {
     signOut();
-    window.location.href = '';
+    navigate(`/${slug}`);
   }
 
   function openAlert() {
@@ -104,12 +109,12 @@ export default function Navbar(props: { isHome: boolean }) {
 
   const freezeQueueMutation = useMutation(api.home.home_mutate.freezeQueue);
   const freezeQueue = async () => {
-    await freezeQueueMutation();
+    await freezeQueueMutation({ courseId });
   };
 
   const unfreezeQueueMutation = useMutation(api.home.home_mutate.unfreezeQueue);
   const unfreezeQueue = async () => {
-    await unfreezeQueueMutation();
+    await unfreezeQueueMutation({ courseId });
   };
 
   const defaultNotificationPermission =
@@ -280,7 +285,7 @@ export default function Navbar(props: { isHome: boolean }) {
 
         <Box sx={{ flexGrow: 0, display: 'flex', alignItems: 'center' }}>
           {pages?.map((page) => (
-            <NavbarButton key={page.page} href={page.link}>
+            <NavbarButton key={page.page} onClick={goToPage(page.link)}>
               {page.page}
             </NavbarButton>
           ))}

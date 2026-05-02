@@ -4,11 +4,13 @@ import BaseCard from '../../common/cards/BaseCard';
 
 import { useQuery } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
+import { useCourseId } from '../../../contexts/CourseContext';
 
 export default function QueueStats() {
   const theme = useTheme();
+  const courseId = useCourseId();
 
-  const queueData = useQuery(api.home.home_get.getQueueData);
+  const queueData = useQuery(api.home.home_get.getQueueData, { courseId });
 
   return (
     <BaseCard>

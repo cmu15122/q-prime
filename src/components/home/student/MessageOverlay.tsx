@@ -2,6 +2,7 @@ import { Button, Dialog, DialogContent, Stack, TextField, Typography } from '@mu
 
 import { useQuery } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
+import { useCourseId } from '../../../contexts/CourseContext';
 
 export default function MessageOverlay(props) {
   const { open, handleClose, removeFromQueue, dismissMessage } = props;
@@ -9,8 +10,9 @@ export default function MessageOverlay(props) {
     removeFromQueue();
     handleClose();
   };
+  const courseId = useCourseId();
 
-  const userData = useQuery(api.home.home_get.getUserData);
+  const userData = useQuery(api.home.home_get.getUserData, { courseId });
   const studentData = userData?.student_data;
 
   const lastMessage = studentData?.messages_from_tas[studentData.messages_from_tas.length - 1];

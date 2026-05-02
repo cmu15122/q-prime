@@ -7,6 +7,7 @@ import { Navigate } from 'react-router-dom';
 
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
+import { useCourseId, useCourseSlug } from '../contexts/CourseContext';
 
 /**
  * Metrics page, only accessible to TAs
@@ -14,7 +15,9 @@ import { api } from '../../convex/_generated/api';
  */
 function Metrics() {
   const theme = useTheme();
-  const userData = useQuery(api.home.home_get.getUserData);
+  const courseId = useCourseId();
+  const slug = useCourseSlug();
+  const userData = useQuery(api.home.home_get.getUserData, { courseId });
 
   const isLoadingUserData = userData === undefined;
   const isAuthenticated = userData !== null && userData !== undefined;
@@ -28,7 +31,7 @@ function Metrics() {
       <MetricsMain />
     </div>
   ) : (
-    <Navigate to={{ pathname: '/' }} />
+    <Navigate to={`/${slug}`} />
   );
 }
 

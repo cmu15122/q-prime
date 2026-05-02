@@ -9,6 +9,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
+import { useCourseId } from '../../../contexts/CourseContext';
 
 const Filter = ({ filteredLocations, filteredTopics, setFilteredLocations, setFilteredTopics }) => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -56,8 +57,9 @@ const Filter = ({ filteredLocations, filteredTopics, setFilteredLocations, setFi
 };
 
 export default function StudentEntries() {
-  const userData = useQuery(api.home.home_get.getUserData);
-  const allStudents = useQuery(api.home.home_get.getAllStudents);
+  const courseId = useCourseId();
+  const userData = useQuery(api.home.home_get.getUserData, { courseId });
+  const allStudents = useQuery(api.home.home_get.getAllStudents, { courseId });
 
   // Add a current time state that will be passed to all StudentStatus components
   const [currentTime, setCurrentTime] = useState(Date.now());
@@ -142,6 +144,7 @@ export default function StudentEntries() {
     setTempDisabled(true);
 
     await helpStudentMutation({
+      courseId,
       student_id: filteredStudents[index].student_id,
     }).finally(() => {
       setTempDisabled(false);
@@ -152,6 +155,7 @@ export default function StudentEntries() {
     setTempDisabled(true);
 
     await unhelpStudentMutation({
+      courseId,
       student_id: filteredStudents[index].student_id,
     }).finally(() => {
       setTempDisabled(false);
@@ -162,6 +166,7 @@ export default function StudentEntries() {
     setTempDisabled(true);
 
     await askToFixQuestionMutation({
+      courseId,
       student_id: filteredStudents[index].student_id,
     }).finally(() => {
       setTempDisabled(false);
@@ -173,6 +178,7 @@ export default function StudentEntries() {
     setTempDisabled(true);
 
     await removeStudentMutation({
+      courseId,
       student_id: filteredStudents[index].student_id,
       reason: doneHelping ? 'helped' : 'removed',
     }).finally(() => {

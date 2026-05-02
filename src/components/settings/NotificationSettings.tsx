@@ -12,9 +12,11 @@ import BaseCard from '../common/cards/BaseCard';
 
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
+import { useCourseId } from '../../contexts/CourseContext';
 
 export default function NotificationSettings() {
-  const userData = useQuery(api.home.home_get.getUserData);
+  const courseId = useCourseId();
+  const userData = useQuery(api.home.home_get.getUserData, { courseId });
 
   const [joinNotifsEnabled, setJoinNotifsEnabled] = useState(false);
   const [remindNotifsEnabled, setRemindNotifsEnabled] = useState(false);
@@ -32,6 +34,7 @@ export default function NotificationSettings() {
 
   const updateNotifSettings = async (joinEnabled, remindEnabled, time) => {
     await updateNotifSettingsMutation({
+      courseId,
       joinEnabled: joinEnabled,
       remindEnabled: remindEnabled,
       remindTime: time,

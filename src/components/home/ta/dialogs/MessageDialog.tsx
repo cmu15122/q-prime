@@ -4,10 +4,12 @@ import { Box, Button, Dialog, DialogContent, Typography, TextField } from '@mui/
 import { Doc } from '../../../../../convex/_generated/dataModel';
 import { useMutation } from 'convex/react';
 import { api } from '../../../../../convex/_generated/api';
+import { useCourseId } from '../../../../contexts/CourseContext';
 
 export default function MessageDialog(props) {
   const { isOpen, onClose } = props;
   const student: Doc<'ohq'> = props['student'];
+  const courseId = useCourseId();
 
   const [message, setMessage] = useState('');
 
@@ -16,6 +18,7 @@ export default function MessageDialog(props) {
     event.preventDefault();
 
     await messageStudentMutation({
+      courseId,
       message: message,
       student_id: student.student_id,
     }).then(() => {

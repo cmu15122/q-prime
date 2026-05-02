@@ -18,9 +18,11 @@ import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import { useAuthToken } from '@convex-dev/auth/react';
 import { Doc } from '../../../../convex/_generated/dataModel';
+import { useCourseId } from '../../../contexts/CourseContext';
 
 export default function QueueTopicSettings() {
-  const currAssignments = useQuery(api.home.home_get.getAllAssignments);
+  const courseId = useCourseId();
+  const currAssignments = useQuery(api.home.home_get.getAllAssignments, { courseId });
   let assignmentsToList = currAssignments ? [...currAssignments.all_assignments] : [];
   assignmentsToList = assignmentsToList.filter(
     (assignment) => assignment._id !== currAssignments?.other_assignment_id,
@@ -42,7 +44,7 @@ export default function QueueTopicSettings() {
       // For local dev, use the same URL. For production, replace .cloud with .site
       const httpActionUrl = import.meta.env.VITE_APP_CONVEX_SITE_URL;
 
-      const response = await fetch(`${httpActionUrl}/download_assignment_csv`, {
+      const response = await fetch(`${httpActionUrl}/download_assignment_csv?courseId=${courseId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -127,6 +129,7 @@ export default function QueueTopicSettings() {
     event.preventDefault();
 
     await createAssignmentMutation({
+      courseId,
       name: name,
       assignment_type: category,
       start_date_ms: startDate.toMillis(),
@@ -145,6 +148,7 @@ export default function QueueTopicSettings() {
     }
 
     await updateAssignmentMutation({
+      courseId,
       assignment_id: selectedRow._id,
       name: name,
       assignment_type: category,
@@ -163,6 +167,7 @@ export default function QueueTopicSettings() {
     }
 
     await deleteAssignmentMutation({
+      courseId,
       assignment_id: selectedRow._id,
     });
 
@@ -180,7 +185,7 @@ export default function QueueTopicSettings() {
       // For local dev, use the same URL. For production, replace .cloud with .site
       const httpActionUrl = import.meta.env.VITE_APP_CONVEX_SITE_URL;
 
-      const response = await fetch(`${httpActionUrl}/upload_assignment_csv`, {
+      const response = await fetch(`${httpActionUrl}/upload_assignment_csv?courseId=${courseId}`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,

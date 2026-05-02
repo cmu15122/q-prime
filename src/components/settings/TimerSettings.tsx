@@ -5,10 +5,12 @@ import BaseCard from '../common/cards/BaseCard';
 
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
+import { useCourseId } from '../../contexts/CourseContext';
 
 export default function TimerSettings() {
-  const queueData = useQuery(api.home.home_get.getQueueData);
-  const userData = useQuery(api.home.home_get.getUserData);
+  const courseId = useCourseId();
+  const queueData = useQuery(api.home.home_get.getQueueData, { courseId });
+  const userData = useQuery(api.home.home_get.getUserData, { courseId });
 
   const [showSelfTimer, setShowSelfTimer] = useState(false);
   const [showOthersTimer, setShowOthersTimer] = useState(false);
@@ -23,6 +25,7 @@ export default function TimerSettings() {
   const updateTimerSettingsMutation = useMutation(api.settings.settings_mutate.updateTimerSettings);
   const updateTimerSettings = async (selfTimer, othersTimer) => {
     await updateTimerSettingsMutation({
+      courseId,
       showSelfTimer: selfTimer,
       showOthersTimer: othersTimer,
     });

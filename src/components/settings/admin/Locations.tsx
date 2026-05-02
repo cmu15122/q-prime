@@ -13,9 +13,11 @@ import ItemRow from '../../common/table/ItemRow';
 
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
+import { useCourseId } from '../../../contexts/CourseContext';
 
 export default function Locations() {
-  const locationData = useQuery(api.settings.settings_get.getLocations);
+  const courseId = useCourseId();
+  const locationData = useQuery(api.settings.settings_get.getLocations, { courseId });
 
   const dayDictionary = locationData?.dayDictionary || {};
   const roomDictionary = locationData?.roomDictionary || {};
@@ -42,6 +44,7 @@ export default function Locations() {
   const handleCreate = async (event) => {
     event.preventDefault();
     await addLocationMutation({
+      courseId,
       room: room,
     });
 

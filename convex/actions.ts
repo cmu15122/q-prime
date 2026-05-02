@@ -16,10 +16,13 @@ export const parseCsvNode = internalAction({
 
 export const sendSlackbotMessage = internalAction({
   args: {
+    courseId: v.id('courses'),
     message: v.string(),
   },
   handler: async (ctx, args) => {
-    const globalSettings = await ctx.runQuery(internal.common.internalGetGlobalSettings);
+    const globalSettings = await ctx.runQuery(internal.common.internalGetGlobalSettings, {
+      courseId: args.courseId,
+    });
 
     if (!globalSettings.slackbot_webhook_url) {
       throw new ConvexError('Slackbot webhook URL not found');

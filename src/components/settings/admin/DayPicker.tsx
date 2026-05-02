@@ -5,8 +5,10 @@ import { Delete as DeleteIcon } from '@mui/icons-material';
 
 import { useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
+import { useCourseId } from '../../../contexts/CourseContext';
 
 export default function DayPicker(props) {
+  const courseId = useCourseId();
   const { convertIdxToDays, daysOfWeek, room, roomDictionary } = props;
   const [newDays, setNewDays] = useState(convertIdxToDays(roomDictionary[room]));
 
@@ -27,6 +29,7 @@ export default function DayPicker(props) {
     }
 
     await updateLocationsMutation({
+      courseId,
       room: room,
       days: newArr,
       daysOfWeek: daysOfWeekDict,
@@ -36,6 +39,7 @@ export default function DayPicker(props) {
   const removeLocationMutation = useMutation(api.settings.settings_mutate.removeLocation);
   const handleRemove = async () => {
     await removeLocationMutation({
+      courseId,
       room: room,
       days: roomDictionary[room],
     });

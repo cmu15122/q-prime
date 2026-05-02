@@ -7,9 +7,11 @@ import Graph from './Graph';
 import AdminMetrics from './AdminMetrics';
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
+import { useCourseId } from '../../contexts/CourseContext';
 
 export default function MetricsMain() {
-  const userData = useQuery(api.home.home_get.getUserData);
+  const courseId = useCourseId();
+  const userData = useQuery(api.home.home_get.getUserData, { courseId });
   const isAdmin = userData?.ta_data?.is_admin ?? false;
 
   return (

@@ -4,6 +4,7 @@ import { internal } from '../_generated/api';
 import {
   ensureAuthAndStudent,
   ensureAuthAndTA,
+  getAssignmentInCourse,
   getCurrentSemester,
   getCurrentUser,
   getGlobalSettings,
@@ -17,15 +18,16 @@ import {
 import { Doc, Id } from '../_generated/dataModel';
 import { getAuthUserId } from '@convex-dev/auth/server';
 
-export const checkNewSemesterUser = mutation({
-  args: {},
+export const enrollInCourse = mutation({
+  args: { courseId: v.id('courses') },
   returns: v.boolean(),
   handler: async (ctx, args) => {
     const user_id = await getAuthUserId(ctx);
 
     if (user_id) {
-      await ctx.runMutation(internal.common.internalNewSemesterUser, {
+      await ctx.runMutation(internal.common.internalEnrollInCourse, {
         user_id: user_id,
+        courseId: args.courseId,
       });
     }
 
@@ -34,12 +36,12 @@ export const checkNewSemesterUser = mutation({
 });
 
 export const freezeQueue = mutation({
-  args: {},
+  args: { courseId: v.id('courses') },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndTA(ctx);
+    await ensureAuthAndTA(ctx, args.courseId);
 
-    const globalSettings = await getGlobalSettings(ctx);
+    const globalSettings = await getGlobalSettings(ctx, args.courseId);
 
     await ctx.db.patch(globalSettings._id, {
       is_frozen: true,
@@ -48,12 +50,12 @@ export const freezeQueue = mutation({
 });
 
 export const unfreezeQueue = mutation({
-  args: {},
+  args: { courseId: v.id('courses') },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndTA(ctx);
+    await ensureAuthAndTA(ctx, args.courseId);
 
-    const globalSettings = await getGlobalSettings(ctx);
+    const globalSettings = await getGlobalSettings(ctx, args.courseId);
 
     await ctx.db.patch(globalSettings._id, {
       is_frozen: false,
@@ -63,13 +65,14 @@ export const unfreezeQueue = mutation({
 
 export const createAnnouncement = mutation({
   args: {
+    courseId: v.id('courses'),
     content: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndTA(ctx);
+    await ensureAuthAndTA(ctx, args.courseId);
 
-    const globalSettings = await getGlobalSettings(ctx);
+    const globalSettings = await getGlobalSettings(ctx, args.courseId);
 
     await ctx.db.patch(globalSettings._id, {
       announcements: [...globalSettings.announcements, args.content],
@@ -79,14 +82,15 @@ export const createAnnouncement = mutation({
 
 export const updateAnnouncement = mutation({
   args: {
+    courseId: v.id('courses'),
     idx: v.number(),
     content: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndTA(ctx);
+    await ensureAuthAndTA(ctx, args.courseId);
 
-    const globalSettings = await getGlobalSettings(ctx);
+    const globalSettings = await getGlobalSettings(ctx, args.courseId);
 
     if (args.idx < 0 || args.idx >= globalSettings.announcements.length) {
       throw new ConvexError('Invalid announcement index');
@@ -103,13 +107,14 @@ export const updateAnnouncement = mutation({
 
 export const deleteAnnouncement = mutation({
   args: {
+    courseId: v.id('courses'),
     idx: v.number(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndTA(ctx);
+    await ensureAuthAndTA(ctx, args.courseId);
 
-    const globalSettings = await getGlobalSettings(ctx);
+    const globalSettings = await getGlobalSettings(ctx, args.courseId);
 
     if (args.idx < 0 || args.idx >= globalSettings.announcements.length) {
       throw new ConvexError('Invalid announcement index');
@@ -126,6 +131,7 @@ export const deleteAnnouncement = mutation({
 
 export const addQuestion = mutation({
   args: {
+    courseId: v.id('courses'),
     question: v.string(),
     location: v.string(),
     assignment_id: v.id('assignments'),
@@ -142,8 +148,11 @@ export const addQuestion = mutation({
     ),
   }),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
-    const curr_sem = await getCurrentSemester(ctx);
+    const user_data = await getCurrentUser(ctx, args.courseId);
+    if (!user_data) {
+      throw new ConvexError('User not authenticated for this course');
+    }
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
 
     // Handle TA created questions
     if (user_data.kind === 'TA') {
@@ -168,6 +177,7 @@ export const addQuestion = mutation({
 
         await ctx.runMutation(internal.common.createStudentFromUser, {
           userId: newUser,
+          courseId: args.courseId,
         });
 
         student = await ctx.db
@@ -232,7 +242,7 @@ export const addQuestion = mutation({
 
       // enqueue student
 
-      const existing_entry = await getQueueEntry(ctx, student._id);
+      const existing_entry = await getQueueEntry(ctx, args.courseId, student._id);
 
       if (existing_entry) {
         throw new ConvexError('Student already on the queue');
@@ -241,10 +251,12 @@ export const addQuestion = mutation({
       const user = (await ctx.db.get(student.user_id))!;
       const prefs = (await ctx.db.get(student.user_prefs_id))!;
 
-      const queue_length = await getQueueLength(ctx);
-      const assignment_name = (await ctx.db.get(args.assignment_id))!.name;
+      const queue_length = await getQueueLength(ctx, args.courseId);
+      const assignment_name = (await getAssignmentInCourse(ctx, args.courseId, args.assignment_id))
+        .name;
 
       await ctx.db.insert('ohq', {
+        semester_id: curr_sem._id,
         student_id: student._id,
         student_name: prefs.preferred_name,
         student_email: user.email || '',
@@ -261,11 +273,11 @@ export const addQuestion = mutation({
         has_unread_messages: false,
       });
 
-      await sendQueueJoinNotifs(ctx, prefs.preferred_name, assignment_name);
+      await sendQueueJoinNotifs(ctx, args.courseId, prefs.preferred_name, assignment_name);
     }
     // handle student created questions
     else {
-      const globalSettings = await getGlobalSettings(ctx);
+      const globalSettings = await getGlobalSettings(ctx, args.courseId);
 
       // check queue not frozen
       if (globalSettings.is_frozen) {
@@ -277,21 +289,31 @@ export const addQuestion = mutation({
         .withIndex('by_semuser', (q) => q.eq('semester_user_id', user_data.sem_user_id))
         .first())!;
 
-      const existing_entry = await getQueueEntry(ctx, student._id);
+      const existing_entry = await getQueueEntry(ctx, args.courseId, student._id);
 
       if (existing_entry) {
         throw new ConvexError('Student already on the queue');
       }
 
-      // check if student is allowed to ask questions
+      // Whitelist/blacklist are stored as arrays of email strings
+      // Check by the student's email, NOT their user id.
+      const student_email = user_data.email!;
+
+      if (globalSettings.enforce_email_domain) {
+        const domain = student_email.split('@')[1] ?? '';
+        if (!globalSettings.allowed_email_domains.includes(domain)) {
+          throw new ConvexError('Email domain is not allowed');
+        }
+      }
+
       if (curr_sem.enable_whitelist) {
-        if (!curr_sem.whitelist.includes(student.user_id)) {
+        if (!curr_sem.whitelist.includes(student_email)) {
           throw new ConvexError('Student is not on the whitelist');
         }
       }
 
       if (curr_sem.enable_blacklist) {
-        if (curr_sem.blacklist.includes(student.user_id)) {
+        if (curr_sem.blacklist.includes(student_email)) {
           throw new ConvexError('Student is on the blacklist');
         }
       }
@@ -331,13 +353,15 @@ export const addQuestion = mutation({
       }
 
       // enqueue student
-      const queue_length = await getQueueLength(ctx);
+      const queue_length = await getQueueLength(ctx, args.courseId);
 
       const user = (await ctx.db.get(student.user_id))!;
       const prefs = (await ctx.db.get(student.user_prefs_id))!;
-      const assignment_name = (await ctx.db.get(args.assignment_id))!.name;
+      const assignment_name = (await getAssignmentInCourse(ctx, args.courseId, args.assignment_id))
+        .name;
 
       await ctx.db.insert('ohq', {
+        semester_id: curr_sem._id,
         student_id: student._id,
         student_name: prefs.preferred_name,
         student_email: user.email || '',
@@ -354,7 +378,7 @@ export const addQuestion = mutation({
         has_unread_messages: false,
       });
 
-      await sendQueueJoinNotifs(ctx, prefs.preferred_name, assignment_name);
+      await sendQueueJoinNotifs(ctx, args.courseId, prefs.preferred_name, assignment_name);
     }
 
     return {
@@ -364,35 +388,53 @@ export const addQuestion = mutation({
   },
 });
 
-async function sendQueueJoinNotifs(ctx: MutationCtx, name: string, assignment: string) {
-  // update every TA's notification field if their prefs are set to get queue join notifs
-  const tas_with_notifs = await ctx.db
-    .query('tas')
-    .filter((x) => x.eq(x.field('join_notifs_enabled'), true))
+async function sendQueueJoinNotifs(
+  ctx: MutationCtx,
+  courseId: Id<'courses'>,
+  name: string,
+  assignment: string,
+) {
+  // Notify only TAs in this course's current semester whose prefs enable join notifs.
+  const curr_sem = await getCurrentSemester(ctx, courseId);
+  const ta_sem_users = await ctx.db
+    .query('semesterUsers')
+    .withIndex('by_sem_and_kind', (q) => q.eq('semester_id', curr_sem._id).eq('kind', 'TA'))
     .collect();
 
+  const ta_rows = await Promise.all(
+    ta_sem_users.map((su) =>
+      ctx.db
+        .query('tas')
+        .withIndex('by_semuser', (q) => q.eq('semester_user_id', su._id))
+        .first(),
+    ),
+  );
+
   await Promise.all(
-    tas_with_notifs.map(async (ta) => {
-      await ctx.runMutation(internal.common.internalSendNotification, {
-        semester_user: ta.semester_user_id,
-        title: 'New Queue Entry',
-        body: `Name: ${name}\nAssignment: ${assignment}`,
-      });
-    }),
+    ta_rows
+      .filter((ta): ta is Doc<'tas'> => ta !== null && ta.join_notifs_enabled)
+      .map(async (ta) => {
+        await ctx.runMutation(internal.common.internalSendNotification, {
+          semester_user: ta.semester_user_id,
+          title: 'New Queue Entry',
+          body: `Name: ${name}\nAssignment: ${assignment}`,
+        });
+      }),
   );
 }
 
 // Remove student, write to database
 export const removeStudent = mutation({
   args: {
+    courseId: v.id('courses'),
     student_id: v.id('students'),
     reason: v.union(v.literal('helped'), v.literal('removed')),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
+    const user_data = (await getCurrentUser(ctx, args.courseId))!;
 
-    const existing_entry = (await getQueueEntry(ctx, args.student_id))!;
+    const existing_entry = (await getQueueEntry(ctx, args.courseId, args.student_id))!;
 
     // If student is removing, must be removing themselves
     if (user_data.kind === 'student') {
@@ -413,7 +455,7 @@ export const removeStudent = mutation({
     const student_to_remove = (await ctx.db.get(args.student_id))!;
 
     // add question to database
-    const curr_sem = await getCurrentSemester(ctx);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
 
     let removal_ta: Doc<'tas'> | undefined = undefined;
     if (user_data.kind === 'TA') {
@@ -483,13 +525,14 @@ export const removeStudent = mutation({
 
 export const helpStudent = mutation({
   args: {
+    courseId: v.id('courses'),
     student_id: v.id('students'),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const { ta } = await ensureAuthAndTA(ctx);
+    const { ta } = await ensureAuthAndTA(ctx, args.courseId);
     const student_to_help = (await ctx.db.get(args.student_id))!;
-    const existing_entry = (await getQueueEntry(ctx, student_to_help._id))!;
+    const existing_entry = (await getQueueEntry(ctx, args.courseId, student_to_help._id))!;
 
     if (existing_entry.helping_ta !== undefined || existing_entry.status === 'being_helped') {
       throw new ConvexError('Student is already being helped');
@@ -519,6 +562,7 @@ export const helpStudent = mutation({
     if (ta.remind_notifs_enabled) {
       const remind_time_ms = ta.remind_time_mins * 60000;
       await ctx.scheduler.runAfter(remind_time_ms, internal.home.home_mutate.internalRemindTA, {
+        courseId: args.courseId,
         ta_helping: ta._id,
         student_helping: student_to_help._id,
         title: 'Time Alert!',
@@ -530,6 +574,7 @@ export const helpStudent = mutation({
 
 export const internalRemindTA = internalMutation({
   args: {
+    courseId: v.id('courses'),
     ta_helping: v.id('tas'),
     student_helping: v.id('students'),
     title: v.string(),
@@ -537,7 +582,7 @@ export const internalRemindTA = internalMutation({
   },
   handler: async (ctx, args) => {
     // check if the TA is still helping the student
-    const existing_entry = await getQueueEntry(ctx, args.student_helping);
+    const existing_entry = await getQueueEntry(ctx, args.courseId, args.student_helping);
     if (
       existing_entry === null ||
       existing_entry.status !== 'being_helped' ||
@@ -563,13 +608,14 @@ export const internalRemindTA = internalMutation({
 
 export const unhelpStudent = mutation({
   args: {
+    courseId: v.id('courses'),
     student_id: v.id('students'),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const { ta } = await ensureAuthAndTA(ctx);
+    const { ta } = await ensureAuthAndTA(ctx, args.courseId);
     const student_to_unhelp = (await ctx.db.get(args.student_id))!;
-    const existing_entry = (await getQueueEntry(ctx, student_to_unhelp._id))!;
+    const existing_entry = (await getQueueEntry(ctx, args.courseId, student_to_unhelp._id))!;
 
     if (existing_entry.status !== 'being_helped') {
       throw new ConvexError('Student is not being helped');
@@ -589,14 +635,18 @@ export const unhelpStudent = mutation({
 
 export const updateQuestion = mutation({
   args: {
+    courseId: v.id('courses'),
     question: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
+    const user_data = await getCurrentUser(ctx, args.courseId);
+    if (!user_data) {
+      throw new ConvexError('User not authenticated for this course');
+    }
     const student = (await getStudent(ctx, user_data.sem_user_id))!;
 
-    const existing_entry = (await getQueueEntry(ctx, student._id))!;
+    const existing_entry = (await getQueueEntry(ctx, args.courseId, student._id))!;
 
     if (existing_entry.question === args.question) {
       throw new ConvexError('Question is the same');
@@ -611,12 +661,13 @@ export const updateQuestion = mutation({
 
 export const askToFixQuestion = mutation({
   args: {
+    courseId: v.id('courses'),
     student_id: v.id('students'),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndTA(ctx);
-    const existing_entry = (await getQueueEntry(ctx, args.student_id))!;
+    await ensureAuthAndTA(ctx, args.courseId);
+    const existing_entry = (await getQueueEntry(ctx, args.courseId, args.student_id))!;
 
     await ctx.db.patch(existing_entry._id, {
       status: 'fixing_question',
@@ -636,13 +687,14 @@ export const askToFixQuestion = mutation({
 
 export const messageStudent = mutation({
   args: {
+    courseId: v.id('courses'),
     student_id: v.id('students'),
     message: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const { ta } = await ensureAuthAndTA(ctx);
-    const existing_entry = (await getQueueEntry(ctx, args.student_id))!;
+    const { ta } = await ensureAuthAndTA(ctx, args.courseId);
+    const existing_entry = (await getQueueEntry(ctx, args.courseId, args.student_id))!;
 
     if (existing_entry.status === 'being_helped') {
       throw new ConvexError('You cannot message a student while they are being helped');
@@ -675,12 +727,12 @@ export const messageStudent = mutation({
 });
 
 export const dismissMessage = mutation({
-  args: {},
+  args: { courseId: v.id('courses') },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const { student } = await ensureAuthAndStudent(ctx);
+    const { student } = await ensureAuthAndStudent(ctx, args.courseId);
 
-    const existing_entry = (await getQueueEntry(ctx, student._id))!;
+    const existing_entry = (await getQueueEntry(ctx, args.courseId, student._id))!;
 
     await ctx.db.patch(existing_entry._id, {
       has_unread_messages: false,
@@ -690,15 +742,16 @@ export const dismissMessage = mutation({
 
 export const approveCooldownOverride = mutation({
   args: {
+    courseId: v.id('courses'),
     student_id: v.id('students'),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndTA(ctx);
+    await ensureAuthAndTA(ctx, args.courseId);
 
-    const existing_entry = (await getQueueEntry(ctx, args.student_id))!;
+    const existing_entry = (await getQueueEntry(ctx, args.courseId, args.student_id))!;
 
-    const adminSettings = await getGlobalSettings(ctx);
+    const adminSettings = await getGlobalSettings(ctx, args.courseId);
 
     if (!adminSettings.allow_cooldown_override) {
       throw new ConvexError('Cooldown override is disabled');
@@ -724,10 +777,10 @@ export const approveCooldownOverride = mutation({
 });
 
 export const internalWaittimeIntervalCheck = internalMutation({
-  args: {},
+  args: { courseId: v.id('courses') },
   handler: async (ctx, args) => {
-    const global_settings = await getGlobalSettings(ctx);
-    const waittimePingData = await getWaittimePingData(ctx);
+    const global_settings = await getGlobalSettings(ctx, args.courseId);
+    const waittimePingData = await getWaittimePingData(ctx, args.courseId);
 
     const minute_ago_waittime = waittimePingData.minute_ago_waittime;
     const last_pinged = waittimePingData.last_pinged;
@@ -736,6 +789,7 @@ export const internalWaittimeIntervalCheck = internalMutation({
 
     const waittime_data = await getWaittimeData(
       ctx,
+      args.courseId,
       global_settings.waittime_questions_lookback_time_mins,
     );
 
@@ -751,6 +805,7 @@ export const internalWaittimeIntervalCheck = internalMutation({
         const wait_time_mins_rounded = Math.round(waittime_data.wait_time);
 
         await ctx.scheduler.runAfter(0, internal.actions.sendSlackbotMessage, {
+          courseId: args.courseId,
           message: `<!channel> The wait time is ${wait_time_mins_rounded} minutes right now. More TAs might be needed.`,
         });
 
@@ -768,77 +823,20 @@ export const internalWaittimeIntervalCheck = internalMutation({
   },
 });
 
-export const firstTimeSetup = mutation({
-  args: {
-    semester_name: v.string(),
-    owner_emails: v.array(v.string()),
-  },
-  returns: v.null(),
-  handler: async (ctx, args) => {
-    // verify that there is no globalsettings object (this should only happen at the very very beginning)
-
-    const existing_global_settings = await ctx.db.query('globalSettings').collect();
-
-    if (existing_global_settings.length > 0) {
-      throw new ConvexError('Global settings already exists');
+// Cron entry point: run the per-course waittime check for every registered course.
+// Each course is wrapped in try/catch so one bad course doesn't suppress the rest.
+export const internalWaittimeIntervalCheckAllCourses = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const courses = await ctx.db.query('courses').collect();
+    for (const course of courses) {
+      try {
+        await ctx.runMutation(internal.home.home_mutate.internalWaittimeIntervalCheck, {
+          courseId: course._id,
+        });
+      } catch (err) {
+        console.error(`Waittime check failed for course ${course.slug}:`, err);
+      }
     }
-
-    // create new semester and its "Other" assignment
-    const new_sem = await ctx.db.insert('semesters', {
-      name: args.semester_name,
-      owner_emails: args.owner_emails,
-      enable_whitelist: false,
-      enable_blacklist: false,
-      whitelist: [],
-      blacklist: [],
-      other_assignment: undefined,
-    });
-
-    const other_assignment = await ctx.db.insert('assignments', {
-      name: 'Other',
-      semester_id: new_sem,
-      assignment_type: undefined,
-      start_date_ms: 0,
-      end_date_ms: 0,
-    });
-
-    await ctx.db.patch(new_sem, {
-      other_assignment: other_assignment,
-    });
-
-    // create the global settings object
-    await ctx.db.insert('globalSettings', {
-      curr_sem: new_sem,
-      course_name: 'OHQ',
-      timezone: 'UTC',
-      slackbot_webhook_url: undefined,
-      questions_policy_url: undefined,
-      rejoin_time_ms: 15 * 60000,
-      allowed_email_domains: [],
-      enforce_email_domain: false,
-      allow_cooldown_override: false,
-      // -1 is used as list of all locations (stupid legacy decision that we're just gonna keep living with forever lol)
-      day_to_location_dict: {
-        '-1': [],
-        '0': [],
-        '1': [],
-        '2': [],
-        '3': [],
-        '4': [],
-        '5': [],
-        '6': [],
-      },
-      allow_tas_show_others_timer: false,
-      waittime_ping_threshold_mins: 30,
-      waittime_ping_interval_mins: 10,
-      waittime_questions_lookback_time_mins: 60,
-      is_frozen: true,
-      announcements: [],
-    });
-
-    await ctx.db.insert('waittime_ping_data', {
-      minute_ago_waittime: 0,
-      last_pinged: 0,
-    });
   },
 });

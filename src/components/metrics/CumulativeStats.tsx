@@ -2,11 +2,13 @@ import { Card, Divider, Typography, Grid } from '@mui/material';
 
 import { useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
+import { useCourseId } from '../../contexts/CourseContext';
 
 export default function CumulativeStats() {
-  const numQuestionsData = useQuery(api.metrics.getTotalNumQuestions);
-  const avgTimePerQuestionData = useQuery(api.metrics.getTotalAvgTimePerQuestion);
-  const avgWaitTimeData = useQuery(api.metrics.getTotalAvgWaitTime);
+  const courseId = useCourseId();
+  const numQuestionsData = useQuery(api.metrics.getTotalNumQuestions, { courseId });
+  const avgTimePerQuestionData = useQuery(api.metrics.getTotalAvgTimePerQuestion, { courseId });
+  const avgWaitTimeData = useQuery(api.metrics.getTotalAvgWaitTime, { courseId });
 
   const numQuestions = numQuestionsData ? numQuestionsData.numQuestions : 0;
   const avgTimePerQuestion = avgTimePerQuestionData ? avgTimePerQuestionData.averageTime : '0:00';

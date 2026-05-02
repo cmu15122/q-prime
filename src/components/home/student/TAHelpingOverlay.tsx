@@ -2,11 +2,13 @@ import { Typography, Button, Dialog, DialogContent, Divider } from '@mui/materia
 
 import { useQuery } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
+import { useCourseId } from '../../../contexts/CourseContext';
 
 export default function TAHelpingOverlay(props) {
   const { open } = props;
+  const courseId = useCourseId();
 
-  const userData = useQuery(api.home.home_get.getUserData);
+  const userData = useQuery(api.home.home_get.getUserData, { courseId });
   const studentData = userData?.student_data;
 
   return (

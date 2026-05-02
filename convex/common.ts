@@ -3,38 +3,44 @@ import { ConvexError, v } from 'convex/values';
 import { getAuthUserId } from '@convex-dev/auth/server';
 import { Doc, Id } from './_generated/dataModel';
 
-export async function getGlobalSettings(ctx: QueryCtx) {
-  const globalSettings = await ctx.db.query('globalSettings').unique();
+export async function getGlobalSettings(ctx: QueryCtx, courseId: Id<'courses'>) {
+  const globalSettings = await ctx.db
+    .query('globalSettings')
+    .withIndex('by_course', (q) => q.eq('course_id', courseId))
+    .unique();
   if (!globalSettings) {
-    throw new ConvexError('Global settings not found');
+    throw new ConvexError('Global settings not found for course');
   }
   return globalSettings;
 }
 
-export async function getWaittimePingData(ctx: QueryCtx) {
-  const waittimePingData = await ctx.db.query('waittime_ping_data').unique();
+export async function getWaittimePingData(ctx: QueryCtx, courseId: Id<'courses'>) {
+  const waittimePingData = await ctx.db
+    .query('waittime_ping_data')
+    .withIndex('by_course', (q) => q.eq('course_id', courseId))
+    .unique();
 
   if (!waittimePingData) {
-    throw new ConvexError('Waittime ping data not found');
+    throw new ConvexError('Waittime ping data not found for course');
   }
 
   return waittimePingData;
 }
 
 export const internalGetGlobalSettings = internalQuery({
-  args: {},
+  args: { courseId: v.id('courses') },
   handler: async (ctx, args) => {
-    return await getGlobalSettings(ctx);
+    return await getGlobalSettings(ctx, args.courseId);
   },
 });
 
-export async function getCurrentSemester(ctx: QueryCtx) {
-  const globalSettings = await getGlobalSettings(ctx);
+export async function getCurrentSemester(ctx: QueryCtx, courseId: Id<'courses'>) {
+  const globalSettings = await getGlobalSettings(ctx, courseId);
   const curr_sem = (await ctx.db.get(globalSettings.curr_sem))!;
   return curr_sem;
 }
 
-export async function getCurrentUser(ctx: QueryCtx) {
+export async function getCurrentUser(ctx: QueryCtx, courseId: Id<'courses'>) {
   const user_id = await getAuthUserId(ctx);
 
   if (!user_id) {
@@ -42,7 +48,7 @@ export async function getCurrentUser(ctx: QueryCtx) {
   }
 
   const user_data = (await ctx.db.get(user_id))!;
-  const curr_sem = await getCurrentSemester(ctx);
+  const curr_sem = await getCurrentSemester(ctx, courseId);
 
   const curr_sem_user = (await ctx.db
     .query('semesterUsers')
@@ -63,19 +69,27 @@ export async function getCurrentUser(ctx: QueryCtx) {
   };
 }
 
-export async function getQueueLength(ctx: QueryCtx) {
-  const queue = await ctx.db.query('ohq').collect();
+export async function getQueueLength(ctx: QueryCtx, courseId: Id<'courses'>) {
+  const curr_sem = await getCurrentSemester(ctx, courseId);
+  const queue = await ctx.db
+    .query('ohq')
+    .withIndex('by_sem_and_position', (q) => q.eq('semester_id', curr_sem._id))
+    .collect();
   return queue.length;
 }
 
-export async function getWaittimeData(ctx: QueryCtx, lookback_minutes: number) {
+export async function getWaittimeData(
+  ctx: QueryCtx,
+  courseId: Id<'courses'>,
+  lookback_minutes: number,
+) {
   const now = new Date();
   const start_time = new Date(now.getTime() - lookback_minutes * 60000);
 
   let total_helped_ms = 0;
   const active_tas = new Set<Id<'tas'>>();
 
-  const curr_sem = await getCurrentSemester(ctx);
+  const curr_sem = await getCurrentSemester(ctx, courseId);
 
   const questions = await ctx.db
     .query('questions')
@@ -102,7 +116,9 @@ export async function getWaittimeData(ctx: QueryCtx, lookback_minutes: number) {
   // handle current questions
   const curr_helping_questions = await ctx.db
     .query('ohq')
-    .withIndex('by_status', (q) => q.eq('status', 'being_helped'))
+    .withIndex('by_sem_and_status', (q) =>
+      q.eq('semester_id', curr_sem._id).eq('status', 'being_helped'),
+    )
     .collect();
 
   for (const curr_helping of curr_helping_questions) {
@@ -129,6 +145,7 @@ export async function getWaittimeData(ctx: QueryCtx, lookback_minutes: number) {
   // do math based on num unhelped students
   const unhelped_questions = await ctx.db
     .query('ohq')
+    .withIndex('by_sem_and_position', (q) => q.eq('semester_id', curr_sem._id))
     .filter((x) => x.neq(x.field('status'), 'being_helped'))
     .collect();
 
@@ -155,21 +172,49 @@ export async function getWaittimeData(ctx: QueryCtx, lookback_minutes: number) {
   }
 }
 
-export async function getQueueEntry(ctx: QueryCtx, student_id: Id<'students'>) {
+// Returns the student's queue entry only if it belongs to courseId's current semester.
+export async function getQueueEntry(
+  ctx: QueryCtx,
+  courseId: Id<'courses'>,
+  student_id: Id<'students'>,
+) {
   const queue_entry = await ctx.db
     .query('ohq')
     .withIndex('by_student', (q) => q.eq('student_id', student_id))
     .first();
 
-  // if (!queue_entry) {
-  //   throw new ConvexError("Queue entry not found");
-  // }
+  if (!queue_entry) {
+    return null;
+  }
+
+  const curr_sem = await getCurrentSemester(ctx, courseId);
+  if (queue_entry.semester_id !== curr_sem._id) {
+    return null;
+  }
 
   return queue_entry;
 }
 
+// Fetches an assignment and asserts it belongs to courseId's current semester.
+// Throws if the assignment doesn't exist or belongs to a different course.
+export async function getAssignmentInCourse(
+  ctx: QueryCtx,
+  courseId: Id<'courses'>,
+  assignment_id: Id<'assignments'>,
+) {
+  const assignment = await ctx.db.get(assignment_id);
+  if (!assignment) {
+    throw new ConvexError('Assignment not found');
+  }
+  const curr_sem = await getCurrentSemester(ctx, courseId);
+  if (assignment.semester_id !== curr_sem._id) {
+    throw new ConvexError('Assignment does not belong to this course');
+  }
+  return assignment;
+}
+
 export const createStudentFromUser = internalMutation({
-  args: { userId: v.id('users') },
+  args: { userId: v.id('users'), courseId: v.id('courses') },
   handler: async (ctx, args) => {
     const user_data = (await ctx.db.get(args.userId))!;
 
@@ -179,7 +224,7 @@ export const createStudentFromUser = internalMutation({
       preferred_name: user_data.name || '',
     });
 
-    const curr_sem = await getCurrentSemester(ctx);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
 
     // create sem user
     const new_sem_user = await ctx.db.insert('semesterUsers', {
@@ -215,13 +260,16 @@ export const removeQueueEntry = internalMutation({
   handler: async (ctx, args) => {
     const queue_entry = (await ctx.db.get(args.queue_entry_id))!;
 
+    const semester_id = queue_entry.semester_id;
     const position_to_remove = queue_entry.position;
 
     await ctx.db.delete(queue_entry._id);
 
     const all_greater_queue_entries = await ctx.db
       .query('ohq')
-      .withIndex('by_position', (q) => q.gt('position', position_to_remove))
+      .withIndex('by_sem_and_position', (q) =>
+        q.eq('semester_id', semester_id).gt('position', position_to_remove),
+      )
       .order('asc')
       .collect();
 
@@ -266,9 +314,6 @@ export const removeQueueEntry = internalMutation({
 
 /**
  * Get a TA from their sem_user_id
- * @param ctx
- * @param sem_user_id
- * @returns
  */
 export async function getTA(ctx: QueryCtx, sem_user_id: Id<'semesterUsers'>) {
   const ta = await ctx.db
@@ -285,8 +330,9 @@ export async function getTA(ctx: QueryCtx, sem_user_id: Id<'semesterUsers'>) {
 
 export async function ensureAuthAndTA(
   ctx: QueryCtx,
+  courseId: Id<'courses'>,
 ): Promise<{ user_data: Doc<'users'>; ta: Doc<'tas'> }> {
-  const user_data = await getCurrentUser(ctx);
+  const user_data = await getCurrentUser(ctx, courseId);
 
   if (!user_data) {
     throw new ConvexError('User not authenticated');
@@ -310,8 +356,9 @@ export async function ensureAuthAndTA(
 
 export async function ensureAuthAndAdmin(
   ctx: QueryCtx,
+  courseId: Id<'courses'>,
 ): Promise<{ user_data: Doc<'users'>; ta: Doc<'tas'> }> {
-  const { user_data, ta } = await ensureAuthAndTA(ctx);
+  const { user_data, ta } = await ensureAuthAndTA(ctx, courseId);
 
   if (!ta.is_admin) {
     throw new ConvexError('User is not an admin');
@@ -320,14 +367,17 @@ export async function ensureAuthAndAdmin(
   return { user_data: user_data, ta: ta };
 }
 
-export async function ensureAuthAndOwner(ctx: QueryCtx): Promise<{ user_data: Doc<'users'> }> {
-  const user_data = await getCurrentUser(ctx);
+export async function ensureAuthAndOwner(
+  ctx: QueryCtx,
+  courseId: Id<'courses'>,
+): Promise<{ user_data: Doc<'users'> }> {
+  const user_data = await getCurrentUser(ctx, courseId);
 
   if (!user_data) {
     throw new ConvexError('User not authenticated');
   }
 
-  const curr_sem = await getCurrentSemester(ctx);
+  const curr_sem = await getCurrentSemester(ctx, courseId);
   const is_owner = curr_sem.owner_emails.includes(user_data.email!);
 
   if (!is_owner) {
@@ -339,9 +389,6 @@ export async function ensureAuthAndOwner(ctx: QueryCtx): Promise<{ user_data: Do
 
 /**
  * Get a student from their sem_user_id
- * @param ctx
- * @param sem_user_id
- * @returns
  */
 export async function getStudent(ctx: QueryCtx, sem_user_id: Id<'semesterUsers'>) {
   const student = await ctx.db
@@ -358,8 +405,9 @@ export async function getStudent(ctx: QueryCtx, sem_user_id: Id<'semesterUsers'>
 
 export async function ensureAuthAndStudent(
   ctx: QueryCtx,
+  courseId: Id<'courses'>,
 ): Promise<{ user_data: Doc<'users'>; student: Doc<'students'> }> {
-  const user_data = await getCurrentUser(ctx);
+  const user_data = await getCurrentUser(ctx, courseId);
 
   if (!user_data) {
     throw new ConvexError('User not authenticated');
@@ -384,6 +432,7 @@ export async function ensureAuthAndStudent(
 export const internalEnsureTA = internalQuery({
   args: {
     user_id: v.id('users'),
+    courseId: v.id('courses'),
   },
   handler: async (ctx, args) => {
     const user = await ctx.db.get(args.user_id);
@@ -392,7 +441,7 @@ export const internalEnsureTA = internalQuery({
       return false;
     }
 
-    const curr_sem = await getCurrentSemester(ctx);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
 
     const sem_user = await ctx.db
       .query('semesterUsers')
@@ -418,20 +467,36 @@ export const internalEnsureTA = internalQuery({
   },
 });
 
+// Auth callback helper: ensure a userPreferences row exists for this user.
+// Called from afterUserCreatedOrUpdated — has no course context.
+export const internalUpsertUserPrefs = internalMutation({
+  args: { user_id: v.id('users') },
+  handler: async (ctx, args) => {
+    const existing = await ctx.db
+      .query('userPreferences')
+      .withIndex('by_user_id', (q) => q.eq('user_id', args.user_id))
+      .first();
+
+    if (existing) return existing._id;
+
+    const user = await ctx.db.get(args.user_id);
+    return await ctx.db.insert('userPreferences', {
+      user_id: args.user_id,
+      preferred_name: user?.name || '',
+    });
+  },
+});
+
 // Make userPreferences entry if it doesn't exist
 //
-// If a semesterUser doesn't exist - default to student unless they're in future_tas:
-//
-// If the user is a student
-// - add a semesterUser with kind "student"
-// - add entry to "students"
-//
-// If the user is a TA
-// - add a semesterUser with kind "ta"
-// - add entry to "tas"
-export const internalNewSemesterUser = internalMutation({
+// If a semesterUser doesn't exist for this course's current semester:
+// - default to student unless they're in future_tas
+// - student: insert semesterUsers (kind="student") + students row
+// - TA:      insert semesterUsers (kind="TA")      + tas row, and delete the future_tas entry
+export const internalEnrollInCourse = internalMutation({
   args: {
     user_id: v.id('users'),
+    courseId: v.id('courses'),
   },
   handler: async (ctx, args) => {
     const user_id = args.user_id;
@@ -460,7 +525,7 @@ export const internalNewSemesterUser = internalMutation({
       user_prefs_id = userPrefs._id;
     }
 
-    const curr_sem = await getCurrentSemester(ctx);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
 
     const semUser = await ctx.db
       .query('semesterUsers')

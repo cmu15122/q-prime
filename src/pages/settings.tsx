@@ -6,6 +6,7 @@ import { CircularProgress, Typography } from '@mui/material';
 
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
+import { useCourseId } from '../contexts/CourseContext';
 
 /**
  * Settings page, only accessible to TAs and course owners
@@ -13,7 +14,8 @@ import { api } from '../../convex/_generated/api';
  */
 function Settings() {
   const theme = useTheme();
-  const userData = useQuery(api.home.home_get.getUserData);
+  const courseId = useCourseId();
+  const userData = useQuery(api.home.home_get.getUserData, { courseId });
 
   const isLoadingUserData = userData === undefined;
   const isAuthenticated = userData !== null && userData !== undefined;

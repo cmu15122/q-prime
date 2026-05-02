@@ -3,13 +3,15 @@ import { Typography, useTheme } from '@mui/material';
 import { useQuery } from 'convex/react';
 import { api } from '../../../../../convex/_generated/api';
 import { Doc } from '../../../../../convex/_generated/dataModel';
+import { useCourseId } from '../../../../contexts/CourseContext';
 
 export default function StudentStatus(props) {
   const { currentTime } = props;
   const student: Doc<'ohq'> = props['student'];
+  const courseId = useCourseId();
 
-  const userData = useQuery(api.home.home_get.getUserData);
-  const queueData = useQuery(api.home.home_get.getQueueData);
+  const userData = useQuery(api.home.home_get.getUserData, { courseId });
+  const queueData = useQuery(api.home.home_get.getQueueData, { courseId });
 
   const theme = useTheme();
 

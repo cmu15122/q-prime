@@ -14,12 +14,14 @@ const CustomDivider = styled(Divider)({
 
 import { useQuery } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
+import { useCourseId } from '../../../contexts/CourseContext';
 
 export default function YourEntry(props) {
   const { openRemoveOverlay } = props;
+  const courseId = useCourseId();
 
-  const queueData = useQuery(api.home.home_get.getQueueData);
-  const userData = useQuery(api.home.home_get.getUserData);
+  const queueData = useQuery(api.home.home_get.getQueueData, { courseId });
+  const userData = useQuery(api.home.home_get.getUserData, { courseId });
   const studentData = userData?.student_data;
 
   const cooldownMsg = queueData?.allow_cooldown_override

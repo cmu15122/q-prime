@@ -2,17 +2,20 @@ import { Typography, Button, Dialog, DialogContent, Stack, useTheme } from '@mui
 
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
+import { useCourseId } from '../../../contexts/CourseContext';
 
 export default function CooldownViolationOverlay(props) {
   const { open, setOpen, email, question, location, assignmentId, timePassed } = props;
   const theme = useTheme();
+  const courseId = useCourseId();
 
-  const queueData = useQuery(api.home.home_get.getQueueData);
+  const queueData = useQuery(api.home.home_get.getQueueData, { courseId });
 
   const addQuestionMutation = useMutation(api.home.home_mutate.addQuestion);
   async function callAddQuestionAPIOverrideCooldown() {
     if (queueData?.allow_cooldown_override) {
       await addQuestionMutation({
+        courseId,
         question: question,
         location: location,
         assignment_id: assignmentId,

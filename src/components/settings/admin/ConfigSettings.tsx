@@ -6,10 +6,12 @@ import BaseCard from '../../common/cards/BaseCard';
 
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
+import { useCourseId } from '../../../contexts/CourseContext';
 
 export default function ConfigSettings() {
-  const queueData = useQuery(api.home.home_get.getQueueData);
-  const adminSettings = useQuery(api.settings.settings_get.getQueueSettings);
+  const courseId = useCourseId();
+  const queueData = useQuery(api.home.home_get.getQueueData, { courseId });
+  const adminSettings = useQuery(api.settings.settings_get.getQueueSettings, { courseId });
 
   const [slackURL, setSlackURL] = useState('');
   const [questionsURL, setQuestionsURL] = useState('');
@@ -62,19 +64,19 @@ export default function ConfigSettings() {
   const updateCourseNameMutation = useMutation(api.settings.settings_mutate.updateCourseName);
   const handleUpdateCourseName = async (event) => {
     event.preventDefault();
-    await updateCourseNameMutation({ courseName: courseName });
+    await updateCourseNameMutation({ courseId, courseName: courseName });
   };
 
   const updateSlackURLMutation = useMutation(api.settings.settings_mutate.updateSlackURL);
   const handleUpdateSlackURL = async (event) => {
     event.preventDefault();
-    await updateSlackURLMutation({ slackURL: slackURL });
+    await updateSlackURLMutation({ courseId, slackURL: slackURL });
   };
 
   const updateQuestionsURLMutation = useMutation(api.settings.settings_mutate.updateQuestionsURL);
   const handleUpdateQuestionsURL = async (event) => {
     event.preventDefault();
-    await updateQuestionsURLMutation({ questionsURL: questionsURL });
+    await updateQuestionsURLMutation({ courseId, questionsURL: questionsURL });
   };
 
   const updateAllowedEmailDomainsMutation = useMutation(
@@ -82,7 +84,7 @@ export default function ConfigSettings() {
   );
   const handleUpdateAllowedEmailDomains = async (event) => {
     event.preventDefault();
-    await updateAllowedEmailDomainsMutation({ allowedEmailDomains: allowedEmailDomains });
+    await updateAllowedEmailDomainsMutation({ courseId, allowedEmailDomains: allowedEmailDomains });
   };
 
   const updateEnforceEmailDomainMutation = useMutation(
@@ -92,6 +94,7 @@ export default function ConfigSettings() {
     event.preventDefault();
 
     await updateEnforceEmailDomainMutation({
+      courseId,
       enforceEmailDomain: enforceEmailDomain,
     });
   };
@@ -102,6 +105,7 @@ export default function ConfigSettings() {
   const handleCooldownOverrideEnabled = async (event) => {
     event.preventDefault();
     await updateAllowCooldownOverrideMutation({
+      courseId,
       allowCDOverride: allowCDOverride,
     });
   };
@@ -112,6 +116,7 @@ export default function ConfigSettings() {
   const handleUpdateAllowShowOthersTimer = async (event) => {
     event.preventDefault();
     await updateAllowShowOthersTimerMutation({
+      courseId,
       allowShowOthersTimer: allowShowOthersTimer,
     });
   };
@@ -130,7 +135,7 @@ export default function ConfigSettings() {
       return;
     }
     setTimezoneError('');
-    await updateTimezoneMutation({ timezone: trimmedTimezone });
+    await updateTimezoneMutation({ courseId, timezone: trimmedTimezone });
   };
 
   return (

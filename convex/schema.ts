@@ -4,14 +4,21 @@ import { v } from 'convex/values';
 
 export default defineSchema({
   ...authTables,
+  // tenant boundary — each course is an independent OHQ
+  courses: defineTable({
+    slug: v.string(),
+    display_name: v.string(),
+  }).index('by_slug', ['slug']),
+
   // defines cross-semester TA and student preferences (doesn't exist on user because I'm scared to touch the auth tables)
   userPreferences: defineTable({
     user_id: v.id('users'),
     preferred_name: v.string(),
   }).index('by_user_id', ['user_id']),
 
-  // we'll enforce in the code that this table only ever has one row
+  // one row per course; holds course-scoped configuration and the active semester pointer
   globalSettings: defineTable({
+    course_id: v.id('courses'),
     curr_sem: v.id('semesters'),
     course_name: v.string(),
     slackbot_webhook_url: v.optional(v.string()),
@@ -33,18 +40,20 @@ export default defineSchema({
     // current queue status
     is_frozen: v.boolean(),
     announcements: v.array(v.string()),
-  }),
+  }).index('by_course', ['course_id']),
 
-  // we'll enforce in the code that this table only ever has one row
+  // we'll enforce in the code that this table only ever has one row per course
   // we store waittime data here in a separate table for efficiency - otherwise waittimeIntervalCheck invalidates globalSettings cache
   // this was causing getQueueData, getUserData, and isFirstTimeSetup to be invalidated every time waittimeIntervalCheck ran
   waittime_ping_data: defineTable({
     // waittime slackbot data
+    course_id: v.id('courses'),
     minute_ago_waittime: v.number(),
     last_pinged: v.number(),
-  }),
+  }).index('by_course', ['course_id']),
 
   semesters: defineTable({
+    course_id: v.id('courses'),
     name: v.string(),
     owner_emails: v.array(v.string()),
 
@@ -54,7 +63,7 @@ export default defineSchema({
     blacklist: v.array(v.string()),
 
     other_assignment: v.optional(v.id('assignments')),
-  }).index('by_name', ['name']),
+  }).index('by_course_and_name', ['course_id', 'name']),
 
   future_tas: defineTable({
     semester_id: v.id('semesters'),
@@ -148,8 +157,9 @@ export default defineSchema({
     .index('by_semester_and_finished_by_and_ta', ['semester_id', 'finished_by', 'ta_id']),
 
   // use a table as the actual queue lol
-  // each row in the table is a student on the queue
+  // each row in the table is a student on the queue, scoped to a semester
   ohq: defineTable({
+    semester_id: v.id('semesters'),
     student_id: v.id('students'),
     student_name: v.string(), // redundant but convenient for displaying the queue
     student_email: v.string(), // redundant but convenient for displaying the queue
@@ -198,6 +208,6 @@ export default defineSchema({
     ),
   })
     .index('by_student', ['student_id'])
-    .index('by_position', ['position'])
-    .index('by_status', ['status']),
+    .index('by_sem_and_position', ['semester_id', 'position'])
+    .index('by_sem_and_status', ['semester_id', 'status']),
 });

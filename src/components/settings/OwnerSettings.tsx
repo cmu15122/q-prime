@@ -22,10 +22,12 @@ import BaseCard from '../common/cards/BaseCard';
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../convex/_generated/api';
 import TASettings from './admin/TASettings';
+import { useCourseId } from '../../contexts/CourseContext';
 
 export default function OwnerSettings() {
-  const userData = useQuery(api.home.home_get.getUserData);
-  const adminSettings = useQuery(api.settings.settings_get.getQueueSettings);
+  const courseId = useCourseId();
+  const userData = useQuery(api.home.home_get.getUserData, { courseId });
+  const adminSettings = useQuery(api.settings.settings_get.getQueueSettings, { courseId });
 
   const [isEditing, setIsEditing] = useState(false);
   const [newSemName, setNewSemName] = useState<string>('');
@@ -85,7 +87,7 @@ export default function OwnerSettings() {
     setConfirmModalOpen(true);
   };
 
-  const checkNewSemUser = useMutation(api.home.home_mutate.checkNewSemesterUser);
+  const checkNewSemUser = useMutation(api.home.home_mutate.enrollInCourse);
 
   const handleConfirmChange = async () => {
     const ownerEmailsArray = ownerEmails
@@ -93,12 +95,13 @@ export default function OwnerSettings() {
       .filter((e) => e.length > 0);
 
     await changeSemesterMutation({
+      courseId,
       new_sem_name: newSemName,
       owner_emails: ownerEmailsArray,
     });
 
     // make new sem user for the owner who just changed the semester
-    await checkNewSemUser();
+    await checkNewSemUser({ courseId });
 
     setConfirmModalOpen(false);
     setIsEditing(false);

@@ -5,6 +5,7 @@ import {
   ensureAuthAndAdmin,
   ensureAuthAndOwner,
   ensureAuthAndTA,
+  getAssignmentInCourse,
   getCurrentSemester,
   getCurrentUser,
   getGlobalSettings,
@@ -16,12 +17,13 @@ import { Id } from '../_generated/dataModel';
 
 export const updateVideoChat = mutation({
   args: {
+    courseId: v.id('courses'),
     enabled: v.boolean(),
     url: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const { ta } = await ensureAuthAndTA(ctx);
+    const { ta } = await ensureAuthAndTA(ctx, args.courseId);
 
     await ctx.db.patch(ta._id, {
       zoom_enabled: args.enabled,
@@ -34,11 +36,12 @@ export const updateVideoChat = mutation({
 
 export const updatePreferredName = mutation({
   args: {
+    courseId: v.id('courses'),
     preferred_name: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const user_data = (await getCurrentUser(ctx))!;
+    const user_data = (await getCurrentUser(ctx, args.courseId))!;
 
     const user_prefs = (await ctx.db
       .query('userPreferences')
@@ -55,13 +58,14 @@ export const updatePreferredName = mutation({
 
 export const updateNotifications = mutation({
   args: {
+    courseId: v.id('courses'),
     joinEnabled: v.boolean(),
     remindEnabled: v.boolean(),
     remindTime: v.number(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const { ta } = await ensureAuthAndTA(ctx);
+    const { ta } = await ensureAuthAndTA(ctx, args.courseId);
 
     if (args.remindTime < 0) {
       throw new ConvexError('Remind time must be non-negative');
@@ -79,12 +83,13 @@ export const updateNotifications = mutation({
 
 export const updateTimerSettings = mutation({
   args: {
+    courseId: v.id('courses'),
     showSelfTimer: v.boolean(),
     showOthersTimer: v.boolean(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const { ta } = await ensureAuthAndTA(ctx);
+    const { ta } = await ensureAuthAndTA(ctx, args.courseId);
 
     await ctx.db.patch(ta._id, {
       show_self_timer: args.showSelfTimer,
@@ -99,17 +104,18 @@ export const updateTimerSettings = mutation({
 
 export const updateCourseName = mutation({
   args: {
+    courseId: v.id('courses'),
     courseName: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndAdmin(ctx);
+    await ensureAuthAndAdmin(ctx, args.courseId);
 
     if (!args.courseName) {
       throw new ConvexError('Course name cannot be empty');
     }
 
-    const globalSettings = await getGlobalSettings(ctx);
+    const globalSettings = await getGlobalSettings(ctx, args.courseId);
 
     await ctx.db.patch(globalSettings._id, {
       course_name: args.courseName,
@@ -121,17 +127,18 @@ export const updateCourseName = mutation({
 
 export const updateQuestionsURL = mutation({
   args: {
+    courseId: v.id('courses'),
     questionsURL: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndAdmin(ctx);
+    await ensureAuthAndAdmin(ctx, args.courseId);
 
     if (!args.questionsURL) {
       throw new ConvexError('Questions URL cannot be empty');
     }
 
-    const globalSettings = await getGlobalSettings(ctx);
+    const globalSettings = await getGlobalSettings(ctx, args.courseId);
 
     await ctx.db.patch(globalSettings._id, {
       questions_policy_url: args.questionsURL,
@@ -143,17 +150,18 @@ export const updateQuestionsURL = mutation({
 
 export const updateRejoinTime = mutation({
   args: {
+    courseId: v.id('courses'),
     rejoinTime: v.number(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndAdmin(ctx);
+    await ensureAuthAndAdmin(ctx, args.courseId);
 
     if (isNaN(args.rejoinTime) || args.rejoinTime < 0) {
       throw new ConvexError('Rejoin time must be a non-negative number');
     }
 
-    const globalSettings = await getGlobalSettings(ctx);
+    const globalSettings = await getGlobalSettings(ctx, args.courseId);
 
     await ctx.db.patch(globalSettings._id, {
       rejoin_time_ms: args.rejoinTime * 60000, // convert minutes to ms
@@ -165,13 +173,14 @@ export const updateRejoinTime = mutation({
 
 export const updateEnforceEmailDomain = mutation({
   args: {
+    courseId: v.id('courses'),
     enforceEmailDomain: v.boolean(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndAdmin(ctx);
+    await ensureAuthAndAdmin(ctx, args.courseId);
 
-    const globalSettings = await getGlobalSettings(ctx);
+    const globalSettings = await getGlobalSettings(ctx, args.courseId);
 
     await ctx.db.patch(globalSettings._id, {
       enforce_email_domain: args.enforceEmailDomain,
@@ -183,13 +192,14 @@ export const updateEnforceEmailDomain = mutation({
 
 export const updateAllowedEmailDomains = mutation({
   args: {
+    courseId: v.id('courses'),
     allowedEmailDomains: v.array(v.string()),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndAdmin(ctx);
+    await ensureAuthAndAdmin(ctx, args.courseId);
 
-    const globalSettings = await getGlobalSettings(ctx);
+    const globalSettings = await getGlobalSettings(ctx, args.courseId);
 
     await ctx.db.patch(globalSettings._id, {
       allowed_email_domains: args.allowedEmailDomains,
@@ -201,13 +211,14 @@ export const updateAllowedEmailDomains = mutation({
 
 export const updateAllowCooldownOverride = mutation({
   args: {
+    courseId: v.id('courses'),
     allowCDOverride: v.boolean(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndAdmin(ctx);
+    await ensureAuthAndAdmin(ctx, args.courseId);
 
-    const globalSettings = await getGlobalSettings(ctx);
+    const globalSettings = await getGlobalSettings(ctx, args.courseId);
 
     await ctx.db.patch(globalSettings._id, {
       allow_cooldown_override: args.allowCDOverride,
@@ -219,13 +230,14 @@ export const updateAllowCooldownOverride = mutation({
 
 export const updateAllowShowOthersTimer = mutation({
   args: {
+    courseId: v.id('courses'),
     allowShowOthersTimer: v.boolean(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndAdmin(ctx);
+    await ensureAuthAndAdmin(ctx, args.courseId);
 
-    const globalSettings = await getGlobalSettings(ctx);
+    const globalSettings = await getGlobalSettings(ctx, args.courseId);
 
     await ctx.db.patch(globalSettings._id, {
       allow_tas_show_others_timer: args.allowShowOthersTimer,
@@ -237,11 +249,12 @@ export const updateAllowShowOthersTimer = mutation({
 
 export const updateTimezone = mutation({
   args: {
+    courseId: v.id('courses'),
     timezone: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndAdmin(ctx);
+    await ensureAuthAndAdmin(ctx, args.courseId);
 
     const trimmedTimezone = args.timezone.trim();
     if (!trimmedTimezone) {
@@ -252,7 +265,7 @@ export const updateTimezone = mutation({
       throw new ConvexError('Invalid timezone for Luxon');
     }
 
-    const globalSettings = await getGlobalSettings(ctx);
+    const globalSettings = await getGlobalSettings(ctx, args.courseId);
 
     await ctx.db.patch(globalSettings._id, {
       timezone: trimmedTimezone,
@@ -266,6 +279,7 @@ export const updateTimezone = mutation({
 
 export const createAssignment = mutation({
   args: {
+    courseId: v.id('courses'),
     name: v.string(),
     assignment_type: v.optional(v.string()),
     start_date_ms: v.number(),
@@ -273,9 +287,9 @@ export const createAssignment = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndAdmin(ctx);
+    await ensureAuthAndAdmin(ctx, args.courseId);
 
-    const curr_sem = await getCurrentSemester(ctx);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
 
     await ctx.db.insert('assignments', {
       name: args.name,
@@ -291,6 +305,7 @@ export const createAssignment = mutation({
 
 export const updateAssignment = mutation({
   args: {
+    courseId: v.id('courses'),
     assignment_id: v.id('assignments'),
     name: v.string(),
     assignment_type: v.optional(v.string()),
@@ -299,13 +314,9 @@ export const updateAssignment = mutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndAdmin(ctx);
+    await ensureAuthAndAdmin(ctx, args.courseId);
 
-    const assignment = await ctx.db.get(args.assignment_id);
-
-    if (!assignment) {
-      throw new ConvexError('Assignment not found');
-    }
+    await getAssignmentInCourse(ctx, args.courseId, args.assignment_id);
 
     await ctx.db.patch(args.assignment_id, {
       name: args.name,
@@ -320,17 +331,14 @@ export const updateAssignment = mutation({
 
 export const deleteAssignment = mutation({
   args: {
+    courseId: v.id('courses'),
     assignment_id: v.id('assignments'),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndAdmin(ctx);
+    await ensureAuthAndAdmin(ctx, args.courseId);
 
-    const assignment = await ctx.db.get(args.assignment_id);
-
-    if (!assignment) {
-      throw new ConvexError('Assignment not found');
-    }
+    await getAssignmentInCourse(ctx, args.courseId, args.assignment_id);
 
     await ctx.db.delete(args.assignment_id);
 
@@ -342,17 +350,18 @@ export const deleteAssignment = mutation({
 
 export const addLocation = mutation({
   args: {
+    courseId: v.id('courses'),
     room: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndAdmin(ctx);
+    await ensureAuthAndAdmin(ctx, args.courseId);
 
     if (!args.room) {
       throw new ConvexError('Room name cannot be empty');
     }
 
-    const globalSettings = await getGlobalSettings(ctx);
+    const globalSettings = await getGlobalSettings(ctx, args.courseId);
 
     const dayDictionary = { ...globalSettings.day_to_location_dict };
 
@@ -372,15 +381,16 @@ export const addLocation = mutation({
 
 export const updateLocations = mutation({
   args: {
+    courseId: v.id('courses'),
     room: v.string(), // string room name
     days: v.array(v.string()), // array of day names for this room
     daysOfWeek: v.record(v.string(), v.number()), // dictionary of day names to day indices
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndAdmin(ctx);
+    await ensureAuthAndAdmin(ctx, args.courseId);
 
-    const globalSettings = await getGlobalSettings(ctx);
+    const globalSettings = await getGlobalSettings(ctx, args.courseId);
 
     const newDayDictionary = { ...globalSettings.day_to_location_dict };
 
@@ -413,13 +423,14 @@ export const updateLocations = mutation({
 
 export const removeLocation = mutation({
   args: {
+    courseId: v.id('courses'),
     room: v.string(),
     days: v.array(v.number()),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndAdmin(ctx);
-    const globalSettings = await getGlobalSettings(ctx);
+    await ensureAuthAndAdmin(ctx, args.courseId);
+    const globalSettings = await getGlobalSettings(ctx, args.courseId);
     const dayDictionary = { ...globalSettings.day_to_location_dict };
 
     for (const dayInt of args.days) {
@@ -446,13 +457,14 @@ export const removeLocation = mutation({
 
 export const updateWhitelistSettings = mutation({
   args: {
+    courseId: v.id('courses'),
     enableWhitelist: v.boolean(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndAdmin(ctx);
+    await ensureAuthAndAdmin(ctx, args.courseId);
 
-    const curr_sem = await getCurrentSemester(ctx);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
 
     await ctx.db.patch(curr_sem._id, {
       enable_whitelist: args.enableWhitelist,
@@ -464,13 +476,14 @@ export const updateWhitelistSettings = mutation({
 
 export const updateBlacklistSettings = mutation({
   args: {
+    courseId: v.id('courses'),
     enableBlacklist: v.boolean(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndAdmin(ctx);
+    await ensureAuthAndAdmin(ctx, args.courseId);
 
-    const curr_sem = await getCurrentSemester(ctx);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
 
     await ctx.db.patch(curr_sem._id, {
       enable_blacklist: args.enableBlacklist,
@@ -482,15 +495,16 @@ export const updateBlacklistSettings = mutation({
 
 export const updateAccessControlledUser = mutation({
   args: {
+    courseId: v.id('courses'),
     email: v.string(),
     is_whitelisted: v.boolean(),
     is_blacklisted: v.boolean(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndAdmin(ctx);
+    await ensureAuthAndAdmin(ctx, args.courseId);
 
-    const curr_sem = await getCurrentSemester(ctx);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
 
     if (args.is_blacklisted && args.is_whitelisted) {
       throw new ConvexError('User cannot be both blacklisted and whitelisted');
@@ -535,6 +549,7 @@ export const updateAccessControlledUser = mutation({
 
 export const createTA = mutation({
   args: {
+    courseId: v.id('courses'),
     name: v.string(),
     email: v.string(),
     isAdmin: v.boolean(),
@@ -542,9 +557,9 @@ export const createTA = mutation({
   returns: v.null(),
   handler: async (ctx, args) => {
     try {
-      await ensureAuthAndAdmin(ctx);
+      await ensureAuthAndAdmin(ctx, args.courseId);
     } catch (error) {
-      await ensureAuthAndOwner(ctx);
+      await ensureAuthAndOwner(ctx, args.courseId);
     }
 
     const user = await ctx.db
@@ -552,7 +567,7 @@ export const createTA = mutation({
       .withIndex('email', (x) => x.eq('email', args.email))
       .first();
 
-    const curr_sem = await getCurrentSemester(ctx);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
     // if a user already exists, link to that user
     if (user != null) {
       // if they don't have a sem user yet, make one
@@ -653,15 +668,16 @@ export const createTA = mutation({
  */
 export const updateTA = mutation({
   args: {
+    courseId: v.id('courses'),
     email: v.string(),
     isAdmin: v.boolean(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
     try {
-      await ensureAuthAndAdmin(ctx);
+      await ensureAuthAndAdmin(ctx, args.courseId);
     } catch (error) {
-      await ensureAuthAndOwner(ctx);
+      await ensureAuthAndOwner(ctx, args.courseId);
     }
 
     // check if the ta object exists
@@ -670,7 +686,7 @@ export const updateTA = mutation({
       .withIndex('email', (x) => x.eq('email', args.email))
       .first();
 
-    const curr_sem = await getCurrentSemester(ctx);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
 
     if (!user) {
       // check in future_tas
@@ -721,14 +737,15 @@ export const updateTA = mutation({
  */
 export const deleteTA = mutation({
   args: {
+    courseId: v.id('courses'),
     email: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
     try {
-      await ensureAuthAndAdmin(ctx);
+      await ensureAuthAndAdmin(ctx, args.courseId);
     } catch (error) {
-      await ensureAuthAndOwner(ctx);
+      await ensureAuthAndOwner(ctx, args.courseId);
     }
 
     const user = await ctx.db
@@ -736,7 +753,7 @@ export const deleteTA = mutation({
       .withIndex('email', (x) => x.eq('email', args.email))
       .first();
 
-    const curr_sem = await getCurrentSemester(ctx);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
 
     if (!user) {
       // check in future_tas
@@ -785,19 +802,20 @@ export const deleteTA = mutation({
 
 export const changeSemester = mutation({
   args: {
+    courseId: v.id('courses'),
     new_sem_name: v.string(),
     owner_emails: v.optional(v.array(v.string())),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    const { user_data } = await ensureAuthAndOwner(ctx);
+    const { user_data } = await ensureAuthAndOwner(ctx, args.courseId);
 
-    const queue_length = await getQueueLength(ctx);
+    const queue_length = await getQueueLength(ctx, args.courseId);
     if (queue_length > 0) {
       throw new ConvexError('Queue is not empty');
     }
 
-    const curr_sem = await getCurrentSemester(ctx);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
     const curr_owners = curr_sem.owner_emails;
 
     if (!curr_owners.includes(user_data.email!)) {
@@ -807,7 +825,9 @@ export const changeSemester = mutation({
     // try looking up next sem by name
     const existing_sem = await ctx.db
       .query('semesters')
-      .withIndex('by_name', (x) => x.eq('name', args.new_sem_name))
+      .withIndex('by_course_and_name', (x) =>
+        x.eq('course_id', args.courseId).eq('name', args.new_sem_name),
+      )
       .first();
 
     let new_sem_id;
@@ -816,6 +836,7 @@ export const changeSemester = mutation({
     } else {
       const new_owners = args.owner_emails ?? curr_owners;
       const new_sem = await ctx.db.insert('semesters', {
+        course_id: args.courseId,
         name: args.new_sem_name,
         owner_emails: new_owners,
 
@@ -842,7 +863,7 @@ export const changeSemester = mutation({
       new_sem_id = new_sem;
     }
 
-    const globalSettings = await getGlobalSettings(ctx);
+    const globalSettings = await getGlobalSettings(ctx, args.courseId);
 
     await ctx.db.patch(globalSettings._id, {
       curr_sem: new_sem_id,
@@ -854,13 +875,14 @@ export const changeSemester = mutation({
 
 export const updateSlackURL = mutation({
   args: {
+    courseId: v.id('courses'),
     slackURL: v.string(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ensureAuthAndAdmin(ctx);
+    await ensureAuthAndAdmin(ctx, args.courseId);
 
-    const globalSettings = await getGlobalSettings(ctx);
+    const globalSettings = await getGlobalSettings(ctx, args.courseId);
 
     await ctx.db.patch(globalSettings._id, {
       slackbot_webhook_url: args.slackURL,
