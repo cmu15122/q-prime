@@ -172,7 +172,9 @@ export async function getWaittimeData(
   }
 }
 
-// Returns the student's queue entry only if it belongs to courseId's current semester.
+/**
+ * Returns the student's queue entry only if it belongs to courseId's current semester.
+ */
 export async function getQueueEntry(
   ctx: QueryCtx,
   courseId: Id<'courses'>,
@@ -195,8 +197,10 @@ export async function getQueueEntry(
   return queue_entry;
 }
 
-// Fetches an assignment and asserts it belongs to courseId's current semester.
-// Throws if the assignment doesn't exist or belongs to a different course.
+/**
+ * Fetches an assignment and asserts it belongs to courseId's current semester.
+ * Throws if the assignment doesn't exist or belongs to a different course.
+ */
 export async function getAssignmentInCourse(
   ctx: QueryCtx,
   courseId: Id<'courses'>,
@@ -252,7 +256,9 @@ export const createStudentFromUser = internalMutation({
   },
 });
 
-// update queue positions (every student after the removed student moves up one position except frozen students)
+/**
+ * Update queue positions (every student after the removed student moves up one position except frozen students).
+ */
 export const removeQueueEntry = internalMutation({
   args: {
     queue_entry_id: v.id('ohq'),
@@ -467,8 +473,10 @@ export const internalEnsureTA = internalQuery({
   },
 });
 
-// Auth callback helper: ensure a userPreferences row exists for this user.
-// Called from afterUserCreatedOrUpdated — has no course context.
+/**
+ * Auth callback helper: ensure a userPreferences row exists for this user.
+ * Called from afterUserCreatedOrUpdated — has no course context.
+ */
 export const internalUpsertUserPrefs = internalMutation({
   args: { user_id: v.id('users') },
   handler: async (ctx, args) => {
@@ -487,12 +495,14 @@ export const internalUpsertUserPrefs = internalMutation({
   },
 });
 
-// Make userPreferences entry if it doesn't exist
-//
-// If a semesterUser doesn't exist for this course's current semester:
-// - default to student unless they're in future_tas
-// - student: insert semesterUsers (kind="student") + students row
-// - TA:      insert semesterUsers (kind="TA")      + tas row, and delete the future_tas entry
+/**
+ * Make userPreferences entry if it doesn't exist.
+ *
+ * If a semesterUser doesn't exist for this course's current semester:
+ * - default to student unless they're in future_tas
+ * - student: insert semesterUsers (kind="student") + students row
+ * - TA:      insert semesterUsers (kind="TA")      + tas row, and delete the future_tas entry
+ */
 export const internalEnrollInCourse = internalMutation({
   args: {
     user_id: v.id('users'),
@@ -563,7 +573,7 @@ export const internalEnrollInCourse = internalMutation({
           zoom_enabled: false,
           zoom_url: '',
 
-          join_notifs_enabled: false,
+          join_notifs_enabled: true,
           remind_notifs_enabled: false,
           remind_time_mins: 10,
 

@@ -423,7 +423,9 @@ async function sendQueueJoinNotifs(
   );
 }
 
-// Remove student, write to database
+/**
+ * Remove student, write to database.
+ */
 export const removeStudent = mutation({
   args: {
     courseId: v.id('courses'),
@@ -823,8 +825,10 @@ export const internalWaittimeIntervalCheck = internalMutation({
   },
 });
 
-// Cron entry point: run the per-course waittime check for every registered course.
-// Each course is wrapped in try/catch so one bad course doesn't suppress the rest.
+/**
+ * Cron entry point: run the per-course waittime check for every registered course.
+ * Each course is wrapped in try/catch so one bad course doesn't suppress the rest.
+ */
 export const internalWaittimeIntervalCheckAllCourses = internalMutation({
   args: {},
   handler: async (ctx) => {

@@ -14,7 +14,6 @@ import {
 } from '../common';
 import { getZoneDayOfWeek } from '../util/time';
 
-// returns null if first time setup is required
 export const getQueueData = query({
   args: { courseId: v.id('courses') },
   handler: async (ctx, args) => {

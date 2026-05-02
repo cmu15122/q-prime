@@ -543,10 +543,12 @@ export const updateAccessControlledUser = mutation({
 });
 
 /** TA Functions **/
-// Note: These functions are not fully implemented because they require careful
-// handling of user creation flows and cross-table updates that need more context
-// about the authentication system and user lifecycle management.
 
+/**
+ * Note: These functions are not fully implemented because they require careful
+ * handling of user creation flows and cross-table updates that need more context
+ * about the authentication system and user lifecycle management.
+ */
 export const createTA = mutation({
   args: {
     courseId: v.id('courses'),
@@ -630,7 +632,7 @@ export const createTA = mutation({
           is_admin: args.isAdmin,
           zoom_enabled: false,
           zoom_url: '',
-          join_notifs_enabled: false,
+          join_notifs_enabled: true,
           remind_notifs_enabled: false,
           remind_time_mins: 10,
           show_self_timer: false,

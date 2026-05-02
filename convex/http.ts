@@ -15,7 +15,9 @@ const API_PREFIX = process.env.HTTP_API_PREFIX ?? '/api';
 
 auth.addHttpRoutes(http);
 
-// Helper function to create CORS headers
+/**
+ * Helper function to create CORS headers.
+ */
 function createCorsHeaders(additionalHeaders: Record<string, string> = {}) {
   const origin = process.env.SITE_URL || '*';
   return {
@@ -28,7 +30,9 @@ function createCorsHeaders(additionalHeaders: Record<string, string> = {}) {
   };
 }
 
-// Helper function to handle preflight requests
+/**
+ * Helper function to handle preflight requests.
+ */
 function handlePreflight() {
   return new Response(null, {
     status: 204,
@@ -36,7 +40,9 @@ function handlePreflight() {
   });
 }
 
-// Multi-tenant: every CSV route requires ?courseId=<id> in the request URL.
+/**
+ * Multi-tenant: every CSV route requires ?courseId=<id> in the request URL.
+ */
 function getCourseIdFromRequest(request: Request): Id<'courses'> {
   const url = new URL(request.url);
   const courseId = url.searchParams.get('courseId');

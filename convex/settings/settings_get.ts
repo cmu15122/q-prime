@@ -9,8 +9,10 @@ import {
 import { Id } from '../_generated/dataModel';
 import { QueryCtx } from '../_generated/server';
 
-// Settings pages render for both TAs and course owners. This helper gates
-// "settings reads" — it accepts either role and throws otherwise.
+/**
+ * Settings pages render for both TAs and course owners. This helper gates
+ * "settings reads" — it accepts either role and throws otherwise.
+ */
 async function ensureAuthAndTAOrOwner(ctx: QueryCtx, courseId: Id<'courses'>) {
   const user_data = await getCurrentUser(ctx, courseId);
   if (!user_data) {
