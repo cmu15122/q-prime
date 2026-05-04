@@ -83,6 +83,15 @@ export default function CreateCoursePage() {
           Sign in with Google before creating a course. Your account will be the course owner —
           you'll add other owner emails on the next screen.
         </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+          This project is hosted for free for educational uses. There is no service level agreement
+          or warranty. By continuing, you acknowledge that your service can be discontinued at any
+          time.
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+          On a lighter note, I plan on hosting this indefinitely so it shouldn't be a worry! This
+          project will always be open source and have a self-hosting option.
+        </Typography>
         <Button
           variant="contained"
           sx={{ mt: 3 }}
