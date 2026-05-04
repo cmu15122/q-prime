@@ -9,15 +9,13 @@ if [ -z "$DOMAIN" ]; then
     exit 1
 fi
 
-# Set defaults for prefixes
-HTTP_CLIENT_PREFIX="${HTTP_CLIENT_PREFIX:-/ohq}"
+# HTTP_API_PREFIX scopes Convex's HTTP API.
 HTTP_API_PREFIX="${HTTP_API_PREFIX:-/api}"
 
-export DOMAIN HTTP_CLIENT_PREFIX HTTP_API_PREFIX
+export DOMAIN HTTP_API_PREFIX
 
 echo "Configuration:"
 echo "  DOMAIN: $DOMAIN"
-echo "  HTTP_CLIENT_PREFIX: $HTTP_CLIENT_PREFIX"
 echo "  HTTP_API_PREFIX: $HTTP_API_PREFIX"
 
 # Check if SSL certificates exist
@@ -25,13 +23,13 @@ CERT_PATH="/etc/letsencrypt/live/$DOMAIN/fullchain.pem"
 
 if [ -f "$CERT_PATH" ]; then
     echo "SSL certificates found for $DOMAIN - using HTTPS"
-    envsubst '${DOMAIN} ${HTTP_CLIENT_PREFIX} ${HTTP_API_PREFIX}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf
+    envsubst '${DOMAIN} ${HTTP_API_PREFIX}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf
 else
     echo "SSL certificates NOT found for $DOMAIN - using HTTP only"
     echo ""
     echo "To enable SSL: re-run ./docker/scripts/setup.sh and answer Y to the SSL prompt"
     echo ""
-    envsubst '${DOMAIN} ${HTTP_CLIENT_PREFIX} ${HTTP_API_PREFIX}' < /etc/nginx/templates/default-http-only.conf.template > /etc/nginx/conf.d/default.conf
+    envsubst '${DOMAIN} ${HTTP_API_PREFIX}' < /etc/nginx/templates/default-http-only.conf.template > /etc/nginx/conf.d/default.conf
 fi
 
 # Test config

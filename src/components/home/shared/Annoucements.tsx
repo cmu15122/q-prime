@@ -1,18 +1,15 @@
 import { useState } from 'react';
 import {
   Box,
-  Button,
-  CardActions,
-  IconButton,
   Divider,
   Stack,
-  Typography,
   Table,
-  TableCell,
   TableBody,
+  TableCell,
   TableContainer,
+  Typography,
 } from '@mui/material';
-import { Edit, Delete } from '@mui/icons-material';
+import { Edit, Delete, Add } from '@mui/icons-material';
 import Linkify from 'linkify-react';
 
 import AnnouncementDialogBody from './dialogs/AnnouncementDialogBody';
@@ -22,10 +19,12 @@ import DeleteDialog from '../../common/dialogs/DeleteDialog';
 
 import BaseCard from '../../common/cards/BaseCard';
 import ItemRow from '../../common/table/ItemRow';
+import OhqButton from '../../common/buttons/OhqButton';
 
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import { useCourseId } from '../../../contexts/CourseContext';
+import { t, s } from '../../../themes/styles';
 
 export default function Announcements() {
   const courseId = useCourseId();
@@ -34,7 +33,6 @@ export default function Announcements() {
   const isTA = userData && userData.user_kind === 'TA';
   const rows = queueData?.announcements || [];
 
-  /** Dialog Functions */
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
@@ -69,103 +67,103 @@ export default function Announcements() {
 
   const handleAdd = async (event) => {
     event.preventDefault();
-    await createAnnouncementMutation({
-      courseId,
-      content: content,
-    }).then(() => {
-      handleClose();
-    });
+    await createAnnouncementMutation({ courseId, content }).then(() => handleClose());
   };
 
   const handleEdit = async (event) => {
     event.preventDefault();
-    await updateAnnouncementMutation({
-      courseId,
-      idx: selectedIdx!,
-      content: content,
-    }).then(() => {
-      handleClose();
-    });
+    await updateAnnouncementMutation({ courseId, idx: selectedIdx!, content }).then(() =>
+      handleClose(),
+    );
   };
 
-  const handleDelete = async (event) => {
-    event.preventDefault();
-    await deleteAnnouncementMutation({
-      courseId,
-      idx: selectedIdx!,
-    }).then(() => {
-      handleClose();
-    });
+  const handleDelete = async () => {
+    await deleteAnnouncementMutation({ courseId, idx: selectedIdx! }).then(() => handleClose());
   };
 
   return (
-    <div style={{ paddingTop: '10px' }}>
+    <>
       <BaseCard>
-        <CardActions style={{ justifyContent: 'space-between' }}>
-          <Typography sx={{ fontWeight: 'bold', ml: 2, mt: 1 }} variant="h5" gutterBottom>
-            Announcements
-          </Typography>
+        <Box sx={{ ...s.cardHeader, alignItems: 'center' }}>
+          <Box>
+            <Box component="h2" sx={t.cardTitle}>
+              Announcements
+            </Box>
+            {isTA && (
+              <Typography sx={[t.bodyMuted, { mt: 0.5 }]}>
+                Announcements are public to all students.
+              </Typography>
+            )}
+          </Box>
           {isTA && (
-            <Button
-              sx={{ fontWeight: 'bold', mr: 1 }}
-              variant="contained"
+            <OhqButton
+              variant="primary"
               onClick={handleAddDialog}
+              startIcon={<Add fontSize="small" />}
             >
-              + Create
-            </Button>
+              Create
+            </OhqButton>
           )}
-        </CardActions>
-        <Divider></Divider>
-        <TableContainer sx={{ maxHeight: '200px' }}>
-          <Table aria-label="topicsTable" sx={{ overflow: 'scroll' }} stickyHeader>
-            <TableBody>
-              {rows
-                .slice()
-                .reverse()
-                .map((row, index) => (
-                  <ItemRow key={index} index={index} rowKey={index}>
-                    <TableCell component="th" scope="row" sx={{ pl: 3.25 }}>
-                      <Typography
-                        sx={{
-                          fontWeight: 'bold',
-                          whiteSpace: 'pre-line',
-                          '& a': {
-                            color: 'primary.main',
-                            cursor: 'pointer',
-                          },
-                        }}
-                      >
-                        <Linkify options={{ target: '_blank' }}>{row}</Linkify>
-                      </Typography>{' '}
-                    </TableCell>
-                    <TableCell>
-                      <Stack sx={{ mr: 2 }} direction="row" margin="auto" justifyContent="flex-end">
+        </Box>
+        <Divider />
+        {rows.length > 0 && (
+          <TableContainer sx={{ maxHeight: 200 }}>
+            <Table aria-label="announcementsTable" stickyHeader>
+              <TableBody>
+                {rows
+                  .slice()
+                  .reverse()
+                  .map((row, index) => (
+                    <ItemRow key={index} index={index} rowKey={index}>
+                      <TableCell component="th" scope="row" sx={{ pl: 3.25 }}>
+                        <Typography
+                          sx={[
+                            t.body,
+                            {
+                              whiteSpace: 'pre-line',
+                              '& a': { color: 'forest.main', cursor: 'pointer' },
+                            },
+                          ]}
+                        >
+                          <Linkify options={{ target: '_blank' }}>{row}</Linkify>
+                        </Typography>
+                      </TableCell>
+                      <TableCell sx={{ width: 120 }}>
                         {isTA && (
-                          <Box>
-                            <IconButton
-                              sx={{ mr: 1 }}
-                              color="info"
+                          <Stack
+                            direction="row"
+                            spacing={0.5}
+                            justifyContent="flex-end"
+                            sx={{ mr: 1.5 }}
+                          >
+                            <OhqButton
+                              variant="icon"
+                              aria-label="edit"
                               onClick={() => handleEditDialog(row, index)}
                             >
-                              <Edit />
-                            </IconButton>
-
-                            <IconButton color="error" onClick={() => handleDeleteDialog(index)}>
-                              <Delete />
-                            </IconButton>
-                          </Box>
+                              <Edit fontSize="small" />
+                            </OhqButton>
+                            <OhqButton
+                              variant="icon"
+                              tone="danger"
+                              aria-label="delete"
+                              onClick={() => handleDeleteDialog(index)}
+                            >
+                              <Delete fontSize="small" />
+                            </OhqButton>
+                          </Stack>
                         )}
-                      </Stack>
-                    </TableCell>
-                  </ItemRow>
-                ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                      </TableCell>
+                    </ItemRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
       </BaseCard>
 
       <AddDialog
-        title="Add New Announcement"
+        title="Announcement"
         isOpen={openAdd}
         onClose={handleClose}
         handleCreate={handleAdd}
@@ -174,7 +172,7 @@ export default function Announcements() {
       </AddDialog>
 
       <EditDialog
-        title={'Edit Announcement'}
+        title="Announcement"
         isOpen={openEdit}
         onClose={handleClose}
         handleEdit={handleEdit}
@@ -183,12 +181,12 @@ export default function Announcements() {
       </EditDialog>
 
       <DeleteDialog
-        title="Delete Announcement"
+        title="Announcement"
         isOpen={openDelete}
         onClose={handleClose}
         handleDelete={handleDelete}
-        itemName={'this announcement'}
+        itemName="this announcement"
       />
-    </div>
+    </>
   );
 }

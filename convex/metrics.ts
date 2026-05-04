@@ -1,5 +1,5 @@
-import { query } from './_generated/server';
-import { v } from 'convex/values';
+import { internalQuery, query } from './_generated/server';
+import { ConvexError, v } from 'convex/values';
 import {
   ensureAuthAndAdmin,
   ensureAuthAndTA,
@@ -863,6 +863,140 @@ export const getTAQuestionHistory = query({
       totalQuestionsAnswered: allQuestions.length,
       totalTimeHelping: formatMinutes(totalTimeHelping),
       avgTimePerQuestion: formatMinutes(avgTimePerQuestion),
+    };
+  },
+});
+
+/**
+ * Admin-only dump of every question in the current semester, joined with
+ * student/TA/assignment names + emails so the CSV is usable standalone.
+ * Called from the /api/download_questions_csv httpAction.
+ */
+export const internalGetQuestionsCsvDump = internalQuery({
+  args: {
+    user_id: v.id('users'),
+    courseId: v.id('courses'),
+  },
+  returns: v.object({
+    semesterName: v.string(),
+    rows: v.array(
+      v.object({
+        question_id: v.id('questions'),
+        semester_id: v.id('semesters'),
+        semester_name: v.string(),
+        assignment_id: v.id('assignments'),
+        assignment_name: v.string(),
+        student_id: v.id('students'),
+        student_name: v.string(),
+        student_email: v.string(),
+        ta_id: v.string(),
+        ta_name: v.string(),
+        ta_email: v.string(),
+        question: v.string(),
+        location: v.string(),
+        created_by: v.string(),
+        finished_by: v.string(),
+        entry_time_ms: v.number(),
+        entry_time_iso: v.string(),
+        exit_time_ms: v.number(),
+        exit_time_iso: v.string(),
+        help_duration_ms: v.number(),
+        num_asked_to_fix: v.number(),
+      }),
+    ),
+  }),
+  handler: async (ctx, args) => {
+    const user = await ctx.db.get(args.user_id);
+    if (!user) {
+      throw new ConvexError('User not authenticated');
+    }
+
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
+
+    const sem_user = await ctx.db
+      .query('semesterUsers')
+      .withIndex('by_sem_and_user', (q) =>
+        q.eq('semester_id', curr_sem._id).eq('user_id', user._id),
+      )
+      .first();
+    if (!sem_user) {
+      throw new ConvexError('User is not enrolled in this course');
+    }
+
+    const ta = await ctx.db
+      .query('tas')
+      .withIndex('by_semuser', (q) => q.eq('semester_user_id', sem_user._id))
+      .first();
+    if (!ta || !ta.is_admin) {
+      throw new ConvexError('User is not an admin');
+    }
+
+    const allQuestions = await ctx.db
+      .query('questions')
+      .withIndex('by_semester_and_entry_time_ms', (q) => q.eq('semester_id', curr_sem._id))
+      .collect();
+
+    allQuestions.sort((a, b) => a.entry_time_ms - b.entry_time_ms);
+
+    const rows = await Promise.all(
+      allQuestions.map(async (q) => {
+        const [student, assignment, taDoc] = await Promise.all([
+          ctx.db.get(q.student_id),
+          ctx.db.get(q.assignment_id),
+          q.ta_id ? ctx.db.get(q.ta_id) : Promise.resolve(null),
+        ]);
+
+        let student_name = '';
+        let student_email = '';
+        if (student) {
+          const [studentPrefs, studentUser] = await Promise.all([
+            ctx.db.get(student.user_prefs_id),
+            ctx.db.get(student.user_id),
+          ]);
+          student_name = studentPrefs?.preferred_name ?? '';
+          student_email = studentUser?.email ?? '';
+        }
+
+        let ta_name = '';
+        let ta_email = '';
+        if (taDoc) {
+          const [taPrefs, taUser] = await Promise.all([
+            ctx.db.get(taDoc.user_prefs_id),
+            ctx.db.get(taDoc.user_id),
+          ]);
+          ta_name = taPrefs?.preferred_name ?? '';
+          ta_email = taUser?.email ?? '';
+        }
+
+        return {
+          question_id: q._id,
+          semester_id: q.semester_id,
+          semester_name: curr_sem.name,
+          assignment_id: q.assignment_id,
+          assignment_name: assignment?.name ?? '',
+          student_id: q.student_id,
+          student_name,
+          student_email,
+          ta_id: q.ta_id ?? '',
+          ta_name,
+          ta_email,
+          question: q.question,
+          location: q.location,
+          created_by: q.created_by,
+          finished_by: q.finished_by,
+          entry_time_ms: q.entry_time_ms,
+          entry_time_iso: new Date(q.entry_time_ms).toISOString(),
+          exit_time_ms: q.exit_time_ms,
+          exit_time_iso: new Date(q.exit_time_ms).toISOString(),
+          help_duration_ms: q.help_duration_ms,
+          num_asked_to_fix: q.num_asked_to_fix,
+        };
+      }),
+    );
+
+    return {
+      semesterName: curr_sem.name,
+      rows,
     };
   },
 });

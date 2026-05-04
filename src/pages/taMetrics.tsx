@@ -117,7 +117,12 @@ function TAMetricsContent() {
     >
       <Navbar isHome={false} />
       <div style={{ margin: 'auto', padding: '10px', width: '90%' }}>
-        <Button component={Link} to={`/${slug}/metrics`} startIcon={<ArrowBackIcon />} sx={{ mt: 2, mb: 1 }}>
+        <Button
+          component={Link}
+          to={`/${slug}/metrics`}
+          startIcon={<ArrowBackIcon />}
+          sx={{ mt: 2, mb: 1 }}
+        >
           Back to Metrics
         </Button>
 

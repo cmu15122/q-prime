@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useMemo } from 'react';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { lightTheme, darkTheme } from '../themes/base';
+import { lightTheme, darkTheme } from '../themes/theme';
 import { Theme } from '@mui/material/styles';
 
 export type ThemeMode = 'light' | 'dark' | 'auto';

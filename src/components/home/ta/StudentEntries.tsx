@@ -2,9 +2,10 @@ import { useState, useEffect, useMemo } from 'react';
 
 import BaseTable from '../../common/table/BaseTable';
 import StudentEntry from './StudentEntry';
+import OhqButton from '../../common/buttons/OhqButton';
 
 import FilterOptions from './dialogs/FilterOptions';
-import { Button, Popover } from '@mui/material';
+import { Popover } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 
 import { useQuery, useMutation } from 'convex/react';
@@ -26,15 +27,14 @@ const Filter = ({ filteredLocations, filteredTopics, setFilteredLocations, setFi
 
   return (
     <div>
-      <Button
-        variant="contained"
+      <OhqButton
+        variant="ghost"
         startIcon={<FilterListIcon />}
-        sx={{ fontWeight: 'bold', mr: 1 }}
         onClick={handleFilterDialog}
         aria-describedby={'popover'}
       >
         Filter
-      </Button>
+      </OhqButton>
       <Popover
         id={'popover'}
         open={openFilterDialog}
@@ -61,10 +61,8 @@ export default function StudentEntries() {
   const userData = useQuery(api.home.home_get.getUserData, { courseId });
   const allStudents = useQuery(api.home.home_get.getAllStudents, { courseId });
 
-  // Add a current time state that will be passed to all StudentStatus components
   const [currentTime, setCurrentTime] = useState(Date.now());
 
-  // Update the current time every second
   useEffect(() => {
     const intervalId = setInterval(() => {
       setCurrentTime(Date.now());
@@ -72,8 +70,6 @@ export default function StudentEntries() {
 
     return () => clearInterval(intervalId);
   }, []);
-
-  /* BEGIN FILTER LOGIC */
 
   const [isHelping, setIsHelping] = useState(false);
   useEffect(() => {
@@ -131,10 +127,6 @@ export default function StudentEntries() {
       />
     );
   }, [filteredLocations, filteredTopics, setFilteredLocations, setFilteredTopics]);
-  /* END FILTER LOGIC (the actual filtering is in QUEUE LOGIC)*/
-
-  /* BEGIN QUEUE LOGIC */
-
   const helpStudentMutation = useMutation(api.home.home_mutate.helpStudent);
   const unhelpStudentMutation = useMutation(api.home.home_mutate.unhelpStudent);
   const askToFixQuestionMutation = useMutation(api.home.home_mutate.askToFixQuestion);
@@ -186,11 +178,7 @@ export default function StudentEntries() {
     });
   };
 
-  const handleClickUnfreeze = (_index) => {
-    new Error('Unfreeze not implemented');
-  };
-
-  /* END QUEUE LOGIC */
+  const handleClickUnfreeze = (_index) => {};
 
   return (
     <BaseTable title="Students" HeaderTailComp={FilterWithProps}>

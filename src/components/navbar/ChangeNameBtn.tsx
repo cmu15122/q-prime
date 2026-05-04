@@ -51,7 +51,7 @@ export default function ChangeNameBtn(props) {
           </Typography>
         </MenuItem>
       ) : (
-        <Button variant="text" onClick={handleClickOpen} sx={{ color: '#FFFFFF' }}>
+        <Button variant="text" onClick={handleClickOpen} sx={{ color: 'ink.primary', minWidth: 0 }}>
           <EditIcon />
         </Button>
       )}

@@ -1,12 +1,14 @@
-import { Typography, Button, Dialog, DialogContent, Stack, useTheme } from '@mui/material';
+import { Typography } from '@mui/material';
 
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import { useCourseId } from '../../../contexts/CourseContext';
 
+import DialogShell from '../../common/dialogs/DialogShell';
+import { t } from '../../../themes/styles';
+
 export default function CooldownViolationOverlay(props) {
   const { open, setOpen, email, question, location, assignmentId, timePassed } = props;
-  const theme = useTheme();
   const courseId = useCourseId();
 
   const queueData = useQuery(api.home.home_get.getQueueData, { courseId });
@@ -16,81 +18,46 @@ export default function CooldownViolationOverlay(props) {
     if (queueData?.allow_cooldown_override) {
       await addQuestionMutation({
         courseId,
-        question: question,
-        location: location,
+        question,
+        location,
         assignment_id: assignmentId,
         override_cooldown: true,
-        email: email,
+        email,
       }).finally(() => {
         setOpen(false);
       });
     }
   }
 
-  if (queueData && queueData.allow_cooldown_override) {
-    const rejoin_time_mins = queueData.rejoin_time_ms / 1000 / 60;
-    return (
-      <Dialog open={open} maxWidth="sm" fullWidth>
-        <DialogContent sx={{ p: 5, textAlign: 'center' }}>
-          <Typography variant="h6" textAlign="center">
-            You rejoined the queue too quickly! Please wait for {rejoin_time_mins} minutes after
-            finishing your last question, which will be in {rejoin_time_mins - timePassed} minutes.
-          </Typography>
+  if (!queueData) return null;
 
-          <Stack alignItems="baseline" justifyContent="space-around" direction="row" spacing={3}>
-            <Button
-              onClick={() => callAddQuestionAPIOverrideCooldown()}
-              color="error"
-              fullWidth
-              variant="contained"
-              sx={{ maxHeight: '50px', mt: 3, alignContent: 'center' }}
-              type="submit"
-            >
-              Override Cooldown
-            </Button>
-            <Button
-              onClick={() => setOpen(false)}
-              style={{ background: theme.alternateColors.cancel }}
-              fullWidth
-              variant="contained"
-              sx={{ maxHeight: '50px', mt: 3, alignContent: 'center' }}
-              type="submit"
-            >
-              Close
-            </Button>
-          </Stack>
+  const rejoin_time_mins = queueData.rejoin_time_ms / 1000 / 60;
+  const remaining = Math.max(0, rejoin_time_mins - timePassed).toFixed(0);
+  const allowOverride = queueData.allow_cooldown_override;
 
-          <Typography lineHeight={1.3} variant="subtitle1" textAlign="center" sx={{ mt: 3 }}>
-            Overriding the cooldown will add you to the queue, however you will be frozen until a TA
-            approves you.
-          </Typography>
-        </DialogContent>
-      </Dialog>
-    );
-  } else if (queueData) {
-    const rejoin_time_mins = queueData.rejoin_time_ms / 1000 / 60;
-
-    return (
-      <Dialog open={open} maxWidth="sm" fullWidth>
-        <DialogContent sx={{ p: 5, textAlign: 'center' }}>
-          <Typography variant="h6" textAlign="center">
-            You rejoined the queue too quickly! Please wait for {rejoin_time_mins} minutes after
-            finishing your last question, which will be in {rejoin_time_mins - timePassed} minutes.
-          </Typography>
-          <Button
-            onClick={() => setOpen(false)}
-            style={{ background: theme.alternateColors.cancel }}
-            fullWidth
-            variant="contained"
-            sx={{ maxHeight: '50px', mt: 3, alignContent: 'center' }}
-            type="submit"
-          >
-            Close
-          </Button>
-        </DialogContent>
-      </Dialog>
-    );
-  } else {
-    return <></>;
-  }
+  return (
+    <DialogShell
+      open={open}
+      onClose={() => setOpen(false)}
+      title="You're on cooldown"
+      subtitle={`Wait ~${remaining} more minute${remaining === '1' ? '' : 's'} before rejoining.`}
+      primaryAction={
+        allowOverride
+          ? { label: 'Override', onClick: callAddQuestionAPIOverrideCooldown }
+          : undefined
+      }
+      secondaryAction={{ label: 'Close', onClick: () => setOpen(false) }}
+    >
+      <Typography sx={t.bodyMuted}>
+        Cooldown is {rejoin_time_mins} minute{rejoin_time_mins === 1 ? '' : 's'} after your last
+        question.
+        {allowOverride && (
+          <>
+            {' '}
+            Overriding will add you to the queue, but you&apos;ll be frozen until a TA approves you.
+          </>
+        )}
+      </Typography>
+    </DialogShell>
+  );
 }

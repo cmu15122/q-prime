@@ -1,25 +1,25 @@
 import PropTypes from 'prop-types';
-import { Box, Button, Dialog, DialogContent, Typography } from '@mui/material';
+import { Box } from '@mui/material';
+
+import DialogShell from './DialogShell';
+
+const FORM_ID = 'ohq-add-dialog-form';
 
 export default function AddDialog(props) {
   const { isOpen, onClose, handleCreate, title, children } = props;
 
   return (
-    <Dialog open={isOpen} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogContent>
-        <Typography variant="h5" sx={{ pb: 2, fontWeight: 'bold', textAlign: 'center' }}>
-          {title}
-        </Typography>
-        <form onSubmit={handleCreate}>
-          {children}
-          <Box textAlign="center" sx={{ pt: 5 }}>
-            <Button type="submit" variant="contained" sx={{ alignSelf: 'center' }}>
-              Add
-            </Button>
-          </Box>
-        </form>
-      </DialogContent>
-    </Dialog>
+    <DialogShell
+      open={isOpen}
+      onClose={onClose}
+      title={title}
+      primaryAction={{ label: 'Add', type: 'submit', formId: FORM_ID }}
+      secondaryAction={{ label: 'Cancel', onClick: onClose }}
+    >
+      <Box component="form" id={FORM_ID} onSubmit={handleCreate}>
+        {children}
+      </Box>
+    </DialogShell>
   );
 }
 

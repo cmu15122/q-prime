@@ -41,6 +41,8 @@ export const getQueueSettings = query({
     enforceEmailDomains: v.boolean(),
     ownerEmails: v.array(v.string()),
     timezone: v.string(),
+    themePrimary: v.optional(v.string()),
+    themeSecondary: v.optional(v.string()),
   }),
   handler: async (ctx, args) => {
     // Returns sensitive fields (slackURL, ownerEmails) — gate on TA or owner.
@@ -63,6 +65,8 @@ export const getQueueSettings = query({
       enforceEmailDomains: globalSettings.enforce_email_domain,
       ownerEmails: curr_sem.owner_emails,
       timezone: globalSettings.timezone,
+      themePrimary: globalSettings.theme_primary,
+      themeSecondary: globalSettings.theme_secondary,
     };
   },
 });

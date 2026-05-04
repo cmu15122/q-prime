@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+  Button,
   Card,
   Divider,
   Typography,
@@ -15,7 +16,9 @@ import {
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 
+import download from 'downloadjs';
 import { useQuery } from 'convex/react';
+import { useAuthToken } from '@convex-dev/auth/react';
 import { api } from '../../../convex/_generated/api';
 import { useCourseId, useCourseSlug } from '../../contexts/CourseContext';
 
@@ -24,6 +27,36 @@ export default function AdminMetrics() {
   const slug = useCourseSlug();
   const rankedStudentsData = useQuery(api.metrics.getRankedStudents, { courseId });
   const rankedTAsData = useQuery(api.metrics.getRankedTAs, { courseId });
+
+  const token = useAuthToken();
+  const handleExportQuestionsCsv = async () => {
+    if (!token) {
+      console.error('No auth token available');
+      return;
+    }
+
+    try {
+      const httpActionUrl = import.meta.env.VITE_APP_CONVEX_SITE_URL;
+
+      const response = await fetch(`${httpActionUrl}/download_questions_csv?courseId=${courseId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Download failed: ${response.statusText}`);
+      }
+
+      const blob = await response.blob();
+      const contentDisposition = response.headers.get('Content-Disposition');
+      const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
+      const filename = filenameMatch ? filenameMatch[1] : 'questions.csv';
+
+      download(blob, filename);
+    } catch (error) {
+      console.error('Error downloading questions CSV:', error);
+    }
+  };
 
   const [studentPage, setStudentPage] = useState(0);
   const [rowsPerStudentPage, setRowsPerStudentPage] = useState(10);
@@ -83,12 +116,27 @@ export default function AdminMetrics() {
   ];
 
   return (
-    <div style={{ margin: 'auto', padding: '10px', width: '90%' }}>
-      <Typography variant="h5" sx={{ my: 4 }} fontWeight="bold">
-        Ranked Students and Ranked TAs
-      </Typography>
+    <div>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        sx={{ mt: 4, mx: 10 }}
+      >
+        <Typography variant="h5" fontWeight="bold">
+          Ranked Students and Ranked TAs
+        </Typography>
+        <Button
+          variant="contained"
+          color="info"
+          onClick={handleExportQuestionsCsv}
+          sx={{ fontWeight: 'bold' }}
+        >
+          Export Questions CSV
+        </Button>
+      </Stack>
 
-      <Card>
+      <Card sx={{ mt: 1, mx: 10 }}>
         <Stack
           direction={{ xs: 'column', md: 'row' }}
           justifyContent="space-evenly"

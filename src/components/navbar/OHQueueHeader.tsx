@@ -16,7 +16,7 @@ export default function OHQueueHeader() {
       component={RouterLink}
       to={`/${slug}`}
       sx={{
-        color: theme.alternateColors.navbarText,
+        color: theme.palette.ink.primary,
         fontWeight: 600,
         fontSize: '1.25rem',
         textDecoration: 'none',

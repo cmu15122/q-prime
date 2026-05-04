@@ -4,7 +4,7 @@
 #
 # Prerequisites: docker, docker compose, node
 # Required in .env.docker: DOMAIN, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET
-# Optional in .env.docker: LETSENCRYPT_EMAIL, HTTP_CLIENT_PREFIX, HTTP_API_PREFIX, LETSENCRYPT_STAGING
+# Optional in .env.docker: LETSENCRYPT_EMAIL, HTTP_API_PREFIX, LETSENCRYPT_STAGING
 
 set -euo pipefail
 
@@ -60,11 +60,23 @@ prompt_var() {
 { [ -z "${AUTH_GOOGLE_ID:-}" ] || [ "$AUTH_GOOGLE_ID" = "your-client-id.apps.googleusercontent.com" ]; } && prompt_var AUTH_GOOGLE_ID "Google OAuth client ID"
 { [ -z "${AUTH_GOOGLE_SECRET:-}" ] || [ "$AUTH_GOOGLE_SECRET" = "your-client-secret" ]; } && prompt_var AUTH_GOOGLE_SECRET "Google OAuth client secret"
 
+if [ -z "${VITE_SINGLE_COURSE_MODE:-}" ]; then
+    echo ""
+    echo "  Deployment mode:"
+    echo "    [1] Single-OHQ — root redirects to your one course; no landing page (default)"
+    echo "    [2] Multi-OHQ — host the public landing page (for hosting many courses)"
+    read -rp "  Choose 1 or 2 [1]: " mode_answer
+    if [ "${mode_answer:-1}" = "2" ]; then
+        VITE_SINGLE_COURSE_MODE=false
+    else
+        VITE_SINGLE_COURSE_MODE=true
+    fi
+fi
+
 ok "Required configuration present"
 
 # ── Step 4: Derive config values ───────────────────────────────────────────────
 
-HTTP_CLIENT_PREFIX="${HTTP_CLIENT_PREFIX:-/ohq}"
 HTTP_API_PREFIX="${HTTP_API_PREFIX:-/api}"
 LETSENCRYPT_STAGING="${LETSENCRYPT_STAGING:-0}"
 
@@ -109,7 +121,7 @@ step "Writing .env.docker..."
 # Keys that write_env_file emits. Anything else found in the existing file is
 # preserved verbatim under "# Customization" so users can set vars like
 # RUST_LOG or DOCUMENT_RETENTION_DELAY without losing them on re-run.
-MANAGED_KEYS_RE='^(DOMAIN|LETSENCRYPT_EMAIL|AUTH_GOOGLE_ID|AUTH_GOOGLE_SECRET|HTTP_CLIENT_PREFIX|HTTP_API_PREFIX|LETSENCRYPT_STAGING|JWT_PRIVATE_KEY|JWKS|CONVEX_SELF_HOSTED_ADMIN_KEY|VITE_CONVEX_URL|VITE_APP_CONVEX_SITE_URL|VITE_APP_GOOGLE_CLIENT_ID|CONVEX_CLOUD_ORIGIN|CONVEX_SITE_ORIGIN|CONVEX_SITE_URL|SITE_URL|CONVEX_SELF_HOSTED_URL)='
+MANAGED_KEYS_RE='^(DOMAIN|LETSENCRYPT_EMAIL|AUTH_GOOGLE_ID|AUTH_GOOGLE_SECRET|HTTP_API_PREFIX|LETSENCRYPT_STAGING|VITE_SINGLE_COURSE_MODE|JWT_PRIVATE_KEY|JWKS|CONVEX_SELF_HOSTED_ADMIN_KEY|VITE_CONVEX_URL|VITE_APP_CONVEX_SITE_URL|VITE_APP_GOOGLE_CLIENT_ID|CONVEX_CLOUD_ORIGIN|CONVEX_SITE_ORIGIN|CONVEX_SITE_URL|SITE_URL|CONVEX_SELF_HOSTED_URL)='
 
 write_env_file() {
     local tmp="${ENV_FILE}.tmp"
@@ -131,9 +143,9 @@ HEADER
         printf 'AUTH_GOOGLE_SECRET="%s"\n' "$AUTH_GOOGLE_SECRET"
         echo ""
         echo "# Optional"
-        printf 'HTTP_CLIENT_PREFIX=%s\n'  "$HTTP_CLIENT_PREFIX"
         printf 'HTTP_API_PREFIX=%s\n'     "$HTTP_API_PREFIX"
         printf 'LETSENCRYPT_STAGING=%s\n' "$LETSENCRYPT_STAGING"
+        printf 'VITE_SINGLE_COURSE_MODE=%s\n' "${VITE_SINGLE_COURSE_MODE:-true}"
         echo ""
         echo "# Auto-generated"
         printf 'JWT_PRIVATE_KEY="%s"\n'   "$JWT_PRIVATE_KEY"
@@ -300,7 +312,7 @@ echo "════════════════════════�
 echo "  Setup complete!"
 echo "══════════════════════════════════════════"
 echo ""
-echo "  Site: ${PROTOCOL}://${DOMAIN}${HTTP_CLIENT_PREFIX}/"
+echo "  Site: ${PROTOCOL}://${DOMAIN}/"
 echo ""
 echo "  Re-deployment commands:"
 echo "    Convex functions:  ./docker/scripts/deploy-convex.sh"

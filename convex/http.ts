@@ -5,6 +5,7 @@ import { auth } from './auth';
 import { getAuthUserId } from '@convex-dev/auth/server';
 import { DateTime } from 'luxon';
 import { Id } from './_generated/dataModel';
+import { HEX_COLOR } from './common';
 
 const http = httpRouter();
 
@@ -176,6 +177,78 @@ http.route({
       headers: createCorsHeaders({
         'Content-Type': 'text/csv',
         'Content-Disposition': `attachment; filename="access_control_template.csv"`,
+      }),
+    });
+  }),
+});
+
+// OPTIONS handler for download_questions_csv
+http.route({
+  path: `${API_PREFIX}/download_questions_csv`,
+  method: 'OPTIONS',
+  handler: httpAction(async () => handlePreflight()),
+});
+
+http.route({
+  path: `${API_PREFIX}/download_questions_csv`,
+  method: 'GET',
+  handler: httpAction(async (ctx, request) => {
+    const user = await getAuthUserId(ctx);
+
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    const courseId = getCourseIdFromRequest(request);
+
+    const { semesterName, rows } = await ctx.runQuery(
+      internal.metrics.internalGetQuestionsCsvDump,
+      { user_id: user, courseId },
+    );
+
+    const headers = [
+      'question_id',
+      'semester_id',
+      'semester_name',
+      'assignment_id',
+      'assignment_name',
+      'student_id',
+      'student_name',
+      'student_email',
+      'ta_id',
+      'ta_name',
+      'ta_email',
+      'question',
+      'location',
+      'created_by',
+      'finished_by',
+      'entry_time_ms',
+      'entry_time_iso',
+      'exit_time_ms',
+      'exit_time_iso',
+      'help_duration_ms',
+      'num_asked_to_fix',
+    ] as const;
+
+    const escapeCell = (val: unknown): string => {
+      const s = val == null ? '' : String(val);
+      return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+
+    const lines: string[] = [headers.join(',')];
+    for (const row of rows) {
+      lines.push(headers.map((h) => escapeCell(row[h])).join(','));
+    }
+    const csvContent = lines.join('\r\n');
+
+    const safeSemName = semesterName.replace(/[^a-zA-Z0-9_-]/g, '_') || 'semester';
+    const filename = `questions_${safeSemName}.csv`;
+
+    return new Response(csvContent, {
+      status: 200,
+      headers: createCorsHeaders({
+        'Content-Type': 'text/csv',
+        'Content-Disposition': `attachment; filename="${filename}"`,
       }),
     });
   }),
@@ -377,6 +450,59 @@ http.route({
     return new Response(null, {
       status: 200,
       headers: createCorsHeaders(),
+    });
+  }),
+});
+
+/**
+ * Per-course theme CSS. Returns a single :root rule with the course's
+ * configured primary + secondary colors (or the defaults if unset).
+ *
+ * Mounted at /_theme/<slug>.css. The `index.html` bootstrap synchronously
+ * injects a <link rel="stylesheet"> pointing here whenever a slug is
+ * present in the URL — that link is render-blocking by default, so the
+ * browser delays first paint until the colors arrive. No FOUC even on a
+ * first-ever visit.
+ */
+const DEFAULT_PRIMARY = '#14532D';
+const DEFAULT_SECONDARY = '#EAB308';
+
+http.route({
+  pathPrefix: '/_theme/',
+  method: 'GET',
+  handler: httpAction(async (ctx, request) => {
+    const url = new URL(request.url);
+    const filename = url.pathname.replace(/^\/_theme\//, '');
+    const slug = filename.replace(/\.css$/, '');
+
+    let primary = DEFAULT_PRIMARY;
+    let secondary = DEFAULT_SECONDARY;
+
+    if (slug && /^[a-z0-9-]+$/.test(slug)) {
+      const course = await ctx.runQuery(api.courses.getCourseBySlug, { slug });
+      if (course) {
+        const settings = await ctx.runQuery(internal.common.internalGetGlobalSettings, {
+          courseId: course._id,
+        });
+        if (settings.theme_primary && HEX_COLOR.test(settings.theme_primary)) {
+          primary = settings.theme_primary;
+        }
+        if (settings.theme_secondary && HEX_COLOR.test(settings.theme_secondary)) {
+          secondary = settings.theme_secondary;
+        }
+      }
+    }
+
+    const css = `:root{--ohq-course-primary:${primary};--ohq-course-secondary:${secondary};}\n`;
+
+    return new Response(css, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/css; charset=utf-8',
+        // Short cache so admin color changes propagate within a minute.
+        'Cache-Control': 'public, max-age=60, stale-while-revalidate=300',
+        'Access-Control-Allow-Origin': '*',
+      },
     });
   }),
 });

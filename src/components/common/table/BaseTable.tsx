@@ -1,20 +1,25 @@
 import PropTypes from 'prop-types';
-import { CardActions, Divider, Table, TableBody, Typography } from '@mui/material';
+import { Box, Divider, Table, TableBody } from '@mui/material';
 
 import BaseCard from '../cards/BaseCard';
+import { t, s } from '../../../themes/styles';
 
 export default function BaseTable(props) {
   const { title, children, HeaderTailComp } = props;
 
   return (
     <BaseCard>
-      <CardActions style={{ justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography sx={{ fontWeight: 'bold', ml: 2, mt: 1 }} variant="h5" gutterBottom>
+      <Box sx={{ ...s.cardHeader, alignItems: 'center' }}>
+        <Box component="h2" sx={[t.cardTitle, { minWidth: 0 }]}>
           {title}
-        </Typography>
-        <HeaderTailComp />
-      </CardActions>
-      <Divider></Divider>
+        </Box>
+        {HeaderTailComp && (
+          <Box sx={{ flexShrink: 0 }}>
+            <HeaderTailComp />
+          </Box>
+        )}
+      </Box>
+      <Divider />
       <Table sx={{ width: '100%', tableLayout: 'fixed' }}>
         <TableBody>{children}</TableBody>
       </Table>
@@ -24,6 +29,6 @@ export default function BaseTable(props) {
 
 BaseTable.propTypes = {
   title: PropTypes.string,
-  HeaderTailComp: PropTypes.elementType.isRequired,
+  HeaderTailComp: PropTypes.elementType,
   children: PropTypes.node,
 };

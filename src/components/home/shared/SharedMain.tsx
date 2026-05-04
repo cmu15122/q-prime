@@ -4,12 +4,8 @@ import QueueStats from './QueueStats';
 function SharedMain() {
   return (
     <div>
-      {
-        <div>
-          <Announcements />
-          <QueueStats />
-        </div>
-      }
+      <Announcements />
+      <QueueStats />
     </div>
   );
 }

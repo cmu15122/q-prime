@@ -43,7 +43,7 @@ export default function ThemeToggle() {
           onClick={handleClick}
           size="small"
           sx={{
-            color: theme.alternateColors.navbarText,
+            color: theme.palette.ink.primary,
             ml: 1,
           }}
           aria-controls={open ? 'theme-menu' : undefined}

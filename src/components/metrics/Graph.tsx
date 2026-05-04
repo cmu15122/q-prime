@@ -32,7 +32,9 @@ import { useCourseId } from '../../contexts/CourseContext';
 export default function Graph() {
   const theme = useTheme();
   const courseId = useCourseId();
-  const numStudentsPerDayLastWeekData = useQuery(api.metrics.getNumStudentsPerDayLastWeek, { courseId });
+  const numStudentsPerDayLastWeekData = useQuery(api.metrics.getNumStudentsPerDayLastWeek, {
+    courseId,
+  });
   const numStudentsPerDayData = useQuery(api.metrics.getNumStudentsPerDay, { courseId });
   const numStudentsOverallData = useQuery(api.metrics.getNumStudentsOverall, { courseId });
 

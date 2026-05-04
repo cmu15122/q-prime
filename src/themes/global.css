@@ -1,0 +1,169 @@
+/* =========================================================================
+   Global styles. Loaded once from src/App.tsx; applies to every page.
+
+   What lives here:
+   - Google Fonts import for the four families used across the app.
+   - Body grain overlay (mode-aware via CSS vars set in theme.tsx's MuiCssBaseline).
+   - Global anchor / focus / scrollbar polish.
+   - Toast styling (react-toastify is theme-agnostic and needs explicit colors).
+   - Page-level OHQ utilities (.ohq-helptimer__dot) and shared keyframes
+     (ohq-blink). These are tiny enough to be global rather than page-scoped,
+     and the keyframe is reused by landing.css too.
+
+   What does NOT live here:
+   - MUI theme tokens / palettes / component overrides → theme.tsx
+   - Landing-page styles → landing.css
+   ========================================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+
+/* Body / root chrome.
+   Font is set by MUI's typography in theme.tsx; we only set layout + grain here. */
+body {
+  margin: 0;
+  position: relative;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: var(--ohq-grain-tile, none);
+  background-size: 240px 240px;
+  mix-blend-mode: var(--ohq-grain-blend, multiply);
+  opacity: var(--ohq-grain-opacity, 0);
+  pointer-events: none;
+  z-index: 0;
+}
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+a {
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Used by BaseCard for centered-content layout. */
+.card {
+  margin: auto;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+@media (min-width: 600px) {
+  .card {
+    width: 80%;
+  }
+}
+@media (min-width: 950px) {
+  .card {
+    width: 70%;
+  }
+}
+
+/* Soft transitions on color/border changes app-wide. Disable with .no-transitions. */
+*,
+*::before,
+*::after {
+  transition-property: background-color, border-color, color, fill, stroke, opacity;
+  transition-duration: 0.15s;
+  transition-timing-function: ease;
+}
+.no-transitions *,
+.no-transitions *::before,
+.no-transitions *::after {
+  transition: none !important;
+}
+
+*:focus-visible {
+  outline-offset: 2px;
+}
+
+/* ---- OHQ utilities (used by primitives in src/components/common/) ---- */
+
+.ohq-helptimer__dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ohq-forest);
+  animation: ohq-blink 1.6s infinite ease-in-out;
+}
+
+@keyframes ohq-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* ---- Toast (react-toastify) ---- */
+
+.Toastify__toast-body {
+  padding: 10px 5px;
+  font-family:
+    'DM Sans',
+    'Plus Jakarta Sans',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+}
+.Toastify__toast {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+.Toastify__toast--error {
+  color: #ffffff;
+  background-color: #dc2626;
+}
+.Toastify__toast--success {
+  background-color: #15803d;
+  color: #ffffff;
+}
+.Toastify__toast--info {
+  background-color: #6b9bd2;
+  color: #ffffff;
+}
+.Toastify__toast--warning {
+  background-color: #d97706;
+  color: #ffffff;
+}
+.Toastify__progress-bar {
+  height: 2px;
+}
+
+/* ---- Scrollbar ---- */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(128, 128, 128, 0.3);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(128, 128, 128, 0.5);
+}

@@ -1,16 +1,8 @@
-import { useState } from 'react';
-import {
-  Container,
-  TextField,
-  Button,
-  Typography,
-  Stack,
-  IconButton,
-  Alert,
-} from '@mui/material';
+import { useEffect, useState } from 'react';
+import { Container, TextField, Button, Typography, Stack, IconButton, Alert } from '@mui/material';
 import { Add, Delete } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { useConvexAuth, useMutation } from 'convex/react';
+import { useConvexAuth, useMutation, useQuery } from 'convex/react';
 import { useAuthActions } from '@convex-dev/auth/react';
 import { api } from '../../convex/_generated/api';
 
@@ -18,15 +10,28 @@ export default function CreateCoursePage() {
   const { isAuthenticated, isLoading } = useConvexAuth();
   const { signIn } = useAuthActions();
 
+  // Skip the query when not authenticated — convex returns undefined for skipped queries.
+  const ownedCourse = useQuery(api.courses.getMyOwnedCourse, isAuthenticated ? {} : 'skip');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (ownedCourse) {
+      navigate(`/${ownedCourse.slug}`, { replace: true });
+    }
+  }, [ownedCourse, navigate]);
+
   const [slug, setSlug] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [semesterName, setSemesterName] = useState('');
   const [emails, setEmails] = useState([{ id: 0, value: '' }]);
   const [nextId, setNextId] = useState(1);
   const [error, setError] = useState<string | null>(null);
+  // Per-course branding. Defaults match the standard forest + amber tokens —
+  // anyone fine with the defaults can ignore these inputs.
+  const [themePrimary, setThemePrimary] = useState('#14532D');
+  const [themeSecondary, setThemeSecondary] = useState('#EAB308');
 
   const createCourse = useMutation(api.courses.createCourse);
-  const navigate = useNavigate();
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -38,6 +43,11 @@ export default function CreateCoursePage() {
         display_name: displayName.trim(),
         semester_name: semesterName.trim(),
         owner_emails,
+        // Only send if the user changed off the defaults; otherwise omit so
+        // the server stores `undefined` and falls back to the defaults at
+        // /_theme/<slug>.css render time.
+        theme_primary: themePrimary !== '#14532D' ? themePrimary : undefined,
+        theme_secondary: themeSecondary !== '#EAB308' ? themeSecondary : undefined,
       });
       // User is already signed in (we gate the form on auth). Navigate directly
       // to the new course's settings — no second OAuth round-trip needed.
@@ -55,13 +65,23 @@ export default function CreateCoursePage() {
     );
   }
 
+  if (isAuthenticated && ownedCourse) {
+    return (
+      <Container sx={{ py: 4, maxWidth: 600 }}>
+        <Typography>
+          You already own <strong>{ownedCourse.display_name}</strong>. Taking you there…
+        </Typography>
+      </Container>
+    );
+  }
+
   if (!isAuthenticated) {
     return (
       <Container sx={{ py: 4, maxWidth: 600 }}>
         <Typography variant="h4">Create New Course</Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-          Sign in with Google before creating a course. Your account doesn't need to be an owner —
-          you'll specify the owner emails on the next screen.
+          Sign in with Google before creating a course. Your account will be the course owner —
+          you'll add other owner emails on the next screen.
         </Typography>
         <Button
           variant="contained"
@@ -128,16 +148,12 @@ export default function CreateCoursePage() {
                 value={em.value}
                 onChange={(e) =>
                   setEmails(
-                    emails.map((x) =>
-                      x.id === em.id ? { ...x, value: e.target.value } : x,
-                    ),
+                    emails.map((x) => (x.id === em.id ? { ...x, value: e.target.value } : x)),
                   )
                 }
               />
               <IconButton
-                onClick={() =>
-                  emails.length > 1 && setEmails(emails.filter((x) => x.id !== em.id))
-                }
+                onClick={() => emails.length > 1 && setEmails(emails.filter((x) => x.id !== em.id))}
                 disabled={emails.length === 1}
                 aria-label="remove"
               >
@@ -155,6 +171,63 @@ export default function CreateCoursePage() {
           >
             Add Owner
           </Button>
+
+          <Typography variant="subtitle1" sx={{ mt: 2 }}>
+            Theme colors{' '}
+            <Typography component="span" variant="caption" color="text.secondary">
+              (optional — change later in admin settings)
+            </Typography>
+          </Typography>
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ flex: 1 }}>
+              <input
+                type="color"
+                value={themePrimary}
+                onChange={(e) => setThemePrimary(e.target.value)}
+                style={{
+                  width: 44,
+                  height: 44,
+                  border: 'none',
+                  background: 'none',
+                  padding: 0,
+                  cursor: 'pointer',
+                }}
+                aria-label="Primary color"
+              />
+              <TextField
+                label="Primary"
+                value={themePrimary}
+                onChange={(e) => setThemePrimary(e.target.value)}
+                inputProps={{ pattern: '#[0-9a-fA-F]{6}' }}
+                size="small"
+                sx={{ flex: 1 }}
+              />
+            </Stack>
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ flex: 1 }}>
+              <input
+                type="color"
+                value={themeSecondary}
+                onChange={(e) => setThemeSecondary(e.target.value)}
+                style={{
+                  width: 44,
+                  height: 44,
+                  border: 'none',
+                  background: 'none',
+                  padding: 0,
+                  cursor: 'pointer',
+                }}
+                aria-label="Secondary color"
+              />
+              <TextField
+                label="Secondary"
+                value={themeSecondary}
+                onChange={(e) => setThemeSecondary(e.target.value)}
+                inputProps={{ pattern: '#[0-9a-fA-F]{6}' }}
+                size="small"
+                sx={{ flex: 1 }}
+              />
+            </Stack>
+          </Stack>
 
           <Button type="submit" variant="contained" sx={{ mt: 2 }}>
             Create Course

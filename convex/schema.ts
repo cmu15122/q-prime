@@ -40,6 +40,13 @@ export default defineSchema({
     // current queue status
     is_frozen: v.boolean(),
     announcements: v.array(v.string()),
+
+    // Per-course branding. Both are optional hex strings ("#RRGGBB"); when
+    // unset, the app falls back to the default forest/amber tokens. Served
+    // at /_theme/<slug>.css (see convex/http.ts) so the colors are applied
+    // before first paint.
+    theme_primary: v.optional(v.string()),
+    theme_secondary: v.optional(v.string()),
   }).index('by_course', ['course_id']),
 
   // we'll enforce in the code that this table only ever has one row per course

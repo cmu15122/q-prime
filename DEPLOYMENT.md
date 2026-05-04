@@ -60,8 +60,7 @@ server {
      # return 301 https://$host$request_uri;
   # } # managed by Certbot
 
-  location /ohq/ {
-      rewrite /ohq/(.*) /$1 break;
+  location / {
       proxy_pass http://ohq/;
   }
 
@@ -132,8 +131,6 @@ REACT_APP_DOMAIN=<YOUR_DOMAIN>
 REACT_APP_GOOGLE_CLIENT_ID=<GOOGLE_CLIENT_ID>
 REACT_APP_SOCKET_PATH=/api/socket.io
 REACT_APP_SERVER_PATH=/api
-
-PUBLIC_URL=/ohq
 ```
 
 #### Server .env

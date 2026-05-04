@@ -1,0 +1,1560 @@
+/* =========================================================================
+   Landing-page styles. Scoped to .ohq-landing.
+   CSS variables come from MuiCssBaseline (theme-aware), so this file works
+   in both light (cream paper) and dark (carbon paper) modes automatically.
+   ========================================================================= */
+
+.ohq-landing {
+  background-color: var(--ohq-paper);
+  color: var(--ohq-ink);
+  font-family: var(--ohq-sans);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  position: relative;
+  overflow-x: clip;
+  /* Sticky-footer pattern: column flex with viewport-tall minimum so a short
+     page pushes the footer to the bottom of the screen, while a long page
+     just lets the footer sit at the natural end of the scroll area. */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.ohq-landing > main {
+  flex: 1 0 auto;
+}
+.ohq-landing > .ohq-footer {
+  flex: 0 0 auto;
+}
+/* Grain is a global body::before defined in App.css (mode-aware). */
+
+.ohq-landing a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.ohq-landing ::selection {
+  background: var(--ohq-forest);
+  color: var(--ohq-paper);
+}
+
+/* ---- shared atoms ---- */
+
+.ohq-row {
+  max-width: 1360px;
+  margin-inline: auto;
+  padding-inline: 32px;
+}
+@media (max-width: 640px) {
+  .ohq-row {
+    padding-inline: 20px;
+  }
+}
+
+.ohq-rule {
+  border: 0;
+  border-top: 1px solid var(--ohq-rule);
+  margin: 0;
+}
+
+.ohq-rule--soft {
+  border-top-color: var(--ohq-rule-soft);
+}
+
+.ohq-label {
+  font-family: var(--ohq-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ohq-muted);
+  font-weight: 500;
+}
+
+.ohq-mono {
+  font-family: var(--ohq-mono);
+}
+
+.ohq-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border: 1px solid var(--ohq-rule);
+  background: transparent;
+  color: var(--ohq-ink);
+  font-family: var(--ohq-ui);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.005em;
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    color 120ms ease,
+    border-color 120ms ease,
+    transform 80ms ease;
+  border-radius: 2px;
+}
+
+.ohq-btn:hover {
+  background: var(--ohq-ink);
+  color: var(--ohq-paper);
+  border-color: var(--ohq-ink);
+}
+
+.ohq-btn:active {
+  transform: translateY(1px);
+}
+
+.ohq-btn--primary {
+  background: var(--ohq-forest);
+  border-color: var(--ohq-forest);
+  color: var(--ohq-paper);
+}
+.ohq-btn--primary:hover {
+  background: var(--ohq-forest-soft);
+  border-color: var(--ohq-forest-soft);
+  color: var(--ohq-paper);
+}
+
+.ohq-arrow::after {
+  content: '↗';
+  margin-left: 2px;
+  display: inline-block;
+}
+
+/* ---- shared wordmark (used in header + footer; em-sized so the dot
+       sits in the same relative spot at any font size) ---- */
+
+.ohq-wm {
+  display: inline-flex;
+  align-items: baseline;
+  font-family: var(--ohq-ui);
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  color: var(--ohq-ink);
+  line-height: 1;
+}
+.ohq-wm__dot {
+  display: inline-block;
+  width: 0.3em;
+  height: 0.3em;
+  background: var(--ohq-forest);
+  border-radius: 999px;
+  margin-left: 0.05em;
+  /* Lifted to the cap-height region so it reads as a top-right diacritic
+     on the q rather than a baseline period. Matches the favicon SVG. */
+  transform: translateY(-0.5em);
+}
+
+/* ---- header ---- */
+
+.ohq-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(8px) saturate(1.05);
+  background: color-mix(in srgb, var(--ohq-paper) 84%, transparent);
+  border-bottom: 1px solid var(--ohq-rule-soft);
+}
+
+.ohq-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+}
+
+.ohq-header__right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ohq-header__signin {
+  font-family: var(--ohq-ui);
+  font-size: 14px;
+  color: var(--ohq-ink);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 6px 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.ohq-header__signin:hover {
+  color: var(--ohq-forest);
+}
+
+.ohq-header__signout {
+  font-family: var(--ohq-ui);
+  font-size: 13px;
+  color: var(--ohq-muted);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 6px 4px;
+}
+.ohq-header__signout:hover {
+  color: var(--ohq-ink);
+}
+
+.ohq-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--ohq-rule-soft);
+  background: var(--ohq-paper);
+  color: var(--ohq-ink);
+  border-radius: 999px;
+  transition: border-color 120ms ease;
+}
+.ohq-icon-btn:hover {
+  border-color: var(--ohq-rule);
+}
+
+/* ---- hero ---- */
+
+.ohq-hero {
+  padding-block: 80px 64px;
+}
+@media (max-width: 900px) {
+  .ohq-hero {
+    padding-block: 56px 40px;
+  }
+}
+
+.ohq-hero__head {
+  font-size: clamp(36px, 4.6vw, 64px);
+  margin: 0;
+  font-family: var(--ohq-serif);
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.05;
+  max-width: 24ch;
+}
+
+/* Subtle accent. The previous treatment used Instrument Serif italic which
+   reads as too calligraphic at display sizes. We drop italic entirely, keep
+   the upright serif, and let the forest color do the differentiation. A
+   small letter-spacing nudge separates it from neighboring words. */
+.ohq-hero__head em {
+  font-style: normal;
+  color: var(--ohq-forest);
+  letter-spacing: -0.01em;
+}
+
+.ohq-hero__sub {
+  margin-top: 24px;
+  max-width: 56ch;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--ohq-ink-2);
+}
+
+.ohq-hero__sub strong {
+  font-weight: 600;
+  color: var(--ohq-ink);
+}
+
+.ohq-hero__ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 32px;
+  align-items: center;
+}
+
+.ohq-hero__meta {
+  margin-top: 56px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--ohq-rule);
+}
+
+.ohq-hero__metaitem {
+  /* Padding-left gives breathing room between the vertical separator and the
+     text. The first item has no separator on its left, so we zero it there. */
+  padding: 22px 24px 22px 36px;
+  border-right: 1px solid var(--ohq-rule-soft);
+}
+.ohq-hero__metaitem:first-child {
+  padding-left: 0;
+}
+.ohq-hero__metaitem:last-child {
+  border-right: 0;
+  padding-right: 0;
+}
+.ohq-hero__metaitem .ohq-label {
+  display: block;
+  margin-bottom: 8px;
+}
+.ohq-hero__metaitem strong {
+  font-family: var(--ohq-ui);
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--ohq-ink);
+  display: block;
+}
+.ohq-hero__metaitem span {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--ohq-muted);
+  line-height: 1.4;
+}
+
+/* Stacked layout — once the grid collapses to a single column the per-column
+   left padding and right border stop making sense, so flatten the items and
+   switch to bottom dividers. Placed after the base rules above so the media
+   query wins on equal specificity. */
+@media (max-width: 900px) {
+  .ohq-hero__meta {
+    grid-template-columns: 1fr;
+  }
+  .ohq-hero__metaitem {
+    padding: 16px 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--ohq-rule-soft);
+  }
+  .ohq-hero__metaitem:first-child {
+    padding-top: 0;
+  }
+  .ohq-hero__metaitem:last-child {
+    border-bottom: 0;
+  }
+}
+
+/* ---- section heading rail ---- */
+
+.ohq-section {
+  padding-block: 80px;
+  border-top: 1px solid var(--ohq-rule-soft);
+}
+@media (max-width: 900px) {
+  .ohq-section {
+    padding-block: 56px;
+  }
+}
+
+.ohq-section__head {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 48px;
+  margin-bottom: 40px;
+  align-items: end;
+}
+@media (max-width: 900px) {
+  .ohq-section__head {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+.ohq-section__eyebrow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ohq-section__title {
+  font-family: var(--ohq-ui);
+  font-weight: 600;
+  font-size: clamp(26px, 2.8vw, 38px);
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  margin: 0;
+  color: var(--ohq-ink);
+}
+
+.ohq-section__title em {
+  font-style: normal;
+  color: var(--ohq-forest);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* ---- metrics spotlight ---- */
+
+.ohq-metrics {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 56px;
+  align-items: center;
+}
+@media (max-width: 900px) {
+  .ohq-metrics {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+.ohq-metrics__shot {
+  border: 1px solid var(--ohq-rule);
+  background: var(--ohq-paper-2);
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+}
+
+.ohq-metrics__shot__placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 22px;
+}
+
+.ohq-metrics__chart {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  padding-block: 18px 6px;
+}
+.ohq-metrics__chart i {
+  display: block;
+  flex: 1;
+  background: var(--ohq-forest);
+  opacity: 0.85;
+}
+.ohq-metrics__chart i:nth-child(odd) {
+  background: var(--ohq-ink);
+  opacity: 0.7;
+}
+
+.ohq-metrics__numbers {
+  display: flex;
+  gap: 24px;
+}
+
+.ohq-metrics__numbers dl {
+  margin: 0;
+}
+.ohq-metrics__numbers dt {
+  font-family: var(--ohq-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ohq-muted);
+}
+.ohq-metrics__numbers dd {
+  margin: 4px 0 0;
+  font-family: var(--ohq-ui);
+  font-weight: 600;
+  font-size: 22px;
+  color: var(--ohq-ink);
+}
+
+.ohq-metrics__copy p {
+  margin: 0 0 14px;
+  color: var(--ohq-ink-2);
+  font-size: 15px;
+  line-height: 1.55;
+}
+.ohq-metrics__copy p:last-child {
+  margin-bottom: 0;
+}
+
+/* ---- feature grid ---- */
+
+.ohq-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--ohq-rule);
+  border-bottom: 0;
+  border-right: 0;
+}
+@media (max-width: 1100px) {
+  .ohq-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 640px) {
+  .ohq-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ohq-grid__cell {
+  border-bottom: 1px solid var(--ohq-rule);
+  border-right: 1px solid var(--ohq-rule);
+  padding: 24px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--ohq-paper);
+  transition: background 200ms ease;
+}
+.ohq-grid__cell:hover {
+  background: var(--ohq-paper-2);
+}
+
+.ohq-grid__num {
+  font-family: var(--ohq-mono);
+  font-size: 11px;
+  color: var(--ohq-muted);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.ohq-grid__title {
+  font-family: var(--ohq-ui);
+  font-weight: 600;
+  font-size: 17px;
+  line-height: 1.2;
+  color: var(--ohq-ink);
+}
+
+.ohq-grid__body {
+  font-size: 14px;
+  color: var(--ohq-ink-2);
+  line-height: 1.5;
+}
+
+/* ---- hosting compare ---- */
+
+.ohq-host {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--ohq-rule);
+}
+@media (max-width: 900px) {
+  .ohq-host {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ohq-host__col {
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 340px;
+  position: relative;
+}
+.ohq-host__col + .ohq-host__col {
+  border-left: 1px solid var(--ohq-rule);
+}
+@media (max-width: 900px) {
+  .ohq-host__col + .ohq-host__col {
+    border-left: 0;
+    border-top: 1px solid var(--ohq-rule);
+  }
+}
+
+.ohq-host__col--cloud {
+  background: var(--ohq-paper);
+}
+
+.ohq-host__col--self {
+  background: var(--ohq-paper-2);
+}
+
+.ohq-host__title {
+  font-family: var(--ohq-ui);
+  font-weight: 600;
+  font-size: 28px;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  color: var(--ohq-ink);
+}
+.ohq-host__title em {
+  font-style: normal;
+  color: var(--ohq-forest);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.ohq-host__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--ohq-ink-2);
+}
+
+.ohq-host__list li {
+  position: relative;
+  padding-left: 18px;
+}
+.ohq-host__list li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  color: var(--ohq-muted);
+}
+
+.ohq-host__shell {
+  margin-top: auto;
+  font-family: var(--ohq-mono);
+  font-size: 12.5px;
+  background: var(--ohq-paper-3);
+  color: var(--ohq-ink);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid var(--ohq-rule-soft);
+  border-radius: 2px;
+}
+.ohq-host__shell .prompt {
+  color: var(--ohq-amber);
+}
+.ohq-host__shell .out {
+  color: var(--ohq-muted);
+}
+
+.ohq-host__cta {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* ---- final CTA ---- */
+
+.ohq-final {
+  padding-block: 96px;
+  text-align: center;
+  background: var(--ohq-paper-2);
+  border-top: 1px solid var(--ohq-rule);
+  border-bottom: 1px solid var(--ohq-rule);
+}
+.ohq-final__head {
+  font-family: var(--ohq-serif);
+  font-weight: 400;
+  font-size: clamp(40px, 5.4vw, 72px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--ohq-ink);
+}
+.ohq-final__head em {
+  font-style: normal;
+  color: var(--ohq-forest);
+  letter-spacing: -0.01em;
+}
+.ohq-final__sub {
+  margin-top: 16px;
+  color: var(--ohq-ink-2);
+  font-size: 16px;
+}
+.ohq-final__ctas {
+  margin-top: 36px;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* ---- footer ---- */
+
+.ohq-footer {
+  padding-block: 48px 64px;
+  border-top: 1px solid var(--ohq-rule-soft);
+  background: var(--ohq-paper);
+}
+.ohq-footer__inner {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 40px;
+}
+@media (max-width: 900px) {
+  .ohq-footer__inner {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.ohq-footer__col h4 {
+  margin: 0 0 12px;
+  font-family: var(--ohq-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ohq-muted);
+  font-weight: 500;
+}
+
+.ohq-footer__col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+}
+.ohq-footer__col ul a:hover {
+  color: var(--ohq-forest);
+}
+
+.ohq-footer__tag {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--ohq-muted);
+  max-width: 320px;
+  line-height: 1.5;
+}
+
+.ohq-footer__legal {
+  margin-top: 48px;
+  padding-top: 22px;
+  border-top: 1px solid var(--ohq-rule-soft);
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--ohq-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ohq-muted);
+}
+@media (max-width: 640px) {
+  .ohq-footer__legal {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+/* =========================================================================
+   Scroll demo
+   ========================================================================= */
+
+.ohq-scroll {
+  position: relative;
+  border-top: 1px solid var(--ohq-rule-soft);
+  border-bottom: 1px solid var(--ohq-rule-soft);
+  background: var(--ohq-paper);
+}
+
+.ohq-scroll__sticky {
+  position: sticky;
+  top: 60px;
+  height: calc(100vh - 60px);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 32px 32px;
+  max-width: 1360px;
+  margin-inline: auto;
+  gap: 18px;
+}
+@media (max-width: 900px) {
+  .ohq-scroll__sticky {
+    padding: 18px 20px 24px;
+  }
+}
+
+.ohq-rail {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 24px;
+  padding: 0 4px;
+  position: relative;
+  min-height: 44px;
+}
+
+.ohq-rail__step {
+  font-family: var(--ohq-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ohq-muted);
+  white-space: nowrap;
+}
+
+.ohq-rail__captions {
+  position: relative;
+  height: 32px;
+  overflow: hidden;
+}
+
+.ohq-rail__caption {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  font-family: var(--ohq-ui);
+  font-weight: 500;
+  font-size: 17px;
+  color: var(--ohq-ink);
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ohq-rail__caption em {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--ohq-forest);
+  margin-right: 4px;
+}
+
+.ohq-rail__ticks {
+  display: flex;
+  gap: 4px;
+  width: 140px;
+}
+.ohq-rail__tick {
+  height: 2px;
+  flex: 1;
+  background: var(--ohq-rule-soft);
+}
+
+.ohq-scroll__stage {
+  position: relative;
+  border: 1px solid var(--ohq-rule);
+  background: var(--ohq-paper-2);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.ohq-scroll__stage__chrome {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--ohq-rule-soft);
+  font-family: var(--ohq-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--ohq-muted);
+  background: var(--ohq-paper);
+}
+.ohq-scroll__stage__chrome .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--ohq-rule-soft);
+  border: 1px solid var(--ohq-rule);
+}
+.ohq-scroll__stage__chrome .dot.live {
+  background: var(--ohq-forest);
+  border-color: var(--ohq-forest);
+  animation: ohq-blink 1.6s infinite ease-in-out;
+}
+/* @keyframes ohq-blink lives in themes/global.css */
+.ohq-scroll__stage__chrome .url {
+  margin-left: 4px;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--ohq-ink-2);
+}
+.ohq-scroll__stage__chrome .right {
+  margin-left: auto;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.ohq-scroll__stage__inner {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  background: var(--ohq-paper);
+}
+
+.ohq-scroll--rm {
+  padding-block: 56px;
+}
+.ohq-scroll--rm .stack {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.ohq-scroll--rm .stack__item {
+  border: 1px solid var(--ohq-rule);
+  background: var(--ohq-paper);
+  padding: 22px;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 24px;
+}
+@media (max-width: 700px) {
+  .ohq-scroll--rm .stack__item {
+    grid-template-columns: 1fr;
+  }
+}
+.ohq-scroll--rm .stack__caption {
+  font-family: var(--ohq-ui);
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--ohq-ink);
+}
+
+/* =========================================================================
+   Mock OHQ — table layout matching real BaseTable / StudentEntry
+   ========================================================================= */
+
+.mock-ohq {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 20px 20px;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.mock-stats {
+  border: 1px solid var(--ohq-rule);
+  border-radius: 4px;
+  background: var(--ohq-paper);
+  padding: 14px 22px;
+  display: grid;
+  grid-template-columns: 1fr 1px 1fr;
+  align-items: center;
+  gap: 18px;
+}
+.mock-stats__divider {
+  background: var(--ohq-rule-soft);
+  align-self: stretch;
+}
+.mock-stats__col h4 {
+  margin: 0;
+  font-family: var(--ohq-ui);
+  font-weight: 700;
+  font-size: 19px;
+  color: var(--ohq-ink);
+  line-height: 1.15;
+}
+.mock-stats__col h4 .open {
+  color: var(--ohq-forest);
+}
+.mock-stats__col h4 .closed {
+  color: #b91c1c;
+}
+.mock-stats__col p {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+  color: var(--ohq-ink-2);
+}
+.mock-stats__col p strong {
+  font-weight: 600;
+  color: var(--ohq-ink);
+}
+
+.mock-table {
+  border: 1px solid var(--ohq-rule);
+  border-radius: 4px;
+  background: var(--ohq-paper);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.mock-table__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--ohq-rule-soft);
+}
+.mock-table__head h3 {
+  margin: 0;
+  font-family: var(--ohq-ui);
+  font-weight: 700;
+  font-size: 19px;
+  color: var(--ohq-ink);
+}
+.mock-table__head .filter {
+  font-family: var(--ohq-ui);
+  font-weight: 600;
+  font-size: 12px;
+  border: 1px solid var(--ohq-rule);
+  padding: 5px 10px;
+  background: var(--ohq-paper);
+  color: var(--ohq-ink);
+  border-radius: 2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  letter-spacing: 0.01em;
+}
+
+.mock-table__rows {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.mock-row {
+  display: grid;
+  grid-template-columns: 25% 47% 28%;
+  align-items: flex-start;
+  padding: 12px 16px;
+  background: var(--ohq-paper);
+  border-bottom: 1px solid transparent;
+  position: relative;
+}
+.mock-row:nth-child(even) {
+  background: var(--ohq-paper-3);
+}
+.mock-row.helping {
+  background: color-mix(in srgb, var(--ohq-forest) 12%, var(--ohq-paper));
+  outline: 1px solid color-mix(in srgb, var(--ohq-forest) 40%, transparent);
+  outline-offset: -1px;
+}
+.mock-row.cooldown {
+  background: color-mix(in srgb, var(--ohq-amber) 14%, var(--ohq-paper));
+}
+
+.mock-row__name {
+  font-family: var(--ohq-ui);
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--ohq-ink);
+}
+.mock-row__email {
+  font-size: 12.5px;
+  color: var(--ohq-ink-2);
+  margin-top: 2px;
+}
+.mock-row__loc {
+  margin-top: 2px;
+  font-family: var(--ohq-mono);
+  font-size: 11px;
+  color: var(--ohq-muted);
+  letter-spacing: 0.04em;
+}
+
+.mock-row__topic {
+  font-family: var(--ohq-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ohq-ink);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.mock-row__q {
+  margin-top: 4px;
+  font-size: 13.5px;
+  color: var(--ohq-ink);
+  line-height: 1.45;
+}
+
+.mock-row__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  align-self: center;
+  gap: 8px;
+}
+
+.mock-btn {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--ohq-ui);
+  font-weight: 600;
+  font-size: 12px;
+  padding: 6px 12px;
+  border: 1px solid var(--ohq-rule);
+  background: var(--ohq-paper);
+  color: var(--ohq-ink);
+  border-radius: 2px;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.mock-btn--primary {
+  background: var(--ohq-forest);
+  border-color: var(--ohq-forest);
+  color: var(--ohq-paper);
+}
+.mock-btn--ghost {
+  border-color: var(--ohq-rule-soft);
+  color: var(--ohq-ink-2);
+}
+
+.mock-row__timer {
+  font-family: var(--ohq-mono);
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--ohq-forest);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.mock-row__timer::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--ohq-forest);
+  border-radius: 999px;
+  animation: ohq-blink 1.6s infinite ease-in-out;
+}
+
+.mock-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ohq-muted);
+  font-family: var(--ohq-ui);
+  font-size: 14px;
+  padding: 32px;
+}
+
+/* The `…` overflow trigger every row gets in the real app. Three small dots
+   stacked horizontally — non-interactive in the demo. */
+.mock-overflow {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 4px;
+  cursor: default;
+  position: relative;
+  border-radius: 4px;
+}
+.mock-overflow span:not(.mock-overflow__bg) {
+  width: 3px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--ohq-muted);
+  position: relative;
+  z-index: 1;
+}
+/* Press treatment for the row 2 dots — a soft green-tinted pill that fades in
+   right before the menu opens and out as it closes. */
+.mock-overflow--pressed {
+  z-index: 7;
+}
+.mock-overflow__bg {
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--ohq-forest) 22%, transparent);
+  z-index: 0;
+}
+
+/* Helping row: the Help button stack and the live timer + Cancel/Done stack
+   live in the same slot so they crossfade in place without resizing the row. */
+.mock-row__action-stack {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+}
+.mock-row__action-stack-layer {
+  position: absolute;
+  right: 0;
+  top: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+/* Pin the first (Help) layer so the action column reserves consistent width. */
+.mock-row__action-stack-layer:first-child {
+  position: relative;
+}
+
+/* Small "✓ Sent" chip that flashes on row 2 right after the message dialog
+   closes. Same monospace amber treatment as the old msg-sent indicator. */
+.mock-row__sent-chip {
+  font-family: var(--ohq-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ohq-amber);
+  white-space: nowrap;
+}
+
+/* Cooldown row treatment — amber tint via .mock-row.cooldown already exists,
+   plus an inline [Cooldown] tag with the Pause icon. */
+.mock-row--cooldown {
+  background: color-mix(in srgb, var(--ohq-amber) 14%, var(--ohq-paper));
+}
+.mock-row__cooldown-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--ohq-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ohq-amber);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* Animated overflow menu — opens *below* row 2's `…` trigger and shifted a
+   bit left of the trigger so the press-highlighted dots stay visible above
+   the menu's top-right corner (the cause-and-effect pattern). Pixel coords
+   are chrome-relative: stats card (~74) + gap (14) + table head (~44) +
+   row 1 (~80) puts row 2 around y=230; +60 leaves room below the dots. */
+.mock-overflow-menu {
+  position: absolute;
+  top: 290px;
+  right: 50px;
+  z-index: 6;
+  background: var(--ohq-paper);
+  border: 1px solid var(--ohq-rule);
+  border-radius: 4px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+  min-width: 168px;
+  padding: 4px 0;
+  font-family: var(--ohq-ui);
+}
+.mock-overflow-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  font-size: 13px;
+  color: var(--ohq-ink);
+}
+.mock-overflow-menu__item--danger {
+  color: #b91c1c;
+}
+.mock-overflow-menu__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  font-family: var(--ohq-mono);
+  font-size: 13px;
+  color: inherit;
+}
+
+/* MessageDialog look — mirrors the real DialogShell + MessageDialog combo. */
+.mock-msg-backdrop {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--ohq-paper) 60%, transparent);
+  backdrop-filter: blur(1.5px);
+  z-index: 6;
+}
+.mock-msg-modal {
+  position: absolute;
+  /* Anchored just below the table head so the modal covers the queue rows
+     specifically (not the stats card above). Horizontal centering is handled
+     by framer-motion via `x: '-50%'` so the entry/exit `y` animation can
+     compose with the centering transform without conflicting CSS. */
+  top: 130px;
+  left: 50%;
+  z-index: 7;
+  width: min(440px, 88%);
+  background: var(--ohq-paper);
+  border: 1px solid var(--ohq-rule);
+  border-radius: 4px;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+}
+.mock-msg-modal__head {
+  padding: 18px 22px 12px;
+}
+.mock-msg-modal__title {
+  font-family: var(--ohq-ui);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--ohq-ink);
+  line-height: 1.25;
+}
+.mock-msg-modal__body {
+  padding: 12px 22px;
+}
+.mock-msg-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mock-msg-modal__field-label {
+  font-family: var(--ohq-ui);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ohq-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.mock-msg-modal__textarea {
+  border: 1px solid var(--ohq-rule);
+  border-radius: 3px;
+  padding: 10px 12px;
+  min-height: 88px;
+  font-family: var(--ohq-ui);
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ohq-ink);
+  background: var(--ohq-paper);
+  white-space: pre-wrap;
+}
+.mock-msg-modal__caret {
+  display: inline-block;
+  width: 1px;
+  height: 1.1em;
+  vertical-align: -2px;
+  margin-left: 1px;
+  background: var(--ohq-ink);
+  animation: ohq-blink 1s steps(2, start) infinite;
+}
+.mock-msg-modal__actions {
+  padding: 10px 22px 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.mock-slack {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  width: 320px;
+  background: #1a1d21;
+  color: #fff;
+  padding: 13px 15px;
+  font-family: var(--ohq-ui);
+  border-radius: 6px;
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 10px;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.28);
+  z-index: 7;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.mock-slack__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 5px;
+  background: var(--ohq-amber);
+  color: #1a1d21;
+  font-family: var(--ohq-mono);
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mock-slack__head {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 13px;
+}
+.mock-slack__head strong {
+  font-weight: 700;
+}
+.mock-slack__head .ts {
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 11px;
+}
+.mock-slack__body {
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.85);
+}
+.mock-slack__body code {
+  font-family: var(--ohq-mono);
+  background: rgba(255, 255, 255, 0.06);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+/* =========================================================================
+   Mobile (≤ 700px) — landing layout reflow
+   ========================================================================= */
+
+@media (max-width: 700px) {
+  .ohq-hero__head {
+    font-size: clamp(32px, 9vw, 48px);
+  }
+
+  /* Section breathing room */
+  .ohq-section {
+    padding-block: 56px;
+  }
+  .ohq-section__title {
+    font-size: clamp(24px, 7vw, 32px);
+  }
+
+  /* Metrics card aspect ratio + numerals */
+  .ohq-metrics__shot {
+    aspect-ratio: 4 / 3;
+  }
+  .ohq-metrics__shot__placeholder {
+    padding: 14px;
+  }
+  .ohq-metrics__numbers {
+    gap: 14px;
+  }
+  .ohq-metrics__numbers dd {
+    font-size: 18px;
+  }
+
+  /* Hosting compare — tighter copy block */
+  .ohq-host__col {
+    padding: 24px;
+    min-height: 0;
+  }
+  .ohq-host__title {
+    font-size: 24px;
+  }
+
+  /* Final CTA */
+  .ohq-final {
+    padding-block: 64px;
+  }
+  .ohq-final__head {
+    font-size: clamp(32px, 9vw, 56px);
+    line-height: 1.05;
+  }
+
+  /* Scroll demo: tighter sticky padding + caption rail collapses */
+  .ohq-scroll__sticky {
+    padding: 12px 14px 16px;
+    gap: 10px;
+  }
+  .ohq-rail {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    min-height: auto;
+  }
+  .ohq-rail__step,
+  .ohq-rail__ticks {
+    /* Save vertical space — the caption alone is enough on mobile. */
+    display: none;
+  }
+  .ohq-rail__captions {
+    height: auto;
+    min-height: 38px;
+    overflow: visible;
+  }
+  .ohq-rail__caption {
+    white-space: normal;
+    font-size: 14px;
+    line-height: 1.3;
+  }
+  .ohq-scroll__stage__chrome .url {
+    /* The "app.ohq.dev / 15-122 / ohq" line is too long for narrow chrome. */
+    display: none;
+  }
+
+  /* Mock OHQ — convert rows from 3-column grid to a stacked card.
+     Top: name (+ topic chip beside it) on the left, action button on the
+     right. Bottom: question + location, full width. Email is dropped. */
+  .mock-ohq {
+    padding: 12px;
+    gap: 10px;
+  }
+  .mock-stats {
+    grid-template-columns: 1fr;
+    padding: 12px 14px;
+    gap: 6px;
+  }
+  .mock-stats__divider {
+    display: none;
+  }
+  .mock-stats__col h4 {
+    font-size: 17px;
+  }
+  .mock-stats__col p {
+    font-size: 12.5px;
+    margin-top: 2px;
+  }
+
+  .mock-table__head {
+    padding: 8px 12px;
+  }
+  .mock-table__head h3 {
+    font-size: 17px;
+  }
+  .mock-table__head .filter {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .mock-row {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 4px 10px;
+    padding: 10px 12px;
+  }
+  /* Name + location lives top-left, action sits top-right, topic+question
+     spans the full row underneath. Selectors are class-based so the
+     absolute-positioned helping-tint overlay (which is also a child) doesn't
+     get treated as a grid cell. */
+  .mock-row__info {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+    min-width: 0;
+  }
+  .mock-row__email {
+    display: none;
+  }
+  .mock-row__detail {
+    grid-column: 1 / 3;
+    grid-row: 2 / 3;
+    min-width: 0;
+  }
+  .mock-row__q {
+    font-size: 12.5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  .mock-row__actions {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+    align-items: flex-start;
+  }
+  .mock-row__loc {
+    /* Tuck location next to the name to save a row. */
+    display: inline;
+    margin-left: 6px;
+    margin-top: 0;
+  }
+
+  /* Overflow menu — narrower & re-anchored on small screens. */
+  .mock-overflow-menu {
+    right: 24px;
+    top: 230px;
+    min-width: 148px;
+  }
+
+  /* Message modal — fill the stage minus a small margin, sit just below the
+     table head where the rows are. */
+  .mock-msg-modal {
+    width: calc(100% - 24px);
+    top: 110px;
+  }
+  .mock-msg-modal__head {
+    padding: 14px 16px 8px;
+  }
+  .mock-msg-modal__title {
+    font-size: 15px;
+  }
+  .mock-msg-modal__body {
+    padding: 8px 16px;
+  }
+  .mock-msg-modal__textarea {
+    min-height: 64px;
+    font-size: 12.5px;
+  }
+  .mock-msg-modal__actions {
+    padding: 8px 16px 12px;
+  }
+
+  /* Slack toast — narrower, doesn't bump into the right edge. */
+  .mock-slack {
+    width: calc(100% - 24px);
+    right: 12px;
+    bottom: 12px;
+  }
+}

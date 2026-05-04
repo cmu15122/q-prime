@@ -1,9 +1,4 @@
-# Q-Prime NGINX Configuration (HTTPS)
-#
-# Environment variables substituted at container start:
-#   ${DOMAIN} - Server domain name
-#   ${HTTP_CLIENT_PREFIX} - Frontend route prefix (default: /ohq)
-#   ${HTTP_API_PREFIX} - API route prefix (default: /api)
+# Q-Prime NGINX (HTTPS) — substitutes ${DOMAIN} and ${HTTP_API_PREFIX} at container start.
 
 upstream frontend {
     server frontend:80;
@@ -48,20 +43,14 @@ server {
 
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
 
-    location = / {
-        return 302 ${HTTP_CLIENT_PREFIX}/;
-    }
-
-    location ${HTTP_CLIENT_PREFIX}/ {
-        rewrite ^${HTTP_CLIENT_PREFIX}/(.*) /$1 break;
+    # Per-course theme CSS — proxied to the Convex HTTP action so the colors
+    # come back in time to be applied before first paint.
+    location /_theme/ {
         include /etc/nginx/snippets/proxy-params.conf;
-        proxy_pass http://frontend/;
+        proxy_pass http://convex_site;
     }
 
-    location ${HTTP_CLIENT_PREFIX} {
-        return 302 ${HTTP_CLIENT_PREFIX}/;
-    }
-
+    # API endpoints — most specific first so they win over the frontend `/` location
     location ~ ^${HTTP_API_PREFIX}/(download_|upload_) {
         include /etc/nginx/snippets/proxy-params.conf;
         proxy_pass http://convex_site;
@@ -94,9 +83,14 @@ server {
         proxy_pass http://convex_site/.well-known/jwks.json;
     }
 
-    location /health {
+    location = /health {
         access_log off;
         return 200 "healthy\n";
         add_header Content-Type text/plain;
+    }
+
+    location / {
+        include /etc/nginx/snippets/proxy-params.conf;
+        proxy_pass http://frontend;
     }
 }

@@ -1,59 +1,33 @@
-import { useState, useEffect, useRef } from 'react';
 import { Stack, TableCell, Typography } from '@mui/material';
 import PauseIcon from '@mui/icons-material/Pause';
 
 import EntryTails from './EntryTails';
 import ItemRow from '../../common/table/ItemRow';
+import StudentStatus from './TailOptions/StudentStatus';
 
-import { useQuery, useMutation } from 'convex/react';
+import { useMutation, useQuery } from 'convex/react';
 import { api } from '../../../../convex/_generated/api';
 import { Doc } from '../../../../convex/_generated/dataModel';
 import { useCourseId } from '../../../contexts/CourseContext';
+import { t } from '../../../themes/styles';
 
 export default function StudentEntry(props) {
   const courseId = useCourseId();
-  const queueData = useQuery(api.home.home_get.getQueueData, { courseId });
   const student: Doc<'ohq'> = props['student'];
 
   const { index, handleClickHelp, removeStudent, handleClickUnfreeze, handleFix, currentTime } =
     props;
 
-  const [confirmRemove, setConfirmRemove] = useState(false);
-  const removeRef = useRef();
+  const showCooldownApproval = student.status === 'cooldown_violation';
 
-  const [showCooldownApproval, setShowCooldownApproval] = useState(
-    queueData?.allow_cooldown_override && student.status === 'cooldown_violation',
-  );
+  const userData = useQuery(api.home.home_get.getUserData, { courseId });
+  const isOwnHelp =
+    student.status === 'being_helped' && student.helping_ta?.ta_id === userData?.ta_data?.ta_id;
 
-  useEffect(() => {
-    const closeExpanded = (e) => {
-      const path = e.path || (e.composedPath && e.composedPath());
-      if (!path.includes(removeRef.current)) {
-        setConfirmRemove(false);
-      }
-    };
-
-    document.body.addEventListener('click', closeExpanded);
-    return () => {
-      document.body.removeEventListener('click', closeExpanded);
-    };
-  }, []);
-
-  // Update showCooldownApproval when allowCDOverride changes
-  useEffect(() => {
-    setShowCooldownApproval(
-      queueData?.allow_cooldown_override && student.status === 'cooldown_violation',
-    );
-  }, [queueData?.allow_cooldown_override, student.status]);
-
-  function handleRemoveButton() {
-    if (confirmRemove) {
-      setConfirmRemove(false);
-      removeStudent(index, false);
-    } else {
-      setConfirmRemove(true);
-    }
-  }
+  const isPaused =
+    student.status === 'cooldown_violation' ||
+    student.status === 'fixing_question' ||
+    student.status === 'frozen';
 
   const approveCooldownOverrideMutation = useMutation(api.home.home_mutate.approveCooldownOverride);
   const approveCooldownOverride = async () => {
@@ -62,6 +36,7 @@ export default function StudentEntry(props) {
       student_id: student.student_id,
     });
   };
+
   return (
     <ItemRow index={index} rowKey={student._id}>
       <TableCell
@@ -69,44 +44,48 @@ export default function StudentEntry(props) {
         component="th"
         scope="row"
         sx={{
-          py: 2,
+          py: 1.25,
+          px: 1,
           pl: 2,
-          pr: 1,
-          width: '25%',
+          width: '22%',
           wordBreak: 'break-word',
           verticalAlign: 'top',
         }}
       >
-        <Typography variant="body2" sx={{ fontWeight: 500 }}>
-          {student.student_name}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
-          {student.student_email}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
-          [{student.location}]
-        </Typography>
+        <Typography sx={t.studentName}>{student.student_name}</Typography>
+        <Typography sx={t.studentEmail}>{student.student_email}</Typography>
+        <Typography sx={[t.monoLabel, { mt: '2px' }]}>[{student.location}]</Typography>
       </TableCell>
+      {isPaused && (
+        <TableCell
+          padding="none"
+          align="left"
+          sx={{
+            py: 1.25,
+            px: 1,
+            width: '10%',
+            verticalAlign: 'middle',
+          }}
+        >
+          <Stack direction="column" alignItems="center" justifyContent="center" spacing={0.5}>
+            {isPaused && <PauseIcon fontSize="small" />}
+            <StudentStatus student={student} isOwnHelp={isOwnHelp} />
+          </Stack>
+        </TableCell>
+      )}
       <TableCell
         padding="none"
         align="left"
         sx={{
-          py: 2,
-          pr: 1,
-          width: '45%',
+          py: 1.25,
+          px: 1,
+          width: isPaused ? '40%' : '50%',
           wordBreak: 'break-word',
           verticalAlign: 'top',
         }}
       >
-        <Stack direction="row" alignItems="flex-start" spacing={0.5} sx={{ flexWrap: 'wrap' }}>
-          {(student.status === 'cooldown_violation' ||
-            student.status === 'fixing_question' ||
-            student.status === 'frozen') && <PauseIcon fontSize="small" />}
-          <Typography variant="body2" sx={{ fontWeight: 500 }}>
-            [{student.assignment_name}]
-          </Typography>
-        </Stack>
-        <Typography variant="body2" sx={{ mt: 0.5 }}>
+        <Typography sx={t.monoTag}>[{student.assignment_name}]</Typography>
+        <Typography sx={[t.bodySmall, { mt: 0.5, color: 'ink.primary' }]}>
           {student.question}
         </Typography>
       </TableCell>
@@ -115,22 +94,19 @@ export default function StudentEntry(props) {
         sx={{
           width: '28%',
           verticalAlign: 'middle',
-          pr: 4,
+          px: 1,
         }}
       >
-        {EntryTails({
-          ...props,
-          removeRef: removeRef,
-          confirmRemove: confirmRemove,
-          handleRemoveButton: handleRemoveButton,
-          removeStudent: removeStudent,
-          handleClickHelp: handleClickHelp,
-          handleClickUnfreeze: handleClickUnfreeze,
-          handleFix: handleFix,
-          showCooldownApproval: showCooldownApproval,
-          approveCooldownOverride: approveCooldownOverride,
-          currentTime: currentTime,
-        })}
+        <EntryTails
+          {...props}
+          removeStudent={removeStudent}
+          handleClickHelp={handleClickHelp}
+          handleClickUnfreeze={handleClickUnfreeze}
+          handleFix={handleFix}
+          showCooldownApproval={showCooldownApproval}
+          approveCooldownOverride={approveCooldownOverride}
+          currentTime={currentTime}
+        />
       </TableCell>
     </ItemRow>
   );

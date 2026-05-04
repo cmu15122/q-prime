@@ -11,7 +11,7 @@ export default function ItemRow(props) {
       style={
         index % 2
           ? { background: theme.palette.background.paper }
-          : { background: theme.alternateColors.alternatePaper }
+          : { background: theme.palette.paper[3] }
       }
     >
       {children}

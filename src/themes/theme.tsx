@@ -1,73 +1,84 @@
 import { createTheme, Shadows, Theme, ThemeOptions } from '@mui/material';
 
 declare module '@mui/material/styles' {
+  interface Palette {
+    forest: { main: string; soft: string };
+    amber: { main: string; contrastText: string };
+    ink: { primary: string; secondary: string; muted: string };
+    paper: { 1: string; 2: string; 3: string };
+    rule: { default: string; soft: string };
+  }
+  interface PaletteOptions {
+    forest?: { main: string; soft: string };
+    amber?: { main: string; contrastText: string };
+    ink?: { primary: string; secondary: string; muted: string };
+    paper?: { 1: string; 2: string; 3: string };
+    rule?: { default: string; soft: string };
+  }
   interface Theme {
-    alternateColors: {
-      cancel: string;
-      unfreeze: string;
-      navbar: string;
-      navbarText: string;
-      darkerPrimary: string;
-      alternatePaper: string;
-    };
+    fonts: { ui: string; sans: string; mono: string; serif: string };
   }
   interface ThemeOptions {
-    alternateColors?: {
-      cancel?: string;
-      unfreeze?: string;
-      navbar?: string;
-      navbarText?: string;
-      darkerPrimary?: string;
-      alternatePaper?: string;
-    };
+    fonts?: { ui: string; sans: string; mono: string; serif: string };
   }
 }
 
 type Mode = 'light' | 'dark';
 
-// Design tokens - "Modern Dev Tool" aesthetic (Linear, Notion, Convex inspired)
+// Design tokens — "carbon paper" editorial aesthetic. Sharp radii, hairline borders,
+// almost no shadow; depth is communicated by paper-tier (paper / paper-2 / paper-3).
 const tokens = {
-  radius: { xs: 2, sm: 4, md: 6, lg: 8, xl: 10, full: 9999 },
+  radius: { xs: 1, sm: 2, md: 3, lg: 4, xl: 6, full: 9999 },
   spacing: { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 },
   border: { thin: 1, medium: 2 },
   transition: { fast: '0.15s ease', normal: '0.2s ease' },
   shadows: {
     light: {
-      sm: '0 1px 2px rgba(0, 0, 0, 0.05)',
-      md: '0 2px 4px rgba(0, 0, 0, 0.06)',
-      lg: '0 4px 12px rgba(0, 0, 0, 0.08)',
+      sm: 'none',
+      md: 'none',
+      lg: '0 8px 24px rgba(26, 26, 26, 0.08)',
     },
     dark: {
-      sm: '0 1px 2px rgba(0, 0, 0, 0.2)',
-      md: '0 2px 4px rgba(0, 0, 0, 0.25)',
-      lg: '0 4px 12px rgba(0, 0, 0, 0.3)',
+      sm: 'none',
+      md: 'none',
+      lg: '0 8px 28px rgba(0, 0, 0, 0.5)',
     },
   },
 };
 
-// Color palettes per mode
+// Carbon-paper palettes. Light = warm cream paper + ink. Dark = warm carbon + cream.
 const colors = {
   light: {
-    primary: { main: '#14532D', light: '#16A34A', dark: '#14532D' },
-    accent: { main: '#EAB308', light: '#FDE047', dark: '#CA8A04' },
-    bg: { default: '#FAFAFA', paper: '#F4F4F5', elevated: '#F4F4F5', subtle: '#E4E4E7' },
-    text: { primary: '#18181B', secondary: '#71717A', muted: '#A1A1AA' },
-    border: { default: '#E4E4E7', subtle: '#F4F4F5', hover: '#D4D4D8' },
-    success: { main: '#15803D', light: '#D1FAE5', dark: '#14532D' },
-    error: { main: '#DC2626', light: '#FEE2E2', dark: '#B91C1C' },
-    info: { main: '#6B9BD2', light: '#E8F1FB', dark: '#5B8AC2' },
-    warning: { main: '#D97706', light: '#FEF3C7', dark: '#B45309' },
+    primary: { main: '#14532D', light: '#1F6B3A', dark: '#0F3D20' },
+    accent: { main: '#EAB308', light: '#FACC15', dark: '#CA8A04' },
+    // bg.default = paper, bg.paper = paper-2 (raised), bg.elevated/subtle = paper-3 (recessed wells)
+    bg: { default: '#F5F1E8', paper: '#EFE9DA', elevated: '#E8E1CD', subtle: '#E8E1CD' },
+    text: { primary: '#1A1A1A', secondary: '#6B665C', muted: '#8A8273' },
+    border: {
+      default: 'rgba(26, 26, 26, 0.18)',
+      subtle: 'rgba(26, 26, 26, 0.10)',
+      hover: 'rgba(26, 26, 26, 0.42)',
+    },
+    success: { main: '#15803D', light: '#D8E9DD', dark: '#14532D' },
+    error: { main: '#B91C1C', light: '#F1D9D5', dark: '#7F1D1D' },
+    info: { main: '#3B6FA0', light: '#DCE5F0', dark: '#274D77' },
+    warning: { main: '#A05A06', light: '#F1E4C7', dark: '#7A4205' },
   },
   dark: {
-    primary: { main: '#15803D', light: '#16A34A', dark: '#14532D' },
-    accent: { main: '#EAB308', light: '#FDE047', dark: '#CA8A04' },
-    bg: { default: '#09090B', paper: '#18181B', elevated: '#27272A', subtle: '#18181B' },
-    text: { primary: '#FAFAFA', secondary: '#A1A1AA', muted: '#71717A' },
-    border: { default: '#27272A', subtle: '#3F3F46', hover: '#3F3F46' },
-    success: { main: '#15803D', light: '#D1FAE5', dark: '#14532D' },
-    error: { main: '#DC2626', light: '#FEE2E2', dark: '#B91C1C' },
-    info: { main: '#6B9BD2', light: '#E8F1FB', dark: '#5B8AC2' },
-    warning: { main: '#FBBF24', light: '#78350F', dark: '#F59E0B' },
+    primary: { main: '#4ADE80', light: '#6BE89E', dark: '#22C55E' },
+    accent: { main: '#FACC15', light: '#FDE047', dark: '#EAB308' },
+    // bg.default = paper, bg.paper = paper-2 (raised cards), bg.elevated = paper-3 (deepest wells)
+    bg: { default: '#16140F', paper: '#1E1B14', elevated: '#0C0B08', subtle: '#0C0B08' },
+    text: { primary: '#E8E0CC', secondary: '#B8B0A0', muted: '#7A7363' },
+    border: {
+      default: 'rgba(232, 224, 204, 0.16)',
+      subtle: 'rgba(232, 224, 204, 0.08)',
+      hover: 'rgba(232, 224, 204, 0.36)',
+    },
+    success: { main: '#4ADE80', light: 'rgba(74, 222, 128, 0.18)', dark: '#22C55E' },
+    error: { main: '#F87171', light: 'rgba(248, 113, 113, 0.18)', dark: '#DC2626' },
+    info: { main: '#93B6DD', light: 'rgba(147, 182, 221, 0.18)', dark: '#6B9BD2' },
+    warning: { main: '#FACC15', light: 'rgba(250, 204, 21, 0.18)', dark: '#EAB308' },
   },
 };
 
@@ -107,13 +118,13 @@ const typography = {
     '"DM Sans", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
   fontSize: 15,
   htmlFontSize: 15,
-  h1: { fontSize: '3rem', fontWeight: 600, letterSpacing: '-0.02em' },
-  h2: { fontSize: '2.25rem', fontWeight: 600, letterSpacing: '-0.02em' },
-  h3: { fontSize: '1.875rem', fontWeight: 600, letterSpacing: '-0.01em' },
-  h4: { fontSize: '1.5rem', fontWeight: 600 },
-  h5: { fontSize: '1.25rem', fontWeight: 600 },
-  h6: { fontSize: '1.125rem', fontWeight: 600 },
-  body1: { fontSize: '1rem', lineHeight: 1.6, fontWeight: 450 },
+  h1: { fontSize: '2.75rem', fontWeight: 600, letterSpacing: '-0.02em' },
+  h2: { fontSize: '2rem', fontWeight: 600, letterSpacing: '-0.015em' },
+  h3: { fontSize: '1.625rem', fontWeight: 600, letterSpacing: '-0.01em' },
+  h4: { fontSize: '1.375rem', fontWeight: 600, letterSpacing: '-0.005em' },
+  h5: { fontSize: '1.125rem', fontWeight: 600, letterSpacing: '-0.002em' },
+  h6: { fontSize: '1rem', fontWeight: 600 },
+  body1: { fontSize: '0.9375rem', lineHeight: 1.55, fontWeight: 450 },
   body2: { fontSize: '0.875rem', lineHeight: 1.5, fontWeight: 450 },
   button: {
     fontSize: '0.875rem',
@@ -135,13 +146,44 @@ const createComponents = (mode: Mode) => {
 
   return {
     MuiCssBaseline: {
-      styleOverrides: { body: { backgroundColor: c.bg.default } },
+      styleOverrides: {
+        body: {
+          backgroundColor: c.bg.default,
+          color: c.text.primary,
+          // grain overlay — see App.css body::before; CSS variables here so it
+          // can pick the right tile per mode without a JS handoff.
+          '--ohq-grain-tile': isLight
+            ? 'url(/landing/landing-noise.svg)'
+            : 'url(/landing/landing-noise-dark.svg)',
+          '--ohq-grain-blend': isLight ? 'multiply' : 'screen',
+          '--ohq-grain-opacity': isLight ? 0.4 : 0.22,
+          '--ohq-paper': c.bg.default,
+          '--ohq-paper-2': c.bg.paper,
+          '--ohq-paper-3': c.bg.elevated,
+          '--ohq-ink': c.text.primary,
+          '--ohq-ink-2': c.text.secondary,
+          '--ohq-muted': c.text.muted,
+          '--ohq-rule': c.border.default,
+          '--ohq-rule-soft': c.border.subtle,
+          // `--ohq-course-primary` / `--ohq-course-secondary` are set by the
+          // /_theme/<slug>.css response when the user is on a course page.
+          // When absent (landing, /create), `var(..., fallback)` keeps the
+          // standard forest + amber.
+          '--ohq-forest': `var(--ohq-course-primary, ${c.primary.main})`,
+          '--ohq-forest-soft': c.primary.light,
+          '--ohq-amber': `var(--ohq-course-secondary, ${c.accent.main})`,
+          '--ohq-serif': '"Instrument Serif", "Times New Roman", Times, serif',
+          '--ohq-sans': '"DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+          '--ohq-ui': '"Plus Jakarta Sans", "DM Sans", sans-serif',
+          '--ohq-mono': '"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace',
+        },
+      },
     },
     MuiButton: {
       defaultProps: { disableElevation: true },
       styleOverrides: {
         root: {
-          borderRadius: tokens.radius.md,
+          borderRadius: tokens.radius.sm,
           padding: '8px 16px',
           fontWeight: 500,
           boxShadow: 'none',
@@ -150,7 +192,7 @@ const createComponents = (mode: Mode) => {
           '&:focus-visible': { outline: `2px solid ${c.primary.main}`, outlineOffset: '2px' },
         },
         contained: {
-          color: isLight ? '#FFFFFF' : '#09090B',
+          color: isLight ? '#F5F1E8' : '#0C0B08',
           '&:hover': { backgroundColor: c.primary.light },
           '&:active': { backgroundColor: c.primary.dark },
         },
@@ -183,9 +225,8 @@ const createComponents = (mode: Mode) => {
           border: `${tokens.border.thin}px solid ${c.border.default}`,
           borderRadius: tokens.radius.lg,
           backgroundColor: c.bg.paper,
-          boxShadow: s.sm,
+          boxShadow: 'none',
           transition: `border-color ${tokens.transition.fast}`,
-          '&:hover': { borderColor: c.border.hover },
         },
       },
     },
@@ -238,18 +279,21 @@ const createComponents = (mode: Mode) => {
       defaultProps: { variant: 'outlined' as const },
       styleOverrides: {
         root: {
+          // Carbon-paper aesthetic: transparent field with a visible hairline
+          // border, not a recessed grey well (the previous treatment looked
+          // muddy in light mode — cream-grey on cream paper).
           '& .MuiOutlinedInput-root': {
             borderRadius: tokens.radius.md,
-            backgroundColor: isLight ? c.bg.subtle : c.bg.default,
-            transition: `background-color ${tokens.transition.fast}, border-color ${tokens.transition.fast}`,
+            backgroundColor: 'transparent',
+            transition: `border-color ${tokens.transition.fast}`,
             '& fieldset': {
               borderWidth: tokens.border.thin,
-              borderColor: 'transparent',
+              borderColor: c.border.default,
               transition: `border-color ${tokens.transition.fast}`,
             },
-            '&:hover fieldset': { borderColor: isLight ? c.border.default : c.border.hover },
+            '&:hover fieldset': { borderColor: c.border.hover },
             '&.Mui-focused': {
-              backgroundColor: c.bg.paper,
+              backgroundColor: 'transparent',
               '& fieldset': { borderColor: c.primary.main, borderWidth: tokens.border.medium },
             },
           },
@@ -260,16 +304,28 @@ const createComponents = (mode: Mode) => {
       styleOverrides: {
         root: {
           borderRadius: tokens.radius.md,
-          backgroundColor: isLight ? c.bg.subtle : c.bg.default,
-          transition: `background-color ${tokens.transition.fast}, border-color ${tokens.transition.fast}`,
-          '& fieldset': { borderWidth: tokens.border.thin, borderColor: 'transparent' },
-          '&:hover fieldset': { borderColor: isLight ? c.border.default : c.border.hover },
+          backgroundColor: 'transparent',
+          transition: `border-color ${tokens.transition.fast}`,
+          '& fieldset': { borderWidth: tokens.border.thin, borderColor: c.border.default },
+          '&:hover fieldset': { borderColor: c.border.hover },
           '&.Mui-focused': {
-            backgroundColor: c.bg.paper,
+            backgroundColor: 'transparent',
             '& fieldset': { borderColor: c.primary.main, borderWidth: tokens.border.medium },
           },
         },
         input: { padding: '12px 14px' },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        // MUI's default resting transform assumes 16.5px vertical input padding;
+        // recenter to match our 12px override on MuiOutlinedInput.input above.
+        outlined: {
+          transform: 'translate(14px, 12px) scale(1)',
+          '&.MuiInputLabel-shrink': {
+            transform: 'translate(14px, -9px) scale(0.75)',
+          },
+        },
       },
     },
     MuiInputBase: {
@@ -279,10 +335,11 @@ const createComponents = (mode: Mode) => {
       defaultProps: { elevation: 0 },
       styleOverrides: {
         root: {
-          backgroundColor: isLight ? c.primary.main : c.bg.paper,
-          color: isLight ? '#FFFFFF' : c.text.primary,
+          backgroundColor: c.bg.default,
+          color: c.text.primary,
           boxShadow: 'none',
-          borderBottom: `1px solid ${isLight ? c.primary.dark : c.border.default}`,
+          borderBottom: `1px solid ${c.border.default}`,
+          backgroundImage: 'none',
         },
       },
     },
@@ -314,15 +371,7 @@ const createComponents = (mode: Mode) => {
         root: {
           backgroundColor: c.bg.paper,
           transition: `background-color ${tokens.transition.fast}`,
-          '&:hover': { backgroundColor: isLight ? c.bg.subtle : c.bg.elevated },
-          '& td:first-of-type': {
-            borderTopLeftRadius: tokens.radius.xs,
-            borderBottomLeftRadius: tokens.radius.xs,
-          },
-          '& td:last-of-type': {
-            borderTopRightRadius: tokens.radius.xs,
-            borderBottomRightRadius: tokens.radius.xs,
-          },
+          '&:hover': { backgroundColor: c.bg.elevated },
         },
       },
     },
@@ -510,13 +559,13 @@ const createPalette = (mode: Mode) => {
       main: c.primary.main,
       light: c.primary.light,
       dark: c.primary.dark,
-      contrastText: isLight ? '#FFFFFF' : '#09090B',
+      contrastText: isLight ? '#F5F1E8' : '#0C0B08',
     },
     secondary: {
       main: c.accent.main,
       light: c.accent.light,
       dark: c.accent.dark,
-      contrastText: isLight ? '#18181B' : '#09090B',
+      contrastText: '#1A1A1A',
     },
     background: { default: c.bg.default, paper: c.bg.paper },
     text: { primary: c.text.primary, secondary: c.text.secondary },
@@ -525,21 +574,22 @@ const createPalette = (mode: Mode) => {
     info: { main: c.info.main, light: c.info.light, dark: c.info.dark },
     warning: { main: c.warning.main, light: c.warning.light, dark: c.warning.dark },
     divider: c.border.default,
+    // Project tokens — extend MUI palette so component code reads e.g.
+    // `palette.forest.main` instead of `var(--ohq-forest)`.
+    forest: { main: c.primary.main, soft: c.primary.light },
+    amber: { main: c.accent.main, contrastText: '#1A1A1A' },
+    ink: { primary: c.text.primary, secondary: c.text.secondary, muted: c.text.muted },
+    paper: { 1: c.bg.default, 2: c.bg.paper, 3: c.bg.elevated },
+    rule: { default: c.border.default, soft: c.border.subtle },
   };
 };
 
-const createAlternateColors = (mode: Mode) => {
-  const c = colors[mode];
-  const isLight = mode === 'light';
-  return {
-    alternatePaper: isLight ? c.bg.subtle : c.bg.elevated,
-    cancel: c.text.secondary,
-    unfreeze: isLight ? '#7C3AED' : '#A78BFA',
-    navbar: isLight ? c.primary.main : c.primary.main,
-    navbarText: isLight ? '#FFFFFF' : '#000000',
-    darkerPrimary: c.primary.dark,
-  };
-};
+const createFonts = () => ({
+  ui: '"Plus Jakarta Sans", "DM Sans", sans-serif',
+  sans: '"DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+  mono: '"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace',
+  serif: '"Instrument Serif", "Times New Roman", Times, serif',
+});
 
 const createThemeForMode = (mode: Mode): Theme => {
   const c = colors[mode];
@@ -564,10 +614,14 @@ const createThemeForMode = (mode: Mode): Theme => {
     shadows: createShadowArray(mode),
     shape: { borderRadius: tokens.radius.md },
     typography: baseTypo,
-    alternateColors: createAlternateColors(mode),
+    fonts: createFonts(),
     components: createComponents(mode),
   } as ThemeOptions);
 };
 
 export const lightTheme = createThemeForMode('light');
 export const darkTheme = createThemeForMode('dark');
+
+// Defaults for the per-course color picker. Mirror colors.light.{primary,accent}.main.
+export const DEFAULT_THEME_PRIMARY = colors.light.primary.main;
+export const DEFAULT_THEME_SECONDARY = colors.light.accent.main;

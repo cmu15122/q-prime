@@ -10,6 +10,7 @@ import {
   getCurrentUser,
   getGlobalSettings,
   getQueueLength,
+  HEX_COLOR,
 } from '../common';
 import { Id } from '../_generated/dataModel';
 
@@ -797,6 +798,40 @@ export const deleteTA = mutation({
       });
       await ctx.db.delete(ta._id);
     }
+  },
+});
+
+/** Course branding **/
+
+// Admin-only — primary and secondary apply to every page of the course.
+// Setting either to undefined / empty resets that color to the default.
+export const setCourseTheme = mutation({
+  args: {
+    courseId: v.id('courses'),
+    theme_primary: v.optional(v.string()),
+    theme_secondary: v.optional(v.string()),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    await ensureAuthAndAdmin(ctx, args.courseId);
+
+    const settings = await getGlobalSettings(ctx, args.courseId);
+
+    const primary = args.theme_primary?.trim();
+    const secondary = args.theme_secondary?.trim();
+
+    if (primary && !HEX_COLOR.test(primary)) {
+      throw new ConvexError('Primary color must be a 6-digit hex like #14532D');
+    }
+    if (secondary && !HEX_COLOR.test(secondary)) {
+      throw new ConvexError('Secondary color must be a 6-digit hex like #EAB308');
+    }
+
+    await ctx.db.patch(settings._id, {
+      theme_primary: primary || undefined,
+      theme_secondary: secondary || undefined,
+    });
+    return null;
   },
 });
 

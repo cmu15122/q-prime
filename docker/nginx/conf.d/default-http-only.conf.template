@@ -1,7 +1,8 @@
 # Q-Prime NGINX - HTTP Only Configuration
 #
+# Frontend at root path; see default.conf.template for the full notes.
+#
 # Environment variables substituted at container start:
-#   ${HTTP_CLIENT_PREFIX} - Frontend route prefix (default: /ohq)
 #   ${HTTP_API_PREFIX} - API route prefix (default: /api)
 
 upstream frontend {
@@ -27,18 +28,9 @@ server {
         root /var/www/certbot;
     }
 
-    location = / {
-        return 302 ${HTTP_CLIENT_PREFIX}/;
-    }
-
-    location ${HTTP_CLIENT_PREFIX}/ {
-        rewrite ^${HTTP_CLIENT_PREFIX}/(.*) /$1 break;
+    location /_theme/ {
         include /etc/nginx/snippets/proxy-params.conf;
-        proxy_pass http://frontend/;
-    }
-
-    location ${HTTP_CLIENT_PREFIX} {
-        return 302 ${HTTP_CLIENT_PREFIX}/;
+        proxy_pass http://convex_site;
     }
 
     location ~ ^${HTTP_API_PREFIX}/(download_|upload_) {
@@ -74,5 +66,10 @@ server {
         access_log off;
         return 200 "healthy\n";
         add_header Content-Type text/plain;
+    }
+
+    location / {
+        include /etc/nginx/snippets/proxy-params.conf;
+        proxy_pass http://frontend;
     }
 }

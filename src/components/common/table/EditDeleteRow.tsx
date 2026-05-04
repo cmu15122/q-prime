@@ -1,9 +1,10 @@
 import PropTypes from 'prop-types';
-import { IconButton, TableCell } from '@mui/material';
+import { Stack, TableCell } from '@mui/material';
 
 import { Edit, Delete } from '@mui/icons-material';
 
 import ItemRow from './ItemRow';
+import OhqButton from '../buttons/OhqButton';
 
 export default function EditDeleteRow(props) {
   const { index, row, rowKey, children, handleEdit, handleDelete } = props;
@@ -12,13 +13,19 @@ export default function EditDeleteRow(props) {
     <ItemRow index={index} rowKey={rowKey}>
       {children}
       <TableCell align="right" sx={{ pr: 3 }}>
-        <IconButton sx={{ mr: 1 }} color="info" onClick={() => handleEdit(row)}>
-          <Edit />
-        </IconButton>
-
-        <IconButton color="error" onClick={() => handleDelete(row)}>
-          <Delete />
-        </IconButton>
+        <Stack direction="row" spacing={0.5} justifyContent="flex-end">
+          <OhqButton variant="icon" aria-label="edit" onClick={() => handleEdit(row)}>
+            <Edit fontSize="small" />
+          </OhqButton>
+          <OhqButton
+            variant="icon"
+            tone="danger"
+            aria-label="delete"
+            onClick={() => handleDelete(row)}
+          >
+            <Delete fontSize="small" />
+          </OhqButton>
+        </Stack>
       </TableCell>
     </ItemRow>
   );

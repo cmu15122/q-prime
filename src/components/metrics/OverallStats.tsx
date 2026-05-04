@@ -28,8 +28,8 @@ export default function OverallStats() {
           maxWidth: '100%',
           border: (theme) => `1px solid ${theme.palette.divider}`,
           borderRadius: 1,
-          mt: 4,
-          mx: 13,
+          mt: 1,
+          mx: 10,
           overflow: 'hidden',
         }}
       >

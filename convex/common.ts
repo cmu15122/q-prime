@@ -3,6 +3,8 @@ import { ConvexError, v } from 'convex/values';
 import { getAuthUserId } from '@convex-dev/auth/server';
 import { Doc, Id } from './_generated/dataModel';
 
+export const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
+
 export async function getGlobalSettings(ctx: QueryCtx, courseId: Id<'courses'>) {
   const globalSettings = await ctx.db
     .query('globalSettings')
@@ -466,6 +468,44 @@ export const internalEnsureTA = internalQuery({
       .first();
 
     if (!ta) {
+      return false;
+    }
+
+    return true;
+  },
+});
+
+export const internalEnsureAdmin = internalQuery({
+  args: {
+    user_id: v.id('users'),
+    courseId: v.id('courses'),
+  },
+  handler: async (ctx, args) => {
+    const user = await ctx.db.get(args.user_id);
+
+    if (!user) {
+      return false;
+    }
+
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
+
+    const sem_user = await ctx.db
+      .query('semesterUsers')
+      .withIndex('by_sem_and_user', (q) =>
+        q.eq('semester_id', curr_sem._id).eq('user_id', user._id),
+      )
+      .first();
+
+    if (!sem_user) {
+      return false;
+    }
+
+    const ta = await ctx.db
+      .query('tas')
+      .withIndex('by_semuser', (q) => q.eq('semester_user_id', sem_user._id))
+      .first();
+
+    if (!ta || !ta.is_admin) {
       return false;
     }
 

@@ -5,6 +5,7 @@
 # - VITE_CONVEX_URL: Public Convex API URL
 # - VITE_APP_CONVEX_SITE_URL: Public Convex Site URL
 # - VITE_APP_GOOGLE_CLIENT_ID: Google OAuth client ID
+# - VITE_SINGLE_COURSE_MODE: "true" for single-OHQ deployment (root redirects to the one course)
 
 # Stage 1: Build the Vite application
 FROM node:20-alpine AS builder
@@ -24,15 +25,16 @@ COPY . .
 ARG VITE_CONVEX_URL
 ARG VITE_APP_CONVEX_SITE_URL
 ARG VITE_APP_GOOGLE_CLIENT_ID
-ARG HTTP_CLIENT_PREFIX=/ohq
+ARG VITE_SINGLE_COURSE_MODE
 
 # Set environment variables for build
 ENV VITE_CONVEX_URL=${VITE_CONVEX_URL}
 ENV VITE_APP_CONVEX_SITE_URL=${VITE_APP_CONVEX_SITE_URL}
 ENV VITE_APP_GOOGLE_CLIENT_ID=${VITE_APP_GOOGLE_CLIENT_ID}
+ENV VITE_SINGLE_COURSE_MODE=${VITE_SINGLE_COURSE_MODE}
 
-# Build the application with configurable base path (quick build, no typecheck/lint)
-RUN npm run build:quick -- --base=${HTTP_CLIENT_PREFIX}/
+# Build with root base path.
+RUN npm run build:quick -- --base=/
 
 # Stage 2: Serve with NGINX
 FROM nginx:alpine

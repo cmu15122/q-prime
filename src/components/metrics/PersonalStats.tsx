@@ -74,11 +74,11 @@ export default function PersonalStats() {
   };
 
   return (
-    <div style={{ margin: 'auto', padding: '10px', width: '90%' }}>
-      <Typography variant="h5" sx={{ my: 4 }} fontWeight="bold">
+    <div>
+      <Typography variant="h5" sx={{ mt: 4, ml: 10 }} fontWeight="bold">
         Personal Statistics
       </Typography>
-      <Card>
+      <Card sx={{ mt: 1, mx: 10 }}>
         <Stack
           direction={{ xs: 'column', md: 'row' }}
           justifyContent="space-evenly"

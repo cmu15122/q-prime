@@ -44,12 +44,15 @@ export default function QueueTopicSettings() {
       // For local dev, use the same URL. For production, replace .cloud with .site
       const httpActionUrl = import.meta.env.VITE_APP_CONVEX_SITE_URL;
 
-      const response = await fetch(`${httpActionUrl}/download_assignment_csv?courseId=${courseId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await fetch(
+        `${httpActionUrl}/download_assignment_csv?courseId=${courseId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: 'include',
         },
-        credentials: 'include',
-      });
+      );
 
       if (!response.ok) {
         throw new Error(`Download failed: ${response.statusText}`);

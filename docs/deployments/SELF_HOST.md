@@ -153,7 +153,7 @@ qprime-certbot            certbot            Up
 
 ## Step 13: Initial Setup
 
-1. Visit `https://yourdomain.edu/ohq/`
+1. Visit `https://yourdomain.edu/`
 2. Click **Log In** and authenticate with Google
 3. You'll be redirected to the initial setup page
 4. Enter:
@@ -193,7 +193,7 @@ git pull
 
 # Rebuild frontend and redeploy
 ./docker/scripts/deploy-convex.sh
-docker compose -f docker/docker-compose.yml --env-file .env.docker up -d --build frontend
+./docker/scripts/deploy-frontend.sh
 ```
 
 ### Access Convex Dashboard
@@ -257,7 +257,7 @@ sudo certbot certificates
 
 ```bash
 # Rebuild frontend
-docker compose -f docker/docker-compose.yml --env-file .env.docker up -d --build frontend
+./docker/scripts/deploy-frontend.sh
 
 # Check nginx logs
 docker compose -f docker/docker-compose.yml --env-file .env.docker logs nginx-proxy
@@ -285,7 +285,7 @@ docker compose -f docker/docker-compose.yml --env-file .env.docker logs nginx-pr
 └───────────────┘
 
 Routes:
-  /ohq/*           → frontend
+  /*               → frontend
   /api/*           → convex-backend:3210 (WebSocket + API)
   /api/auth/*      → convex-backend:3211 (OAuth callbacks)
   /.well-known/*   → convex-backend:3211 (OIDC discovery)

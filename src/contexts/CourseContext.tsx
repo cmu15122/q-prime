@@ -4,6 +4,7 @@ import { Box, CircularProgress } from '@mui/material';
 import { useConvexAuth, useMutation, useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
 import { Id } from '../../convex/_generated/dataModel';
+import { CourseAwareThemeProvider } from './CourseColorContext';
 
 type CourseContextValue = {
   courseId: Id<'courses'>;
@@ -44,10 +45,7 @@ function Spinner() {
 export default function CourseScope() {
   const { classSlug } = useParams<{ classSlug: string }>();
   const { isAuthenticated, isLoading: authLoading } = useConvexAuth();
-  const course = useQuery(
-    api.courses.getCourseBySlug,
-    classSlug ? { slug: classSlug } : 'skip',
-  );
+  const course = useQuery(api.courses.getCourseBySlug, classSlug ? { slug: classSlug } : 'skip');
   const enroll = useMutation(api.home.home_mutate.enrollInCourse);
 
   // Track per-course enrollment so children don't render until the user has a
@@ -83,7 +81,9 @@ export default function CourseScope() {
         displayName: course.display_name,
       }}
     >
-      <Outlet />
+      <CourseAwareThemeProvider>
+        <Outlet />
+      </CourseAwareThemeProvider>
     </CourseContext.Provider>
   );
 }

@@ -5,7 +5,7 @@ export default function BaseCard(props) {
   const { children } = props;
 
   return (
-    <div className="card" style={{ display: 'flex' }}>
+    <div className="card">
       <Card sx={{ width: '100%', overflow: 'hidden' }}>{children}</Card>
     </div>
   );

@@ -50,7 +50,7 @@ function HomeMain() {
       {userData &&
         (userData.valid_email ? (
           <>
-            <Container sx={{ display: 'flex', minHeight: '100vh', flexDirection: 'column' }}>
+            <Container sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
               <SharedMain />
               {mainPage}
               <Footer gitHubLink={gitHubLink} />

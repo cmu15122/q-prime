@@ -34,7 +34,7 @@ function createPage(page, link) {
 const NavbarButton = styled(Button)(({ theme }) => ({
   disableElevation: true,
   variant: 'subtitle2',
-  color: theme.alternateColors.navbarText,
+  color: theme.palette.ink.primary,
   backgroundColor: 'transparent',
 }));
 
@@ -146,18 +146,14 @@ export default function Navbar(props: { isHome: boolean }) {
 
   if (isMobileView) {
     return (
-      <AppBar
-        position="static"
-        style={{ background: theme.alternateColors.navbar }}
-        enableColorOnDark
-      >
+      <AppBar position="static" style={{ background: theme.palette.paper[1] }} enableColorOnDark>
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
           {((pages && pages.length > 0) || isAuthenticated) && (
             <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
               <IconButton
                 size="large"
                 onClick={handleOpenNavMenu}
-                sx={{ color: theme.alternateColors.navbarText }}
+                sx={{ color: theme.palette.ink.primary }}
               >
                 <MenuIcon />
               </IconButton>
@@ -245,18 +241,14 @@ export default function Navbar(props: { isHome: boolean }) {
 
   // Desktop view
   return (
-    <AppBar
-      position="sticky"
-      enableColorOnDark
-      style={{ background: theme.alternateColors.navbar }}
-    >
+    <AppBar position="sticky" enableColorOnDark style={{ background: theme.palette.paper[1] }}>
       <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
           <OHQueueHeader />
           {isTA && isHome && (queueData?.is_frozen ? unfreezeButton : freezeButton)}
           {notificationPermission !== 'granted' && (
             <IconButton
-              sx={{ color: theme.alternateColors.navbarText }}
+              sx={{ color: theme.palette.ink.primary }}
               onClick={() => {
                 if ('Notification' in window) {
                   Notification.requestPermission((permission) => {
@@ -274,12 +266,12 @@ export default function Navbar(props: { isHome: boolean }) {
             flexGrow: 0,
             display: 'flex',
             alignItems: 'center',
-            color: theme.alternateColors.navbarText,
+            color: theme.palette.ink.primary,
           }}
         >
           {isAuthenticated && 'Currently Logged in as ' + pname}
         </Box>
-        <Box sx={{ flexGrow: 0, display: 'flex', alignItems: 'center' }}>
+        <Box sx={{ flexGrow: 0, display: 'flex', alignItems: 'center', ml: 1 }}>
           {isAuthenticated && <ChangeNameBtn mobile={false} pname={pname} setpname={setpname} />}
         </Box>
 

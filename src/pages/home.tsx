@@ -17,7 +17,15 @@ function Home() {
   useQuery(api.home.home_get.getQueueData, { courseId });
 
   return (
-    <div className="App" style={{ backgroundColor: theme.palette.background.default }}>
+    <div
+      className="App"
+      style={{
+        backgroundColor: theme.palette.background.default,
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: '100vh',
+      }}
+    >
       <Navbar isHome={true} />
       <HomeMain />
     </div>

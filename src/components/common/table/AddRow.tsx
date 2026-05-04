@@ -1,4 +1,6 @@
-import { Button, TableCell, TableRow, useTheme } from '@mui/material';
+import { TableCell, TableRow, useTheme } from '@mui/material';
+
+import OhqButton from '../buttons/OhqButton';
 
 export default function AddRow(props) {
   const { addButtonLabel, handleAdd } = props;
@@ -7,14 +9,9 @@ export default function AddRow(props) {
   return (
     <TableRow key="add" style={{ background: theme.palette.background.default }}>
       <TableCell align="center" colSpan={5}>
-        <Button
-          sx={{ mr: 1, fontWeight: 'bold' }}
-          color="primary"
-          variant="contained"
-          onClick={() => handleAdd()}
-        >
+        <OhqButton variant="primary" onClick={() => handleAdd()}>
           {addButtonLabel}
-        </Button>
+        </OhqButton>
       </TableCell>
     </TableRow>
   );
