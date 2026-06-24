@@ -9,15 +9,20 @@ export default function Header() {
   const { isAuthenticated, isLoading: authLoading } = useConvexAuth();
   const { signOut } = useAuthActions();
   // Skip the query unless we know we're authenticated; convex returns
-  // undefined for skipped queries.
+  // undefined for skipped queries (and while the query is in flight).
   const ownedCourse = useQuery(api.courses.getMyOwnedCourse, isAuthenticated ? {} : 'skip');
+
+  // Wait for the course query to resolve before rendering the CTA so we don't
+  // flash "Create your course" for users that actually own one.
+  const courseResolved = !isAuthenticated || ownedCourse !== undefined;
+  const ready = !authLoading && courseResolved;
 
   // Three states for the right-hand action:
   //   1. Not authenticated -> "Sign in" (sends to /create's auth gate).
   //   2. Authenticated, owns a course -> "Go to {course}".
-  //   3. Authenticated, no course -> "Sign in" still (clicking sends them to
-  //      /create where they can either start one or continue).
+  //   3. Authenticated, no course -> "Create your course" (sends to /create).
   const showGoTo = isAuthenticated && ownedCourse;
+  const showCreate = isAuthenticated && ownedCourse === null;
   const onClick = () => {
     if (showGoTo) navigate(`/${ownedCourse.slug}`);
     else navigate('/create');
@@ -44,16 +49,27 @@ export default function Header() {
           </a>
           {/* Don't render anything until auth has resolved, to avoid the button
               briefly flashing "Sign in" for users that actually own a course. */}
-          {!authLoading && (
+          {ready && (
             <>
               <button
                 className="ohq-header__signin"
                 onClick={onClick}
-                aria-label={showGoTo ? `Go to ${ownedCourse.display_name}` : 'Sign in'}
+                aria-label={
+                  showGoTo
+                    ? `Go to ${ownedCourse.display_name}`
+                    : showCreate
+                      ? 'Create your course'
+                      : 'Sign in'
+                }
               >
                 {showGoTo ? (
                   <>
                     Go to <strong>{ownedCourse.display_name}</strong>
+                    <span aria-hidden>→</span>
+                  </>
+                ) : showCreate ? (
+                  <>
+                    Create your course
                     <span aria-hidden>→</span>
                   </>
                 ) : (

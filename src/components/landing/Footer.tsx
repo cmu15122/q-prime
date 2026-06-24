@@ -43,7 +43,11 @@ export default function Footer() {
               </a>
             </li>
             <li>
-              <a href={`${GITHUB_URL}/blob/main/LICENSE`} target="_blank" rel="noopener noreferrer">
+              <a
+                href={`${GITHUB_URL}/blob/convex/LICENSE`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 MIT license
               </a>
             </li>

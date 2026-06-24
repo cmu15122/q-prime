@@ -8,42 +8,42 @@ const features: Feat[] = [
   {
     num: '03·a',
     title: 'Video links',
-    body: "TAs add their Zoom or Meet URL. Students get a one-click link when it's their turn.",
+    body: "TAs add their Zoom or Meet URL. Students get a when it's their turn.",
   },
   {
     num: '03·b',
     title: 'Announcements',
-    body: 'Pin a message above the queue. Edit, delete, or replace it whenever you want.',
+    body: 'Pin messages above the queue',
   },
   {
     num: '03·c',
     title: 'Locations',
-    body: "Map office hours rooms to weekdays. Students pick the location they're actually in.",
+    body: "Host office hours in multiple locations and let TAs filter by the location they're in.",
   },
   {
     num: '03·d',
     title: 'Cooldowns',
-    body: 'Block re-joining the queue right after being helped. The cooldown length is configurable.',
+    body: 'Block students from rejoining the queue right after being helped.',
   },
   {
     num: '03·e',
     title: 'Override approvals',
-    body: 'Students can request to skip the cooldown. TAs approve or deny, on the queue itself.',
+    body: 'Students can request to skip the cooldown, which TAs approve or deny.',
   },
   {
     num: '03·f',
     title: 'Topics',
-    body: 'Tie each question to an assignment. TAs can filter the queue by topic.',
+    body: 'Tie each question to an assignment, and let TAs filter the queue by topic.',
   },
   {
     num: '03·g',
     title: 'Multi-semester',
-    body: 'Roll over to the next term. Old data stays. New roster, new active queue.',
+    body: 'Easily roll over to the next term. Your old data stays.',
   },
   {
     num: '03·h',
     title: 'Roles',
-    body: 'Student, TA, admin — and a course owner. Permissions scoped to each.',
+    body: 'Student, TA, Admin, and Owner roles, with permissions scoped to each.',
   },
 ];
 
@@ -55,9 +55,6 @@ export default function FeatureGrid() {
           <div className="ohq-section__eyebrow">
             <span className="ohq-label">03 / Everything else</span>
           </div>
-          <h2 className="ohq-section__title">
-            The <em>boring infrastructure</em>, already done.
-          </h2>
         </div>
 
         <div className="ohq-grid">
