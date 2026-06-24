@@ -1,0 +1,185 @@
+# =============================================================================
+# Host nginx site config for cs122.andrew.cmu.edu (SHARED multi-service box)
+# Deploy to:  /etc/nginx/sites-enabled/default
+#
+# Layout after migration:
+#   /                         existing static landing page          (unchanged)
+#   /ohq/                     NEW Convex queue frontend             -> 127.0.0.1:4002
+#   /api/                     NEW Convex sync (WebSocket + HTTP)     -> 127.0.0.1:3210
+#   /api/auth/ , /api/*load_  NEW Convex HTTP actions               -> 127.0.0.1:3211
+#   /_theme/ , /.well-known/* NEW Convex (theme CSS + OIDC)         -> 127.0.0.1:3211
+#   /ohqold/    + /apiold     OLD prod queue (client rebuilt)       -> :4000 / :8000
+#   /ohqdevold/ + /devapiold  OLD dev queue  (client rebuilt)       -> :4001 / :8001
+#   /lab/ /precept/           lab check-in                          -> :3000   (unchanged)
+#   /visualc0                 C0 visualizer                         -> :7998   (unchanged)
+#
+# Requires /etc/nginx/conf.d/qprime-ws.conf (the $connection_upgrade map).
+# =============================================================================
+
+upstream labcheckin { server localhost:3000; }
+
+# --- OLD queue (must be REBUILT with the new public paths — see deployment notes) ---
+upstream ohqold    { server localhost:4000; }   # old prod client  (PUBLIC_URL=/ohqold)
+upstream apiold    { server localhost:8000; }   # old prod server  (unchanged)
+upstream ohqdevold { server localhost:4001; }   # old dev client   (PUBLIC_URL=/ohqdevold)
+upstream devapiold { server localhost:8001; }   # old dev server   (unchanged)
+
+upstream visualc0  { server localhost:7998; }
+
+# --- NEW Convex queue (Docker, bound to localhost only) ---
+upstream qprime_frontend { server 127.0.0.1:4002; }
+upstream convex_api      { server 127.0.0.1:3210; keepalive 32; }
+upstream convex_site     { server 127.0.0.1:3211; keepalive 32; }
+
+server {
+  server_name cs122.andrew.cmu.edu www.cs122.andrew.cmu.edu;
+  listen 80;
+
+  return 301 https://$host$request_uri;
+}
+
+server {
+  server_name cs122.andrew.cmu.edu www.cs122.andrew.cmu.edu;
+
+  listen 443 ssl; # managed by Certbot
+  listen [::]:443 ssl ipv6only=on;
+
+  # RSA certificate
+    ssl_certificate /etc/letsencrypt/live/cs122.andrew.cmu.edu/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/cs122.andrew.cmu.edu/privkey.pem; # managed by Certbot
+
+  include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+
+  # Redirect non-https traffic to https
+  if ($scheme != "https") {
+     return 301 https://$host$request_uri;
+  } # managed by Certbot
+
+  # Convex HTTP actions: CSV up/download (must precede the /api/ prefix block).
+  location ~ ^/api/(download_|upload_) {
+      proxy_pass http://convex_site;
+      proxy_http_version 1.1;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_read_timeout 300s;
+      proxy_send_timeout 300s;
+      client_max_body_size 10M;
+  }
+
+  # Convex auth routes (OAuth callback lives at /api/auth/callback/google).
+  location /api/auth/ {
+      proxy_pass http://convex_site;
+      proxy_http_version 1.1;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  # Convex sync (WebSocket) + remaining API traffic.
+  location /api/ {
+      proxy_pass http://convex_api;
+      proxy_http_version 1.1;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection $connection_upgrade;
+      proxy_read_timeout 86400s;
+      proxy_send_timeout 86400s;
+  }
+
+  # Per-course theme CSS (render-blocking link from index.html; absolute /_theme/).
+  location /_theme/ {
+      proxy_pass http://convex_site;
+      proxy_http_version 1.1;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  # OIDC discovery (Convex Auth). Exact matches so they never shadow anything else.
+  location = /.well-known/openid-configuration {
+      proxy_pass http://convex_site;
+      proxy_set_header Host $host;
+      proxy_set_header X-Forwarded-Proto $scheme;
+  }
+  location = /.well-known/jwks.json {
+      proxy_pass http://convex_site;
+      proxy_set_header Host $host;
+      proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  # NEW queue frontend, served under /ohq/. Strip the prefix; the build's assets
+  # are emitted under /ohq/ (BASE_PATH) so the browser requests come back here.
+  location = /ohq { return 301 /ohq/; }
+  location /ohq/ {
+      rewrite ^/ohq/(.*) /$1 break;
+      proxy_pass http://qprime_frontend;
+      proxy_set_header Host $host;
+      proxy_set_header X-Real-IP $remote_addr;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+  }
+
+  # ---- OLD queue, relocated (clients must be rebuilt with these paths) ----
+  location /ohqdevold/ {
+      rewrite /ohqdevold/(.*) /$1 break;
+      proxy_pass http://ohqdevold/;
+  }
+
+  location /ohqold/ {
+      rewrite /ohqold/(.*) /$1 break;
+      proxy_pass http://ohqold/;
+  }
+
+  location /devapiold/ {
+      rewrite /devapiold/(.*) /$1 break;
+      proxy_pass http://devapiold;
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+      proxy_set_header Host $host;
+      proxy_read_timeout 600s;
+      proxy_send_timeout 600s;
+  }
+
+  location /apiold {
+      rewrite /apiold/(.*) /$1 break;
+      proxy_pass http://apiold;
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+      proxy_set_header Host $host;
+      proxy_read_timeout 600s;
+      proxy_send_timeout 600s;
+  }
+
+  # ---- Unchanged services ----
+  location /visualc0 {
+      rewrite /visualc0/(.*) /$1 break;
+      proxy_pass http://visualc0;
+  }
+
+  location /lab/ {
+      include  /etc/nginx/mime.types;
+      rewrite /lab/(.*) /$1 break;
+      proxy_pass http://labcheckin/;
+  }
+
+  location /precept/ {
+      include  /etc/nginx/mime.types;
+      rewrite /precept/(.*) /$1 break;
+      proxy_pass http://labcheckin/;
+  }
+
+  # Existing static landing page (catch-all — matched only after the above).
+  location / {
+      try_files $uri $uri/ /index.html;
+  }
+
+}

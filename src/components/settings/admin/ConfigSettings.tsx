@@ -165,7 +165,13 @@ export default function ConfigSettings() {
       });
       // Force the freshly-published theme CSS into this tab right now;
       // already-cached responses across the app cluster pick it up within 60s.
-      const slug = window.location.pathname.split('/').filter(Boolean)[0];
+      // Strip the app base (e.g. /ohq) so the slug is the first app-relative segment.
+      const base = (import.meta.env.BASE_URL || '/').replace(/\/+$/, '');
+      const rel =
+        base && window.location.pathname.startsWith(base)
+          ? window.location.pathname.slice(base.length)
+          : window.location.pathname;
+      const slug = rel.split('/').filter(Boolean)[0];
       if (slug) {
         document.querySelectorAll('link[rel="stylesheet"][href^="/_theme/"]').forEach((el) => {
           const link = el as HTMLLinkElement;

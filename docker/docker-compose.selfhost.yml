@@ -1,0 +1,104 @@
+# Q-Prime Docker Compose — SHARED-HOST variant
+#
+# For deploying onto a machine where a system (bare-metal) nginx already owns
+# ports 80/443 and reverse-proxies several other services. This file therefore
+# OMITS the nginx-proxy and certbot containers from the stock docker-compose.yml
+# and lets the host nginx terminate TLS and route traffic.
+#
+# Differences vs docker/docker-compose.yml:
+#   - no nginx-proxy  (host nginx is the single owner of 80/443)
+#   - no certbot      (host's existing snap certbot manages the cert)
+#   - frontend published on 127.0.0.1:4002 (4000 is taken by the OLD queue)
+#   - frontend built with BASE_PATH=/ohq/ so it lives under https://DOMAIN/ohq/
+#
+# Usage:
+#   docker compose -f docker/docker-compose.selfhost.yml --env-file .env.docker up -d --build
+#
+# The host nginx must route (see deploy/nginx-snippet below in the deployment notes):
+#   /ohq/                         -> 127.0.0.1:4002   (strip /ohq)
+#   /api/                         -> 127.0.0.1:3210   (Convex sync, WebSocket)
+#   /api/auth/ , /api/{up,down}load_ -> 127.0.0.1:3211 (Convex HTTP actions)
+#   /_theme/ , /.well-known/...    -> 127.0.0.1:3211
+
+services:
+  # ===========================================
+  # Convex Backend - Core API Server
+  # ===========================================
+  convex-backend:
+    image: ghcr.io/get-convex/convex-backend:latest
+    container_name: qprime-convex-backend
+    restart: unless-stopped
+    stop_grace_period: 10s
+    stop_signal: SIGINT
+    ports:
+      - '127.0.0.1:3210:3210' # Backend API (host nginx proxies /api/ here)
+      - '127.0.0.1:3211:3211' # HTTP Actions (host nginx proxies /api/auth, /_theme, etc.)
+    volumes:
+      - convex_data:/convex/data
+    environment:
+      - CONVEX_CLOUD_ORIGIN=${CONVEX_CLOUD_ORIGIN}
+      - CONVEX_SITE_ORIGIN=${CONVEX_SITE_ORIGIN}
+      - RUST_LOG=${RUST_LOG:-info}
+      - DOCUMENT_RETENTION_DELAY=${DOCUMENT_RETENTION_DELAY:-172800}
+      - AUTH_GOOGLE_ID=${AUTH_GOOGLE_ID}
+      - AUTH_GOOGLE_SECRET=${AUTH_GOOGLE_SECRET}
+      - SITE_URL=${SITE_URL}
+      - JWKS=${JWKS}
+      - JWT_PRIVATE_KEY=${JWT_PRIVATE_KEY}
+      - CONVEX_SITE_URL=${CONVEX_SITE_URL}
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3210/version']
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - qprime-network
+
+  # ===========================================
+  # Convex Dashboard - Admin Interface (SSH-tunnel only)
+  # ===========================================
+  convex-dashboard:
+    image: ghcr.io/get-convex/convex-dashboard:latest
+    container_name: qprime-convex-dashboard
+    restart: unless-stopped
+    stop_grace_period: 10s
+    stop_signal: SIGINT
+    ports:
+      - '127.0.0.1:6791:6791'
+    environment:
+      - NEXT_PUBLIC_DEPLOYMENT_URL=${CONVEX_CLOUD_ORIGIN}
+    depends_on:
+      convex-backend:
+        condition: service_healthy
+    networks:
+      - qprime-network
+
+  # ===========================================
+  # Frontend - Vite build served by NGINX, under /ohq/
+  # ===========================================
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/frontend/Dockerfile
+      args:
+        - VITE_CONVEX_URL=${VITE_CONVEX_URL}
+        - VITE_APP_CONVEX_SITE_URL=${VITE_APP_CONVEX_SITE_URL}
+        - VITE_APP_GOOGLE_CLIENT_ID=${VITE_APP_GOOGLE_CLIENT_ID}
+        - VITE_SINGLE_COURSE_MODE=${VITE_SINGLE_COURSE_MODE:-true}
+        - BASE_PATH=${BASE_PATH:-/ohq/}
+    container_name: qprime-frontend
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4002:80' # host nginx proxies /ohq/ here (4000 = OLD queue)
+    networks:
+      - qprime-network
+
+volumes:
+  convex_data:
+    name: qprime_convex_data
+
+networks:
+  qprime-network:
+    name: qprime-network
+    driver: bridge
