@@ -41,13 +41,15 @@ function HomeMain() {
     } else if (userData?.valid_email) {
       // you are not logged in
       setMainPage(null);
-    } else {
+    } else if (userData) {
       setMainPage((
         <Typography variant="h3" sx={{ textAlign: 'center', p: 4 }}>
           Please log in with an email account ending with:{' '}
           {queueData?.allowed_email_domains.join(', ')}
         </Typography>
-      ))
+      ));
+    } else {
+      setMainPage((<></>));
     }
   }, [isAuthenticated, isTA]);
 
