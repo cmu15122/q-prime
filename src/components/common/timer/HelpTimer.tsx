@@ -9,12 +9,14 @@ export type HelpTimerProps = {
   /** Externally tracked elapsed milliseconds. When provided, overrides self-ticking. */
   elapsedMs?: number;
   className?: string;
-  helpingTa: {
+  /** When provided, renders a "{preferred_name} helping" label above the timer.
+   *  Omit it (self-timer, student overlay) to show just the timer chip. */
+  helpingTa?: {
     zoom_url?: string | undefined;
     preferred_name: string;
     zoom_enabled: boolean;
-    ta_id: Id<"tas">;
-  }
+    ta_id: Id<'tas'>;
+  };
 };
 
 const Root = styled('span')(({ theme }) => ({
@@ -72,9 +74,11 @@ export default function HelpTimer(props: HelpTimerProps): JSX.Element {
 
   return (
     <>
-      <Typography variant="body2" color="text.secondary">
-        {helpingTa.preferred_name} helping
-      </Typography>
+      {helpingTa && (
+        <Typography variant="body2" color="text.secondary">
+          {helpingTa.preferred_name} helping
+        </Typography>
+      )}
       <Root className={className}>
         <span className="ohq-helptimer__dot" aria-hidden="true" />
         <span>{formatElapsed(display)}</span>

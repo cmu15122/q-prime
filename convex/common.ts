@@ -2,7 +2,6 @@ import { internalMutation, internalQuery, QueryCtx } from './_generated/server';
 import { ConvexError, v } from 'convex/values';
 import { getAuthUserId } from '@convex-dev/auth/server';
 import { Doc, Id } from './_generated/dataModel';
-import { internal } from './_generated/api';
 
 export const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 
@@ -507,7 +506,6 @@ export const internalEnsureTAOrOwner = internalQuery({
     if (!sem_user) {
       return false;
     }
-
 
     const ta = await ctx.db
       .query('tas')
