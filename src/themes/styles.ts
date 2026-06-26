@@ -23,7 +23,7 @@ type Sx = SxProps<Theme>;
 // ---- Typography ----
 
 export const t = {
-  /** Bold sans card title, ~19px. Used by every BaseCard / BaseTable header. */
+  /** Bold sans card title, ~19px. Used by every BaseCard / ListCard header. */
   cardTitle: ((theme) => ({
     fontFamily: theme.fonts.ui,
     fontWeight: 700,

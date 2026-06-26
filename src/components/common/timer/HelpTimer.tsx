@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { styled } from '@mui/material/styles';
+import { Typography } from '@mui/material';
+import { Id } from '../../../../convex/_generated/dataModel';
 
 export type HelpTimerProps = {
   /** Start time as a `Date` or epoch ms. The chip self-ticks every second when set. */
@@ -7,6 +9,12 @@ export type HelpTimerProps = {
   /** Externally tracked elapsed milliseconds. When provided, overrides self-ticking. */
   elapsedMs?: number;
   className?: string;
+  helpingTa: {
+    zoom_url?: string | undefined;
+    preferred_name: string;
+    zoom_enabled: boolean;
+    ta_id: Id<"tas">;
+  }
 };
 
 const Root = styled('span')(({ theme }) => ({
@@ -37,7 +45,7 @@ const formatElapsed = (ms: number): string => {
 const toEpoch = (start: Date | number): number => (start instanceof Date ? start.getTime() : start);
 
 export default function HelpTimer(props: HelpTimerProps): JSX.Element {
-  const { startTime, elapsedMs, className } = props;
+  const { startTime, elapsedMs, className, helpingTa } = props;
   const externallyControlled = elapsedMs !== undefined;
 
   const computeFromStart = React.useCallback((): number => {
@@ -63,9 +71,14 @@ export default function HelpTimer(props: HelpTimerProps): JSX.Element {
   const display = externallyControlled ? (elapsedMs as number) : tick;
 
   return (
-    <Root className={className}>
-      <span className="ohq-helptimer__dot" aria-hidden="true" />
-      <span>{formatElapsed(display)}</span>
-    </Root>
+    <>
+      <Typography variant="body2" color="text.secondary">
+        {helpingTa.preferred_name} helping
+      </Typography>
+      <Root className={className}>
+        <span className="ohq-helptimer__dot" aria-hidden="true" />
+        <span>{formatElapsed(display)}</span>
+      </Root>
+    </>
   );
 }

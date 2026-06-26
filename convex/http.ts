@@ -117,13 +117,13 @@ http.route({
     const courseId = getCourseIdFromRequest(request);
 
     // ensure user is a TA
-    const is_ta = await ctx.runQuery(internal.common.internalEnsureTA, {
+    const is_ta = await ctx.runQuery(internal.common.internalEnsureTAOrOwner, {
       user_id: user,
       courseId,
     });
 
     if (!is_ta) {
-      throw new Error('User is not a TA');
+      throw new Error('User is not a TA or Owner');
     }
 
     const csvContent = ['name,email,is_admin', 'Example TA,ta@andrew.cmu.edu,false'].join('\n');
@@ -359,13 +359,13 @@ http.route({
     const courseId = getCourseIdFromRequest(request);
 
     // ensure user is a TA
-    const is_ta = await ctx.runQuery(internal.common.internalEnsureTA, {
+    const is_ta = await ctx.runQuery(internal.common.internalEnsureTAOrOwner, {
       user_id: user,
       courseId,
     });
 
     if (!is_ta) {
-      throw new Error('User is not a TA');
+      throw new Error('User is not a TA or Owner');
     }
 
     const blob = await request.blob();

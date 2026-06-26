@@ -1,8 +1,7 @@
-import { Stack, TableCell, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import PauseIcon from '@mui/icons-material/Pause';
 
 import EntryTails from './EntryTails';
-import ItemRow from '../../common/table/ItemRow';
 import StudentStatus from './TailOptions/StudentStatus';
 
 import { useMutation, useQuery } from 'convex/react';
@@ -11,23 +10,24 @@ import { Doc } from '../../../../convex/_generated/dataModel';
 import { useCourseId } from '../../../contexts/CourseContext';
 import { t } from '../../../themes/styles';
 
+// Statuses that show the paused badge (pause icon + label) in the status column.
+export const PAUSED_STATUSES: Doc<'ohq'>['status'][] = [
+  'cooldown_violation',
+  'fixing_question',
+  'frozen',
+];
+
 export default function StudentEntry(props) {
   const courseId = useCourseId();
   const student: Doc<'ohq'> = props['student'];
-
-  const { index, handleClickHelp, removeStudent, handleClickUnfreeze, handleFix, currentTime } =
-    props;
+  const { index } = props;
 
   const showCooldownApproval = student.status === 'cooldown_violation';
+  const isPaused = PAUSED_STATUSES.includes(student.status);
 
   const userData = useQuery(api.home.home_get.getUserData, { courseId });
   const isOwnHelp =
     student.status === 'being_helped' && student.helping_ta?.ta_id === userData?.ta_data?.ta_id;
-
-  const isPaused =
-    student.status === 'cooldown_violation' ||
-    student.status === 'fixing_question' ||
-    student.status === 'frozen';
 
   const approveCooldownOverrideMutation = useMutation(api.home.home_mutate.approveCooldownOverride);
   const approveCooldownOverride = async () => {
@@ -37,77 +37,63 @@ export default function StudentEntry(props) {
     });
   };
 
+  // Each row owns its layout — no dependency on any other row. The question
+  // (1fr) is the greedy field; this row's own status column (only present when
+  // this student is paused) eats into it from the left and the actions (content
+  // width) eat into it from the right.
+  const gridTemplateColumns = isPaused
+    ? '22% 64px minmax(0, 1fr) auto'
+    : '22% minmax(0, 1fr) auto';
+
   return (
-    <ItemRow index={index} rowKey={student._id}>
-      <TableCell
-        padding="none"
-        component="th"
-        scope="row"
-        sx={{
-          py: 1.25,
-          px: 1,
-          pl: 2,
-          width: '22%',
-          wordBreak: 'break-word',
-          verticalAlign: 'top',
-        }}
-      >
+    <Box
+      role="listitem"
+      sx={(theme) => ({
+        display: 'grid',
+        gridTemplateColumns,
+        alignItems: 'start',
+        columnGap: 1,
+        px: 2,
+        py: 1.25,
+        bgcolor: index % 2 ? theme.palette.background.paper : theme.palette.paper[3],
+      })}
+    >
+      {/* Identity */}
+      <Box sx={{ minWidth: 0, wordBreak: 'break-word' }}>
         <Typography sx={t.studentName}>{student.student_name}</Typography>
         <Typography sx={t.studentEmail}>{student.student_email}</Typography>
         <Typography sx={[t.monoLabel, { mt: '2px' }]}>[{student.location}]</Typography>
-      </TableCell>
+      </Box>
+
+      {/* Status — present only when this student is paused; no column otherwise. */}
       {isPaused && (
-        <TableCell
-          padding="none"
-          align="left"
-          sx={{
-            py: 1.25,
-            px: 1,
-            width: '10%',
-            verticalAlign: 'middle',
-          }}
+        <Stack
+          alignItems="center"
+          justifyContent="center"
+          spacing={0.5}
+          sx={{ alignSelf: 'center', minWidth: 0 }}
         >
-          <Stack direction="column" alignItems="center" justifyContent="center" spacing={0.5}>
-            {isPaused && <PauseIcon fontSize="small" />}
-            <StudentStatus student={student} isOwnHelp={isOwnHelp} />
-          </Stack>
-        </TableCell>
+          <PauseIcon fontSize="small" />
+          <StudentStatus student={student} isOwnHelp={isOwnHelp} />
+        </Stack>
       )}
-      <TableCell
-        padding="none"
-        align="left"
-        sx={{
-          py: 1.25,
-          px: 1,
-          width: isPaused ? '40%' : '50%',
-          wordBreak: 'break-word',
-          verticalAlign: 'top',
-        }}
-      >
+
+      {/* Question — fills the remaining space */}
+      <Box sx={{ minWidth: 0, wordBreak: 'break-word' }}>
         <Typography sx={t.monoTag}>[{student.assignment_name}]</Typography>
         <Typography sx={[t.bodySmall, { mt: 0.5, color: 'ink.primary' }]}>
           {student.question}
         </Typography>
-      </TableCell>
-      <TableCell
-        padding="none"
-        sx={{
-          width: '28%',
-          verticalAlign: 'middle',
-          px: 1,
-        }}
-      >
+      </Box>
+
+      {/* Actions — content width, hugging the right edge */}
+      <Box sx={{ justifySelf: 'end', alignSelf: 'center', minWidth: 0 }}>
         <EntryTails
           {...props}
-          removeStudent={removeStudent}
-          handleClickHelp={handleClickHelp}
-          handleClickUnfreeze={handleClickUnfreeze}
-          handleFix={handleFix}
           showCooldownApproval={showCooldownApproval}
           approveCooldownOverride={approveCooldownOverride}
-          currentTime={currentTime}
         />
-      </TableCell>
-    </ItemRow>
+      </Box>
+    </Box>
   );
 }
