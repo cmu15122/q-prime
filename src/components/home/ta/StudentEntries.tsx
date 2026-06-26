@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 
-import BaseTable from '../../common/table/BaseTable';
+import ListCard from '../../common/table/ListCard';
 import StudentEntry from './StudentEntry';
 import OhqButton from '../../common/buttons/OhqButton';
 
@@ -181,7 +181,7 @@ export default function StudentEntries() {
   const handleClickUnfreeze = (_index) => {};
 
   return (
-    <BaseTable title="Students" HeaderTailComp={FilterWithProps}>
+    <ListCard title="Students" HeaderTailComp={FilterWithProps}>
       {filteredStudents.map((student, index) => (
         <StudentEntry
           isHelping={isHelping}
@@ -197,6 +197,6 @@ export default function StudentEntries() {
           currentTime={currentTime}
         />
       ))}
-    </BaseTable>
+    </ListCard>
   );
 }

@@ -92,7 +92,15 @@ export default function EntryTails(props) {
           </>
         );
       } else if (showOthersTimer) {
-        actionElement = <HelpTimer elapsedMs={elapsedMs} />;
+        actionElement = <HelpTimer elapsedMs={elapsedMs} helpingTa={student.helping_ta!} />;
+      } else {
+        actionElement = (
+          <>
+            <Typography variant="body2" color="text.secondary">
+              {student.helping_ta?.preferred_name} helping
+            </Typography>
+          </>
+        )
       }
       break;
     case 'frozen':

@@ -1,10 +1,13 @@
 import PropTypes from 'prop-types';
-import { Box, Divider, Table, TableBody } from '@mui/material';
+import { Box, Divider } from '@mui/material';
 
 import BaseCard from '../cards/BaseCard';
 import { t, s } from '../../../themes/styles';
 
-export default function BaseTable(props) {
+// A titled card whose body is a vertical list of arbitrary rows. Used for the
+// TA queue, where each row lays out its own columns (CSS grid) instead of
+// sharing a global HTML-table column grid.
+export default function ListCard(props) {
   const { title, children, HeaderTailComp } = props;
 
   return (
@@ -20,14 +23,12 @@ export default function BaseTable(props) {
         )}
       </Box>
       <Divider />
-      <Table sx={{ width: '100%', tableLayout: 'fixed' }}>
-        <TableBody>{children}</TableBody>
-      </Table>
+      <Box role="list">{children}</Box>
     </BaseCard>
   );
 }
 
-BaseTable.propTypes = {
+ListCard.propTypes = {
   title: PropTypes.string,
   HeaderTailComp: PropTypes.elementType,
   children: PropTypes.node,

@@ -31,37 +31,34 @@ function HomeMain() {
   }, []);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && userData?.valid_email) {
       if (isTA) {
         setMainPage(<TAMain />);
       } else {
         // is student
         setMainPage(<StudentMain />);
       }
-    } else {
+    } else if (userData?.valid_email) {
       // you are not logged in
       setMainPage(null);
+    } else {
+      setMainPage((
+        <Typography variant="h3" sx={{ textAlign: 'center', p: 4 }}>
+          Please log in with an email account ending with:{' '}
+          {queueData?.allowed_email_domains.join(', ')}
+        </Typography>
+      ))
     }
   }, [isAuthenticated, isTA]);
 
   return (
     <>
       <ConvexNotifHandler />
-      {userData &&
-        (userData.valid_email ? (
-          <>
-            <Container sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
-              <SharedMain />
-              {mainPage}
-              <Footer gitHubLink={gitHubLink} />
-            </Container>
-          </>
-        ) : (
-          <Typography>
-            Please log in with an email account ending with:{' '}
-            {queueData?.allowed_email_domains.join(', ')}
-          </Typography>
-        ))}
+      <Container sx={{ display: 'flex', flex: 1, flexDirection: 'column' }}>
+        <SharedMain />
+        {mainPage}
+        <Footer gitHubLink={gitHubLink} />
+      </Container>
     </>
   );
 }
