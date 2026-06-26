@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#14532D" />
+    <meta
+      name="description"
+      content="ohq. — a real-time office hours queue. Free for .edu users, open-source, self-hostable."
+    />
+    <link rel="apple-touch-icon" href="/logo192.png" />
+    <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+    <link rel="manifest" href="/manifest.json" />
+    <title>ohq. — Office Hours Queue</title>
+
+    <!--
+      Per-course theme bootstrap. Runs synchronously during HTML parse, before
+      any other styles or scripts. If the URL is a course page (e.g. /cs15122),
+      we document.write() a render-blocking <link> pointing at the Convex HTTP
+      action that returns CSS variables for the course's primary + secondary
+      colors. The browser delays first paint until the stylesheet loads, so
+      colors are correct from frame 1 — no FOUC even on a first-ever visit.
+      Routes that are not course pages (landing, /create) skip the link
+      entirely and use the defaults baked into the MUI theme.
+    -->
+    <script>
+      (function () {
+        var RESERVED = [
+          'create',
+          'api',
+          'auth',
+          'ohq',
+          'admin',
+          'login',
+          'logout',
+          'signin',
+          'signup',
+          '_theme',
+          'health',
+        ];
+        var m = location.pathname.match(/^\/([a-z0-9-]+)/i);
+        if (m && m[1] && RESERVED.indexOf(m[1].toLowerCase()) === -1) {
+          document.write('<link rel="stylesheet" href="/_theme/' + m[1].toLowerCase() + '.css">');
+        }
+      })();
+    </script>
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script type="module" src="/src/index.tsx"></script>
+  </body>
+</html>

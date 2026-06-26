@@ -1,0 +1,192 @@
+import { query, QueryCtx } from '../_generated/server';
+import { ConvexError, v } from 'convex/values';
+import { Doc, Id } from '../_generated/dataModel';
+import {
+  ensureAuthAndTA,
+  getCurrentSemester,
+  getCurrentUser,
+  getGlobalSettings,
+  getQueueEntry,
+  getQueueLength,
+  getWaittimeData,
+  getStudent,
+  getTA,
+} from '../common';
+import { getZoneDayOfWeek } from '../util/time';
+
+export const getQueueData = query({
+  args: { courseId: v.id('courses') },
+  handler: async (ctx, args) => {
+    // ---- get global settings ----
+    const globalSettings = await getGlobalSettings(ctx, args.courseId);
+
+    const timezone = globalSettings.timezone;
+
+    const queue_length = await getQueueLength(ctx, args.courseId);
+    const wait_time_data = await getWaittimeData(
+      ctx,
+      args.courseId,
+      globalSettings.waittime_questions_lookback_time_mins,
+    );
+
+    const current_day_of_week = getZoneDayOfWeek(Date.now(), timezone);
+    const current_locations = globalSettings.day_to_location_dict[current_day_of_week] || [];
+
+    const current_assignments = await getCurrentAssignments(ctx, args.courseId);
+
+    return {
+      title: globalSettings.course_name,
+      is_frozen: globalSettings.is_frozen,
+      announcements: globalSettings.announcements,
+      allowed_email_domains: globalSettings.allowed_email_domains,
+      current_locations: current_locations,
+      current_assignments: current_assignments,
+
+      allow_cooldown_override: globalSettings.allow_cooldown_override,
+      allow_tas_show_others_timer: globalSettings.allow_tas_show_others_timer,
+      rejoin_time_ms: globalSettings.rejoin_time_ms,
+
+      num_students: queue_length,
+
+      questions_policy_url: globalSettings.questions_policy_url,
+
+      num_unhelped: wait_time_data.num_unhelped,
+      num_tas: wait_time_data.num_tas,
+      mins_per_student: wait_time_data.mins_per_student,
+    };
+  },
+});
+
+export const getUserData = query({
+  args: { courseId: v.id('courses') },
+  handler: async (ctx, args) => {
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
+    const user_data = await getCurrentUser(ctx, args.courseId);
+
+    if (!user_data) {
+      return null;
+    }
+
+    const is_owner = curr_sem.owner_emails.includes(user_data.email!);
+
+    type TAData = {
+      ta_id: string;
+      is_admin: boolean;
+      zoom_enabled: boolean;
+      zoom_url: string | undefined;
+      join_notifs_enabled: boolean;
+      remind_notifs_enabled: boolean;
+      remind_time_mins: number;
+      show_self_timer: boolean;
+      show_others_timer: boolean;
+    } | null;
+
+    let student_data: Doc<'ohq'> | null = null;
+    let ta_data: TAData = null;
+
+    if (user_data.kind === 'TA') {
+      const ta = await getTA(ctx, user_data.sem_user_id);
+
+      ta_data = {
+        ta_id: ta._id,
+        is_admin: ta.is_admin,
+        zoom_enabled: ta.zoom_enabled,
+        zoom_url: ta.zoom_url,
+        join_notifs_enabled: ta.join_notifs_enabled,
+        remind_notifs_enabled: ta.remind_notifs_enabled,
+        remind_time_mins: ta.remind_time_mins,
+        show_self_timer: ta.show_self_timer,
+        show_others_timer: ta.show_others_timer,
+      };
+    } else if (user_data.kind === 'student') {
+      const student = await getStudent(ctx, user_data.sem_user_id);
+
+      student_data = await getQueueEntry(ctx, args.courseId, student._id);
+    }
+
+    // ---- notification ----
+    const semuser = await ctx.db.get(user_data.sem_user_id);
+
+    if (!semuser) {
+      // this shouldn't be possible because getCurrentUser should have already checked for this
+      throw new ConvexError('Semester user not found');
+    }
+
+    const notification = semuser.notification;
+
+    // ---- email validation ----
+    let valid_email = true;
+    const email = user_data.email!;
+    const global_settings = await getGlobalSettings(ctx, args.courseId);
+
+    if (global_settings.enforce_email_domain) {
+      const allowed_domains = global_settings.allowed_email_domains;
+      const user_domain = email.split('@')[1];
+
+      if (!allowed_domains.includes(user_domain)) {
+        valid_email = false;
+      }
+    }
+
+    return {
+      user_id: user_data._id,
+      email: user_data.email!,
+      sem_user_id: user_data.sem_user_id,
+      is_owner: is_owner,
+      preferred_name: user_data.preferred_name,
+      user_kind: user_data.kind,
+      ta_data: ta_data as typeof ta_data | null,
+      student_data: student_data as typeof student_data | null,
+      notification: notification,
+      valid_email: valid_email,
+    };
+  },
+});
+
+export const getAllStudents = query({
+  args: { courseId: v.id('courses') },
+  handler: async (ctx, args) => {
+    await ensureAuthAndTA(ctx, args.courseId);
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
+    return await ctx.db
+      .query('ohq')
+      .withIndex('by_sem_and_position', (q) => q.eq('semester_id', curr_sem._id))
+      .order('asc')
+      .collect();
+  },
+});
+
+export const getAllAssignments = query({
+  args: { courseId: v.id('courses') },
+  handler: async (ctx, args) => {
+    const curr_sem = await getCurrentSemester(ctx, args.courseId);
+
+    const other_assignment_id = curr_sem.other_assignment!;
+
+    const all_assignments = await ctx.db
+      .query('assignments')
+      .withIndex('by_sem_end', (x) => x.eq('semester_id', curr_sem._id))
+      .collect();
+
+    return {
+      all_assignments: all_assignments,
+      other_assignment_id: other_assignment_id,
+    };
+  },
+});
+
+export async function getCurrentAssignments(ctx: QueryCtx, courseId: Id<'courses'>) {
+  const curr_sem = await getCurrentSemester(ctx, courseId);
+
+  const curr_date = new Date().getTime();
+
+  const curr_assignments = await ctx.db
+    .query('assignments')
+    .withIndex('by_sem_end', (x) => x.eq('semester_id', curr_sem._id).gt('end_date_ms', curr_date))
+    .filter((x) => x.lt(x.field('start_date_ms'), curr_date))
+    .collect();
+
+  const other_assignment = (await ctx.db.get(curr_sem.other_assignment!))!;
+
+  return [...curr_assignments, other_assignment];
+}

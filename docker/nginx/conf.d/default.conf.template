@@ -1,0 +1,96 @@
+# Q-Prime NGINX (HTTPS) — substitutes ${DOMAIN} and ${HTTP_API_PREFIX} at container start.
+
+upstream frontend {
+    server frontend:80;
+    keepalive 32;
+}
+
+upstream convex_api {
+    server convex-backend:3210;
+    keepalive 32;
+}
+
+upstream convex_site {
+    server convex-backend:3211;
+    keepalive 32;
+}
+
+# HTTP - ACME challenge and redirect to HTTPS
+server {
+    listen 80;
+    server_name ${DOMAIN};
+    server_tokens off;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+# HTTPS - Main server
+server {
+    listen 443 ssl http2;
+    server_name ${DOMAIN};
+    server_tokens off;
+
+    ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
+    # Per-course theme CSS — proxied to the Convex HTTP action so the colors
+    # come back in time to be applied before first paint.
+    location /_theme/ {
+        include /etc/nginx/snippets/proxy-params.conf;
+        proxy_pass http://convex_site;
+    }
+
+    # API endpoints — most specific first so they win over the frontend `/` location
+    location ~ ^${HTTP_API_PREFIX}/(download_|upload_) {
+        include /etc/nginx/snippets/proxy-params.conf;
+        proxy_pass http://convex_site;
+        proxy_read_timeout 300s;
+        proxy_send_timeout 300s;
+        client_max_body_size 10M;
+    }
+
+    location ${HTTP_API_PREFIX}/auth/ {
+        include /etc/nginx/snippets/proxy-params.conf;
+        proxy_pass http://convex_site;
+    }
+
+    location ${HTTP_API_PREFIX}/ {
+        include /etc/nginx/snippets/proxy-params.conf;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+        proxy_pass http://convex_api;
+        proxy_read_timeout 86400s;
+        proxy_send_timeout 86400s;
+    }
+
+    location /.well-known/openid-configuration {
+        include /etc/nginx/snippets/proxy-params.conf;
+        proxy_pass http://convex_site/.well-known/openid-configuration;
+    }
+
+    location /.well-known/jwks.json {
+        include /etc/nginx/snippets/proxy-params.conf;
+        proxy_pass http://convex_site/.well-known/jwks.json;
+    }
+
+    location = /health {
+        access_log off;
+        return 200 "healthy\n";
+        add_header Content-Type text/plain;
+    }
+
+    location / {
+        include /etc/nginx/snippets/proxy-params.conf;
+        proxy_pass http://frontend;
+    }
+}

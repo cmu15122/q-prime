@@ -71,7 +71,6 @@ web_modules/
 # dotenv environment variables file
 .env
 .env.test
-.env.local
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -119,3 +118,11 @@ dist
 # Config Files
 config.json
 adminSettings.json
+
+.env.local
+.env.convex
+.env.docker
+
+# Docker deployment
+docker/certbot/
+backups/

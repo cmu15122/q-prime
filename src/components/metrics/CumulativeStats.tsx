@@ -1,0 +1,65 @@
+import { Card, Divider, Typography, Grid } from '@mui/material';
+
+import { useQuery } from 'convex/react';
+import { api } from '../../../convex/_generated/api';
+import { useCourseId } from '../../contexts/CourseContext';
+
+export default function CumulativeStats() {
+  const courseId = useCourseId();
+  const numQuestionsData = useQuery(api.metrics.getTotalNumQuestions, { courseId });
+  const avgTimePerQuestionData = useQuery(api.metrics.getTotalAvgTimePerQuestion, { courseId });
+  const avgWaitTimeData = useQuery(api.metrics.getTotalAvgWaitTime, { courseId });
+
+  const numQuestions = numQuestionsData ? numQuestionsData.numQuestions : 0;
+  const avgTimePerQuestion = avgTimePerQuestionData ? avgTimePerQuestionData.averageTime : '0:00';
+  const avgWaitTime = avgWaitTimeData ? avgWaitTimeData.totalAvgWaitTime : '0:00';
+
+  return (
+    <div>
+      <Typography variant="h5" sx={{ mt: 4, ml: 10 }} fontWeight="bold">
+        Cumulative Staff Statistics
+      </Typography>
+      <Card
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          maxWidth: '100%',
+          border: (theme) => `1px solid ${theme.palette.divider}`,
+          borderRadius: 1,
+          mt: 1,
+          mx: 10,
+          overflow: 'hidden',
+        }}
+      >
+        <Grid sx={{ px: 4, py: 4, alignItems: 'center', textAlign: 'center' }}>
+          <Typography variant="h6" fontWeight="bold">
+            Total No. of Questions Answered
+          </Typography>
+          <Typography variant="h3" sx={{ mt: 2 }} fontWeight="bold">
+            {numQuestions}
+          </Typography>
+        </Grid>
+
+        <Divider orientation="vertical" variant="middle" flexItem />
+        <Grid sx={{ px: 4, py: 4, alignItems: 'center', textAlign: 'center' }}>
+          <Typography variant="h6" fontWeight="bold">
+            Average Time Spent per Question (min)
+          </Typography>
+          <Typography variant="h3" sx={{ mt: 2 }} fontWeight="bold">
+            {avgTimePerQuestion}
+          </Typography>
+        </Grid>
+
+        <Divider orientation="vertical" variant="middle" flexItem />
+        <Grid sx={{ px: 4, py: 4, alignItems: 'center', textAlign: 'center' }}>
+          <Typography variant="h6" fontWeight="bold">
+            Average Wait Time (min)
+          </Typography>
+          <Typography variant="h3" sx={{ mt: 2 }} fontWeight="bold">
+            {avgWaitTime}
+          </Typography>
+        </Grid>
+      </Card>
+    </div>
+  );
+}
