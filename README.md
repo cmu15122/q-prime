@@ -18,6 +18,7 @@ q' is a real-time office hours queue that helps students get help from TAs effic
 - **Announcements** - Broadcast messages to everyone viewing the queue
 - **Metrics & analytics** - Track wait times, help times, and TA performance
 - **Configurable settings** - Customize queue behavior, topics, locations, and access control
+- **Admin SQL query module** _(optional, disabled by default)_ - Read-only SQL over a snapshot of course data, with CSV download and spreadsheet paste support; see [Local Development](./docs/LOCAL_DEV.md) for how to enable
 
 ## Getting Started
 

@@ -80,6 +80,17 @@ Get q' running locally for development.
 
    Note: These are set on the Convex deployment, not in `.env.local`.
 
+   **Optional: Admin SQL query module.** Turn on the admin-only SQL query module
+   (read-only SQL over a snapshot of course data, runs client-side via AlaSQL):
+
+   ```bash
+   npx convex env set SQL_MODULE_ENABLED true
+   ```
+
+   The module is disabled by default. After setting the env var, an admin must
+   also flip the "SQL Query Module" toggle in Admin Settings. An "SQL" link then
+   appears in the navbar at `/sql` for admins.
+
 7. **Use the OHQ:**
 
    You can access the main OHQ page at http://localhost:5173 and the Convex Dashboard at https://dashboard.convex.dev (even if you're using a local Convex deployment, it'll show up here).
@@ -95,6 +106,7 @@ Get q' running locally for development.
 | `npm run lint`         | Run ESLint                               |
 | `npm run format`       | Format code with Prettier                |
 | `npm run check`        | Run all checks (typecheck, lint, format) |
+| `npm test`             | Run Vitest unit tests                    |
 
 After initial setup, you can use `npm run dev` to start both together.
 
