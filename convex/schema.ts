@@ -33,6 +33,9 @@ export default defineSchema({
     // current queue status
     is_frozen: v.boolean(),
     announcements: v.array(v.string()),
+
+    // sql query module (admin-only, disabled by default)
+    sql_module_enabled: v.optional(v.boolean()),
   }),
 
   // we'll enforce in the code that this table only ever has one row

@@ -834,6 +834,7 @@ export const firstTimeSetup = mutation({
       waittime_questions_lookback_time_mins: 60,
       is_frozen: true,
       announcements: [],
+      sql_module_enabled: false,
     });
 
     await ctx.db.insert('waittime_ping_data', {

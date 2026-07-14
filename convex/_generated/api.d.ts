@@ -18,6 +18,9 @@ import type * as http from "../http.js";
 import type * as metrics from "../metrics.js";
 import type * as settings_settings_get from "../settings/settings_get.js";
 import type * as settings_settings_mutate from "../settings/settings_mutate.js";
+import type * as sqlQuery_sqlQuery_get from "../sqlQuery/sqlQuery_get.js";
+import type * as sqlQuery_sqlQuery_seed from "../sqlQuery/sqlQuery_seed.js";
+import type * as sqlQuery_sqlQuery_views from "../sqlQuery/sqlQuery_views.js";
 import type * as util_time from "../util/time.js";
 
 import type {
@@ -37,6 +40,9 @@ declare const fullApi: ApiFromModules<{
   metrics: typeof metrics;
   "settings/settings_get": typeof settings_settings_get;
   "settings/settings_mutate": typeof settings_settings_mutate;
+  "sqlQuery/sqlQuery_get": typeof sqlQuery_sqlQuery_get;
+  "sqlQuery/sqlQuery_seed": typeof sqlQuery_sqlQuery_seed;
+  "sqlQuery/sqlQuery_views": typeof sqlQuery_sqlQuery_views;
   "util/time": typeof util_time;
 }>;
 

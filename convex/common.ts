@@ -381,6 +381,19 @@ export async function ensureAuthAndStudent(
   };
 }
 
+export const internalEnsureAdmin = internalQuery({
+  args: {},
+  returns: v.boolean(),
+  handler: async (ctx) => {
+    try {
+      await ensureAuthAndAdmin(ctx);
+      return true;
+    } catch {
+      return false;
+    }
+  },
+});
+
 export const internalEnsureTA = internalQuery({
   args: {
     user_id: v.id('users'),

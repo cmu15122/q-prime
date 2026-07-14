@@ -850,6 +850,26 @@ export const changeSemester = mutation({
   },
 });
 
+/** SQL Query Module **/
+
+export const updateSqlModuleEnabled = mutation({
+  args: {
+    enabled: v.boolean(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    await ensureAuthAndAdmin(ctx);
+
+    const globalSettings = await getGlobalSettings(ctx);
+
+    await ctx.db.patch(globalSettings._id, {
+      sql_module_enabled: args.enabled,
+    });
+
+    return null;
+  },
+});
+
 /** Slack Integration **/
 
 export const updateSlackURL = mutation({
