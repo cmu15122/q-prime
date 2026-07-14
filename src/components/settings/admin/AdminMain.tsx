@@ -6,6 +6,7 @@ import QueueRejoinSettings from './QueueRejoinSettings';
 import QueueTopicSettings from './QueueTopicSettings';
 import TASettings from './TASettings';
 import AccessControlSettings from './AccessControlSettings';
+import SqlModuleSettings from './SqlModuleSettings';
 
 function AdminMain() {
   return (
@@ -20,6 +21,7 @@ function AdminMain() {
       <Locations></Locations>
       <TASettings></TASettings>
       <AccessControlSettings></AccessControlSettings>
+      <SqlModuleSettings></SqlModuleSettings>
     </div>
   );
 }

@@ -13,6 +13,7 @@ import Metrics from './pages/metrics';
 import StudentMetrics from './pages/studentMetrics';
 import TAMetrics from './pages/taMetrics';
 import Init from './pages/init';
+import SqlQuery from './pages/sqlQuery';
 import './App.css';
 
 function AppContent() {
@@ -43,6 +44,7 @@ function AppContent() {
             <Route path="/metrics/student/:id" element={<StudentMetrics />} />
             <Route path="/metrics/ta/:id" element={<TAMetrics />} />
             <Route path="/init" element={<Init />} />
+            <Route path="/sql" element={<SqlQuery />} />
           </Routes>
         </Router>
         <ToastContainer

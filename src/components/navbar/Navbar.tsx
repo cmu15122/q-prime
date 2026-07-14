@@ -42,10 +42,16 @@ export default function Navbar(props: { isHome: boolean }) {
 
   const queueData = useQuery(api.home.home_get.getQueueData);
   const userData = useQuery(api.home.home_get.getUserData);
+  const sqlModuleStatus = useQuery(api.sqlQuery.sqlQuery_get.getSqlModuleStatus);
   const isAuthenticated = userData !== null && userData !== undefined;
   const isTA = isAuthenticated && userData.user_kind === 'TA';
   const isOwner = isAuthenticated && userData.is_owner;
   const studentData = isAuthenticated ? userData.student_data : null;
+  const showSqlLink =
+    isAuthenticated &&
+    sqlModuleStatus?.isAdmin === true &&
+    sqlModuleStatus?.envEnabled === true &&
+    sqlModuleStatus?.settingEnabled === true;
 
   const { signOut } = useAuthActions();
 
@@ -77,9 +83,12 @@ export default function Navbar(props: { isHome: boolean }) {
     if (isAuthenticated && (isTA || isOwner)) {
       newPages.push(createPage('Settings', 'settings'));
     }
+    if (showSqlLink) {
+      newPages.push(createPage('SQL', 'sql'));
+    }
 
     setPages(newPages);
-  }, [isAuthenticated, isTA, isOwner]);
+  }, [isAuthenticated, isTA, isOwner, showSqlLink]);
 
   useEffect(() => {
     setpname(userData?.preferred_name || '');
