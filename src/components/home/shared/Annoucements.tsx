@@ -44,13 +44,13 @@ export default function Announcements() {
     setContent('');
   };
 
-  const handleEditDialog = (row, idx) => {
+  const handleEditDialog = (row: string, idx: number) => {
     setOpenEdit(true);
     setSelectedIdx(idx);
-    setContent(row.content);
+    setContent(row);
   };
 
-  const handleDeleteDialog = (idx) => {
+  const handleDeleteDialog = (idx: number) => {
     setOpenDelete(true);
     setSelectedIdx(idx);
   };
@@ -111,10 +111,10 @@ export default function Announcements() {
             <Table aria-label="announcementsTable" stickyHeader>
               <TableBody>
                 {rows
-                  .slice()
+                  .map((row, storedIdx) => ({ row, storedIdx }))
                   .reverse()
-                  .map((row, index) => (
-                    <ItemRow key={index} index={index} rowKey={index}>
+                  .map(({ row, storedIdx }, index) => (
+                    <ItemRow key={storedIdx} index={index} rowKey={storedIdx}>
                       <TableCell component="th" scope="row" sx={{ pl: 3.25 }}>
                         <Typography
                           sx={[
@@ -139,7 +139,7 @@ export default function Announcements() {
                             <OhqButton
                               variant="icon"
                               aria-label="edit"
-                              onClick={() => handleEditDialog(row, index)}
+                              onClick={() => handleEditDialog(row, storedIdx)}
                             >
                               <Edit fontSize="small" />
                             </OhqButton>
@@ -147,7 +147,7 @@ export default function Announcements() {
                               variant="icon"
                               tone="danger"
                               aria-label="delete"
-                              onClick={() => handleDeleteDialog(index)}
+                              onClick={() => handleDeleteDialog(storedIdx)}
                             >
                               <Delete fontSize="small" />
                             </OhqButton>
